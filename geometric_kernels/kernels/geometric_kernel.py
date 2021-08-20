@@ -1,25 +1,19 @@
-from kernels.abstract_kernel import AbstractGeometricKernel
-from kernels.abstract_kernel import SphereKernel
-from kernels.abstract_kernel import MeshKernel
-from spaces.abstract_space import Space
-import spaces.manifold
-import spaces.mesh
-import spaces.graph
+from typing import Optional
+from gpflow.utilities.multipledispatch import Dispatcher
 
-from multipledispatch import dispatch
+from geometric_kernels.kernels.abstract_kernel import MeshKernel, SphereKernel
 
 
-@dispatch(spaces.manifold.backend.Hypersphere, float, int)
-def BaseGeometricKernel(space: spaces.manifold.backend.Hypersphere,
-                        nu: float,
-                        num_features: int):
+BaseGeometricKernel = Dispatcher("BaseGeometricKernel")
+
+
+@BaseGeometricKernel.register(spaces.manifold.backend.Hypersphere)
+def _SphereBaseGeometricKernel(space: spaces.manifold.backend.Hypersphere, *, nu: Optional[float] = None, num_features: Optional[int] = None):
     return SphereKernel(space, nu, num_features)
 
 
-@dispatch(spaces.mesh.Mesh, float, int)
-def BaseGeometricKernel(space: spaces.mesh.Mesh,
-                        nu: float,
-                        num_features: int):
+@BaseGeometricKernel.register(spaces.manifold.backend.Nesh)
+def _MeshBaseGeometricKernel(space: spaces.mesh.Mesh, *, nu: Optional[float]=None, num_features: Optional[int]=None):
     # Retrieve Laplace eigendecomposition
     eigenfunctions = None
     eigenvalues = None

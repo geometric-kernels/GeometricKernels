@@ -1,2 +1,2 @@
-class Mesh():
+class Mesh:
     pass
