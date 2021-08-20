@@ -1,5 +1,6 @@
 import gpflow
 import tensorflow as tf
+
 import tensorlfow_probability as tfp
 from kernels.geometric_kernel import BaseGeometricKernel
 

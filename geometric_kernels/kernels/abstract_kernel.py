@@ -1,8 +1,7 @@
 import abc
 from typing import Callable, List
 
-from geometric_kernels.spaces import Space, Mesh
-
+from geometric_kernels.spaces import Mesh, Space
 
 GeometricKernel = Dispatcher("GeometricKernel")
 
@@ -11,7 +10,7 @@ class BaseGeometricKernel(abc.ABC):
     def __init__(self, space: Space, *args, **kwargs):
         self._space = space
         # self.nu = nu
-    
+
     @property
     def space(self):
         return self._space
@@ -44,7 +43,6 @@ class MeshKernel(BaseGeometricKernel):
         pass
 
 
-
 # class SphereKernel(AbstractGeometricKernel):
 #     def __init__(self, space: spaces.manifold.backend.Hypersphere, nu: float, num_features=250):
 #         super().__init__(space, nu)
@@ -60,4 +58,3 @@ class MeshKernel(BaseGeometricKernel):
 
 #     def Kchol(self, lengthscale, X, X2=None):
 #         pass
-
