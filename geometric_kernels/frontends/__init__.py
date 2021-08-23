@@ -1,0 +1,1 @@
+from geometric_kernels.frontends.gpflow import GPflowGeometricKernel
