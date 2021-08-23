@@ -1,28 +1,35 @@
+"""
+GPflow kernel wrapper
+"""
+from typing import Optional
+
 import gpflow
 import tensorflow as tf
+from gpflow.kernels.base import ActiveDims
+from gpflow.utilities import positive
 
-import tensorlfow_probability as tfp
-from kernels.geometric_kernel import BaseGeometricKernel
+from geometric_kernels.kernels import BaseGeometricKernel
+from geometric_kernels.spaces.base import Space
 
 
-class GeometricKernel(gpflow.kernels.Kernel):
-    def __init__(self, space, nu, *args, **kwargs):
-        self._underlying_kernel = BaseGeometricKernel(space, nu, *args, **kwargs)
-        self.lengthscale = gpflow.Parameter(
-            tf.convert_to_tensor([1.0]), trainable=True, transform=tfp.bijectors.Exp()
-        )
-        super().__init__()
+class GPflowGeometricKernel(gpflow.kernels.Kernel):
+    def __init__(
+        self,
+        kernel: BaseGeometricKernel,
+        active_dims: Optional[ActiveDims] = None,
+        name: Optional[str] = None,
+    ):
+        super().__init__(active_dims, name)
+        self._kernel = kernel
+        self.lengthscale = gpflow.Parameter(1.0, transform=positive())
 
     @property
-    def nu(self):
-        return self._underlying_kernel.nu
-
-    @property
-    def space(self):
-        return self._underlying_kernel.space
+    def space(self) -> Space:
+        """Alias to kernel Space"""
+        return self._kernel.space
 
     def K(self, X, X2=None):
-        return self._underlying_kernel(self.lengthscale.read_value(), X, X2)
+        return self._kernel.K(X, X2, lengthscale=self.lengthscale)
 
     def K_diag(self, X):
-        return self._underlying_kernel(self.lengthscale.read_value(), X)
+        return self._kernel.K_diag(X, lengthscale=self.lengthscale)

@@ -49,7 +49,7 @@ class Mesh(Space):
             L, M = robust_laplacian.mesh_laplacian(self.vertices, self.faces)
             evals, evecs = sla.eigsh(L, num, M, sigma=1e-8)
             evecs, _ = np.linalg.qr(evecs)
-            self.cache[num] = (evecs.T, evals.reshape(-1, 1))
+            self.cache[num] = (evecs, evals.reshape(-1, 1))
 
         return self.cache[num]
 

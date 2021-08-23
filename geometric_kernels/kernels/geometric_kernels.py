@@ -1,3 +1,6 @@
+"""
+Implementation of geometric kernels on several spaces
+"""
 from typing import Callable
 
 import numpy as np
@@ -62,7 +65,7 @@ class MeshKernel(BaseGeometricKernel):
                 return Phi
 
         if self._eigenfunctions is None:
-            eigenvectors = self.space.get_eigenvalues(self.truncation_level)  # [Nv, L]
+            eigenvectors = self.space.get_eigenfunctions(self.truncation_level)  # [Nv, L]
             self._eigenfunctions = _EigenFunctions()
 
         return self._eigenfunctions
