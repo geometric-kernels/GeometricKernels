@@ -1183,6 +1183,18 @@ dev = ["pre-commit", "tox"]
 
 [[package]]
 category = "main"
+description = "An invigorating blend of 3D geometry tools in Python."
+name = "potpourri3d"
+optional = false
+python-versions = "*"
+version = "0.0.4"
+
+[package.dependencies]
+numpy = "*"
+scipy = "*"
+
+[[package]]
+category = "main"
 description = "Python client for the Prometheus monitoring system."
 name = "prometheus-client"
 optional = false
@@ -1522,6 +1534,18 @@ version = "0.2.0"
 [package.dependencies]
 requests = ">=1.1"
 urllib3 = ">=1.8"
+
+[[package]]
+category = "main"
+description = "Robust Laplace matrices for meshes and point clouds"
+name = "robust-laplacian"
+optional = false
+python-versions = "*"
+version = "0.2.2"
+
+[package.dependencies]
+numpy = "*"
+scipy = "*"
 
 [[package]]
 category = "main"
@@ -1892,7 +1916,7 @@ docs = ["sphinx", "jaraco.packaging (>=8.2)", "rst.linker (>=1.9)"]
 testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-cov", "pytest-enabler (>=1.0.1)", "jaraco.itertools", "func-timeout", "pytest-black (>=0.3.7)", "pytest-mypy"]
 
 [metadata]
-content-hash = "4fccb0fa601c039649161973345ff0fba34ee53c60767cd9da74a6e40ed0adf5"
+content-hash = "d732087d16f59ca2658484e53610e2089c4ebdf24ee11f982ff59cd4e5f2ba17"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -2702,6 +2726,34 @@ pluggy = [
     {file = "pluggy-0.13.1-py2.py3-none-any.whl", hash = "sha256:966c145cd83c96502c3c3868f50408687b38434af77734af1e9ca461a4081d2d"},
     {file = "pluggy-0.13.1.tar.gz", hash = "sha256:15b2acde666561e1298d71b523007ed7364de07029219b604cf808bfa1c765b0"},
 ]
+potpourri3d = [
+    {file = "potpourri3d-0.0.4-cp35-cp35m-macosx_10_9_x86_64.whl", hash = "sha256:968e467cebf9a6e311f9b64b39db0d540382c3b9e55c617a84e79f90ca8db5f6"},
+    {file = "potpourri3d-0.0.4-cp35-cp35m-manylinux2010_i686.whl", hash = "sha256:d3681b165d1f83898732c5be4488f9032a188bf3d5f31e2ed6eb7066ffccf467"},
+    {file = "potpourri3d-0.0.4-cp35-cp35m-manylinux2010_x86_64.whl", hash = "sha256:d035b3a5063b82e1613e88ea63c56b51ffa664eea85baa8a8f526a77156ec5b6"},
+    {file = "potpourri3d-0.0.4-cp35-cp35m-win32.whl", hash = "sha256:0646ad62ce565b90eabecc682e0bcf63cb87ac74589c4a7f099727ee359a9c81"},
+    {file = "potpourri3d-0.0.4-cp35-cp35m-win_amd64.whl", hash = "sha256:d59f345f9bfc836906f4645742d2d65121f46f143bba3bdb5b4d10d6e6db7580"},
+    {file = "potpourri3d-0.0.4-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:7bd04b1639b3b83cae30d702abacf2655df8864265ea4dd987e109156f570f34"},
+    {file = "potpourri3d-0.0.4-cp36-cp36m-manylinux2010_i686.whl", hash = "sha256:aab4a902d10fcbc5cec4213f0ff10f10e3656defc0467236a10ed55f8b60bf81"},
+    {file = "potpourri3d-0.0.4-cp36-cp36m-manylinux2010_x86_64.whl", hash = "sha256:623f8ab21b6c8855f5a747e67149f9a401f8aa3214e6c7dc6f3c16e5e6fd5bc9"},
+    {file = "potpourri3d-0.0.4-cp36-cp36m-win32.whl", hash = "sha256:a1eabee52c3afca581359ee1101348866ad3136323eae702faf351bd5d77f9a2"},
+    {file = "potpourri3d-0.0.4-cp36-cp36m-win_amd64.whl", hash = "sha256:03c3460740d67a5370f21d1b7968784859e6d04352e84438d39461b24c4779f2"},
+    {file = "potpourri3d-0.0.4-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:afd1397abeb0467982e90dc17640210e4b0bfaa10ba75431adae408abbe20c76"},
+    {file = "potpourri3d-0.0.4-cp37-cp37m-manylinux2010_i686.whl", hash = "sha256:fc70283dc65f2535548be7f1af372d39a874cb7b78ab973f65b6ff6fdae455d5"},
+    {file = "potpourri3d-0.0.4-cp37-cp37m-manylinux2010_x86_64.whl", hash = "sha256:2264f3a2943be585df81a8b35c22286b9b8696ba6d10228f893375f056f16339"},
+    {file = "potpourri3d-0.0.4-cp37-cp37m-win32.whl", hash = "sha256:4874d0a78141beb3b34a1fd5a3f42f98cfdb1606d9bca8569c83562b90e882c5"},
+    {file = "potpourri3d-0.0.4-cp37-cp37m-win_amd64.whl", hash = "sha256:9e43a97abf0ffc2aec4efb8c0c73c8c8f0b396d72ebeca2b8f6a1a98a8850ead"},
+    {file = "potpourri3d-0.0.4-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:439c8e302c66142c68f59c3a91b92ffb387eae8611e0c7bd238d78cf7f051058"},
+    {file = "potpourri3d-0.0.4-cp38-cp38-manylinux2010_i686.whl", hash = "sha256:9b7b891ffd662492d3158804c2142f79b5e7f3b83080943ac4d6e16090104e74"},
+    {file = "potpourri3d-0.0.4-cp38-cp38-manylinux2010_x86_64.whl", hash = "sha256:570eeea2b283859577949ba3ab8334c26edb3be635ac47c71b708a90f91bc95f"},
+    {file = "potpourri3d-0.0.4-cp38-cp38-win32.whl", hash = "sha256:a38c9b13dca8ce505a849f300260bd3a82bfa05c4236eddd08fb32e7082728d2"},
+    {file = "potpourri3d-0.0.4-cp38-cp38-win_amd64.whl", hash = "sha256:55f63ff5fb1596c829129fe62c7c7c59eea6a511684192f6cdb271570056a431"},
+    {file = "potpourri3d-0.0.4-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:eba0ab420f2b1a43ce8adecd3782458fb448acbcd64236699f3c08a1904af45c"},
+    {file = "potpourri3d-0.0.4-cp39-cp39-manylinux2010_i686.whl", hash = "sha256:d52f3356a807a63e6fbf66a5856f36afe0a1c8aecf02955e8a3862588933cd28"},
+    {file = "potpourri3d-0.0.4-cp39-cp39-manylinux2010_x86_64.whl", hash = "sha256:8117beeea43717c4faf6824a8e15b49b005b0f01e73a0d097ce77eebe84151cc"},
+    {file = "potpourri3d-0.0.4-cp39-cp39-win32.whl", hash = "sha256:fe9f12933ff14934dd6fc26cbccb9757965de39e10476878c1d23c6049abc9ef"},
+    {file = "potpourri3d-0.0.4-cp39-cp39-win_amd64.whl", hash = "sha256:cfd17c7ea931822b5abcd28b4a563573874d8cf142a841f93cf50ad2182baa30"},
+    {file = "potpourri3d-0.0.4.tar.gz", hash = "sha256:f69269bceff220dfcaa90f8d605edc9f4316b86783d5a5f08b6b1bdc28362ab7"},
+]
 prometheus-client = [
     {file = "prometheus_client-0.11.0-py2.py3-none-any.whl", hash = "sha256:b014bc76815eb1399da8ce5fc84b7717a3e63652b0c0f8804092c9363acab1b2"},
     {file = "prometheus_client-0.11.0.tar.gz", hash = "sha256:3a8baade6cb80bcfe43297e33e7623f3118d660d41387593758e2fb1ea173a86"},
@@ -2982,6 +3034,34 @@ requests-oauthlib = [
 requests-unixsocket = [
     {file = "requests-unixsocket-0.2.0.tar.gz", hash = "sha256:9e5c1a20afc3cf786197ae59c79bcdb0e7565f218f27df5f891307ee8817c1ea"},
     {file = "requests_unixsocket-0.2.0-py2.py3-none-any.whl", hash = "sha256:014d07bfb66dc805a011a8b4b306cf4ec96d2eddb589f6b2b5765e626f0dc0cc"},
+]
+robust-laplacian = [
+    {file = "robust_laplacian-0.2.2-cp35-cp35m-macosx_10_9_x86_64.whl", hash = "sha256:342bd375b8d80386052b1f0fe6e2d8ef835cd6eb7d125f7c5fce1083f232e4b8"},
+    {file = "robust_laplacian-0.2.2-cp35-cp35m-manylinux2010_i686.whl", hash = "sha256:238756e0944a159040d56f48b655832a6cc98f74d33f0a8011cf20b6ddaec883"},
+    {file = "robust_laplacian-0.2.2-cp35-cp35m-manylinux2010_x86_64.whl", hash = "sha256:09a122d48563266bef91e30213f56737490edbf5e2f6d96d7c3abc16f64a94e6"},
+    {file = "robust_laplacian-0.2.2-cp35-cp35m-win32.whl", hash = "sha256:22be326c4a2a98b9651e219818aa9a09c707b161cddbcff78fa2fa5ecc28bef4"},
+    {file = "robust_laplacian-0.2.2-cp35-cp35m-win_amd64.whl", hash = "sha256:a2a6ca70cc0890c63e0d9ef2f8146c6b220edd54ae0a451e58f6a693bf99050c"},
+    {file = "robust_laplacian-0.2.2-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:b83336edbb726c5a741d819ae7bf4713b60742a7581a5c7b5963ebca45b6f678"},
+    {file = "robust_laplacian-0.2.2-cp36-cp36m-manylinux2010_i686.whl", hash = "sha256:fa0454ac8a5ca4cc1a5772a35c79c11ffd4de1b7314d5193926a1399321580ad"},
+    {file = "robust_laplacian-0.2.2-cp36-cp36m-manylinux2010_x86_64.whl", hash = "sha256:fa68b2c81e67ae004f5946330b3fb06297d2350df7e9d22697a803eb7f49c097"},
+    {file = "robust_laplacian-0.2.2-cp36-cp36m-win32.whl", hash = "sha256:42393cecdad2bdbc963ae5bdb61f42078128dba822bafa76c2fc7d5bca4f7578"},
+    {file = "robust_laplacian-0.2.2-cp36-cp36m-win_amd64.whl", hash = "sha256:6eaebf0b70f58f2c5da3f9cc01b096ff13f2514b12003ccd0acde37ac0e692eb"},
+    {file = "robust_laplacian-0.2.2-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:e56527dc95490d800a5e5dc3801612fe04f00355afb60497895da6c34e29958a"},
+    {file = "robust_laplacian-0.2.2-cp37-cp37m-manylinux2010_i686.whl", hash = "sha256:0aa21c872afd7989e765b37ca4fe0e2daefff70a088b9377290e67ebaf8e07e1"},
+    {file = "robust_laplacian-0.2.2-cp37-cp37m-manylinux2010_x86_64.whl", hash = "sha256:0e5d691552af3c6f9ee684ed9a89a540ea7714a90f499fdc1a30185177e7a6fc"},
+    {file = "robust_laplacian-0.2.2-cp37-cp37m-win32.whl", hash = "sha256:f6cd9ac28dc58431ddee21a041c0c36dbf4129f8eb5b8d318d5604f6c464c773"},
+    {file = "robust_laplacian-0.2.2-cp37-cp37m-win_amd64.whl", hash = "sha256:36cad1ec5acbbbe48c49abd10597c4a26f2879435c7b6cafbe73c6df09978107"},
+    {file = "robust_laplacian-0.2.2-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:de854f0182ce2b579e3de249d4d00c689761d99cea96e80403df62425f87c457"},
+    {file = "robust_laplacian-0.2.2-cp38-cp38-manylinux2010_i686.whl", hash = "sha256:ca8b3d7bdb62592aca7536c258a36aac8040fd55c70a8f36802820cd0f30b0a4"},
+    {file = "robust_laplacian-0.2.2-cp38-cp38-manylinux2010_x86_64.whl", hash = "sha256:9527ac541b8f7fc4ccb8f3a3e24c1aa1d08634be5878bd3ff5adddfc2a073fce"},
+    {file = "robust_laplacian-0.2.2-cp38-cp38-win32.whl", hash = "sha256:b3ca9be95ec899bb8e5d6d89316738b4a7a72a94b998b0ffb12e0ebb738ffb54"},
+    {file = "robust_laplacian-0.2.2-cp38-cp38-win_amd64.whl", hash = "sha256:5fcc02239cf692c97b24952e3088ad5d38db29b360571962b7360e3940512b35"},
+    {file = "robust_laplacian-0.2.2-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:b79b2e67a8e48e483a0ec7d2597c326eb8480d7c8c8deb4e9f09465bb6fee5c5"},
+    {file = "robust_laplacian-0.2.2-cp39-cp39-manylinux2010_i686.whl", hash = "sha256:e172fd7f2a5aa92bbc8c19cc917fec86ec6f8c6e9ae10cf4266a8d2ac1292c10"},
+    {file = "robust_laplacian-0.2.2-cp39-cp39-manylinux2010_x86_64.whl", hash = "sha256:f1482a13574e4e19c24913ba127226dc9dbde47a029ba9cf5ccf4ba4aa085c08"},
+    {file = "robust_laplacian-0.2.2-cp39-cp39-win32.whl", hash = "sha256:f3922b8d47d6d8f0463efd32e4e10d0f6da1e8cde7016342b97ecd4c9810d88f"},
+    {file = "robust_laplacian-0.2.2-cp39-cp39-win_amd64.whl", hash = "sha256:ede8ebe0b0e5d0d5dddc880a50b3db8aeab6dc3abd9dd71fc7b55934fa5993ef"},
+    {file = "robust_laplacian-0.2.2.tar.gz", hash = "sha256:1c9940c653370113fe14744fa69c29d2440919ad03be3f0485c143b0da3687a9"},
 ]
 rsa = [
     {file = "rsa-4.7.2-py3-none-any.whl", hash = "sha256:78f9a9bf4e7be0c5ded4583326e7461e3a3c5aae24073648b4bdfa797d78c9d2"},

@@ -10,6 +10,8 @@ python = "^3.7"
 jupyterlab = "^3.1.1"
 seaborn = "^0.11.1"
 gpflow = "^2.2.1"
+potpourri3d = "^0.0.4"
+robust_laplacian = "^0.2.2"
 
 [tool.poetry.dev-dependencies]
 mypy = "0.711"
