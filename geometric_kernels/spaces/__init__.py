@@ -1,3 +1,6 @@
+"""
+Spaces on which to define kernels
+"""
 # noqa: F401
 from geometric_kernels.spaces.base import Space
 from geometric_kernels.spaces.graph import Graph

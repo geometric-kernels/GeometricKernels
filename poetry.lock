@@ -367,6 +367,21 @@ six = ">=1.12.0"
 
 [[package]]
 category = "main"
+description = "EagerPy is a thin wrapper around PyTorch, TensorFlow Eager, JAX and NumPy that unifies their interface and thus allows writing code that works natively across all of them."
+name = "eagerpy"
+optional = false
+python-versions = "*"
+version = "0.30.0"
+
+[package.dependencies]
+numpy = "*"
+typing-extensions = ">=3.7.4.1"
+
+[package.extras]
+testing = ["pytest (>=5.3.5)", "pytest-cov (>=2.8.1)"]
+
+[[package]]
+category = "main"
 description = "Discover and load entry points from installed packages."
 name = "entrypoints"
 optional = false
@@ -1981,7 +1996,7 @@ version = "1.12.1"
 [[package]]
 category = "main"
 description = "Backport of pathlib-compatible object wrapper for zip files"
-marker = "python_version < \"3.8.0\" or python_version >= \"3.5\" and python_version < \"3.8\" or python_version >= \"3.6\" and python_version < \"3.8\""
+marker = "python_version < \"3.8.0\" or python_version >= \"3.5\" and python_version < \"3.8\" or python_version >= \"3.6\" and python_version < \"3.8\" or python_version == \"3.7\" and python_version == \"3.7\" or python_version >= \"3.5\" and python_version < \"3.8\" and (python_version < \"3.8.0\" or python_version >= \"3.5\" and python_version < \"3.8\" or python_version >= \"3.6\" and python_version < \"3.8\") or python_version >= \"3.6\" and python_version < \"3.8\" and (python_version < \"3.8.0\" or python_version >= \"3.5\" and python_version < \"3.8\" or python_version >= \"3.6\" and python_version < \"3.8\")"
 name = "zipp"
 optional = false
 python-versions = ">=3.6"
@@ -1992,7 +2007,7 @@ docs = ["sphinx", "jaraco.packaging (>=8.2)", "rst.linker (>=1.9)"]
 testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-cov", "pytest-enabler (>=1.0.1)", "jaraco.itertools", "func-timeout", "pytest-black (>=0.3.7)", "pytest-mypy"]
 
 [metadata]
-content-hash = "996788388d299067a53c6ea31ab5b5ba87468a667b89b6d3c7555ba5aecd48f9"
+content-hash = "ed6132c4b24ea2b0fa3b088954d441d57e652bbc7b885f40ccd4a9c200cdcf98"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -2297,6 +2312,10 @@ dm-tree = [
     {file = "dm_tree-0.1.6-cp39-cp39-manylinux2014_x86_64.whl", hash = "sha256:bd347c74254ba320d57b0e102558c1189e3b4ae1bae952f9aef156b5914567c8"},
     {file = "dm_tree-0.1.6-cp39-cp39-manylinux_2_24_x86_64.whl", hash = "sha256:8425454192e954692d9a1e0f7b374b3b7030916b17b6055951dc17d58b6fe1b8"},
     {file = "dm_tree-0.1.6-cp39-cp39-win_amd64.whl", hash = "sha256:5269183f80f1ae37543a2a30a8f78e4b0460d5da74fb5ac42dc8a476ef8d707e"},
+]
+eagerpy = [
+    {file = "eagerpy-0.30.0-py3-none-any.whl", hash = "sha256:79c461b04577f02bf3b48191b2f911b55521204df99ec02288d96bfa34f13d80"},
+    {file = "eagerpy-0.30.0.tar.gz", hash = "sha256:014c02b5a7f7e19f8471885cf8aa469f2e9cf518c88400f20b6b8db83d413106"},
 ]
 entrypoints = [
     {file = "entrypoints-0.3-py2.py3-none-any.whl", hash = "sha256:589f874b313739ad35be6e0cd7efde2a4e9b6fea91edcc34e58ecbb8dbe56d19"},

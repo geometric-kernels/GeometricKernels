@@ -21,8 +21,8 @@ class DefaultFloatZero(gpflow.mean_functions.Constant):
         self.output_dim = output_dim
         del self.c
 
-    def __call__(self, X):
-        output_shape = tf.concat([tf.shape(X)[:-1], [self.output_dim]], axis=0)
+    def __call__(self, inputs):
+        output_shape = tf.concat([tf.shape(inputs)[:-1], [self.output_dim]], axis=0)
         return tf.zeros(output_shape, dtype=gpflow.default_float())
 
 
@@ -42,10 +42,10 @@ num_data = 25
 
 
 def get_data():
-    X = np.random.randint(mesh.num_vertices, size=(num_data, 1))
-    K = kernel.K(X).numpy()
-    y = np.linalg.cholesky(K + np.eye(num_data) * 1e-6) @ np.random.randn(num_data, 1)
-    return X, y
+    _X = np.random.randint(mesh.num_vertices, size=(num_data, 1))
+    _K = kernel.K(_X).numpy()
+    _y = np.linalg.cholesky(_K + np.eye(num_data) * 1e-6) @ np.random.randn(num_data, 1)
+    return _X, _y
 
 
 X, y = get_data()

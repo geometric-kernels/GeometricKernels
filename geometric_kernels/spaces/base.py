@@ -1,3 +1,6 @@
+"""
+Abstract base interface for spaces.
+"""
 import abc
 
 import numpy as np

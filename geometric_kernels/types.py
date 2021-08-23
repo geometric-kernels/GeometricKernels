@@ -1,3 +1,10 @@
+"""
+Types used across the package.
+"""
+from typing import Any
+
 # TODO(VD): check EagerPy for backend agnostic types
-TensorLike = object
-Parameter = object
+# from eagerpy.types import NativeTensor
+
+TensorLike = Any
+Parameter = Any

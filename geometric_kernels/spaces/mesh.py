@@ -1,7 +1,7 @@
 """
 Mesh object
 """
-from typing import Tuple
+from typing import Dict, Tuple
 
 import numpy as np
 import potpourri3d as pp3d
@@ -30,7 +30,7 @@ class Mesh(Space):
         self._faces = faces
         self._eigenvalues = None
         self._eigenfunctions = None
-        self.cache = {}
+        self.cache: Dict[int, Tuple[np.ndarray, np.ndarray]] = {}
 
     def get_eigensystem(self, num: int) -> Tuple[np.ndarray, np.ndarray]:
         """

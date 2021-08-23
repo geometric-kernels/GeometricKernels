@@ -13,6 +13,10 @@ from geometric_kernels.spaces.base import Space
 
 
 class GPflowGeometricKernel(gpflow.kernels.Kernel):
+    """
+    GPflow wrapper for `BaseGeometricKernel`.
+    """
+
     def __init__(
         self,
         kernel: BaseGeometricKernel,
