@@ -12,7 +12,7 @@ class Graph(Space):
     """TODO"""
 
     @property
-    def dim(self) -> int:
+    def dimension(self) -> int:
         pass
 
     def get_eigenfunctions(self, num: int):

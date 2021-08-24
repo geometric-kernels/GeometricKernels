@@ -37,7 +37,7 @@ class MeshKernel(BaseGeometricKernel):
             return tf.exp(-(lengthscale ** 2) / 2.0 * (s ** 2))
 
         def spectrum_matern():
-            power = -self.nu - self.space.dim / 2.0
+            power = -self.nu - self.space.dimension / 2.0
             base = 2.0 * self.nu / lengthscale ** 2 + (s ** 2)
             return base ** power
 

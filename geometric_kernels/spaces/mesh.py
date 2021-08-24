@@ -78,7 +78,7 @@ class Mesh(Space):
         return len(self._faces)
 
     @property
-    def dim(self) -> int:
+    def dimension(self) -> int:
         """Dimension, D"""
         return self._vertices.shape[1]
 

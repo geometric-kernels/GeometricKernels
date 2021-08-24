@@ -16,7 +16,7 @@ class Space(abc.ABC):
     """
 
     @abc.abstractproperty
-    def dim(self) -> int:
+    def dimension(self) -> int:
         """Dimension in which the space is embedded"""
         raise NotImplementedError
 
