@@ -5,7 +5,7 @@ import polyscope as ps
 import tensorflow as tf
 
 from geometric_kernels.frontends import GPflowGeometricKernel
-from geometric_kernels.kernels import MeshKernel
+from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import Mesh
 
 
@@ -36,7 +36,7 @@ mesh = Mesh(vertices, faces)
 
 nu = 1 / 2.0
 truncation_level = 20
-base_kernel = MeshKernel(mesh, nu, truncation_level)
+base_kernel = MaternKarhunenLoeveKernel(mesh, nu, truncation_level)
 kernel = GPflowGeometricKernel(base_kernel)
 num_data = 25
 

@@ -7,29 +7,44 @@ import numpy as np
 import tensorflow as tf
 
 from geometric_kernels.kernels import BaseGeometricKernel
-from geometric_kernels.spaces import Mesh
+from geometric_kernels.spaces.base import SpaceWithEigenDecomposition
 from geometric_kernels.types import Parameter, TensorLike
 
 
-class MeshKernel(BaseGeometricKernel):
-    """
-    Geometric kernel on a Mesh
+class MaternKarhunenLoeveKernel(BaseGeometricKernel):
+    r"""
+    This class approximates a kernel by the finite feature decomposition:
+
+    .. math:: k(x, x') = \sum_{i=0}^L S(\sqrt\lambda_i) \phi_i(x) \phi_i(x'),
+
+    where :math:`\lambda_i` and :math:`\phi_i(\cdot)` are the eigenvalues and
+    eigenfunctions of the Laplace-Beltrami operator and :math:`S(\cdot)` the
+    spectrum of the stationary kernel. The eigenvalues and eigenfunctions belong
+    to the `SpaceWithEigenDecomposition` instance.
     """
 
     def __init__(
         self,
-        space: Mesh,
+        space: SpaceWithEigenDecomposition,
         nu: float,
-        truncation_level: int,
+        num_components: int,
     ):
-        super().__init__(space)
-        self.truncation_level = truncation_level
-        self.nu = nu
-        self._eigenfunctions: Optional[Callable[[TensorLike], TensorLike]] = None
-
-    def spectrum(self, s: TensorLike, lengthscale: Parameter):
+        r"""
+        :param space: Space providing the eigenvalues and eigenfunctions of
+            the Laplace-Beltrami operator.
+        :param nu: Determines continuity of the Mat\'ern kernel. Typical values
+            include 1/2 (i.e., the Exponential kernel), 3/2, 5/2 and +\infty
+            `np.inf` which corresponds to the Squared Exponential kernel.
+        :param num_components: number of eigenvalues and functions to include
+            in the summation.
         """
-        Matern or RBF spectrum evaluated as `s`. Depends on the
+        super().__init__(space)
+        self.nu = nu
+        self.num_components = num_components  # in code referred to as `L`.
+
+    def _spectrum(self, s: TensorLike, lengthscale: Parameter):
+        """
+        Matern or RBF spectrum evaluated at `s`. Depends on the
         `lengthscale` parameters.
         """
 
@@ -37,7 +52,7 @@ class MeshKernel(BaseGeometricKernel):
             return tf.exp(-(lengthscale ** 2) / 2.0 * (s ** 2))
 
         def spectrum_matern():
-            power = -self.nu - self.space.dim / 2.0
+            power = -self.nu - self.space.dimension / 2.0
             base = 2.0 * self.nu / lengthscale ** 2 + (s ** 2)
             return base ** power
 
@@ -48,38 +63,11 @@ class MeshKernel(BaseGeometricKernel):
         else:
             raise NotImplementedError
 
-    def eigenfunctions(self, **__parameters) -> Callable:
+    def eigenfunctions(self, **__parameters) -> Callable[[TensorLike], TensorLike]:
         """
         Eigenfunctions of the kernel, may depend on parameters.
         """
-
-        class _EigenFunctions:
-            """
-            Converts the array of eigenvectors to a callable objects,
-            The inputs are given by the indices.
-            """
-
-            def __init__(self, eigenvectors):
-                self.eigenvectors = eigenvectors
-
-            def __call__(self, indices: TensorLike) -> TensorLike:
-                """
-                Selects N locations from the  eigenvectors.
-
-                :param indices: indices [N, 1]
-                :return: [N, L]
-                """
-                assert len(indices.shape) == 2
-                assert indices.shape[-1] == 1
-                indices = tf.cast(indices, dtype=tf.int32)
-                Phi = tf.gather(self.eigenvectors, tf.reshape(indices, (-1,)), axis=0)
-                return Phi
-
-        if self._eigenfunctions is None:
-            eigenvectors = self.space.get_eigenfunctions(self.truncation_level)  # [Nv, L]
-            self._eigenfunctions = _EigenFunctions(eigenvectors)
-
-        return self._eigenfunctions
+        return self.space.get_eigenfunctions(self.num_components)
 
     def eigenvalues(self, **parameters) -> TensorLike:
         """
@@ -88,8 +76,8 @@ class MeshKernel(BaseGeometricKernel):
         :return: [L, 1]
         """
         assert "lengthscale" in parameters
-        eigenvalues_laplacian = self.space.get_eigenvalues(self.truncation_level)  # [L, 1]
-        return self.spectrum(eigenvalues_laplacian ** 0.5, lengthscale=parameters["lengthscale"])
+        eigenvalues_laplacian = self.space.get_eigenvalues(self.num_components)  # [L, 1]
+        return self._spectrum(eigenvalues_laplacian ** 0.5, lengthscale=parameters["lengthscale"])
 
     def K(self, X, X2=None, **parameters):
         """Compute the mesh kernel via Laplace eigendecomposition"""
@@ -108,20 +96,3 @@ class MeshKernel(BaseGeometricKernel):
         coeffs = self.eigenvalues(**parameters)  # [L, 1]
         Kx = tf.reduce_sum(Phi_X ** 2 * tf.transpose(coeffs), axis=1)  # [N,]
         return Kx
-
-
-# class SphereKernel(AbstractGeometricKernel):
-#     def __init__(self, space: spaces.manifold.backend.Hypersphere, nu: float, num_features=250):
-#         super().__init__(space, nu)
-#         self._dim = space.dim
-#         self._num_features = num_features
-
-#     def K(self, lengthscale, X, X2=None):
-#         """Compute the sphere kernel via Gegenbauer polynomials"""
-#         pass
-
-#     def K_diag(self, lengthscale, X):
-#         pass
-
-#     def Kchol(self, lengthscale, X, X2=None):
-#         pass

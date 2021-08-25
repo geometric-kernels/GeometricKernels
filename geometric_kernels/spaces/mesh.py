@@ -1,17 +1,42 @@
 """
 Mesh object
 """
-from typing import Dict, Tuple
+from typing import Callable, Dict, Tuple
 
 import numpy as np
 import potpourri3d as pp3d
 import robust_laplacian
 import scipy.sparse.linalg as sla
+import tensorflow as tf
 
-from geometric_kernels.spaces import Space
+from geometric_kernels.spaces import SpaceWithEigenDecomposition
+from geometric_kernels.types import TensorLike
 
 
-class Mesh(Space):
+class ConvertEigenvectorsToEigenfunctions:
+    """
+    Converts the array of eigenvectors to a callable objects,
+    where inputs are given by the indices.
+    """
+
+    def __init__(self, eigenvectors):
+        self.eigenvectors = eigenvectors
+
+    def __call__(self, indices: TensorLike) -> TensorLike:
+        """
+        Selects N locations from the  eigenvectors.
+
+        :param indices: indices [N, 1]
+        :return: [N, L]
+        """
+        assert len(indices.shape) == 2
+        assert indices.shape[-1] == 1
+        indices = tf.cast(indices, dtype=tf.int32)
+        Phi = tf.gather(self.eigenvectors, tf.reshape(indices, (-1,)), axis=0)
+        return Phi
+
+
+class Mesh(SpaceWithEigenDecomposition):
     """
     A representation of a surface mesh. Mimics `PyMesh` interface. Uses
     `potpourri3d` to read mesh files.
@@ -53,19 +78,29 @@ class Mesh(Space):
 
         return self.cache[num]
 
-    def get_eigenfunctions(self, num: int) -> np.ndarray:
+    def get_eigenvectors(self, num: int) -> TensorLike:
         """
         :param num: number of eigenvectors returned
-        :return: eigenvalues [Nv, num]
+        :return: eigenvectors [Nv, num]
         """
         return self.get_eigensystem(num)[0]
 
-    def get_eigenvalues(self, num: int) -> np.ndarray:
+    def get_eigenvalues(self, num: int) -> TensorLike:
         """
         :param num: number of eigenvalues returned
         :return: eigenvalues [num, 1]
         """
         return self.get_eigensystem(num)[1]
+
+    def get_eigenfunctions(self, num: int) -> Callable[[TensorLike], TensorLike]:
+        """
+        First `num` eigenfunctions of the Laplace-Beltrami operator on the Mesh.
+
+        :param num: number of eigenfunctions returned
+        :return: eigenfu [Nv, num]
+        """
+        eigenfunctions = ConvertEigenvectorsToEigenfunctions(self.get_eigenvectors(num))
+        return eigenfunctions
 
     @property
     def num_vertices(self) -> int:
@@ -78,7 +113,7 @@ class Mesh(Space):
         return len(self._faces)
 
     @property
-    def dim(self) -> int:
+    def dimension(self) -> int:
         """Dimension, D"""
         return self._vertices.shape[1]
 

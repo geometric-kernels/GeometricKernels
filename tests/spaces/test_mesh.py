@@ -26,7 +26,7 @@ def test_mesh_shapes():
 
 
 def test_read_mesh(mesh: Mesh):
-    assert mesh.vertices.shape == (mesh.num_vertices, mesh.dim)
+    assert mesh.vertices.shape == (mesh.num_vertices, mesh.dimension)
     assert mesh.faces.shape == (mesh.num_faces, 3)
 
 
@@ -36,11 +36,11 @@ def test_eigenvalues(mesh: Mesh):
 
 
 def test_eigenvectors(mesh: Mesh):
-    assert mesh.get_eigenfunctions(10).shape == (mesh.num_vertices, 10)
-    assert mesh.get_eigenfunctions(13).shape == (mesh.num_vertices, 13)
+    assert mesh.get_eigenvectors(10).shape == (mesh.num_vertices, 10)
+    assert mesh.get_eigenvectors(13).shape == (mesh.num_vertices, 13)
     assert set(mesh.cache.keys()) == set([10, 13])
 
 
 def test_orthonormality_eigenvectors(mesh: Mesh):
-    evecs = mesh.get_eigenfunctions(10)  # [Nv, 10]
+    evecs = mesh.get_eigenvectors(10)  # [Nv, 10]
     assert_array_almost_equal(evecs.T @ evecs, np.eye(10))
