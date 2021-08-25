@@ -1881,6 +1881,23 @@ version = "1.2.0"
 
 [[package]]
 category = "main"
+description = "Python Implementation of Spherical harmonics in dimension >= 3"
+name = "Spherical-Harmonics"
+optional = false
+python-versions = "*"
+version = "0.0.1"
+
+[package.dependencies]
+numpy = "*"
+scipy = "*"
+tensorflow = ">=2.4.0"
+
+[package.source]
+reference = "a1adcb43f731f7e5360ec4a40ab10a26143628bc"
+type = "git"
+url = "https://github.com/vdutor/SphericalHarmonics.git"
+[[package]]
+category = "main"
 description = "Pretty-print tabular data"
 name = "tabulate"
 optional = false
@@ -2183,7 +2200,7 @@ version = "1.12.1"
 [[package]]
 category = "main"
 description = "Backport of pathlib-compatible object wrapper for zip files"
-marker = "python_version < \"3.8.0\" or python_version >= \"3.5\" and python_version < \"3.8\" or python_version >= \"3.6\" and python_version < \"3.8\" or python_version == \"3.7\" and python_version == \"3.7\" or python_version >= \"3.5\" and python_version < \"3.8\" and (python_version < \"3.8.0\" or python_version >= \"3.5\" and python_version < \"3.8\" or python_version >= \"3.6\" and python_version < \"3.8\") or python_version >= \"3.6\" and python_version < \"3.8\" and (python_version < \"3.8.0\" or python_version >= \"3.5\" and python_version < \"3.8\" or python_version >= \"3.6\" and python_version < \"3.8\")"
+marker = "python_version < \"3.8.0\" or python_version >= \"3.5\" and python_version < \"3.8\" or python_version >= \"3.6\" and python_version < \"3.8\""
 name = "zipp"
 optional = false
 python-versions = ">=3.6"
@@ -2194,7 +2211,7 @@ docs = ["sphinx", "jaraco.packaging (>=8.2)", "rst.linker (>=1.9)"]
 testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-cov", "pytest-enabler (>=1.0.1)", "jaraco.itertools", "func-timeout", "pytest-black (>=0.3.7)", "pytest-mypy"]
 
 [metadata]
-content-hash = "8fe136a87529925fcb8a04d8daa73245ba47dbd5c002c6276c70da28295c5607"
+content-hash = "5a00d1a6a2252c5984fa6eb1d5809822cef156f96f8909a897d4ff6a3256319d"
 lock-version = "1.0"
 python-versions = "^3.7"
 
@@ -3568,6 +3585,7 @@ sniffio = [
     {file = "sniffio-1.2.0-py3-none-any.whl", hash = "sha256:471b71698eac1c2112a40ce2752bb2f4a4814c22a54a3eed3676bc0f5ca9f663"},
     {file = "sniffio-1.2.0.tar.gz", hash = "sha256:c4666eecec1d3f50960c6bdf61ab7bc350648da6c126e3cf6898d8cd4ddcd3de"},
 ]
+Spherical-Harmonics = []
 tabulate = [
     {file = "tabulate-0.8.9-py3-none-any.whl", hash = "sha256:d7c013fe7abbc5e491394e10fa845f8f32fe54f8dc60c6622c6cf482d25d47e4"},
     {file = "tabulate-0.8.9.tar.gz", hash = "sha256:eb1d13f25760052e8931f2ef80aaf6045a6cceb47514db8beab24cded16f13a7"},
