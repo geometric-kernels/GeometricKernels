@@ -20,7 +20,6 @@ eagerpy = "^0.30.0"
 geomstats = "^2.2.2"
 spherical-harmonics = { git = "https://github.com/vdutor/SphericalHarmonics.git", branch = "master" }
 
-
 [tool.poetry.dev-dependencies]
 mypy = "0.711"
 pylint = "2.3.1"

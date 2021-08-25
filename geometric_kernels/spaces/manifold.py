@@ -1,18 +1,15 @@
 """
-Graphs: TODO
+Manifold: TODO
 """
 from typing import Callable
 
 import numpy as np
 
 from geometric_kernels.spaces import SpaceWithEigenDecomposition
-from geometric_kernels.spaces.base import Space
 from geometric_kernels.types import TensorLike
 
-# from networkx import Graph
 
-
-class Graph(SpaceWithEigenDecomposition):
+class Manifold(SpaceWithEigenDecomposition):
     """TODO"""
 
     @property
@@ -29,3 +26,6 @@ class Graph(SpaceWithEigenDecomposition):
         :return: [num, 1] array containing the eigenvalues
         """
         pass
+
+
+# from geomstats.geometry.manifold import Manifold

@@ -2,33 +2,39 @@
 Abstract base interface for spaces.
 """
 import abc
+from typing import Callable
 
-import numpy as np
+from geometric_kernels.types import TensorLike
 
 
 class Space(abc.ABC):
     """
-    Object representing a space on which a kernel can be defined. Needs to provide
-    a method to obtain the eigendecomposition of the space w.r.t the Laplace-Beltrami
-    operator.
-
-    Examples are `Graph`, `Manifold` and `Mesh`.
+    Object representing a space on which a kernel can be defined.
     """
 
     @abc.abstractproperty
     def dimension(self) -> int:
         """Dimension in which the space is embedded"""
         raise NotImplementedError
+    
+
+class SpaceWithEigenDecomposition(Space):
+    """
+    A Space for which we can obtain the eigenvalues and eigenfunctions of
+    the Laplace-Beltrami operator.
+
+    Examples includes `Graph`s, `Manifold`s and `Mesh`es.
+    """
 
     @abc.abstractmethod
-    def get_eigenfunctions(self, num: int):
+    def get_eigenfunctions(self, num: int) -> Callable[[TensorLike], TensorLike]:
         """
         First `num` eigenfunctions of the Laplace-Beltrami operator
         """
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_eigenvalues(self, num: int) -> np.ndarray:
+    def get_eigenvalues(self, num: int) -> TensorLike:
         """
         First `num` eigenvalues of the Laplace-Beltrami operator
 

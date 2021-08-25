@@ -4,6 +4,9 @@ This package implements a suite of geometric kernels.
 
 <img alt="class diagram" src="class_diagram.svg">
 
+<img alt="class diagram" src="docs/class_diagram.svg">
+
+
 ## Installation
 
 We recommend using [`poetry`](https://python-poetry.org/) to install this `GeometricKernels`. Poetry manages your package, python version and other dependencies. Alternatively, virtual environments can be used.
