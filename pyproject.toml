@@ -17,6 +17,7 @@ polyscope = "^1.2.0"
 tensorflow = "^2.6.0"
 tensorflow-probability = "^0.13.0"
 eagerpy = "^0.30.0"
+geomstats = "^2.2.2"
 
 [tool.poetry.dev-dependencies]
 mypy = "0.711"

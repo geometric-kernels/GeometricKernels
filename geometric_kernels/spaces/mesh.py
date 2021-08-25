@@ -1,6 +1,7 @@
 """
 Mesh object
 """
+from geometric_kernels.eigenfunctions import Eigenfunctions
 from typing import Callable, Dict, Tuple
 
 import numpy as np
@@ -13,27 +14,34 @@ from geometric_kernels.spaces import SpaceWithEigenDecomposition
 from geometric_kernels.types import TensorLike
 
 
-class ConvertEigenvectorsToEigenfunctions:
+class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
     """
     Converts the array of eigenvectors to a callable objects,
     where inputs are given by the indices.
     """
 
-    def __init__(self, eigenvectors):
+    def __init__(self, eigenvectors: TensorLike) -> None:
+        """
+        :param eigenvectors: [Nv, M]
+        """
         self.eigenvectors = eigenvectors
 
     def __call__(self, indices: TensorLike) -> TensorLike:
         """
-        Selects N locations from the  eigenvectors.
+        Selects `N` locations from the `M` eigenvectors.
 
         :param indices: indices [N, 1]
-        :return: [N, L]
+        :return: [N, M]
         """
         assert len(indices.shape) == 2
         assert indices.shape[-1] == 1
         indices = tf.cast(indices, dtype=tf.int32)
         Phi = tf.gather(self.eigenvectors, tf.reshape(indices, (-1,)), axis=0)
-        return Phi
+        return Phi  # [N, M]
+
+    def num_eigenfunctions(self) -> int:
+        """Number of eigenvectos, M"""
+        return self.eigenvectors.shape[-1]
 
 
 class Mesh(SpaceWithEigenDecomposition):
@@ -92,7 +100,7 @@ class Mesh(SpaceWithEigenDecomposition):
         """
         return self.get_eigensystem(num)[1]
 
-    def get_eigenfunctions(self, num: int) -> Callable[[TensorLike], TensorLike]:
+    def get_eigenfunctions(self, num: int) -> Eigenfunctions:
         """
         First `num` eigenfunctions of the Laplace-Beltrami operator on the Mesh.
 

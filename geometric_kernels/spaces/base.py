@@ -2,8 +2,8 @@
 Abstract base interface for spaces.
 """
 import abc
-from typing import Callable
 
+from geometric_kernels.eigenfunctions import Eigenfunctions
 from geometric_kernels.types import TensorLike
 
 
@@ -27,7 +27,7 @@ class SpaceWithEigenDecomposition(Space):
     """
 
     @abc.abstractmethod
-    def get_eigenfunctions(self, num: int) -> Callable[[TensorLike], TensorLike]:
+    def get_eigenfunctions(self, num: int) -> Eigenfunctions:
         """
         First `num` eigenfunctions of the Laplace-Beltrami operator
         """
