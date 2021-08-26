@@ -3,8 +3,8 @@ Implementation of geometric kernels on several spaces
 """
 from typing import Callable, Optional
 
+import eagerpy as ep
 import numpy as np
-import tensorflow as tf
 
 from geometric_kernels.kernels import BaseGeometricKernel
 from geometric_kernels.spaces import Mesh
@@ -34,12 +34,12 @@ class MeshKernel(BaseGeometricKernel):
         """
 
         def spectrum_rbf():
-            return tf.exp(-(lengthscale ** 2) / 2.0 * (s ** 2))
+            return ep.exp(-(lengthscale ** 2) / 2.0 * (s ** 2))
 
         def spectrum_matern():
             power = -self.nu - self.space.dim / 2.0
             base = 2.0 * self.nu / lengthscale ** 2 + (s ** 2)
-            return base ** power
+            return ep.astensor(base ** power)
 
         if self.nu == np.inf:
             return spectrum_rbf()
@@ -60,7 +60,7 @@ class MeshKernel(BaseGeometricKernel):
             """
 
             def __init__(self, eigenvectors):
-                self.eigenvectors = eigenvectors
+                self.eigenvectors = ep.astensor(eigenvectors)
 
             def __call__(self, indices: TensorLike) -> TensorLike:
                 """
@@ -71,8 +71,11 @@ class MeshKernel(BaseGeometricKernel):
                 """
                 assert len(indices.shape) == 2
                 assert indices.shape[-1] == 1
-                indices = tf.cast(indices, dtype=tf.int32)
-                Phi = tf.gather(self.eigenvectors, tf.reshape(indices, (-1,)), axis=0)
+                indices = ep.from_numpy(self.eigenvectors, indices).astype(np.int32)  # [I, 1]
+
+                # This is a very hacky way of taking along 0'th axis.
+                # For some reason eagerpy does not take along axis other than last.
+                Phi = self.eigenvectors.T.take_along_axis(indices.T, axis=-1).T
                 return Phi
 
         if self._eigenfunctions is None:
@@ -100,28 +103,11 @@ class MeshKernel(BaseGeometricKernel):
             Phi_X2 = self.eigenfunctions()(X2)  # [N2, L]
 
         coeffs = self.eigenvalues(**parameters)  # [L, 1]
-        Kxx = tf.matmul(Phi_X, tf.transpose(coeffs) * Phi_X2, transpose_b=True)  # [N, N2]
-        return Kxx
+        Kxx = ep.matmul(coeffs.T * Phi_X, Phi_X2.T)
+        return Kxx.raw
 
     def K_diag(self, X, **parameters):
         Phi_X = self.eigenfunctions()(X)  # [N, L]
         coeffs = self.eigenvalues(**parameters)  # [L, 1]
-        Kx = tf.reduce_sum(Phi_X ** 2 * tf.transpose(coeffs), axis=1)  # [N,]
-        return Kx
-
-
-# class SphereKernel(AbstractGeometricKernel):
-#     def __init__(self, space: spaces.manifold.backend.Hypersphere, nu: float, num_features=250):
-#         super().__init__(space, nu)
-#         self._dim = space.dim
-#         self._num_features = num_features
-
-#     def K(self, lengthscale, X, X2=None):
-#         """Compute the sphere kernel via Gegenbauer polynomials"""
-#         pass
-
-#     def K_diag(self, lengthscale, X):
-#         pass
-
-#     def Kchol(self, lengthscale, X, X2=None):
-#         pass
+        Kx = ep.sum(coeffs.T * Phi_X ** 2, axis=1)  # [N, ]
+        return Kx.raw

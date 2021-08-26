@@ -26,7 +26,7 @@ def test_eigenfunctions(mesh_kernel: MeshKernel):
     Phi = mesh_kernel.eigenfunctions(lengthscale=0.93)
     X = np.random.randint(low=0, high=mesh_kernel.space.num_vertices, size=(num_data, 1))
 
-    assert Phi(X).numpy().shape == (num_data, _TRUNCATION_LEVEL)
+    assert Phi(X).shape == (num_data, _TRUNCATION_LEVEL)
 
 
 def test_K_shapes(mesh_kernel: MeshKernel):
@@ -35,10 +35,10 @@ def test_K_shapes(mesh_kernel: MeshKernel):
     X2 = np.random.randint(low=0, high=mesh_kernel.space.num_vertices, size=(N2, 1))
 
     K = mesh_kernel.K(X, None, lengthscale=0.99)
-    assert K.numpy().shape == (N1, N1)
+    assert K.shape == (N1, N1)
 
     K = mesh_kernel.K(X, X2, lengthscale=0.99)
-    assert K.numpy().shape == (N1, N2)
+    assert K.shape == (N1, N2)
 
     K = mesh_kernel.K_diag(X, lengthscale=0.99)
-    assert K.numpy().shape == (N1,)
+    assert K.shape == (N1,)
