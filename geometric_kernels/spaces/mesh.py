@@ -1,7 +1,6 @@
 """
 Mesh object
 """
-from geometric_kernels.eigenfunctions import Eigenfunctions
 from typing import Callable, Dict, Tuple
 
 import numpy as np
@@ -10,6 +9,7 @@ import robust_laplacian
 import scipy.sparse.linalg as sla
 import tensorflow as tf
 
+from geometric_kernels.eigenfunctions import Eigenfunctions
 from geometric_kernels.spaces import SpaceWithEigenDecomposition
 from geometric_kernels.types import TensorLike
 

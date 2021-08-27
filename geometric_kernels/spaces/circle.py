@@ -9,9 +9,9 @@ import geomstats as gs
 import numpy as np
 import tensorflow as tf
 
+from geometric_kernels.eigenfunctions import EigenfunctionWithAdditionTheorem
 from geometric_kernels.spaces import SpaceWithEigenDecomposition
 from geometric_kernels.types import TensorLike
-from geometric_kernels.eigenfunctions import EigenfunctionWithAdditionTheorem
 
 
 def cartesian_to_polar(X: TensorLike) -> TensorLike:
@@ -20,13 +20,19 @@ def cartesian_to_polar(X: TensorLike) -> TensorLike:
         This means their norm equals one.
     :return: angle [N, 1]
     """
-    return tf.rehape(tf.math.atan2(X[:, 1], X[:, 0]), (-1, 1))
+    return tf.reshape(tf.math.atan2(X[:, 1], X[:, 0]), (-1, 1))
 
 
 class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
+    """
+    Eigenfunctions Laplace-Beltrami operator on the circle correspond
+    to the Fourier basis, i.e. sin and cosines..
+    """
 
     def __init__(self, num_eigenfunctions: int) -> int:
-        assert num_eigenfunctions % 2 == 1, "num_eigenfunctions needs to be odd to include all eigenfunctions within a level."
+        assert (
+            num_eigenfunctions % 2 == 1
+        ), "num_eigenfunctions needs to be odd to include all eigenfunctions within a level."
         assert num_eigenfunctions >= 1
 
         self._num_eigenfunctions = num_eigenfunctions
@@ -47,34 +53,51 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
                 freq = 1.0 * level
                 values.append(const * tf.math.cos(freq * theta))
                 values.append(const * tf.math.sin(freq * theta))
-        
+
         return tf.concat(values, axis=1)  # [N, M]
 
-
-    def addition_theorem(self, X: TensorLike, X2: Optional[TensorLike] = None) -> TensorLike:
+    def _addition_theorem(self, X: TensorLike, X2: TensorLike) -> TensorLike:
         r"""
         Returns the result of applying the additional theorem when
         summing over all the eigenfunctions within a level, for each level
 
         Concretely in the case for inputs on the sphere S^1:
-        
+
         .. math:
             \sin(l \theta_1) \sin(l \theta_2) + \cos(l \theta_1) \cos(l \theta_2)
-                = \cos(l (\theta_1 - \theta_2))
+                = N_l \cos(l (\theta_1 - \theta_2)),
+        where N_l = 1 for l = 0, else N_l = 2.
 
         :param X: difference between angles
             theta_1 and theta_2 of 2 inputs, [N, 1]
         :return: [N, L], L = num_levels
 
-        :param X: [N, D]
-        :param X2: [N2, D] or `None`
+        :param X: [N, 2]
+        :param X2: [N2, 2]
         :return: Evaluate the sum of eigenfunctions on each level. Returns
-            a value for each level [N, N2, L] or [N,] if `X2` is `None`.
+            a value for each level [N, N2, L]
         """
-        theta = cartesian_to_polar(X)
-        if 
-        raise NotImplementedError
-    
+        theta = cartesian_to_polar(X)  # [N, 1]
+        theta2 = cartesian_to_polar(X2)  # [N2, 1]
+        diff_theta = theta[:, None, :] - theta2[None, :, :]  # [N, N2, 1]
+        freqs = tf.range(self.num_levels, dtype=X.dtype)  # [L]
+        values = tf.math.cos(freqs[None, None, :] * diff_theta)  # [N, N2, L]
+        values = self.num_eigenfunctions_per_level[None, None, :] * values
+        return values  # [N, N2, L]
+
+    def _addition_theorem_diag(self, X: TensorLike) -> TensorLike:
+        """
+        Returns the sum of eigenfunctions on a level for which we have a simplified expression
+
+        :param X: [N, 1]
+        :return: Evaluate the sum of eigenfunctions on each level. Returns
+            a value for each level [N, L]
+        """
+        N = tf.shape(X)[0]
+        ones = tf.ones((N, self.num_levels), dtype=X.dtype)  # [N, L]
+        value = ones * self.num_eigenfunctions_per_level[None, :]
+        return value  # [N, L]
+
     @property
     def num_eigenfunctions(self) -> int:
         """Number of eigenfunctions, M"""
@@ -92,8 +115,10 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
 
     @property
     def num_eigenfunctions_per_level(self) -> np.ndarray:
-        """Number of eigenfunctions per level"""
-        return [1 if level == 0 else 2 for level in range(self.num_levels)]
+        """Number of eigenfunctions per level, [N_l]_{l=0}^{L-1}"""
+        return np.array(
+            [1 if level == 0 else 2 for level in range(self.num_levels)]
+        )
 
 
 class Circle(SpaceWithEigenDecomposition, gs.geometry.hypersphere.Hypersphere):

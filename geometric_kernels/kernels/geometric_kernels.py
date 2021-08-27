@@ -1,12 +1,12 @@
 """
 Implementation of geometric kernels on several spaces
 """
-from geometric_kernels.eigenfunctions import Eigenfunctions
-from typing import Callable, Optional, Mapping
+from typing import Callable, Mapping, Optional
 
 import numpy as np
 import tensorflow as tf
 
+from geometric_kernels.eigenfunctions import Eigenfunctions
 from geometric_kernels.kernels import BaseGeometricKernel
 from geometric_kernels.spaces.base import SpaceWithEigenDecomposition
 from geometric_kernels.types import Parameter, TensorLike
@@ -80,7 +80,9 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         eigenvalues_laplacian = self.space.get_eigenvalues(self.num_eigenfunctions)  # [M, 1]
         return self._spectrum(eigenvalues_laplacian ** 0.5, lengthscale=parameters["lengthscale"])
 
-    def K(self, X: TensorLike, X2: Optional[TensorLike]=None, **parameters: Mapping[str, Parameter]) -> TensorLike:
+    def K(
+        self, X: TensorLike, X2: Optional[TensorLike] = None, **parameters: Mapping[str, Parameter]
+    ) -> TensorLike:
         """Compute the mesh kernel via Laplace eigendecomposition"""
         weights = self.eigenvalues(**parameters)  # [M, 1]
         Phi = self.eigenfunctions()
