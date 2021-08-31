@@ -1,9 +1,11 @@
+from geometric_kernels.kernels.geometric_kernels import MaternKarhunenLoeveKernel
 import numpy as np
 import pytest
 import tensorflow as tf
+import gpflow
 
 from geometric_kernels.eigenfunctions import EigenfunctionWithAdditionTheorem
-from geometric_kernels.spaces.circle import SinCosEigenfunctions
+from geometric_kernels.spaces.circle import Circle, SinCosEigenfunctions, cartesian_to_polar
 from geometric_kernels.types import TensorLike
 from geometric_kernels.utils import chain, l2norm
 
@@ -98,3 +100,26 @@ def test_weighted_outerproduct_diag_with_addition_theorem(inputs, eigenfunctions
     Phi_X = eigenfunctions(inputs)
     expected = tf.einsum("ni,i->n", Phi_X ** 2, weights).numpy()
     np.testing.assert_array_almost_equal(actual, expected)
+
+def Matern52(r):
+    sqrt5 = np.sqrt(5.0)
+    return (1.0 + sqrt5 * r + 5.0 / 3.0 * tf.square(r)) * tf.exp(-sqrt5 * r)
+
+def test_equivalence_kernel(inputs, inputs2):
+    circle = Circle()
+    nu = 2.5
+    num_eigenfunctions = 21
+    kernel = MaternKarhunenLoeveKernel(circle, nu, num_eigenfunctions)
+    inputs2 = inputs
+    K_actual = kernel.K(inputs, inputs2, lengthscale=1.0)
+
+    theta = cartesian_to_polar(inputs)
+    theta2 = cartesian_to_polar(inputs2)
+    xi = theta[:, None, :] - theta2[None, :]  # [N, N2, 1]
+    angle_between = tf.math.mod(xi, 2 * np.pi)
+
+    values = [Matern52(angle_between + i * 2 * np.pi) for i in range(11)]
+    K_expected = tf.concat(values, axis=2)
+    K_expected = tf.reduce_sum(K_expected, axis=2)
+    
+    np.testing.assert_array_almost_equal(K_expected, K_actual)

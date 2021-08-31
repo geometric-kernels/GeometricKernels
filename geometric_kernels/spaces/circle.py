@@ -9,7 +9,7 @@ import geomstats as gs
 import numpy as np
 import tensorflow as tf
 
-from geometric_kernels.eigenfunctions import EigenfunctionWithAdditionTheorem
+from geometric_kernels.eigenfunctions import EigenfunctionWithAdditionTheorem, Eigenfunctions
 from geometric_kernels.spaces import SpaceWithEigenDecomposition
 from geometric_kernels.types import TensorLike
 
@@ -152,9 +152,11 @@ class Circle(SpaceWithEigenDecomposition, gs.geometry.hypersphere.Hypersphere):
     def dimension(self) -> int:
         return 2
 
-    def get_eigenfunctions(self, num: int) -> Callable[[TensorLike], TensorLike]:
-
-        pass
+    def get_eigenfunctions(self, num: int) -> Eigenfunctions:
+        """
+        :param num: number of eigenfunctions returned.
+        """
+        return SinCosEigenfunctions(num)
 
     def get_eigenvalues(self, num: int) -> TensorLike:
         """
@@ -162,8 +164,4 @@ class Circle(SpaceWithEigenDecomposition, gs.geometry.hypersphere.Hypersphere):
 
         :return: [num, 1] array containing the eigenvalues
         """
-
-        pass
-
-
-# from geomstats.geometry.manifold import Manifold
+        return tf.range(num, dtype='float64') ** 2.0
