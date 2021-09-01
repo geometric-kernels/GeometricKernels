@@ -18,12 +18,12 @@ def fixture_mesh_kernel() -> MeshKernel:
 
 
 def test_eigenvalues(mesh_kernel: MeshKernel):
-    assert mesh_kernel.eigenvalues(lengthscale=0.81).shape == (_TRUNCATION_LEVEL, 1)
+    assert mesh_kernel.eigenvalues(lengthscale=np.r_[0.81]).shape == (_TRUNCATION_LEVEL, 1)
 
 
 def test_eigenfunctions(mesh_kernel: MeshKernel):
     num_data = 11
-    Phi = mesh_kernel.eigenfunctions(lengthscale=0.93)
+    Phi = mesh_kernel.eigenfunctions(lengthscale=np.r_[0.93])
     X = np.random.randint(low=0, high=mesh_kernel.space.num_vertices, size=(num_data, 1))
 
     assert Phi(X).shape == (num_data, _TRUNCATION_LEVEL)
@@ -34,11 +34,11 @@ def test_K_shapes(mesh_kernel: MeshKernel):
     X = np.random.randint(low=0, high=mesh_kernel.space.num_vertices, size=(N1, 1))
     X2 = np.random.randint(low=0, high=mesh_kernel.space.num_vertices, size=(N2, 1))
 
-    K = mesh_kernel.K(X, None, lengthscale=0.99)
+    K = mesh_kernel.K(X, None, lengthscale=np.r_[0.99])
     assert K.shape == (N1, N1)
 
-    K = mesh_kernel.K(X, X2, lengthscale=0.99)
+    K = mesh_kernel.K(X, X2, lengthscale=np.r_[0.99])
     assert K.shape == (N1, N2)
 
-    K = mesh_kernel.K_diag(X, lengthscale=0.99)
+    K = mesh_kernel.K_diag(X, lengthscale=np.r_[0.99])
     assert K.shape == (N1,)

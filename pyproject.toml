@@ -29,6 +29,7 @@ pytest-pylint = "^0.17.0"
 taskipy = "^1.2.0"
 pytest-black = "^0.3.8,!=0.3.10"
 pytest-isort = "^1.0.0"
+gpytorch = "^1.5.0"
 
 [tool.taskipy.tasks]
 lint = "pytest --pylint --cache-clear -m pylint --pylint-rcfile=extrapylint geometric_kernels"

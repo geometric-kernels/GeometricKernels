@@ -9,6 +9,7 @@ import numpy as np
 from geometric_kernels.kernels import BaseGeometricKernel
 from geometric_kernels.spaces import Mesh
 from geometric_kernels.types import Parameter, TensorLike
+from geometric_kernels.utils import cast_to_int, take_along_axis
 
 
 class MeshKernel(BaseGeometricKernel):
@@ -33,12 +34,20 @@ class MeshKernel(BaseGeometricKernel):
         `lengthscale` parameters.
         """
 
+        # cast `lengthscale` to eagerpy
+        lengthscale = ep.astensor(lengthscale)
+        # cast `s` to the same backend as `lengthscale`
+        s = ep.from_numpy(lengthscale, s).astype(lengthscale.dtype)
+
         def spectrum_rbf():
+
+            # the backend should be the same as `lengthscale`
             return ep.exp(-(lengthscale ** 2) / 2.0 * (s ** 2))
 
         def spectrum_matern():
             power = -self.nu - self.space.dim / 2.0
             base = 2.0 * self.nu / lengthscale ** 2 + (s ** 2)
+            # the backend should be the same as `lengthscale`
             return ep.astensor(base ** power)
 
         if self.nu == np.inf:
@@ -52,6 +61,8 @@ class MeshKernel(BaseGeometricKernel):
         """
         Eigenfunctions of the kernel, may depend on parameters.
         """
+        assert "lengthscale" in __parameters
+        lengthscale = ep.astensor(__parameters["lengthscale"])
 
         class _EigenFunctions:
             """
@@ -60,7 +71,10 @@ class MeshKernel(BaseGeometricKernel):
             """
 
             def __init__(self, eigenvectors):
-                self.eigenvectors = ep.astensor(eigenvectors)
+                # cast eigenvectors to the same backend as lengthscale
+                self.eigenvectors = ep.from_numpy(lengthscale, eigenvectors).astype(
+                    lengthscale.dtype
+                )
 
             def __call__(self, indices: TensorLike) -> TensorLike:
                 """
@@ -71,11 +85,13 @@ class MeshKernel(BaseGeometricKernel):
                 """
                 assert len(indices.shape) == 2
                 assert indices.shape[-1] == 1
-                indices = ep.from_numpy(self.eigenvectors, indices).astype(np.int32)  # [I, 1]
+
+                # cast indices to whatever eigenvectors have as a backend
+                indices = cast_to_int(ep.astensor(indices))  # [I, 1]
 
                 # This is a very hacky way of taking along 0'th axis.
                 # For some reason eagerpy does not take along axis other than last.
-                Phi = self.eigenvectors.T.take_along_axis(indices.T, axis=-1).T
+                Phi = take_along_axis(self.eigenvectors, indices, axis=0)
                 return Phi
 
         if self._eigenfunctions is None:
@@ -96,18 +112,20 @@ class MeshKernel(BaseGeometricKernel):
 
     def K(self, X, X2=None, **parameters):
         """Compute the mesh kernel via Laplace eigendecomposition"""
-        Phi_X = self.eigenfunctions()(X)  # [N, L]
+        Phi_X = self.eigenfunctions(**parameters)(X)  # [N, L]
         if X2 is None:
             Phi_X2 = Phi_X
         else:
-            Phi_X2 = self.eigenfunctions()(X2)  # [N2, L]
+            Phi_X2 = self.eigenfunctions(**parameters)(X2)  # [N2, L]
 
         coeffs = self.eigenvalues(**parameters)  # [L, 1]
+
         Kxx = ep.matmul(coeffs.T * Phi_X, Phi_X2.T)
         return Kxx.raw
 
     def K_diag(self, X, **parameters):
-        Phi_X = self.eigenfunctions()(X)  # [N, L]
+        Phi_X = self.eigenfunctions(**parameters)(X)  # [N, L]
         coeffs = self.eigenvalues(**parameters)  # [L, 1]
+
         Kx = ep.sum(coeffs.T * Phi_X ** 2, axis=1)  # [N, ]
         return Kx.raw

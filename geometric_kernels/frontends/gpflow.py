@@ -33,7 +33,9 @@ class GPflowGeometricKernel(gpflow.kernels.Kernel):
         return self._kernel.space
 
     def K(self, X, X2=None):
-        return self._kernel.K(X, X2, lengthscale=self.lengthscale)
+        lengthscale = tf.convert_to_tensor(self.lengthscale)
+        return self._kernel.K(X, X2, lengthscale=lengthscale)
 
     def K_diag(self, X):
-        return self._kernel.K_diag(X, lengthscale=self.lengthscale)
+        lengthscale = tf.convert_to_tensor(self.lengthscale)
+        return self._kernel.K_diag(X, lengthscale=lengthscale)
