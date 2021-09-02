@@ -115,7 +115,7 @@ def SE(r):
 
 def test_equivalence_kernel(inputs, inputs2):
     circle = Circle()
-    nu = np.inf
+    nu = 2.5
     num_eigenfunctions = 21
     kernel = MaternKarhunenLoeveKernel(circle, nu, num_eigenfunctions)
     K_actual = kernel.K(inputs, inputs2, lengthscale=1.0)
