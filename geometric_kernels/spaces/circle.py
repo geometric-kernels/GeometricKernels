@@ -153,7 +153,7 @@ class Circle(SpaceWithEigenDecomposition, gs.geometry.hypersphere.Hypersphere):
 
     @property
     def dimension(self) -> int:
-        return 2
+        return 1
 
     def get_eigenfunctions(self, num: int) -> Eigenfunctions:
         """

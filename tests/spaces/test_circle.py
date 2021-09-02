@@ -106,26 +106,44 @@ def test_weighted_outerproduct_diag_with_addition_theorem(inputs, eigenfunctions
     expected = tf.einsum("ni,i->n", Phi_X ** 2, weights).numpy()
     np.testing.assert_array_almost_equal(actual, expected)
 
-# def Matern52(r):
-#     sqrt5 = np.sqrt(5.0)
-#     return (1.0 + sqrt5 * r + 5.0 / 3.0 * tf.square(r)) * tf.exp(-sqrt5 * r)
 
-def SE(r):
-    return tf.exp(-0.5 * r ** 2)
+def analytic_kernel(nu: float, r: TensorLike) -> TensorLike:
+    """
+    Analytic implementations of matern-family kernels.
 
-def test_equivalence_kernel(inputs, inputs2):
+    :param nu: selects the matern
+    :param r: distance
+    """
+    r = tf.abs(r)
+    if nu == 0.5:
+        return np.exp(-r)
+    elif nu == 1.5:
+        sqrt3 = np.sqrt(3.0)
+        return (1.0 + sqrt3 * r) * tf.exp(-sqrt3 * r)
+    elif nu == 2.5:
+        sqrt5 = np.sqrt(5.0)
+        return (1.0 + sqrt5 * r + 5.0 / 3.0 * tf.square(r)) * tf.exp(-sqrt5 * r)
+    elif nu == np.inf:
+        return tf.exp(-0.5 * r ** 2)
+    else:
+        raise NotImplementedError
+
+
+
+@pytest.mark.parametrize("nu", [0.5, 1.5, 2.5, np.inf])
+def test_equivalence_kernel(nu, inputs, inputs2):
     circle = Circle()
-    nu = 2.5
-    num_eigenfunctions = 21
+    num_eigenfunctions = 101
     kernel = MaternKarhunenLoeveKernel(circle, nu, num_eigenfunctions)
     K_actual = kernel.K(inputs, inputs2, lengthscale=1.0)
 
     geodesic = inputs[:, None, :] - inputs2[None, :, :]  # [N, N2, 1]
-    all_distances = geodesic + np.array([i * 2 * np.pi for i in range(-5, 5)])[None, None, :]
-    values = SE(all_distances)
+    all_distances = geodesic + np.array([i * 2 * np.pi for i in range(-10, 10)])[None, None, :]
+    values = analytic_kernel(nu, all_distances)
     K_expected = tf.reduce_sum(values, axis=2).numpy()
 
     np.testing.assert_array_almost_equal(
         K_expected / K_expected[0, 0],
-        K_actual / K_actual[0, 0]
+        K_actual / K_actual[0, 0],
+        decimal=2
     )
