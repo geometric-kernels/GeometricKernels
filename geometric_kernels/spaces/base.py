@@ -14,7 +14,13 @@ class Space(abc.ABC):
 
     @abc.abstractproperty
     def dimension(self) -> int:
-        """Dimension in which the space is embedded"""
+        """
+        Dimension of the manifold
+        Examples:
+         - circle: 1
+         - sphere: 2
+         - torus: 2
+        """
         raise NotImplementedError
 
 

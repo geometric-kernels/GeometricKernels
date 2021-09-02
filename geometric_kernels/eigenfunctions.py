@@ -24,8 +24,10 @@ class Eigenfunctions(abc.ABC):
         Computes :math:`\sum_{i=0}^{M-1} w_i \phi_i(x1) \phi_i(x2)`.
 
         :param weights: [M, 1]
-        :param X: Inputs where to evaluate the eigenfunctions, shape = [N, D].
-        :param X2: Inputs where to evaluate the eigenfunctions, shape = [N2, D].
+        :param X: Inputs where to evaluate the eigenfunctions, shape = [N, D]
+            where `N` is the number of inputs and `D` the dimension.
+        :param X2: Inputs where to evaluate the eigenfunctions, shape = [N2, D],
+            where `N` is the number of inputs and `D` the dimension.
             Default to None, in which X is used for X2.
         :return: shape [N, N2]
         """
@@ -53,7 +55,12 @@ class Eigenfunctions(abc.ABC):
         return tf.einsum("ni,i->n", Phi_X ** 2, weights)  # [N,]
 
     @abc.abstractmethod
-    def __call__(self, x: TensorLike) -> TensorLike:
+    def __call__(self, X: TensorLike) -> TensorLike:
+        """
+        :param X: points to evaluate the eigenfunctions in local coordinates, [N, D].
+            `N` is the number of points and `D` should match the dimension of the space
+            on which the eigenfunctions are defined.
+        """
         raise NotImplementedError
 
     @abc.abstractproperty
@@ -63,12 +70,24 @@ class Eigenfunctions(abc.ABC):
 
 
 class EigenfunctionWithAdditionTheorem(Eigenfunctions):
-    """
+    r"""
     Eigenfunctions for which the sum over a level has a simpler expression.
-    In the case the weights over a level in the `weighted_outproduct` our identical
+
+    Example 1:
+    On the circle S^1 the eigenfunctions are given by :math:`{\sin(l \theta), \cos(l \theta)}`,
+    where we refer to :math:`l` as the level. Summing over the eigenfunctions of a level
+    as follows :math:`\cos(l x) \cos(l x') + \sin(l x) \sin(l x)` can be simplified to
+    :math:`cos(l (x-x'))` thanks to some trigonometric identity.
+
+    Example 2:
+    The sphere manifold S^d eigenfunctions, known as the spherical harmonics, also adhere
+    to this property. It is known as the addition theorem.  See, for example, Theorem 4.11 (p.60
+     Frye and Efthimiou (2012).
+
+    In the case the weights over a level in the `weighted_outproduct` are identical
     we can make use of this expression to simplify computations.
 
-    We assume there are `L` levels. The sum of the number of eigenfunctions per level should
+    We assume there are `L` levels. The sum of the number of eigenfunctions per level should be
     equal the total amount of eigenfunctions.
     """
 
@@ -89,12 +108,11 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         :return: shape [N, N2]
         """
         if X2 is None:
-            sum_phi_phi_for_level = self._addition_theorem(X, X)  # [N, N, L]
-            N1 = N2 = tf.shape(X)[0]
-        else:
-            sum_phi_phi_for_level = self._addition_theorem(X, X2)  # [N, N2, L]
-            N1 = tf.shape(X)[0]
-            N2 = tf.shape(X2)[0]
+            X2 = X
+
+        sum_phi_phi_for_level = self._addition_theorem(X, X)  # [N, N, L]
+        N1 = tf.shape(X)[0]
+        N2 = tf.shape(X2)[0]
 
         weights = self._filter_weights(weights)
         weights = tf.reshape(weights, (-1,))  # flatten
@@ -147,7 +165,13 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         return tf.einsum("i,ni->n", weights, addition_theorem_X)  # [N,]
 
     def _filter_weights(self, weights: TensorLike) -> TensorLike:
-        """Selects the weight for each level"""
+        """
+        Selects the weight for each level.
+        Assumes the weights in `weights` within a level are the same.
+
+        :param weights: [M, 1]
+        :return: [L, 1]
+        """
         weights_per_level = []
         # assumes the weights in `weights` within a level are the same
         # TODO(VD) write check for this.

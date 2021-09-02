@@ -14,7 +14,8 @@ from geometric_kernels.types import Parameter, TensorLike
 
 class MaternKarhunenLoeveKernel(BaseGeometricKernel):
     r"""
-    This class approximates a kernel by the finite feature decomposition:
+    This class approximates a kernel by the finite feature decomposition using
+    its Laplace-Beltrami eigenfunctions and eigenvalues [1, 2].
 
     .. math:: k(x, x') = \sum_{i=0}^{M-1} S(\sqrt\lambda_i) \phi_i(x) \phi_i(x'),
 
@@ -22,6 +23,14 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
     eigenfunctions of the Laplace-Beltrami operator and :math:`S(\cdot)` the
     spectrum of the stationary kernel. The eigenvalues and eigenfunctions belong
     to the `SpaceWithEigenDecomposition` instance.
+
+    References:
+
+    [1] Viacheslav Borovitskiy, Alexander Terenin, Peter Mostowsky, and Marc Peter Deisenroth,
+        Matern Gaussian processes on Riemannian manifolds
+
+    [2] Arno Solin, and Simo Särkkä, Hilbert Space Methods for Reduced-Rank
+        Gaussian Process Regression
     """
 
     def __init__(

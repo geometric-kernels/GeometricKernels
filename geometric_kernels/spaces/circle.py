@@ -19,7 +19,7 @@ def cartesian_to_polar(X: TensorLike) -> TensorLike:
     """
     :param X: Cartesian coordinates on the circle, [N, 2].
         This means their norm equals one.
-    :return: angle [N, 1]
+    :return: angle (between PI and -PI) [N, 1]
     """
     return tf.reshape(tf.math.atan2(X[:, 1], X[:, 0]), (-1, 1))
 
