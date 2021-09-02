@@ -8,7 +8,7 @@ import tensorflow as tf
 
 from geometric_kernels.eigenfunctions import Eigenfunctions
 from geometric_kernels.kernels import BaseGeometricKernel
-from geometric_kernels.spaces.base import SpaceWithEigenDecomposition
+from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.types import Parameter, TensorLike
 
 
@@ -35,7 +35,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
 
     def __init__(
         self,
-        space: SpaceWithEigenDecomposition,
+        space: DiscreteSpectrumSpace,
         nu: float,
         num_eigenfunctions: int,
     ):

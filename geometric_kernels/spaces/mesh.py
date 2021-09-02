@@ -10,7 +10,7 @@ import scipy.sparse.linalg as sla
 import tensorflow as tf
 
 from geometric_kernels.eigenfunctions import Eigenfunctions
-from geometric_kernels.spaces import SpaceWithEigenDecomposition
+from geometric_kernels.spaces import DiscreteSpectrumSpace
 from geometric_kernels.types import TensorLike
 
 
@@ -44,7 +44,7 @@ class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
         return self.eigenvectors.shape[-1]
 
 
-class Mesh(SpaceWithEigenDecomposition):
+class Mesh(DiscreteSpectrumSpace):
     """
     A representation of a surface mesh. Mimics `PyMesh` interface. Uses
     `potpourri3d` to read mesh files.

@@ -24,7 +24,7 @@ class Space(abc.ABC):
         raise NotImplementedError
 
 
-class SpaceWithEigenDecomposition(Space):
+class DiscreteSpectrumSpace(Space):
     """
     A Space for which we can obtain the eigenvalues and eigenfunctions of
     the Laplace-Beltrami operator.

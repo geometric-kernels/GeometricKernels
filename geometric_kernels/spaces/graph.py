@@ -2,13 +2,13 @@
 Graphs: TODO
 """
 from geometric_kernels.eigenfunctions import Eigenfunctions
-from geometric_kernels.spaces import SpaceWithEigenDecomposition
+from geometric_kernels.spaces import DiscreteSpectrumSpace
 from geometric_kernels.types import TensorLike
 
 # from networkx import Graph
 
 
-class Graph(SpaceWithEigenDecomposition):
+class Graph(DiscreteSpectrumSpace):
     """TODO"""
 
     @property

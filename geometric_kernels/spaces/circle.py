@@ -10,7 +10,7 @@ import numpy as np
 import tensorflow as tf
 
 from geometric_kernels.eigenfunctions import Eigenfunctions, EigenfunctionWithAdditionTheorem
-from geometric_kernels.spaces import SpaceWithEigenDecomposition
+from geometric_kernels.spaces import DiscreteSpectrumSpace
 from geometric_kernels.types import TensorLike
 from geometric_kernels.utils import chain
 
@@ -114,7 +114,7 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         return np.array([1 if level == 0 else 2 for level in range(self.num_levels)])
 
 
-class Circle(SpaceWithEigenDecomposition, gs.geometry.hypersphere.Hypersphere):
+class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
     r"""
     Circle :math:`\mathbb{S}^1` manifold with sinusoids and cosines eigenfunctions.
     """

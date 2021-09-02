@@ -110,7 +110,7 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         if X2 is None:
             X2 = X
 
-        sum_phi_phi_for_level = self._addition_theorem(X, X)  # [N, N, L]
+        sum_phi_phi_for_level = self._addition_theorem(X, X2)  # [N, N, L]
         N1 = tf.shape(X)[0]
         N2 = tf.shape(X2)[0]
 
