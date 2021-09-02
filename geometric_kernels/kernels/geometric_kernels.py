@@ -7,30 +7,44 @@ import eagerpy as ep
 import numpy as np
 
 from geometric_kernels.kernels import BaseGeometricKernel
-from geometric_kernels.spaces import Mesh
+from geometric_kernels.spaces.base import SpaceWithEigenDecomposition
 from geometric_kernels.types import Parameter, TensorLike
-from geometric_kernels.utils import cast_to_int, take_along_axis
 
 
-class MeshKernel(BaseGeometricKernel):
-    """
-    Geometric kernel on a Mesh
+class MaternKarhunenLoeveKernel(BaseGeometricKernel):
+    r"""
+    This class approximates a kernel by the finite feature decomposition:
+
+    .. math:: k(x, x') = \sum_{i=0}^L S(\sqrt\lambda_i) \phi_i(x) \phi_i(x'),
+
+    where :math:`\lambda_i` and :math:`\phi_i(\cdot)` are the eigenvalues and
+    eigenfunctions of the Laplace-Beltrami operator and :math:`S(\cdot)` the
+    spectrum of the stationary kernel. The eigenvalues and eigenfunctions belong
+    to the `SpaceWithEigenDecomposition` instance.
     """
 
     def __init__(
         self,
-        space: Mesh,
+        space: SpaceWithEigenDecomposition,
         nu: float,
-        truncation_level: int,
+        num_components: int,
     ):
-        super().__init__(space)
-        self.truncation_level = truncation_level
-        self.nu = nu
-        self._eigenfunctions: Optional[Callable[[TensorLike], TensorLike]] = None
-
-    def spectrum(self, s: TensorLike, lengthscale: Parameter):
+        r"""
+        :param space: Space providing the eigenvalues and eigenfunctions of
+            the Laplace-Beltrami operator.
+        :param nu: Determines continuity of the Mat\'ern kernel. Typical values
+            include 1/2 (i.e., the Exponential kernel), 3/2, 5/2 and +\infty
+            `np.inf` which corresponds to the Squared Exponential kernel.
+        :param num_components: number of eigenvalues and functions to include
+            in the summation.
         """
-        Matern or RBF spectrum evaluated as `s`. Depends on the
+        super().__init__(space)
+        self.nu = nu
+        self.num_components = num_components  # in code referred to as `L`.
+
+    def _spectrum(self, s: TensorLike, lengthscale: Parameter):
+        """
+        Matern or RBF spectrum evaluated at `s`. Depends on the
         `lengthscale` parameters.
         """
 
@@ -40,14 +54,11 @@ class MeshKernel(BaseGeometricKernel):
         s = ep.from_numpy(lengthscale, s).astype(lengthscale.dtype)
 
         def spectrum_rbf():
-
-            # the backend should be the same as `lengthscale`
             return ep.exp(-(lengthscale ** 2) / 2.0 * (s ** 2))
 
         def spectrum_matern():
-            power = -self.nu - self.space.dim / 2.0
+            power = -self.nu - self.space.dimension / 2.0
             base = 2.0 * self.nu / lengthscale ** 2 + (s ** 2)
-            # the backend should be the same as `lengthscale`
             return ep.astensor(base ** power)
 
         if self.nu == np.inf:
@@ -57,48 +68,14 @@ class MeshKernel(BaseGeometricKernel):
         else:
             raise NotImplementedError
 
-    def eigenfunctions(self, **__parameters) -> Callable:
+    def eigenfunctions(self, **__parameters) -> Callable[[TensorLike], TensorLike]:
         """
         Eigenfunctions of the kernel, may depend on parameters.
         """
         assert "lengthscale" in __parameters
-        lengthscale = ep.astensor(__parameters["lengthscale"])
+        eigenfunctions = self.space.get_eigenfunctions(self.num_components)
 
-        class _EigenFunctions:
-            """
-            Converts the array of eigenvectors to a callable objects,
-            The inputs are given by the indices.
-            """
-
-            def __init__(self, eigenvectors):
-                # cast eigenvectors to the same backend as lengthscale
-                self.eigenvectors = ep.from_numpy(lengthscale, eigenvectors).astype(
-                    lengthscale.dtype
-                )
-
-            def __call__(self, indices: TensorLike) -> TensorLike:
-                """
-                Selects N locations from the  eigenvectors.
-
-                :param indices: indices [N, 1]
-                :return: [N, L]
-                """
-                assert len(indices.shape) == 2
-                assert indices.shape[-1] == 1
-
-                # cast indices to whatever eigenvectors have as a backend
-                indices = cast_to_int(ep.astensor(indices))  # [I, 1]
-
-                # This is a very hacky way of taking along 0'th axis.
-                # For some reason eagerpy does not take along axis other than last.
-                Phi = take_along_axis(self.eigenvectors, indices, axis=0)
-                return Phi
-
-        if self._eigenfunctions is None:
-            eigenvectors = self.space.get_eigenfunctions(self.truncation_level)  # [Nv, L]
-            self._eigenfunctions = _EigenFunctions(eigenvectors)
-
-        return self._eigenfunctions
+        return eigenfunctions
 
     def eigenvalues(self, **parameters) -> TensorLike:
         """
@@ -107,8 +84,8 @@ class MeshKernel(BaseGeometricKernel):
         :return: [L, 1]
         """
         assert "lengthscale" in parameters
-        eigenvalues_laplacian = self.space.get_eigenvalues(self.truncation_level)  # [L, 1]
-        return self.spectrum(eigenvalues_laplacian ** 0.5, lengthscale=parameters["lengthscale"])
+        eigenvalues_laplacian = self.space.get_eigenvalues(self.num_components)  # [L, 1]
+        return self._spectrum(eigenvalues_laplacian ** 0.5, lengthscale=parameters["lengthscale"])
 
     def K(self, X, X2=None, **parameters):
         """Compute the mesh kernel via Laplace eigendecomposition"""
@@ -119,13 +96,15 @@ class MeshKernel(BaseGeometricKernel):
             Phi_X2 = self.eigenfunctions(**parameters)(X2)  # [N2, L]
 
         coeffs = self.eigenvalues(**parameters)  # [L, 1]
-
-        Kxx = ep.matmul(coeffs.T * Phi_X, Phi_X2.T)
+        # Kxx = tf.matmul(Phi_X, tf.transpose(coeffs) * Phi_X2, transpose_b=True)  # [N, N2]
+        Kxx = ep.matmul(coeffs.T * Phi_X, Phi_X2.T)  # [N, N2]
         return Kxx.raw
 
     def K_diag(self, X, **parameters):
         Phi_X = self.eigenfunctions(**parameters)(X)  # [N, L]
         coeffs = self.eigenvalues(**parameters)  # [L, 1]
+        # Kx = tf.reduce_sum(Phi_X ** 2 * tf.transpose(coeffs), axis=1)  # [N,]
 
         Kx = ep.sum(coeffs.T * Phi_X ** 2, axis=1)  # [N, ]
+
         return Kx.raw

@@ -33,7 +33,7 @@ gpytorch = "^1.5.0"
 
 [tool.taskipy.tasks]
 lint = "pytest --pylint --cache-clear -m pylint --pylint-rcfile=extrapylint geometric_kernels"
-mypy = "pytest --mypy --cache-clear -m mypy -v --implicit-reexport"
+mypy = "pytest --mypy --cache-clear -m mypy -v"
 quicktest = "pytest -x --ff -rN -Wignore"
 test = "pytest --pylint --mypy --black --isort --cache-clear -ra -v --cov geometric_kernels --cov-report term --cov-report xml:reports/coverage.xml --junitxml=reports/junit.xml -o junit_family=xunit2 && pytest --pylint --cache-clear -m pylint --pylint-rcfile=extrapylint geometric_kernels"
 black = "black ."

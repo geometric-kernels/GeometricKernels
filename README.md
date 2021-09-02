@@ -2,6 +2,9 @@
 
 This package implements a suite of Geometric kernels.
 
+<img alt="class diagram" src="docs/class_diagram.svg">
+
+
 ## Installation
 
 We recommend using [`poetry`](https://python-poetry.org/) to install this `GeometricKernels`. Poetry manages your package, python version and other dependencies. Alternatively, virtual environments can be used.
@@ -43,5 +46,4 @@ that the project virtual environment has been updated. See [Installation](#Insta
 ## Adding new Python dependencies
 
 - To specify dependencies required by `GeometricKernels`, run `poetry add`.
-
 - To specify dependencies required to build or test the project, run `poetry add --dev`.

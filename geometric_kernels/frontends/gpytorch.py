@@ -12,7 +12,7 @@ from geometric_kernels.spaces.base import Space
 
 class GPytorchGeometricKernel(gpytorch.kernels.Kernel):
     """
-    Pytorch warpper for `BaseGeometricKernel`
+    Pytorch wrapper for `BaseGeometricKernel`
     """
 
     has_lengthscale = True
@@ -24,6 +24,7 @@ class GPytorchGeometricKernel(gpytorch.kernels.Kernel):
 
     @property
     def space(self) -> Space:
+        """Alias to kernel Space"""
         return self._kernel.space
 
     def forward(self, x1, x2, diag=False, last_dim_is_batch=False, **kwargs):

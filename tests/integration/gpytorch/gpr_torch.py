@@ -5,7 +5,7 @@ import polyscope as ps
 import torch
 
 from geometric_kernels.frontends import GPytorchGeometricKernel
-from geometric_kernels.kernels import MeshKernel
+from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import Mesh
 
 
@@ -15,7 +15,7 @@ class ExactGPModel(gpytorch.models.ExactGP):
         self.mean_module = gpytorch.means.ZeroMean()
         self.covar_module = kernel
 
-    def forward(self, x):
+    def forward(self, x):  # pylint: disable=arguments-differ
         mean_x = self.mean_module(x)
         covar_x = self.covar_module(x)
         return gpytorch.distributions.MultivariateNormal(mean_x, covar_x)
@@ -27,7 +27,7 @@ mesh = Mesh(vertices, faces)
 
 nu = 1 / 2.0
 truncation_level = 20
-base_kernel = MeshKernel(mesh, nu, truncation_level)
+base_kernel = MaternKarhunenLoeveKernel(mesh, nu, truncation_level)
 geometric_kernel = GPytorchGeometricKernel(base_kernel)
 geometric_kernel.double()
 num_data = 25
@@ -53,7 +53,7 @@ model.double()
 gaussian.double()
 model.eval()
 
-X_test = torch.tensor(np.arange(mesh.num_vertices))
+X_test = torch.arange(mesh.num_vertices).int()
 f_preds = model(X_test)
 m, v = f_preds.mean, f_preds.variance
 m, v = m.detach().numpy(), v.detach().numpy()
