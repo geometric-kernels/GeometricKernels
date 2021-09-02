@@ -10,23 +10,25 @@ from geometric_kernels.types import TensorLike
 from geometric_kernels.utils import chain, l2norm
 
 
+
+
 class Consts:
-    num_data = 13
-    num_data2 = 7
+    seed = 0
+    num_data = 7
+    num_data2 = 5
     num_eigenfunctions = 11
 
 
 @pytest.fixture(name="inputs")
 def _inputs_fixure():
-    X = np.random.randn(Consts.num_data, 2)
-    X = X / l2norm(X)
-    return X
+    np.random.seed(Consts.seed)
+    return np.random.uniform(0, 2*np.pi, size=(Consts.num_data, 1))
+
 
 @pytest.fixture(name="inputs2")
 def _inputs2_fixure():
-    X = np.random.randn(Consts.num_data2, 2)
-    X = X / l2norm(X)
-    return X
+    np.random.seed(Consts.seed + 1)
+    return np.random.uniform(0, 2*np.pi, size=(Consts.num_data2, 1))
 
 
 @pytest.fixture(name="eigenfunctions")
@@ -48,8 +50,7 @@ def test_eigenfunctions_shape(eigenfunctions: EigenfunctionWithAdditionTheorem):
 
 def test_orthonormality(eigenfunctions: EigenfunctionWithAdditionTheorem):
     theta = np.linspace(-np.pi, np.pi, 5_000).reshape(-1, 1)  # [N, 1]
-    inputs = np.concatenate([np.cos(theta), np.sin(theta)], axis=-1)  # [N, 2]
-    phi = eigenfunctions(inputs).numpy()
+    phi = eigenfunctions(theta).numpy()
     phiT_phi = (phi.T @ phi) * 2 * np.pi / phi.shape[0]
     circumference_circle = 2 * np.pi
     inner_prod = phiT_phi / circumference_circle
@@ -81,6 +82,10 @@ def test_weighted_outerproduct_with_addition_theorem(inputs, inputs2, eigenfunct
 
 
 def test_weighted_outerproduct_with_addition_theorem_same_input(inputs, eigenfunctions: EigenfunctionWithAdditionTheorem):
+    """
+    Eigenfunction will use addition theorem to compute outerproduct. We compare against the
+    naive implementation.
+    """
     weights_per_level = np.random.randn(eigenfunctions.num_levels)
     weights = chain(weights_per_level, eigenfunctions.num_eigenfunctions_per_level).numpy()
     first = eigenfunctions.weighted_outerproduct(weights, inputs, inputs).numpy()
@@ -101,25 +106,26 @@ def test_weighted_outerproduct_diag_with_addition_theorem(inputs, eigenfunctions
     expected = tf.einsum("ni,i->n", Phi_X ** 2, weights).numpy()
     np.testing.assert_array_almost_equal(actual, expected)
 
-def Matern52(r):
-    sqrt5 = np.sqrt(5.0)
-    return (1.0 + sqrt5 * r + 5.0 / 3.0 * tf.square(r)) * tf.exp(-sqrt5 * r)
+# def Matern52(r):
+#     sqrt5 = np.sqrt(5.0)
+#     return (1.0 + sqrt5 * r + 5.0 / 3.0 * tf.square(r)) * tf.exp(-sqrt5 * r)
+
+def SE(r):
+    return tf.exp(-0.5 * r ** 2)
 
 def test_equivalence_kernel(inputs, inputs2):
     circle = Circle()
-    nu = 2.5
+    nu = np.inf
     num_eigenfunctions = 21
     kernel = MaternKarhunenLoeveKernel(circle, nu, num_eigenfunctions)
-    inputs2 = inputs
     K_actual = kernel.K(inputs, inputs2, lengthscale=1.0)
 
-    theta = cartesian_to_polar(inputs)
-    theta2 = cartesian_to_polar(inputs2)
-    xi = theta[:, None, :] - theta2[None, :]  # [N, N2, 1]
-    angle_between = tf.math.mod(xi, 2 * np.pi)
+    geodesic = inputs[:, None, :] - inputs2[None, :, :]  # [N, N2, 1]
+    all_distances = geodesic + np.array([i * 2 * np.pi for i in range(-5, 5)])[None, None, :]
+    values = SE(all_distances)
+    K_expected = tf.reduce_sum(values, axis=2).numpy()
 
-    values = [Matern52(angle_between + i * 2 * np.pi) for i in range(11)]
-    K_expected = tf.concat(values, axis=2)
-    K_expected = tf.reduce_sum(K_expected, axis=2)
-    
-    np.testing.assert_array_almost_equal(K_expected, K_actual)
+    np.testing.assert_array_almost_equal(
+        K_expected / K_expected[0, 0],
+        K_actual / K_actual[0, 0]
+    )

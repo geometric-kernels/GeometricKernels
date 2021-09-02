@@ -85,6 +85,8 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
     ) -> TensorLike:
         """Compute the mesh kernel via Laplace eigendecomposition"""
         weights = self.eigenvalues(**parameters)  # [M, 1]
+        print("weights")
+        print(weights)
         Phi = self.eigenfunctions()
         return Phi.weighted_outerproduct(weights, X, X2)  # [N, N2]
 

@@ -12,6 +12,7 @@ import tensorflow as tf
 from geometric_kernels.eigenfunctions import EigenfunctionWithAdditionTheorem, Eigenfunctions
 from geometric_kernels.spaces import SpaceWithEigenDecomposition
 from geometric_kernels.types import TensorLike
+from geometric_kernels.utils import chain
 
 
 def cartesian_to_polar(X: TensorLike) -> TensorLike:
@@ -39,12 +40,11 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         # We know `num_eigenfunctions` is odd, therefore:
         self._num_levels = num_eigenfunctions // 2 + 1
 
-    def __call__(self, X: TensorLike) -> TensorLike:
+    def __call__(self, theta: TensorLike) -> TensorLike:
         """
-        :param X: cartesian coordinates on the circle, [N, 2].
+        :param theta: polar coordinates on the circle, [N, 1].
         """
         const = 2.0 ** 0.5
-        theta = cartesian_to_polar(X)
         values = []
         for level in range(self.num_levels):
             if level == 0:
@@ -56,7 +56,7 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
 
         return tf.concat(values, axis=1)  # [N, M]
 
-    def _addition_theorem(self, X: TensorLike, X2: TensorLike) -> TensorLike:
+    def _addition_theorem(self, theta1: TensorLike, theta2: TensorLike) -> TensorLike:
         r"""
         Returns the result of applying the additional theorem when
         summing over all the eigenfunctions within a level, for each level
@@ -72,16 +72,19 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
             theta_1 and theta_2 of 2 inputs, [N, 1]
         :return: [N, L], L = num_levels
 
-        :param X: [N, 2]
-        :param X2: [N2, 2]
+        :param theta: [N, 1]
+        :param theta2: [N2, 1]
         :return: Evaluate the sum of eigenfunctions on each level. Returns
             a value for each level [N, N2, L]
         """
-        theta = cartesian_to_polar(X)  # [N, 1]
-        theta2 = cartesian_to_polar(X2)  # [N2, 1]
-        diff_theta = theta[:, None, :] - theta2[None, :, :]  # [N, N2, 1]
-        freqs = tf.range(self.num_levels, dtype=X.dtype)  # [L]
-        values = tf.math.cos(freqs[None, None, :] * diff_theta)  # [N, N2, L]
+        # TODO(VD): Replace by Chebychev polynomial
+        # cos(k acos(t)) = Cheb_k(t)
+        # angle_between = tf.math.acos(tf.matmul(X, X2, transpose_b=True))  # [N, N2]
+        print("angle")
+        angle_between = theta1[:, None, :] - theta2[None, :, :]  # [N, N2, 1]
+        print(angle_between)
+        freqs = tf.range(self.num_levels, dtype=theta1.dtype)  # [L]
+        values = tf.math.cos(freqs[None, None, :] * angle_between)  # [N, N2, L]
         values = self.num_eigenfunctions_per_level[None, None, :] * values
         return values  # [N, N2, L]
 
@@ -164,4 +167,7 @@ class Circle(SpaceWithEigenDecomposition, gs.geometry.hypersphere.Hypersphere):
 
         :return: [num, 1] array containing the eigenvalues
         """
-        return tf.range(num, dtype='float64') ** 2.0
+        eigenfunctions = SinCosEigenfunctions(num)
+        eigenvalues_per_level = tf.range(eigenfunctions.num_levels, dtype='float64') ** 2.0  # [L,]
+        eigenvalues = chain(eigenvalues_per_level, eigenfunctions.num_eigenfunctions_per_level)  # [num,]
+        return tf.reshape(eigenvalues, (-1, 1))  # [num, 1]

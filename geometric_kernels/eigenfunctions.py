@@ -90,9 +90,14 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
             sum_phi_phi_for_level = self._addition_theorem(X, X2)  # [N, N2, L]
             N1 = tf.shape(X)[0]
             N2 = tf.shape(X2)[0]
+        
 
         weights = self._filter_weights(weights)
         weights = tf.reshape(weights, (-1,))  # flatten
+        print("sum_level")
+        print(sum_phi_phi_for_level)
+        print("weights")
+        print(weights)
 
         # shape checks
         tf.ensure_shape(sum_phi_phi_for_level, tf.TensorShape([N1, N2, self.num_levels]))
