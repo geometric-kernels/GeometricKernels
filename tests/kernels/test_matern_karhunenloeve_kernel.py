@@ -13,7 +13,6 @@ _NU = 1 / 2.0
 
 @fixture(name="kernel")
 def fixture_mesh_kernel() -> MaternKarhunenLoeveKernel:
-    print(Path(__file__))
     filename = Path(__file__).parent / "../teddy.obj"
     mesh = Mesh.load_mesh(str(filename))
     return MaternKarhunenLoeveKernel(mesh, _NU, _TRUNCATION_LEVEL)

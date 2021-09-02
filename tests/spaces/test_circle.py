@@ -1,15 +1,13 @@
-from geometric_kernels.kernels.geometric_kernels import MaternKarhunenLoeveKernel
+import gpflow
 import numpy as np
 import pytest
 import tensorflow as tf
-import gpflow
 
 from geometric_kernels.eigenfunctions import EigenfunctionWithAdditionTheorem
-from geometric_kernels.spaces.circle import Circle, SinCosEigenfunctions, cartesian_to_polar
+from geometric_kernels.kernels.geometric_kernels import MaternKarhunenLoeveKernel
+from geometric_kernels.spaces.circle import Circle, SinCosEigenfunctions
 from geometric_kernels.types import TensorLike
-from geometric_kernels.utils import chain, l2norm
-
-
+from geometric_kernels.utils import chain
 
 
 class Consts:
@@ -22,13 +20,13 @@ class Consts:
 @pytest.fixture(name="inputs")
 def _inputs_fixure():
     np.random.seed(Consts.seed)
-    return np.random.uniform(0, 2*np.pi, size=(Consts.num_data, 1))
+    return np.random.uniform(0, 2 * np.pi, size=(Consts.num_data, 1))
 
 
 @pytest.fixture(name="inputs2")
 def _inputs2_fixure():
     np.random.seed(Consts.seed + 1)
-    return np.random.uniform(0, 2*np.pi, size=(Consts.num_data2, 1))
+    return np.random.uniform(0, 2 * np.pi, size=(Consts.num_data2, 1))
 
 
 @pytest.fixture(name="eigenfunctions")
@@ -66,7 +64,9 @@ def test_filter_weights(eigenfunctions: EigenfunctionWithAdditionTheorem):
     )
 
 
-def test_weighted_outerproduct_with_addition_theorem(inputs, inputs2, eigenfunctions: EigenfunctionWithAdditionTheorem):
+def test_weighted_outerproduct_with_addition_theorem(
+    inputs, inputs2, eigenfunctions: EigenfunctionWithAdditionTheorem
+):
     """
     Eigenfunction will use addition theorem to compute outerproduct. We compare against the
     naive implementation.
@@ -81,7 +81,9 @@ def test_weighted_outerproduct_with_addition_theorem(inputs, inputs2, eigenfunct
     np.testing.assert_array_almost_equal(actual, expected)
 
 
-def test_weighted_outerproduct_with_addition_theorem_same_input(inputs, eigenfunctions: EigenfunctionWithAdditionTheorem):
+def test_weighted_outerproduct_with_addition_theorem_same_input(
+    inputs, eigenfunctions: EigenfunctionWithAdditionTheorem
+):
     """
     Eigenfunction will use addition theorem to compute outerproduct. We compare against the
     naive implementation.
@@ -93,7 +95,9 @@ def test_weighted_outerproduct_with_addition_theorem_same_input(inputs, eigenfun
     np.testing.assert_array_almost_equal(first, second)
 
 
-def test_weighted_outerproduct_diag_with_addition_theorem(inputs, eigenfunctions: EigenfunctionWithAdditionTheorem):
+def test_weighted_outerproduct_diag_with_addition_theorem(
+    inputs, eigenfunctions: EigenfunctionWithAdditionTheorem
+):
     """
     Eigenfunction will use addition theorem to compute outerproduct. We compare against the
     naive implementation.
@@ -112,7 +116,8 @@ def analytic_kernel(nu: float, r: TensorLike) -> TensorLike:
     Analytic implementations of matern-family kernels.
 
     :param nu: selects the matern
-    :param r: distance
+    :param r: distance, shape [...]
+    :return: k(r), shape [...]
     """
     r = tf.abs(r)
     if nu == 0.5:
@@ -129,21 +134,20 @@ def analytic_kernel(nu: float, r: TensorLike) -> TensorLike:
         raise NotImplementedError
 
 
-
 @pytest.mark.parametrize("nu", [0.5, 1.5, 2.5, np.inf])
 def test_equivalence_kernel(nu, inputs, inputs2):
+    # Spectral kernel
     circle = Circle()
-    num_eigenfunctions = 101
-    kernel = MaternKarhunenLoeveKernel(circle, nu, num_eigenfunctions)
+    kernel = MaternKarhunenLoeveKernel(circle, nu, num_eigenfunctions=101)
     K_actual = kernel.K(inputs, inputs2, lengthscale=1.0)
 
+    # Kernel by summing over all distances
     geodesic = inputs[:, None, :] - inputs2[None, :, :]  # [N, N2, 1]
     all_distances = geodesic + np.array([i * 2 * np.pi for i in range(-10, 10)])[None, None, :]
     values = analytic_kernel(nu, all_distances)
     K_expected = tf.reduce_sum(values, axis=2).numpy()
 
+    # test equivalence
     np.testing.assert_array_almost_equal(
-        K_expected / K_expected[0, 0],
-        K_actual / K_actual[0, 0],
-        decimal=2
+        K_expected / K_expected[0, 0], K_actual / K_actual[0, 0], decimal=2
     )

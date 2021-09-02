@@ -1,3 +1,4 @@
+""" Utility methods """
 from typing import Any, List
 
 import tensorflow as tf
@@ -17,7 +18,18 @@ def l2norm(X: TensorLike) -> TensorLike:
     return tf.reduce_sum(X ** 2, keepdims=True, axis=-1) ** 0.5
 
 
-def chain(elements: List[Any], repetitions: List[int]) -> List[Any]:
+def chain(elements: List[Any], repetitions: List[int]) -> TensorLike:
+    """
+    Repeats each element in `elements` by a certain number of repetitions as
+    specified in `repetitions`.  The length of `elements` and `repetitions`
+    should match.
+
+    .. code:
+        elements = ['a', 'b', 'c']
+        repetitions = [2, 1, 3]
+        out = chain(elements, repetitions)
+        print(out)  # ['a', 'a', 'b', 'c', 'c', 'c']
+    """
     return tf.concat(
         values=[tf.repeat(elements[i], r) for i, r in enumerate(repetitions)],
         axis=0,

@@ -56,7 +56,6 @@ X_test = np.arange(mesh.num_vertices).reshape(-1, 1)
 m, v = model.predict_f(X_test)
 m, v = m.numpy(), v.numpy()
 sample = model.predict_f_samples(X_test).numpy()
-print(sample.shape)
 
 ps.init()
 ps_cloud = ps.register_point_cloud("my points", vertices[X.flatten()])

@@ -80,17 +80,13 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         eigenvalues_laplacian = self.space.get_eigenvalues(self.num_eigenfunctions)  # [M, 1]
         return self._spectrum(eigenvalues_laplacian ** 0.5, lengthscale=parameters["lengthscale"])
 
-    def K(
-        self, X: TensorLike, X2: Optional[TensorLike] = None, **parameters: Mapping[str, Parameter]
-    ) -> TensorLike:
+    def K(self, X: TensorLike, X2: Optional[TensorLike] = None, **parameters) -> TensorLike:
         """Compute the mesh kernel via Laplace eigendecomposition"""
         weights = self.eigenvalues(**parameters)  # [M, 1]
-        print("weights")
-        print(weights)
         Phi = self.eigenfunctions()
         return Phi.weighted_outerproduct(weights, X, X2)  # [N, N2]
 
-    def K_diag(self, X: TensorLike, **parameters: Mapping[str, Parameter]) -> TensorLike:
+    def K_diag(self, X: TensorLike, **parameters) -> TensorLike:
         weights = self.eigenvalues(**parameters)  # [M, 1]
         Phi = self.eigenfunctions()
         return Phi.weighted_outerproduct_diag(weights, X)  # [N,]
