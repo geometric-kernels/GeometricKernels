@@ -1,7 +1,7 @@
 """
 Mesh object
 """
-from typing import Any, Callable, Dict, Tuple
+from typing import Any, Callable, Dict, Optional, Tuple
 
 import eagerpy as ep
 import numpy as np
@@ -24,7 +24,7 @@ class ConvertEigenvectorsToEigenfunctions:
         # Always numpy to seamleassy convert to a desired backend
         assert isinstance(eigenvectors, np.ndarray)
         self.eigenvectors_np = eigenvectors
-        self.eigenvectors = None
+        self.eigenvectors: Optional[TensorLike] = None
 
     def __call__(self, indices: TensorLike) -> TensorLike:
         """
