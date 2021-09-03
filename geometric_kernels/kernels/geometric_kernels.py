@@ -3,8 +3,8 @@ Implementation of geometric kernels on several spaces
 """
 from typing import Callable, Optional
 
+import eagerpy as ep
 import numpy as np
-import tensorflow as tf
 
 from geometric_kernels.kernels import BaseGeometricKernel
 from geometric_kernels.spaces.base import SpaceWithEigenDecomposition
@@ -48,13 +48,18 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         `lengthscale` parameters.
         """
 
+        # cast `lengthscale` to eagerpy
+        lengthscale = ep.astensor(lengthscale)
+        # cast `s` to the same backend as `lengthscale`
+        s = ep.from_numpy(lengthscale, s).astype(lengthscale.dtype)
+
         def spectrum_rbf():
-            return tf.exp(-(lengthscale ** 2) / 2.0 * (s ** 2))
+            return ep.exp(-(lengthscale ** 2) / 2.0 * (s ** 2))
 
         def spectrum_matern():
             power = -self.nu - self.space.dimension / 2.0
             base = 2.0 * self.nu / lengthscale ** 2 + (s ** 2)
-            return base ** power
+            return ep.astensor(base ** power)
 
         if self.nu == np.inf:
             return spectrum_rbf()
@@ -67,7 +72,10 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         """
         Eigenfunctions of the kernel, may depend on parameters.
         """
-        return self.space.get_eigenfunctions(self.num_components)
+        assert "lengthscale" in __parameters
+        eigenfunctions = self.space.get_eigenfunctions(self.num_components)
+
+        return eigenfunctions
 
     def eigenvalues(self, **parameters) -> TensorLike:
         """
@@ -81,18 +89,18 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
 
     def K(self, X, X2=None, **parameters):
         """Compute the mesh kernel via Laplace eigendecomposition"""
-        Phi_X = self.eigenfunctions()(X)  # [N, L]
+        Phi_X = self.eigenfunctions(**parameters)(X)  # [N, L]
         if X2 is None:
             Phi_X2 = Phi_X
         else:
-            Phi_X2 = self.eigenfunctions()(X2)  # [N2, L]
+            Phi_X2 = self.eigenfunctions(**parameters)(X2)  # [N2, L]
 
         coeffs = self.eigenvalues(**parameters)  # [L, 1]
-        Kxx = tf.matmul(Phi_X, tf.transpose(coeffs) * Phi_X2, transpose_b=True)  # [N, N2]
-        return Kxx
+        Kxx = ep.matmul(coeffs.T * Phi_X, Phi_X2.T)  # [N, N2]
+        return Kxx.raw
 
     def K_diag(self, X, **parameters):
-        Phi_X = self.eigenfunctions()(X)  # [N, L]
+        Phi_X = self.eigenfunctions(**parameters)(X)  # [N, L]
         coeffs = self.eigenvalues(**parameters)  # [L, 1]
-        Kx = tf.reduce_sum(Phi_X ** 2 * tf.transpose(coeffs), axis=1)  # [N,]
-        return Kx
+        Kx = ep.sum(coeffs.T * Phi_X ** 2, axis=1)  # [N,]
+        return Kx.raw

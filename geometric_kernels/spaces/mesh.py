@@ -1,16 +1,17 @@
 """
 Mesh object
 """
-from typing import Callable, Dict, Tuple
+from typing import Any, Callable, Dict, Optional, Tuple
 
+import eagerpy as ep
 import numpy as np
 import potpourri3d as pp3d
 import robust_laplacian
 import scipy.sparse.linalg as sla
-import tensorflow as tf
 
 from geometric_kernels.spaces import SpaceWithEigenDecomposition
 from geometric_kernels.types import TensorLike
+from geometric_kernels.utils import cast_to_int, take_along_axis
 
 
 class ConvertEigenvectorsToEigenfunctions:
@@ -19,8 +20,11 @@ class ConvertEigenvectorsToEigenfunctions:
     where inputs are given by the indices.
     """
 
-    def __init__(self, eigenvectors):
-        self.eigenvectors = eigenvectors
+    def __init__(self, eigenvectors: np.ndarray):
+        # Always numpy to seamleassy convert to a desired backend
+        assert isinstance(eigenvectors, np.ndarray)
+        self.eigenvectors_np = eigenvectors
+        self.eigenvectors: Optional[TensorLike] = None
 
     def __call__(self, indices: TensorLike) -> TensorLike:
         """
@@ -29,10 +33,19 @@ class ConvertEigenvectorsToEigenfunctions:
         :param indices: indices [N, 1]
         :return: [N, L]
         """
+        # Convert stored numpy eigenvectors to whatever indices have as a backend
+        indices = ep.astensor(indices)
+
+        if not isinstance(indices, type(self.eigenvectors)):
+            self.eigenvectors = ep.from_numpy(indices, self.eigenvectors_np)
+
         assert len(indices.shape) == 2
         assert indices.shape[-1] == 1
-        indices = tf.cast(indices, dtype=tf.int32)
-        Phi = tf.gather(self.eigenvectors, tf.reshape(indices, (-1,)), axis=0)
+        indices = cast_to_int(indices)
+
+        # This is a very hacky way of taking along 0'th axis.
+        # For some reason eagerpy does not take along axis other than last.
+        Phi = take_along_axis(self.eigenvectors, indices, axis=0)
         return Phi
 
 
