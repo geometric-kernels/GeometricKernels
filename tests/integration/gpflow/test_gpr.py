@@ -1,8 +1,6 @@
 import gpflow
 import meshzoo
 import numpy as np
-
-# import polyscope as ps
 import tensorflow as tf
 
 from geometric_kernels.frontends import GPflowGeometricKernel

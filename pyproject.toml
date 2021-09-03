@@ -24,6 +24,7 @@ tensorflow-probability = {version = "^0.13.0", optional = true}
 [tool.poetry.extras]
 tensorflow = ["gpflow", "tensorflow", "tensorflow-probability"]
 pytorch = ["gpytorch", "torch"]
+numpy = []
 
 [tool.poetry.dev-dependencies]
 mypy = "0.711"
@@ -39,14 +40,27 @@ pytest-isort = "^1.0.0"
 typing-extensions = "^3.7.0"
 
 [tool.taskipy.tasks]
-lint = "pytest --pylint --cache-clear -m pylint --pylint-rcfile=extrapylint geometric_kernels"
-mypy = "pytest --mypy --cache-clear -m mypy -v"
-quicktest = "pytest -x --ff -rN -Wignore"
-test = "pytest --pylint --mypy --black --isort --cache-clear -ra -v --cov geometric_kernels --cov-report term --cov-report xml:reports/coverage.xml --junitxml=reports/junit.xml -o junit_family=xunit2 && pytest --pylint --cache-clear -m pylint --pylint-rcfile=extrapylint geometric_kernels"
+# TensorFlow and GPflow
+lint_tensorflow = "pytest --pylint --cache-clear -m pylint --pylint-rcfile=extrapylint geometric_kernels --ignore='tests/integration/gpytorch'"
+quicktest_tensorflow = "pytest -x --ff -rn -wignore --ignore='tests/integration/gpytorch'"
+check_format_tensorflow = "pytest -v --cache-clear --black --isort -m 'black or isort' --ignore='tests/integration/gpytorch'"
+test_tensorflow = "pytest --pylint --mypy --black --isort --cache-clear -ra -v --cov geometric_kernels --cov-report term --cov-report xml:reports/coverage.xml --junitxml=reports/junit.xml -o junit_family=xunit2 --ignore='tests/integration/gpytorch' && task lint_tensorflow"
+
+# PyTorch and GPyTorch
+lint_pytorch = "pytest --pylint --cache-clear -m pylint --pylint-rcfile=extrapylint geometric_kernels --ignore='tests/integration/gpflow'"
+quicktest_pytorch = "pytest -x --ff -rn -wignore --ignore='tests/integration/gpflow'"
+check_format_pytorch = "pytest -v --cache-clear --black --isort -m 'black or isort' --ignore='tests/integration/gpflow'"
+test_pytorch = "pytest --pylint --mypy --black --isort --cache-clear -ra -v --cov geometric_kernels --cov-report term --cov-report xml:reports/coverage.xml --junitxml=reports/junit.xml -o junit_family=xunit2 --ignore='tests/integration/gpflow' && task lint_pytorch"
+
+# Numpy
+lint_numpy = "pytest --pylint --cache-clear -m pylint --pylint-rcfile=extrapylint geometric_kernels --ignore='tests/integration/gpflow' --ignore='tests/integration/gpytorch'"
+quicktest_numpy = "pytest -x --ff -rn -wignore --ignore='tests/integration/gpflow' --ignore='tests/integration/gpytorch'"
+check_format_numpy = "pytest -v --cache-clear --black --isort -m 'black or isort' --ignore='tests/integration/gpflow' --ignore='tests/integration/gpytorch'"
+test_numpy = "pytest --pylint --mypy --black --isort --cache-clear -ra -v --cov geometric_kernels --cov-report term --cov-report xml:reports/coverage.xml --junitxml=reports/junit.xml -o junit_family=xunit2 --ignore='tests/integration/gpflow' --ignore='tests/integration/gpytorch' && task lint_pytorch"
+
 black = "black ."
 isort = "isort --atomic -y"
 format = "task isort && task black"
-check_format = "pytest -v --cache-clear --black --isort -m 'black or isort'"
 
 [tool.black]
 line-length = 95
