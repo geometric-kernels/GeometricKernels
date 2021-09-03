@@ -20,8 +20,9 @@ class ConvertEigenvectorsToEigenfunctions:
     where inputs are given by the indices.
     """
 
-    def __init__(self, eigenvectors):
+    def __init__(self, eigenvectors: np.ndarray):
         # Always numpy to seamleassy convert to a desired backend
+        assert isinstance(eigenvectors, np.ndarray)
         self.eigenvectors_np = eigenvectors
         self.eigenvectors = None
 
