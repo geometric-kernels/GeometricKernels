@@ -2,7 +2,6 @@
 Pytorch kernel wrapper
 """
 import gpytorch
-
 from geometric_kernels.kernels import BaseGeometricKernel
 from geometric_kernels.spaces.base import Space
 

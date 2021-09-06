@@ -96,15 +96,11 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             Phi_X2 = self.eigenfunctions(**parameters)(X2)  # [N2, L]
 
         coeffs = self.eigenvalues(**parameters)  # [L, 1]
-        # Kxx = tf.matmul(Phi_X, tf.transpose(coeffs) * Phi_X2, transpose_b=True)  # [N, N2]
         Kxx = ep.matmul(coeffs.T * Phi_X, Phi_X2.T)  # [N, N2]
         return Kxx.raw
 
     def K_diag(self, X, **parameters):
         Phi_X = self.eigenfunctions(**parameters)(X)  # [N, L]
         coeffs = self.eigenvalues(**parameters)  # [L, 1]
-        # Kx = tf.reduce_sum(Phi_X ** 2 * tf.transpose(coeffs), axis=1)  # [N,]
-
-        Kx = ep.sum(coeffs.T * Phi_X ** 2, axis=1)  # [N, ]
-
+        Kx = ep.sum(coeffs.T * Phi_X ** 2, axis=1)  # [N,]
         return Kx.raw
