@@ -41,23 +41,25 @@ pytest-isort = "^1.0.0"
 typing-extensions = "^3.7.0"
 
 [tool.taskipy.tasks]
+lint = "pytest --pylint --cache-clear -m pylint --pylint-rcfile=extrapylint geometric_kernels"
+quicktest  = "pytest -x --ff -rn"
+check_format = "pytest -v --cache-clear --black --isort -m 'black or isort'"
+test = "pytest --pylint --mypy --black --isort --cache-clear -ra -v --cov geometric_kernels --cov-report term --cov-report xml:reports/coverage.xml --junitxml=reports/junit.xml -o junit_family=xunit2"
+
 # TensorFlow and GPflow
-lint_tensorflow = "pytest --pylint --cache-clear -m pylint --pylint-rcfile=extrapylint geometric_kernels --ignore='tests/integration/gpytorch'"
-quicktest_tensorflow = "pytest -x --ff -rn -wignore --ignore='tests/integration/gpytorch'"
-check_format_tensorflow = "pytest -v --cache-clear --black --isort -m 'black or isort' --ignore='tests/integration/gpytorch'"
-test_tensorflow = "pytest --pylint --mypy --black --isort --cache-clear -ra -v --cov geometric_kernels --cov-report term --cov-report xml:reports/coverage.xml --junitxml=reports/junit.xml -o junit_family=xunit2 --ignore='tests/integration/gpytorch' && task lint_tensorflow"
+quicktest_tensorflow = "task quicktest --ignore='tests/frontends/gpytorch'"
+check_format_tensorflow = "task check_format  --ignore='tests/frontends/gpytorch' --ignore='geometric_kernels/frontends/gpytorch'"
+test_tensorflow = "task test --ignore='tests/frontends/gpytorch' --ignore='geometric_kernels/frontends/gpytorch' && task lint --ignore='tests/frontends/gpytorch' --ignore='geometric_kernels/frontends/gpytorch'"
 
 # PyTorch and GPyTorch
-lint_pytorch = "pytest --pylint --cache-clear -m pylint --pylint-rcfile=extrapylint geometric_kernels --ignore='tests/integration/gpflow'"
-quicktest_pytorch = "pytest -x --ff -rn -wignore --ignore='tests/integration/gpflow'"
-check_format_pytorch = "pytest -v --cache-clear --black --isort -m 'black or isort' --ignore='tests/integration/gpflow'"
-test_pytorch = "pytest --pylint --mypy --black --isort --cache-clear -ra -v --cov geometric_kernels --cov-report term --cov-report xml:reports/coverage.xml --junitxml=reports/junit.xml -o junit_family=xunit2 --ignore='tests/integration/gpflow' && task lint_pytorch"
+quicktest_pytorch = "task quicktest --ignore='tests/frontends/gpflow'"
+check_format_pytorch = "task check_format  --ignore='tests/frontends/gpflow' --ignore='geometric_kernels/frontends/gpflow'"
+test_pytorch = "task test --ignore='tests/frontends/gpflow' --ignore='geometric_kernels/frontends/gpflow' && task lint --ignore='tests/frontends/gpflow' --ignore='geometric_kernels/frontends/gpflow'"
 
 # Numpy
-lint_numpy = "pytest --pylint --cache-clear -m pylint --pylint-rcfile=extrapylint geometric_kernels --ignore='tests/integration/gpflow' --ignore='tests/integration/gpytorch'"
-quicktest_numpy = "pytest -x --ff -rn -wignore --ignore='tests/integration/gpflow' --ignore='tests/integration/gpytorch'"
-check_format_numpy = "pytest -v --cache-clear --black --isort -m 'black or isort' --ignore='tests/integration/gpflow' --ignore='tests/integration/gpytorch'"
-test_numpy = "pytest --pylint --mypy --black --isort --cache-clear -ra -v --cov geometric_kernels --cov-report term --cov-report xml:reports/coverage.xml --junitxml=reports/junit.xml -o junit_family=xunit2 --ignore='tests/integration/gpflow' --ignore='tests/integration/gpytorch' && task lint_pytorch"
+quicktest_numpy = "task quicktest --ignore='tests/frontends' --ignore='geometric_kernels/frontends'"
+check_format_numpy = "task check_format  --ignore='tests/frontends' --ignore='geometric_kernels/frontends'"
+test_numpy = "task test --ignore='tests/frontends' --ignore='geometric_kernels/frontends' && task lint --ignore='tests/frontends' --ignore='geometric_kernels/frontends'"
 
 black = "black ."
 isort = "isort --atomic -y"

@@ -4,7 +4,7 @@ import polyscope as ps
 
 import gpytorch
 import torch
-from geometric_kernels.frontends import GPytorchGeometricKernel
+from geometric_kernels.frontends.gpytorch import GPytorchGeometricKernel
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import Mesh
 
