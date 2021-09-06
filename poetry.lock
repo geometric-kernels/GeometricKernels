@@ -927,7 +927,7 @@ name = "multipledispatch"
 version = "0.6.0"
 description = "Multiple dispatch"
 category = "main"
-optional = true
+optional = false
 python-versions = "*"
 
 [package.dependencies]
@@ -1936,13 +1936,14 @@ docs = ["sphinx", "jaraco.packaging (>=8.2)", "rst.linker (>=1.9)"]
 testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-cov", "pytest-enabler (>=1.0.1)", "jaraco.itertools", "func-timeout", "pytest-black (>=0.3.7)", "pytest-mypy"]
 
 [extras]
+numpy = []
 pytorch = ["gpytorch", "torch"]
 tensorflow = ["gpflow", "tensorflow", "tensorflow-probability"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "1517462d4dead2affa5b3cffa255fd156682423ad0db7239bacc31f4f67841be"
+content-hash = "225a383252fe7235c0ca9c986af209a4887770a5018013cf7f56a078e42833ff"
 
 [metadata.files]
 absl-py = [
