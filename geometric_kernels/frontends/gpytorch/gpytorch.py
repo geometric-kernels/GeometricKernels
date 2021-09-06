@@ -1,9 +1,8 @@
 """
 Pytorch kernel wrapper
 """
-from typing import Optional
-
 import gpytorch
+
 from geometric_kernels.kernels import BaseGeometricKernel
 from geometric_kernels.spaces.base import Space
 

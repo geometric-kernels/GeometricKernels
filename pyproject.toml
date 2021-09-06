@@ -41,6 +41,9 @@ pytest-isort = "^1.0.0"
 typing-extensions = "^3.7.0"
 
 [tool.taskipy.tasks]
+# These commands run *all* tests and file checks. For these to complete successfully,
+# all dependencies need to be installed (PyTorch, TensorFlow, GPflow, GPyTorch, etc.).
+# Below are the specific tests for the different backends and frontends.
 lint = "pytest --pylint --cache-clear -m pylint --pylint-rcfile=extrapylint geometric_kernels"
 quicktest  = "pytest -x --ff -rn"
 check_format = "pytest -v --cache-clear --black --isort -m 'black or isort'"
