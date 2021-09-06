@@ -2,13 +2,10 @@
 Base class for geometric kernels
 """
 import abc
-from typing import Callable, Generic, List, Optional, TypeVar
+from typing import Generic, TypeVar
 
-import numpy as np
-import tensorflow as tf
-
-from geometric_kernels.spaces import Mesh, Space
-from geometric_kernels.types import Parameter, TensorLike
+from geometric_kernels.spaces import Space
+from geometric_kernels.types import TensorLike
 
 T = TypeVar("T", bound=Space)
 """
