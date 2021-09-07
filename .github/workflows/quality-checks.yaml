@@ -19,6 +19,11 @@ on: [push]
 jobs:
   checks:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        backend: ['numpy', 'tensorflow', 'pytorch']
+      fail-fast: false
+
     steps:
       #----------------------------------------------
       #       check-out repo and set-up python
@@ -45,22 +50,24 @@ jobs:
         uses: actions/cache@v2
         with:
           path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
+          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-${{ matrix.backend }}
       #----------------------------------------------
       # install dependencies if cache does not exist
       #----------------------------------------------
       - name: Install dependencies
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root
+        run: poetry install --no-interaction --no-root -E  ${{ matrix.backend }}
       #----------------------------------------------
       # install your root project, if required
       #----------------------------------------------
       - name: Install library
-        run: poetry install --no-interaction
+        run: poetry install --no-interaction -E ${{ matrix.backend }}
       #----------------------------------------------
       #              run test suite
       #----------------------------------------------
       - name: Run tests
+        env: 
+          GEOMETRIC_KERNELS_BACKEND : ${{matrix.backend}} 
         run: |
           source .venv/bin/activate
-          poetry run task test
+          poetry run task test_${{matrix.backend}}
