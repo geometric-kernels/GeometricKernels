@@ -7,21 +7,12 @@ from typing import Callable, Optional
 
 import geomstats as gs
 import numpy as np
-import tensorflow as tf
+import eagerpy as ep
 
 from geometric_kernels.eigenfunctions import Eigenfunctions, EigenfunctionWithAdditionTheorem
 from geometric_kernels.spaces import DiscreteSpectrumSpace
 from geometric_kernels.types import TensorLike
 from geometric_kernels.utils import chain
-
-
-def cartesian_to_polar(X: TensorLike) -> TensorLike:
-    """
-    :param X: Cartesian coordinates on the circle, [N, 2].
-        This means their norm equals one.
-    :return: angle (between PI and -PI) [N, 1]
-    """
-    return tf.reshape(tf.math.atan2(X[:, 1], X[:, 0]), (-1, 1))
 
 
 class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
@@ -48,13 +39,13 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         values = []
         for level in range(self.num_levels):
             if level == 0:
-                values.append(tf.ones_like(theta))
+                values.append(ep.ones_like(theta))
             else:
                 freq = 1.0 * level
                 values.append(const * tf.math.cos(freq * theta))
                 values.append(const * tf.math.sin(freq * theta))
 
-        return tf.concat(values, axis=1)  # [N, M]
+        return ep.concatenate(values, axis=1)  # [N, M]
 
     def _addition_theorem(self, X: TensorLike, X2: TensorLike) -> TensorLike:
         r"""
@@ -158,8 +149,8 @@ class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
         :return: [num, 1] array containing the eigenvalues
         """
         eigenfunctions = SinCosEigenfunctions(num)
-        eigenvalues_per_level = tf.range(eigenfunctions.num_levels, dtype="float64") ** 2.0  # [L,]
+        eigenvalues_per_level = ep.astensor(np.arange(eigenfunctions.num_levels) ** 2.0)  # [L,]
         eigenvalues = chain(
             eigenvalues_per_level, eigenfunctions.num_eigenfunctions_per_level
         )  # [num,]
-        return tf.reshape(eigenvalues, (-1, 1))  # [num, 1]
+        return ep.reshape(eigenvalues, (-1, 1))  # [num, 1]

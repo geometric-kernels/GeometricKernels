@@ -12,15 +12,22 @@ from multipledispatch import Dispatcher
 from opt_einsum import contract
 
 __all__ = [
-    "einsum",
     "cast_to_int",
+    "einsum",
+    "rearrange",
+    "reduce",
+    "repeat",
     "take_along_axis",
+    "cos",
+    "sin"
 ]
 
 
 tf = None
 torch = None
 
+cos = Dispatcher("sin")
+sin = Dispatcher("cos")
 cast_to_int = Dispatcher("cast_to_int")
 take_along_axis = Dispatcher("take_along_axis")
 
@@ -94,6 +101,57 @@ def einsum(subscripts: str, *operands: List[Tensor]) -> Tensor:
     return ep.astensor(contract(subscripts, *[o.raw for o in operands]))
 
 
+###############
+# cos
+###############
+@cos.register(ep.TensorFlowTensor)
+def _cos_tf(t: ep.TensorFlowTensor) -> ep.TensorFlowTensor:
+    global tf
+    if tf is None:
+        tf = import_module("tensorflow")
+    return type(t)(tf.math.cos(t.raw))  # type: ignore[misc]
+
+
+@cos.register(ep.PyTorchTensor)
+def _cos_torch(t: ep.PyTorchTensor) -> ep.PyTorchTensor:
+    global torch
+    if torch is None:
+        torch = import_module("torch")
+    return type(t)(torch.cos(t.raw))  # type: ignore[misc]
+
+
+@cos.register(ep.NumPyTensor)
+def _cos_numpy(t: ep.NumPyTensor) -> ep.NumPyTensor:
+    return type(t)(np.cos(t))
+
+
+###############
+# sin
+###############
+@sin.register(ep.TensorFlowTensor)
+def _sin_tf(t: ep.TensorFlowTensor) -> ep.TensorFlowTensor:
+    global tf
+    if tf is None:
+        tf = import_module("tensorflow")
+    return type(t)(tf.math.sin(t.raw))  # type: ignore[misc]
+
+
+@sin.register(ep.PyTorchTensor)
+def _sin_torch(t: ep.PyTorchTensor) -> ep.PyTorchTensor:
+    global torch
+    if torch is None:
+        torch = import_module("torch")
+    return type(t)(torch.sin(t.raw))  # type: ignore[misc]
+
+
+@sin.register(ep.NumPyTensor)
+def _sin_numpy(t: ep.NumPyTensor) -> ep.NumPyTensor:
+    return type(t)(np.sin(t))
+
+
+###############
+# cast to int
+###############
 @cast_to_int.register(ep.TensorFlowTensor)
 def _cast_to_int_tf(t: ep.TensorFlowTensor):
     global tf
@@ -115,6 +173,9 @@ def _cast_to_int_numpy(t: ep.NumPyTensor):
     return t.astype(np.int64)
 
 
+###############
+# take along axis
+###############
 @take_along_axis.register(ep.PyTorchTensor, ep.PyTorchTensor)
 def _take_along_axis_torch(t: ep.PyTorchTensor, index: ep.PyTorchTensor, axis=0):
     global torch

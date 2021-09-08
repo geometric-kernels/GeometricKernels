@@ -48,8 +48,8 @@ typing-extensions = "^3.7.0"
 # all dependencies need to be installed (PyTorch, TensorFlow, GPflow, GPyTorch, etc.).
 # Below are the specific tests for the different backends and frontends.
 lint = "pytest --pylint --cache-clear -m pylint --pylint-rcfile=extrapylint geometric_kernels"
-quicktest  = "pytest -x --ff -rn"
-check_format = "pytest -v --cache-clear --black --isort -m 'black or isort'"
+quicktest  = "pytest -x --ff -rn -vv"
+check_format = "pytest -vv --cache-clear --black --isort -m 'black or isort'"
 test = "pytest --pylint --mypy --black --isort --cache-clear -ra -v --cov geometric_kernels --cov-report term --cov-report xml:reports/coverage.xml --junitxml=reports/junit.xml -o junit_family=xunit2"
 
 # TensorFlow and GPflow
