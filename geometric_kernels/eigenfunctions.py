@@ -149,9 +149,9 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         # TODO(VD) write check for this.
         i = 0
         for num in self.num_eigenfunctions_per_level:
-            weights_per_level.append(weights[i])
+            weights_per_level.append(weights[i] * ep.ones(weights, (1,)))
             i += num
-        return ep.astensor(weights_per_level)  # [L,]
+        return ep.concatenate(weights_per_level, axis=0)  # [L,]
 
     @abc.abstractmethod
     def _addition_theorem(self, X: Tensor, X2: Tensor, **parameters) -> Tensor:

@@ -3,7 +3,7 @@ import meshzoo
 import numpy as np
 import tensorflow as tf
 
-from geometric_kernels.frontends.gpflow import GPflowGeometricKernel
+from geometric_kernels.backends.tensorflow import GPflowGeometricKernel
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import Mesh
 

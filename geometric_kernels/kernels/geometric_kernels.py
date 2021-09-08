@@ -5,11 +5,11 @@ from typing import Callable, Mapping, Optional
 
 import eagerpy as ep
 import numpy as np
+from eagerpy.tensor.tensor import Tensor
 
 from geometric_kernels.eigenfunctions import Eigenfunctions
 from geometric_kernels.kernels import BaseGeometricKernel
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
-from geometric_kernels.types import Parameter, TensorLike
 
 
 class MaternKarhunenLoeveKernel(BaseGeometricKernel):
@@ -52,16 +52,15 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         self.nu = nu
         self.num_eigenfunctions = num_eigenfunctions  # in code referred to as `M`.
 
-    def _spectrum(self, s: TensorLike, lengthscale: Parameter):
+    def _spectrum(self, s: Tensor, lengthscale: Tensor):
         """
         Matern or RBF spectrum evaluated at `s`. Depends on the
         `lengthscale` parameters.
         """
-
+        s, lengthscale = ep.astensors(s, lengthscale)
         # cast `lengthscale` to eagerpy
-        lengthscale = ep.astensor(lengthscale)
         # cast `s` to the same backend as `lengthscale`
-        s = ep.from_numpy(lengthscale, s).astype(lengthscale.dtype)
+        # s = ep.from_numpy(lengthscale, s).astype(lengthscale.dtype)
 
         def spectrum_rbf():
             return ep.exp(-(lengthscale ** 2) / 2.0 * (s ** 2))
@@ -85,7 +84,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         eigenfunctions = self.space.get_eigenfunctions(self.num_eigenfunctions)
         return eigenfunctions
 
-    def eigenvalues(self, **parameters) -> TensorLike:
+    def eigenvalues(self, **parameters) -> Tensor:
         """
         Eigenvalues of the kernel.
 
@@ -95,13 +94,13 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         eigenvalues_laplacian = self.space.get_eigenvalues(self.num_eigenfunctions)  # [M, 1]
         return self._spectrum(eigenvalues_laplacian ** 0.5, lengthscale=parameters["lengthscale"])
 
-    def K(self, X: TensorLike, X2: Optional[TensorLike] = None, **parameters) -> TensorLike:
+    def K(self, X: Tensor, X2: Optional[Tensor] = None, **parameters) -> Tensor:
         """Compute the mesh kernel via Laplace eigendecomposition"""
         weights = self.eigenvalues(**parameters)  # [M, 1]
         Phi = self.eigenfunctions()
         return Phi.weighted_outerproduct(weights, X, X2, **parameters)  # [N, N2]
 
-    def K_diag(self, X: TensorLike, **parameters) -> TensorLike:
+    def K_diag(self, X: Tensor, **parameters) -> Tensor:
         weights = self.eigenvalues(**parameters)  # [M, 1]
         Phi = self.eigenfunctions()
         return Phi.weighted_outerproduct_diag(weights, X, **parameters)  # [N,]

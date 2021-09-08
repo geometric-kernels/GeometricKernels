@@ -5,13 +5,14 @@ The Geomstats package is used for most of the geometric calculations.
 """
 from typing import Callable, Optional
 
+import eagerpy as ep
 import geomstats as gs
 import numpy as np
-import eagerpy as ep
+from eagerpy import Tensor
 
+from geometric_kernels.eagerpy_extras import cos, sin
 from geometric_kernels.eigenfunctions import Eigenfunctions, EigenfunctionWithAdditionTheorem
 from geometric_kernels.spaces import DiscreteSpectrumSpace
-from geometric_kernels.types import TensorLike
 from geometric_kernels.utils import chain
 
 
@@ -31,7 +32,7 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         # We know `num_eigenfunctions` is odd, therefore:
         self._num_levels = num_eigenfunctions // 2 + 1
 
-    def __call__(self, theta: TensorLike) -> TensorLike:
+    def __call__(self, theta: Tensor, **unused) -> Tensor:
         """
         :param theta: polar coordinates on the circle, [N, 1].
         """
@@ -42,12 +43,12 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
                 values.append(ep.ones_like(theta))
             else:
                 freq = 1.0 * level
-                values.append(const * tf.math.cos(freq * theta))
-                values.append(const * tf.math.sin(freq * theta))
+                values.append(const * cos(freq * theta))
+                values.append(const * sin(freq * theta))
 
         return ep.concatenate(values, axis=1)  # [N, M]
 
-    def _addition_theorem(self, X: TensorLike, X2: TensorLike) -> TensorLike:
+    def _addition_theorem(self, X: Tensor, X2: Tensor, **unused) -> Tensor:
         r"""
         Returns the result of applying the additional theorem when
         summing over all the eigenfunctions within a level, for each level
@@ -66,12 +67,12 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         """
         theta1, theta2 = X, X2
         angle_between = theta1[:, None, :] - theta2[None, :, :]  # [N, N2, 1]
-        freqs = tf.range(self.num_levels, dtype=theta1.dtype)  # [L]
-        values = tf.math.cos(freqs[None, None, :] * angle_between)  # [N, N2, L]
+        freqs = ep.arange(X, self.num_levels)  # [L]
+        values = cos(freqs[None, None, :] * angle_between)  # [N, N2, L]
         values = self.num_eigenfunctions_per_level[None, None, :] * values
         return values  # [N, N2, L]
 
-    def _addition_theorem_diag(self, X: TensorLike) -> TensorLike:
+    def _addition_theorem_diag(self, X: Tensor, **unused) -> Tensor:
         """
         Returns the sum of eigenfunctions on a level for which we have a simplified expression
 
@@ -79,8 +80,8 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         :return: Evaluate the sum of eigenfunctions on each level. Returns
             a value for each level [N, L]
         """
-        N = tf.shape(X)[0]
-        ones = tf.ones((N, self.num_levels), dtype=X.dtype)  # [N, L]
+        N = X.shape[0]
+        ones = ep.ones(X, (N, self.num_levels))  # [N, L]
         value = ones * self.num_eigenfunctions_per_level[None, :]
         return value  # [N, L]
 
@@ -115,8 +116,8 @@ class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
 
     def is_tangent(
         self,
-        vector: TensorLike,
-        base_point: Optional[TensorLike] = None,
+        vector: Tensor,
+        base_point: Optional[Tensor] = None,
         atol: float = gs.geometry.manifold.ATOL,
     ) -> bool:
         """
@@ -142,7 +143,7 @@ class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
         """
         return SinCosEigenfunctions(num)
 
-    def get_eigenvalues(self, num: int) -> TensorLike:
+    def get_eigenvalues(self, num: int) -> Tensor:
         """
         First `num` eigenvalues of the Laplace-Beltrami operator
 

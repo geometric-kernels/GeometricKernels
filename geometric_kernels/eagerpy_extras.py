@@ -12,6 +12,7 @@ from multipledispatch import Dispatcher
 from opt_einsum import contract
 
 __all__ = [
+    "abs",
     "cast_to_int",
     "einsum",
     "rearrange",
@@ -19,7 +20,7 @@ __all__ = [
     "repeat",
     "take_along_axis",
     "cos",
-    "sin"
+    "sin",
 ]
 
 
@@ -30,6 +31,11 @@ cos = Dispatcher("sin")
 sin = Dispatcher("cos")
 cast_to_int = Dispatcher("cast_to_int")
 take_along_axis = Dispatcher("take_along_axis")
+
+
+def abs(t: Tensor) -> Tensor:
+    # TODO(VD): dispatch to different backends for more efficient code.
+    return (t ** 2) ** 0.5
 
 
 def rearrange(tensor: Union[Tensor, List[Tensor]], pattern: str, **axes_lengths) -> Tensor:
@@ -122,7 +128,7 @@ def _cos_torch(t: ep.PyTorchTensor) -> ep.PyTorchTensor:
 
 @cos.register(ep.NumPyTensor)
 def _cos_numpy(t: ep.NumPyTensor) -> ep.NumPyTensor:
-    return type(t)(np.cos(t))
+    return type(t)(np.cos(t.raw))
 
 
 ###############
@@ -146,7 +152,7 @@ def _sin_torch(t: ep.PyTorchTensor) -> ep.PyTorchTensor:
 
 @sin.register(ep.NumPyTensor)
 def _sin_numpy(t: ep.NumPyTensor) -> ep.NumPyTensor:
-    return type(t)(np.sin(t))
+    return type(t)(np.sin(t.raw))
 
 
 ###############
