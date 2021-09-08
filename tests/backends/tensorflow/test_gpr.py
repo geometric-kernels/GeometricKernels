@@ -1,8 +1,8 @@
-import gpflow
 import meshzoo
 import numpy as np
 import tensorflow as tf
 
+import gpflow
 from geometric_kernels.backends.tensorflow import GPflowGeometricKernel
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import Mesh

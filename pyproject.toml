@@ -87,3 +87,5 @@ line_length = 100
 multi_line_output = 3
 include_trailing_comma = true
 line_length = 95
+known_third_party = ["torch", "tensorflow"]
+known_first_party = ["gpflow", "gpytorch"]

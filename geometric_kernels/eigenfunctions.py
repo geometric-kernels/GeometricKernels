@@ -116,6 +116,7 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
             X2 = X
 
         sum_phi_phi_for_level = self._addition_theorem(X, X2, **parameters)  # [N, N, L]
+        print(">>>", sum_phi_phi_for_level)
         weights = self._filter_weights(weights)
 
         return einsum("i,nki->nk", weights, sum_phi_phi_for_level)  # [N, N2]
