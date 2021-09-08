@@ -10,7 +10,7 @@ import geomstats as gs
 import numpy as np
 from eagerpy import Tensor
 
-from geometric_kernels.eagerpy_extras import cos, sin
+from geometric_kernels.eagerpy_extras import cast_to_float, cos, sin
 from geometric_kernels.eigenfunctions import Eigenfunctions, EigenfunctionWithAdditionTheorem
 from geometric_kernels.spaces import DiscreteSpectrumSpace
 from geometric_kernels.utils import chain
@@ -32,10 +32,12 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         # We know `num_eigenfunctions` is odd, therefore:
         self._num_levels = num_eigenfunctions // 2 + 1
 
-    def __call__(self, theta: Tensor, **unused) -> Tensor:
+    def __call__(self, X: Tensor, **parameters) -> Tensor:
         """
-        :param theta: polar coordinates on the circle, [N, 1].
+        :param X: polar coordinates on the circle, [N, 1].
+        :param parameters: unused.
         """
+        theta = X
         const = 2.0 ** 0.5
         values = []
         for level in range(self.num_levels):
@@ -48,7 +50,7 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
 
         return ep.concatenate(values, axis=1)  # [N, M]
 
-    def _addition_theorem(self, X: Tensor, X2: Tensor, **unused) -> Tensor:
+    def _addition_theorem(self, X: Tensor, X2: Tensor, **parameters) -> Tensor:
         r"""
         Returns the result of applying the additional theorem when
         summing over all the eigenfunctions within a level, for each level
@@ -62,21 +64,23 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
 
         :param X: [N, 1]
         :param X2: [N2, 1]
+        :param parameters: unused.
         :return: Evaluate the sum of eigenfunctions on each level. Returns
             a value for each level [N, N2, L]
         """
         theta1, theta2 = X, X2
         angle_between = theta1[:, None, :] - theta2[None, :, :]  # [N, N2, 1]
-        freqs = ep.arange(X, self.num_levels)  # [L]
+        freqs = cast_to_float(ep.arange(X, self.num_levels))  # [L]
         values = cos(freqs[None, None, :] * angle_between)  # [N, N2, L]
         values = self.num_eigenfunctions_per_level[None, None, :] * values
         return values  # [N, N2, L]
 
-    def _addition_theorem_diag(self, X: Tensor, **unused) -> Tensor:
+    def _addition_theorem_diag(self, X: Tensor, **parameters) -> Tensor:
         """
         Returns the sum of eigenfunctions on a level for which we have a simplified expression
 
         :param X: [N, 1]
+        :param parameters: unused.
         :return: Evaluate the sum of eigenfunctions on each level. Returns
             a value for each level [N, L]
         """

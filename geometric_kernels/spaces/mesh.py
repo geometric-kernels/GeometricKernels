@@ -8,11 +8,11 @@ import numpy as np
 import potpourri3d as pp3d
 import robust_laplacian
 import scipy.sparse.linalg as sla
+from eagerpy import Tensor
 
 from geometric_kernels.eagerpy_extras import cast_to_int, take_along_axis
 from geometric_kernels.eigenfunctions import Eigenfunctions
 from geometric_kernels.spaces import DiscreteSpectrumSpace
-from geometric_kernels.types import TensorLike
 
 
 class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
@@ -28,16 +28,18 @@ class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
         # Always numpy to seamleassy convert to a desired backend
         assert isinstance(eigenvectors, np.ndarray)
         self.eigenvectors_np = eigenvectors
-        self.eigenvectors: Optional[TensorLike] = None
+        self.eigenvectors: Optional[Tensor] = None
 
-    def __call__(self, indices: TensorLike, **parameters) -> TensorLike:
+    def __call__(self, X: Tensor, **parameters) -> Tensor:
         """
         Selects `N` locations from the `M` eigenvectors.
 
-        :param indices: indices [N, 1]
+        :param X: indices [N, 1]
+        :param parameters: unused
         :return: [N, M]
         """
         # Convert stored numpy eigenvectors to whatever indices have as a backend
+        indices = X
         indices = ep.astensor(indices)
 
         if not isinstance(indices, type(self.eigenvectors)):
@@ -99,14 +101,14 @@ class Mesh(DiscreteSpectrumSpace):
 
         return self.cache[num]
 
-    def get_eigenvectors(self, num: int) -> TensorLike:
+    def get_eigenvectors(self, num: int) -> Tensor:
         """
         :param num: number of eigenvectors returned
         :return: eigenvectors [Nv, num]
         """
         return self.get_eigensystem(num)[0]
 
-    def get_eigenvalues(self, num: int) -> TensorLike:
+    def get_eigenvalues(self, num: int) -> Tensor:
         """
         :param num: number of eigenvalues returned
         :return: eigenvalues [num, 1]

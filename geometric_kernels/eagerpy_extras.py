@@ -12,8 +12,9 @@ from multipledispatch import Dispatcher
 from opt_einsum import contract
 
 __all__ = [
-    "abs",
+    "absolute_value",
     "cast_to_int",
+    "cast_to_float",
     "einsum",
     "rearrange",
     "reduce",
@@ -30,10 +31,16 @@ torch = None
 cos = Dispatcher("sin")
 sin = Dispatcher("cos")
 cast_to_int = Dispatcher("cast_to_int")
+cast_to_float = Dispatcher("cast_to_float")
 take_along_axis = Dispatcher("take_along_axis")
 
 
-def abs(t: Tensor) -> Tensor:
+def absolute_value(t: Tensor) -> Tensor:
+    """
+    Absolute value
+
+    :param t: input
+    """
     # TODO(VD): dispatch to different backends for more efficient code.
     return (t ** 2) ** 0.5
 
@@ -50,8 +57,10 @@ def rearrange(tensor: Union[Tensor, List[Tensor]], pattern: str, **axes_lengths)
 
     :param tensor: list of tensors is also accepted, those should be of the same type and shape
     :param pattern: reduction pattern
+    :param axes_lengths: any additional specifications for dimensions
     """
-    return ep.astensor(einops.rearrange(tensor.raw, pattern, **axes_lengths))
+    tensor = [t.raw for t in tensor] if isinstance(tensor, List) else tensor.raw
+    return ep.astensor(einops.rearrange(tensor, pattern, **axes_lengths))
 
 
 def reduce(
@@ -74,9 +83,8 @@ def reduce(
         tensor can be provided.
     :param axes_lengths: any additional specifications for dimensions
     """
-    return ep.astensor(
-        einops.reduce(tensor.raw, pattern=pattern, reduction=reduction, **axes_lengths)
-    )
+    tensor = [t.raw for t in tensor] if isinstance(tensor, List) else tensor.raw
+    return ep.astensor(einops.reduce(tensor, pattern=pattern, reduction=reduction, **axes_lengths))
 
 
 def repeat(tensor: Union[Tensor, List[Tensor]], pattern: str, **axes_lengths) -> Tensor:
@@ -91,11 +99,13 @@ def repeat(tensor: Union[Tensor, List[Tensor]], pattern: str, **axes_lengths) ->
 
     :param tensor: list of tensors is also accepted, those should be of the same type and shape
     :param pattern: reduction pattern
+    :param axes_lengths: any additional specifications for dimensions
     """
-    return ep.astensor(einops.repeat(tensor.raw, pattern, **axes_lengths))
+    tensor = [t.raw for t in tensor] if isinstance(tensor, List) else tensor.raw
+    return ep.astensor(einops.repeat(tensor, pattern, **axes_lengths))
 
 
-def einsum(subscripts: str, *operands: List[Tensor]) -> Tensor:
+def einsum(subscripts: str, *operands: Tensor) -> Tensor:
     """
     Eagerpy wrapper for opt_einsum.contract.
 
@@ -177,6 +187,30 @@ def _cast_to_int_torch(t: ep.PyTorchTensor):
 @cast_to_int.register(ep.NumPyTensor)
 def _cast_to_int_numpy(t: ep.NumPyTensor):
     return t.astype(np.int64)
+
+
+###############
+# cast to float
+###############
+@cast_to_float.register(ep.TensorFlowTensor)
+def _cast_to_float_tf(t: ep.TensorFlowTensor):
+    global tf
+    if tf is None:
+        tf = import_module("tensorflow")
+    return ep.astensor(tf.cast(t.raw, tf.float64))  # type: ignore[misc]
+
+
+@cast_to_float.register(ep.PyTorchTensor)
+def _cast_to_float_torch(t: ep.PyTorchTensor):
+    global torch
+    if torch is None:
+        torch = import_module("torch")
+    return ep.astensor(t.raw.to(torch.float64))  # type: ignore[misc]
+
+
+@cast_to_float.register(ep.NumPyTensor)
+def _cast_to_float_numpy(t: ep.NumPyTensor):
+    return t.astype(np.float64)
 
 
 ###############

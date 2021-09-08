@@ -30,6 +30,7 @@ class Eigenfunctions(abc.ABC):
         :param X2: Inputs where to evaluate the eigenfunctions, shape = [N2, D],
             where `N` is the number of inputs and `D` the dimension.
             Default to None, in which X is used for X2.
+        :param parameters: any additional parameters
         :return: shape [N, N2]
         """
         Phi_X = self.__call__(X, **parameters)  # [N, L]
@@ -49,6 +50,7 @@ class Eigenfunctions(abc.ABC):
 
         :param weights: [M, 1]
         :param X: Inputs where to evaluate the eigenfunctions, shape = [N, D].
+        :param parameters: any additional parameters
         :return: shape [N,]
         """
         Phi_X = self.__call__(X, **parameters)  # [N, L]
@@ -61,6 +63,7 @@ class Eigenfunctions(abc.ABC):
         :param X: points to evaluate the eigenfunctions in local coordinates, [N, D].
             `N` is the number of points and `D` should match the dimension of the space
             on which the eigenfunctions are defined.
+        :param parameters: any additional parameters
         """
         raise NotImplementedError
 
@@ -106,6 +109,7 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         :param X: Inputs where to evaluate the eigenfunctions, shape = [N, D].
         :param X2: Inputs where to evaluate the eigenfunctions, shape = [N2, D].
             Default to None, in which X is used for X2.
+        :param parameters: any additional parameters
         :return: shape [N, N2]
         """
         if X2 is None:
@@ -130,6 +134,7 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
 
         :param weights: [M, 1]
         :param X: Inputs where to evaluate the eigenfunctions, shape = [N, D].
+        :param parameters: any additional parameters
         :return: shape [N,]
         """
         addition_theorem_X = self._addition_theorem_diag(X, **parameters)  # [N, L]
@@ -160,6 +165,7 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
 
         :param X: [N, D]
         :param X2: [N2, D]
+        :param parameters: any additional parameters
         :return: Evaluate the sum of eigenfunctions on each level. Returns
             a value for each level [N, N2, L]
         """
@@ -171,6 +177,7 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         Returns the sum of eigenfunctions on a level for which we have a simplified expression
 
         :param X: [N, D]
+        :param parameters: any additional parameters
         :return: Evaluate the sum of eigenfunctions on each level. Returns
             a value for each level [N, L]
         """

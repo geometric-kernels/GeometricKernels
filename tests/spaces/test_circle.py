@@ -4,7 +4,7 @@ import pytest
 from eagerpy.tensor.tensor import Tensor
 
 from geometric_kernels import BACKEND
-from geometric_kernels.eagerpy_extras import abs, einsum
+from geometric_kernels.eagerpy_extras import absolute_value, einsum
 from geometric_kernels.eigenfunctions import EigenfunctionWithAdditionTheorem
 from geometric_kernels.kernels.geometric_kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces.circle import Circle, SinCosEigenfunctions
@@ -19,19 +19,31 @@ class Consts:
     num_eigenfunctions = 11
 
 
-# @pytest.fixture
+def to_typed_tensor(value):
+    if BACKEND == "tensorflow":
+        import tensorflow as tf
+
+        return ep.astensor(tf.convert_to_tensor(value))
+    elif BACKEND == "pytorch":
+        import torch
+
+        return ep.astensor(torch.tensor(value))
+    elif BACKEND == "numpy":
+        return ep.astensor(value)
 
 
 @pytest.fixture(name="inputs")
 def _inputs_fixure():
     np.random.seed(Consts.seed)
-    return ep.astensor(np.random.uniform(0, 2 * np.pi, size=(Consts.num_data, 1)))
+    value = np.random.uniform(0, 2 * np.pi, size=(Consts.num_data, 1))
+    return to_typed_tensor(value)
 
 
 @pytest.fixture(name="inputs2")
 def _inputs2_fixure():
     np.random.seed(Consts.seed + 1)
-    return ep.astensor(np.random.uniform(0, 2 * np.pi, size=(Consts.num_data2, 1)))
+    value = np.random.uniform(0, 2 * np.pi, size=(Consts.num_data, 1))
+    return to_typed_tensor(value)
 
 
 @pytest.fixture(name="eigenfunctions")
@@ -125,7 +137,7 @@ def analytic_kernel(nu: float, r: Tensor) -> Tensor:
     :return: k(r), shape [...]
     """
     r = ep.astensor(r)
-    r = abs(r)
+    r = absolute_value(r)
     if nu == 0.5:
         return ep.exp(-r)
     elif nu == 1.5:
