@@ -31,6 +31,10 @@ class DefaultFloatZero(gpflow.mean_functions.Constant):
 
 
 def test_gpflow_integration():
+    """
+    Builds a GPflow GPR model using a geometric kernel and tests
+    `predict_f` and `predict_f_samples`.
+    """
     resolution = 10
     vertices, faces = meshzoo.icosa_sphere(resolution)
     mesh = Mesh(vertices, faces)
