@@ -5,10 +5,11 @@ of the Laplace-Beltrami operator on a manifold.
 import abc
 from typing import Optional
 
+import eagerpy as ep
 import numpy as np
-import tensorflow as tf
+from eagerpy import Tensor
 
-from geometric_kernels.types import TensorLike
+from geometric_kernels.eagerpy_extras import einsum
 
 
 class Eigenfunctions(abc.ABC):
@@ -18,8 +19,8 @@ class Eigenfunctions(abc.ABC):
     """
 
     def weighted_outerproduct(
-        self, weights: TensorLike, X: TensorLike, X2: Optional[TensorLike] = None
-    ) -> TensorLike:
+        self, weights: Tensor, X: Tensor, X2: Optional[Tensor] = None, **parameters
+    ) -> Tensor:
         r"""
         Computes :math:`\sum_{i=0}^{M-1} w_i \phi_i(x1) \phi_i(x2)`.
 
@@ -31,16 +32,16 @@ class Eigenfunctions(abc.ABC):
             Default to None, in which X is used for X2.
         :return: shape [N, N2]
         """
-        Phi_X = self.__call__(X)  # [N, M]
+        Phi_X = self.__call__(X, **parameters)  # [N, L]
         if X2 is None:
             Phi_X2 = Phi_X
         else:
-            Phi_X2 = self.__call__(X2)  # [N2, M]
+            Phi_X2 = self.__call__(X2, **parameters)  # [N2, L]
 
-        weights = tf.reshape(weights, (-1,))
-        return tf.einsum("ni,ki,i->nk", Phi_X, Phi_X2, weights)  # [N, N2]
+        Kxx = ep.matmul(weights.T * Phi_X, Phi_X2.T)  # [N, N2]
+        return Kxx.raw
 
-    def weighted_outerproduct_diag(self, weights: TensorLike, X: TensorLike) -> TensorLike:
+    def weighted_outerproduct_diag(self, weights: Tensor, X: Tensor, **parameters) -> Tensor:
         r"""
         Computes :math:`\sum_{i=0}^{M-1} w_i \phi_i(x) \phi_i(x)`. Corresponds to the
         diagonal elements of `weighted_outproduct` but they can be calculated more
@@ -50,12 +51,12 @@ class Eigenfunctions(abc.ABC):
         :param X: Inputs where to evaluate the eigenfunctions, shape = [N, D].
         :return: shape [N,]
         """
-        Phi_X = self.__call__(X)  # [N, L]
-        weights = tf.reshape(weights, (-1,))
-        return tf.einsum("ni,i->n", Phi_X ** 2, weights)  # [N,]
+        Phi_X = self.__call__(X, **parameters)  # [N, L]
+        Kx = ep.sum(weights.T * Phi_X ** 2, axis=1)  # [N,]
+        return Kx.raw
 
     @abc.abstractmethod
-    def __call__(self, X: TensorLike) -> TensorLike:
+    def __call__(self, X: Tensor, **parameters) -> Tensor:
         """
         :param X: points to evaluate the eigenfunctions in local coordinates, [N, D].
             `N` is the number of points and `D` should match the dimension of the space
@@ -92,8 +93,8 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
     """
 
     def weighted_outerproduct(
-        self, weights: TensorLike, X: TensorLike, X2: Optional[TensorLike] = None
-    ) -> TensorLike:
+        self, weights: Tensor, X: Tensor, X2: Optional[Tensor] = None, **parameters
+    ) -> Tensor:
         r"""
         Computes :math:`\sum w_i \phi_i(x1) \phi_i(x2)`.
 
@@ -110,27 +111,12 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         if X2 is None:
             X2 = X
 
-        sum_phi_phi_for_level = self._addition_theorem(X, X2)  # [N, N, L]
-        N1 = tf.shape(X)[0]
-        N2 = tf.shape(X2)[0]
-
+        sum_phi_phi_for_level = self._addition_theorem(X, X2, **parameters)  # [N, N, L]
         weights = self._filter_weights(weights)
-        weights = tf.reshape(weights, (-1,))  # flatten
 
-        # shape checks
-        tf.ensure_shape(sum_phi_phi_for_level, tf.TensorShape([N1, N2, self.num_levels]))
-        tf.ensure_shape(
-            weights,
-            tf.TensorShape(
-                [
-                    self.num_levels,
-                ]
-            ),
-        )
+        return einsum("i,nki->nk", weights, sum_phi_phi_for_level)  # [N, N2]
 
-        return tf.einsum("i,nki->nk", weights, sum_phi_phi_for_level)  # [N, N2]
-
-    def weighted_outerproduct_diag(self, weights: TensorLike, X: TensorLike) -> TensorLike:
+    def weighted_outerproduct_diag(self, weights: Tensor, X: Tensor, **parameters) -> Tensor:
         r"""
         Computes :math:`\sum_{i=0}^{M-1} w_i \phi_i(x) \phi_i(x)`. Corresponds to the
         diagonal elements of `weighted_outproduct` but they can be calculated more
@@ -146,31 +132,17 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         :param X: Inputs where to evaluate the eigenfunctions, shape = [N, D].
         :return: shape [N,]
         """
-        N = tf.shape(X)[0]
-        addition_theorem_X = self._addition_theorem_diag(X)  # [N, L]
-
+        addition_theorem_X = self._addition_theorem_diag(X, **parameters)  # [N, L]
         weights = self._filter_weights(weights)
-        weights = tf.reshape(weights, (-1,))  # flatten
+        return einsum("i,ni->n", weights, addition_theorem_X)  # [N,]
 
-        # shape checks
-        tf.ensure_shape(addition_theorem_X, tf.TensorShape([N, self.num_levels]))
-        tf.ensure_shape(
-            weights,
-            tf.TensorShape(
-                [
-                    self.num_levels,
-                ]
-            ),
-        )
-        return tf.einsum("i,ni->n", weights, addition_theorem_X)  # [N,]
-
-    def _filter_weights(self, weights: TensorLike) -> TensorLike:
+    def _filter_weights(self, weights: Tensor) -> Tensor:
         """
         Selects the weight for each level.
         Assumes the weights in `weights` within a level are the same.
 
-        :param weights: [M, 1]
-        :return: [L, 1]
+        :param weights: [M,]
+        :return: [L,]
         """
         weights_per_level = []
         # assumes the weights in `weights` within a level are the same
@@ -179,10 +151,10 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         for num in self.num_eigenfunctions_per_level:
             weights_per_level.append(weights[i])
             i += num
-        return tf.reshape(tf.convert_to_tensor(weights_per_level), (-1, 1))
+        return ep.astensor(weights_per_level)  # [L,]
 
     @abc.abstractmethod
-    def _addition_theorem(self, X: TensorLike, X2: TensorLike) -> TensorLike:
+    def _addition_theorem(self, X: Tensor, X2: Tensor, **parameters) -> Tensor:
         """
         Returns the sum of eigenfunctions on a level for which we have a simplified expression
 
@@ -194,7 +166,7 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _addition_theorem_diag(self, X: TensorLike) -> TensorLike:
+    def _addition_theorem_diag(self, X: Tensor, **parameters) -> Tensor:
         """
         Returns the sum of eigenfunctions on a level for which we have a simplified expression
 

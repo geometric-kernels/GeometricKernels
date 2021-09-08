@@ -78,13 +78,11 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         else:
             raise NotImplementedError
 
-    def eigenfunctions(self, **__parameters) -> Eigenfunctions:
+    def eigenfunctions(self) -> Eigenfunctions:
         """
         Eigenfunctions of the kernel, may depend on parameters.
         """
-        assert "lengthscale" in __parameters
         eigenfunctions = self.space.get_eigenfunctions(self.num_eigenfunctions)
-
         return eigenfunctions
 
     def eigenvalues(self, **parameters) -> TensorLike:
@@ -101,12 +99,12 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         """Compute the mesh kernel via Laplace eigendecomposition"""
         weights = self.eigenvalues(**parameters)  # [M, 1]
         Phi = self.eigenfunctions()
-        return Phi.weighted_outerproduct(weights, X, X2)  # [N, N2]
+        return Phi.weighted_outerproduct(weights, X, X2, **parameters)  # [N, N2]
 
     def K_diag(self, X: TensorLike, **parameters) -> TensorLike:
         weights = self.eigenvalues(**parameters)  # [M, 1]
         Phi = self.eigenfunctions()
-        return Phi.weighted_outerproduct_diag(weights, X)  # [N,]
+        return Phi.weighted_outerproduct_diag(weights, X, **parameters)  # [N,]
 
     # def K(self, X: TensorLike, X2: Optional[TensorLike] = None, **parameters) -> TensorLike:
     #     Phi_X = self.eigenfunctions(**parameters)(X)  # [N, L]

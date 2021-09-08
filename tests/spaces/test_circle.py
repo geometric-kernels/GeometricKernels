@@ -60,7 +60,7 @@ def test_filter_weights(eigenfunctions: EigenfunctionWithAdditionTheorem):
     weights = chain(weights_per_level, eigenfunctions.num_eigenfunctions_per_level).numpy()
     assert len(weights) == eigenfunctions.num_eigenfunctions
     np.testing.assert_array_equal(
-        weights_per_level, eigenfunctions._filter_weights(weights).numpy().flatten()
+        weights_per_level, eigenfunctions._filter_weights(weights).raw.numpy().flatten()
     )
 
 

@@ -1,7 +1,7 @@
 """
 Mesh object
 """
-from typing import Callable, Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 import eagerpy as ep
 import numpy as np
@@ -9,10 +9,10 @@ import potpourri3d as pp3d
 import robust_laplacian
 import scipy.sparse.linalg as sla
 
+from geometric_kernels.eagerpy_extras import cast_to_int, take_along_axis
 from geometric_kernels.eigenfunctions import Eigenfunctions
 from geometric_kernels.spaces import DiscreteSpectrumSpace
 from geometric_kernels.types import TensorLike
-from geometric_kernels.utils import cast_to_int, take_along_axis
 
 
 class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
@@ -30,7 +30,7 @@ class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
         self.eigenvectors_np = eigenvectors
         self.eigenvectors: Optional[TensorLike] = None
 
-    def __call__(self, indices: TensorLike) -> TensorLike:
+    def __call__(self, indices: TensorLike, **parameters) -> TensorLike:
         """
         Selects `N` locations from the `M` eigenvectors.
 
