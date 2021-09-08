@@ -1,6 +1,3 @@
 """
-Wrappers to use the geometric kernels in GPflow and other downstream packages.
+GP Package (e.g., GPflow, GPyTorch) and backend (e.g., TensorFlow, PyTorch) specific code
 """
-# noqa: F401
-from geometric_kernels.frontends.gpflow import GPflowGeometricKernel
-from geometric_kernels.frontends.gpytorch import GPytorchGeometricKernel

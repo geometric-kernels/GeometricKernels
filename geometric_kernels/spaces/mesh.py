@@ -1,7 +1,7 @@
 """
 Mesh object
 """
-from typing import Any, Callable, Dict, Optional, Tuple
+from typing import Callable, Dict, Optional, Tuple
 
 import eagerpy as ep
 import numpy as np

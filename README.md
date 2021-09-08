@@ -24,6 +24,46 @@ poetry install
 ```
 You can then get a shell with the environment via `poetry shell`.
 
+---
+**NOTE**
+
+Following the steps above will install the package with only Numpy support. To use it with, for example, GPflow (TensorFlow) or GPyTorch (PyTorch), follow the additional steps below.
+
+---
+
+## Next, choose the backend
+
+Geometric kernels can use `tensorflow`, `pytorch`, ~~`jax`~~ (under development) and `numpy` (default) as backend thanks to [EagerPy](https://github.com/jonasrauber/eagerpy). To install the required dependencies for this run the following command
+
+- For TensorFlow with GPflow
+```
+poetry install -E tensorflow
+```
+and export
+```
+export GEOMETRIC_KERNELS_BACKEND=tensorflow
+```
+
+- Or, for PyTorch with GPyTorch
+```
+poetry install -E pytorch
+```
+and export
+```
+export GEOMETRIC_KERNELS_BACKEND=pytorch
+```
+
+
+### Supported backends with associated GP packaes
+
+Ready|Backend                                      | GP package
+-----|---------------------------------------------|------------------------------------------
+✅   |[Tensorflow](https://www.tensorflow.org/)    |[GPflow](https://github.com/GPflow/GPflow)
+✅   |[PyTorch](https://github.com/pytorch/pytorch)|[GPyTorch](https://gpytorch.ai/)
+✅   |[Numpy](https://numpy.org/)                  |??
+🚧   |[Jax](https://github.com/google/jax)         |??
+ 
+
 ## Running the tests
 
 Run these commands from the root directory of this repository. 

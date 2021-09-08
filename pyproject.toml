@@ -7,40 +7,66 @@ packages = [{include = "geometric_kernels", from = "."}]
 
 [tool.poetry.dependencies]
 python = "^3.7"
+numpy = "^1.19.5"
 jupyterlab = "^3.1.1"
 seaborn = "^0.11.1"
-gpflow = "^2.2.1"
 potpourri3d = "^0.0.4"
 robust_laplacian = "^0.2.2"
 meshzoo = "^0.7.5"
 polyscope = "^1.2.0"
-tensorflow = "^2.6.0"
-tensorflow-probability = "^0.13.0"
 eagerpy = "^0.30.0"
-gpytorch = "^1.5.1"
+gpytorch = {version = "^1.5.1", optional = true}
+torch = {version = "^1.8.1", optional = true}
+gpflow = {version = "^2.2.1", optional = true}
+tensorflow = {version = "^2.6.0", optional = true}
+tensorflow-probability = {version = "^0.13.0", optional = true}
+multipledispatch = "^0.6.0"
+
+[tool.poetry.extras]
+tensorflow = ["gpflow", "tensorflow", "tensorflow-probability"]
+pytorch = ["gpytorch", "torch"]
+numpy = []
 
 [tool.poetry.dev-dependencies]
 mypy = "0.711"
 pylint = "2.3.1"
 pytest = "^5.3.5"
-black = { version = "*", allow-prereleases = true }
+black = "20.8b1"
 pytest-cov = "^2.8.1"
 pytest-mypy = "^0.6.1"
 pytest-pylint = "^0.17.0"
 taskipy = "^1.2.0"
 pytest-black = "^0.3.8,!=0.3.10"
 pytest-isort = "^1.0.0"
-gpytorch = "^1.5.0"
+typing-extensions = "^3.7.0"
 
 [tool.taskipy.tasks]
+# These commands run *all* tests and file checks. For these to complete successfully,
+# all dependencies need to be installed (PyTorch, TensorFlow, GPflow, GPyTorch, etc.).
+# Below are the specific tests for the different backends and frontends.
 lint = "pytest --pylint --cache-clear -m pylint --pylint-rcfile=extrapylint geometric_kernels"
-mypy = "pytest --mypy --cache-clear -m mypy -v"
-quicktest = "pytest -x --ff -rN -Wignore"
-test = "pytest --pylint --mypy --black --isort --cache-clear -ra -v --cov geometric_kernels --cov-report term --cov-report xml:reports/coverage.xml --junitxml=reports/junit.xml -o junit_family=xunit2 && pytest --pylint --cache-clear -m pylint --pylint-rcfile=extrapylint geometric_kernels"
+quicktest  = "pytest -x --ff -rn"
+check_format = "pytest -v --cache-clear --black --isort -m 'black or isort'"
+test = "pytest --pylint --mypy --black --isort --cache-clear -ra -v --cov geometric_kernels --cov-report term --cov-report xml:reports/coverage.xml --junitxml=reports/junit.xml -o junit_family=xunit2"
+
+# TensorFlow and GPflow
+quicktest_tensorflow = "task quicktest --ignore='tests/frontends/gpytorch'"
+check_format_tensorflow = "task check_format  --ignore='tests/frontends/gpytorch' --ignore='geometric_kernels/frontends/gpytorch'"
+test_tensorflow = "task test --ignore='tests/frontends/gpytorch' --ignore='geometric_kernels/frontends/gpytorch' && task lint --ignore='tests/frontends/gpytorch' --ignore='geometric_kernels/frontends/gpytorch'"
+
+# PyTorch and GPyTorch
+quicktest_pytorch = "task quicktest --ignore='tests/frontends/gpflow'"
+check_format_pytorch = "task check_format  --ignore='tests/frontends/gpflow' --ignore='geometric_kernels/frontends/gpflow'"
+test_pytorch = "task test --ignore='tests/frontends/gpflow' --ignore='geometric_kernels/frontends/gpflow' && task lint --ignore='tests/frontends/gpflow' --ignore='geometric_kernels/frontends/gpflow'"
+
+# Numpy
+quicktest_numpy = "task quicktest --ignore='tests/frontends' --ignore='geometric_kernels/frontends'"
+check_format_numpy = "task check_format  --ignore='tests/frontends' --ignore='geometric_kernels/frontends'"
+test_numpy = "task test --ignore='tests/frontends' --ignore='geometric_kernels/frontends' && task lint --ignore='tests/frontends' --ignore='geometric_kernels/frontends'"
+
 black = "black ."
 isort = "isort --atomic -y"
 format = "task isort && task black"
-check_format = "pytest -v --cache-clear --black --isort -m 'black or isort'"
 
 [tool.black]
 line-length = 95
