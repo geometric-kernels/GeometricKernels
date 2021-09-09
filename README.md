@@ -33,7 +33,10 @@ Following the steps above will install the package with only Numpy support. To u
 
 ## Next, choose the backend
 
-Geometric kernels can use `tensorflow`, `pytorch`, ~~`jax`~~ (under development) and `numpy` (default) as backend thanks to [EagerPy](https://github.com/jonasrauber/eagerpy). To install the required dependencies for this run the following command
+TODO:
+First, follow these instructions: https://gist.github.com/wesselb/4b44bf87f3789425f96e26c4308d0adc
+
+<!-- Geometric kernels can use `tensorflow`, `pytorch`, ~~`jax`~~ (under development) and `numpy` (default) as backend thanks to [EagerPy](https://github.com/jonasrauber/eagerpy). To install the required dependencies for this run the following command -->
 
 - For TensorFlow with GPflow
 ```

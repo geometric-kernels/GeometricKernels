@@ -52,7 +52,9 @@ def _eigenfunctions_fixture():
     return eigenfunctions
 
 
-def test_call_eigenfunctions(inputs: TensorLike, eigenfunctions: EigenfunctionWithAdditionTheorem):
+def test_call_eigenfunctions(
+    inputs: TensorLike, eigenfunctions: EigenfunctionWithAdditionTheorem
+):
     output = eigenfunctions(inputs)
     assert output.numpy().shape == (Consts.num_data, eigenfunctions.num_eigenfunctions)
 
@@ -69,7 +71,9 @@ def test_orthonormality(eigenfunctions: EigenfunctionWithAdditionTheorem):
     phiT_phi = (phi.T @ phi) * 2 * np.pi / phi.shape[0]
     circumference_circle = 2 * np.pi
     inner_prod = phiT_phi / circumference_circle
-    np.testing.assert_array_almost_equal(inner_prod, np.eye(inner_prod.shape[0]), decimal=3)
+    np.testing.assert_array_almost_equal(
+        inner_prod, np.eye(inner_prod.shape[0]), decimal=3
+    )
 
 
 def test_filter_weights(eigenfunctions: EigenfunctionWithAdditionTheorem):

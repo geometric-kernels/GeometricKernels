@@ -19,7 +19,11 @@ class Eigenfunctions(abc.ABC):
     """
 
     def weighted_outerproduct(
-        self, weights: Tensor, X: Tensor, X2: Optional[Tensor] = None, **parameters
+        self,
+        weights: Tensor,
+        X: Tensor,
+        X2: Optional[Tensor] = None,
+        **parameters,
     ) -> Tensor:
         r"""
         Computes :math:`\sum_{i=0}^{M-1} w_i \phi_i(x1) \phi_i(x2)`.
@@ -42,7 +46,9 @@ class Eigenfunctions(abc.ABC):
         Kxx = ep.matmul(weights.T * Phi_X, Phi_X2.T)  # [N, N2]
         return Kxx.raw
 
-    def weighted_outerproduct_diag(self, weights: Tensor, X: Tensor, **parameters) -> Tensor:
+    def weighted_outerproduct_diag(
+        self, weights: Tensor, X: Tensor, **parameters
+    ) -> Tensor:
         r"""
         Computes :math:`\sum_{i=0}^{M-1} w_i \phi_i(x) \phi_i(x)`. Corresponds to the
         diagonal elements of `weighted_outproduct` but they can be calculated more
@@ -96,7 +102,11 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
     """
 
     def weighted_outerproduct(
-        self, weights: Tensor, X: Tensor, X2: Optional[Tensor] = None, **parameters
+        self,
+        weights: Tensor,
+        X: Tensor,
+        X2: Optional[Tensor] = None,
+        **parameters,
     ) -> Tensor:
         r"""
         Computes :math:`\sum w_i \phi_i(x1) \phi_i(x2)`.
@@ -120,7 +130,9 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
 
         return einsum("i,nki->nk", weights, sum_phi_phi_for_level)  # [N, N2]
 
-    def weighted_outerproduct_diag(self, weights: Tensor, X: Tensor, **parameters) -> Tensor:
+    def weighted_outerproduct_diag(
+        self, weights: Tensor, X: Tensor, **parameters
+    ) -> Tensor:
         r"""
         Computes :math:`\sum_{i=0}^{M-1} w_i \phi_i(x) \phi_i(x)`. Corresponds to the
         diagonal elements of `weighted_outproduct` but they can be calculated more

@@ -24,4 +24,3 @@ class Graph(DiscreteSpectrumSpace):
 
         :return: [num, 1] array containing the eigenvalues
         """
-        pass

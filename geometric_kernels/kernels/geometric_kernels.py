@@ -1,7 +1,7 @@
 """
 Implementation of geometric kernels on several spaces
 """
-from typing import Callable, Mapping, Optional
+from typing import Optional
 
 import eagerpy as ep
 import numpy as np
@@ -91,8 +91,13 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         :return: [M, 1]
         """
         assert "lengthscale" in parameters
-        eigenvalues_laplacian = self.space.get_eigenvalues(self.num_eigenfunctions)  # [M, 1]
-        return self._spectrum(eigenvalues_laplacian ** 0.5, lengthscale=parameters["lengthscale"])
+        eigenvalues_laplacian = self.space.get_eigenvalues(
+            self.num_eigenfunctions
+        )  # [M, 1]
+        return self._spectrum(
+            eigenvalues_laplacian ** 0.5,
+            lengthscale=parameters["lengthscale"],
+        )
 
     def K(self, X: Tensor, X2: Optional[Tensor] = None, **parameters) -> Tensor:
         """Compute the mesh kernel via Laplace eigendecomposition"""

@@ -1,8 +1,8 @@
+import gpflow
 import meshzoo
 import numpy as np
 import tensorflow as tf
 
-import gpflow
 from geometric_kernels.backends.tensorflow import GPflowGeometricKernel
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import Mesh
@@ -47,7 +47,9 @@ def test_gpflow_integration():
     def get_data():
         _X = np.random.randint(mesh.num_vertices, size=(num_data, 1))
         _K = kernel.K(_X).numpy()
-        _y = np.linalg.cholesky(_K + np.eye(num_data) * 1e-6) @ np.random.randn(num_data, 1)
+        _y = np.linalg.cholesky(_K + np.eye(num_data) * 1e-6) @ np.random.randn(
+            num_data, 1
+        )
         return _X, _y
 
     X, y = get_data()

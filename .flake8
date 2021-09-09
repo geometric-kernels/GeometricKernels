@@ -1,0 +1,11 @@
+[flake8]
+max-line-length = 88
+select = C,E,F,W,B,B9
+# ignore:
+# E226 missing whitespace around arithmetic operator
+# W503 Line break occurred before a binary operator
+# W504 line break after binary operator
+# F811 redefinition because of multiple dispatch
+ignore = E203, E501, W503, E226, W503, W504, F811
+max-complexity = 10
+exclude = __init__.py,.git,__pycache__,.mypy_cache,.pytest_cache
