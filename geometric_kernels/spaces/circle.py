@@ -10,7 +10,7 @@ import geomstats as gs
 import numpy as np
 from eagerpy import Tensor
 
-from geometric_kernels.eagerpy_extras import cast_to_float, cos, sin
+from geometric_kernels.eagerpy_extras import cast_to_float, cos, from_numpy, sin
 from geometric_kernels.eigenfunctions import Eigenfunctions, EigenfunctionWithAdditionTheorem
 from geometric_kernels.spaces import DiscreteSpectrumSpace
 from geometric_kernels.utils import chain
@@ -72,7 +72,11 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         angle_between = theta1[:, None, :] - theta2[None, :, :]  # [N, N2, 1]
         freqs = cast_to_float(ep.arange(X, self.num_levels))  # [L]
         values = cos(freqs[None, None, :] * angle_between)  # [N, N2, L]
-        values = self.num_eigenfunctions_per_level[None, None, :] * values
+        values = (
+            cast_to_float(from_numpy(values, self.num_eigenfunctions_per_level[None, None, :]))
+            * values
+        )
+        print(">>>", values)
         return values  # [N, N2, L]
 
     def _addition_theorem_diag(self, X: Tensor, **parameters) -> Tensor:
@@ -86,7 +90,7 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         """
         N = X.shape[0]
         ones = ep.ones(X, (N, self.num_levels))  # [N, L]
-        value = ones * self.num_eigenfunctions_per_level[None, :]
+        value = ones * cast_to_float(from_numpy(X, self.num_eigenfunctions_per_level[None, :]))
         return value  # [N, L]
 
     @property

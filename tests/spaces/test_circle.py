@@ -4,7 +4,7 @@ import pytest
 from eagerpy.tensor.tensor import Tensor
 
 from geometric_kernels import BACKEND
-from geometric_kernels.eagerpy_extras import absolute_value, einsum
+from geometric_kernels.eagerpy_extras import absolute_value, einsum, from_numpy
 from geometric_kernels.eigenfunctions import EigenfunctionWithAdditionTheorem
 from geometric_kernels.kernels.geometric_kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces.circle import Circle, SinCosEigenfunctions
@@ -94,7 +94,9 @@ def test_weighted_outerproduct_with_addition_theorem(
 
     Phi_X = eigenfunctions(inputs)
     Phi_X2 = eigenfunctions(inputs2)
-    expected = einsum("ni,ki,i->nk", Phi_X, Phi_X2, weights).numpy()
+    print(Phi_X)
+    print(weights)
+    expected = einsum("ni,ki,i->nk", Phi_X, Phi_X2, from_numpy(Phi_X, weights)).numpy()
     np.testing.assert_array_almost_equal(actual, expected)
 
 
@@ -124,7 +126,7 @@ def test_weighted_outerproduct_diag_with_addition_theorem(
     actual = eigenfunctions.weighted_outerproduct_diag(weights, inputs).numpy()
 
     Phi_X = eigenfunctions(inputs)
-    expected = einsum("ni,i->n", Phi_X ** 2, weights).numpy()
+    expected = einsum("ni,i->n", Phi_X ** 2, from_numpy(Phi_X, weights)).numpy()
     np.testing.assert_array_almost_equal(actual, expected)
 
 
@@ -161,7 +163,9 @@ def test_equivalence_kernel(nu, inputs, inputs2):
 
     # Kernel by summing over all distances
     geodesic = inputs[:, None, :] - inputs2[None, :, :]  # [N, N2, 1]
-    all_distances = geodesic + np.array([i * 2 * np.pi for i in range(-10, 10)])[None, None, :]
+    all_distances = geodesic + from_numpy(
+        inputs, np.array([i * 2 * np.pi for i in range(-10, 10)])[None, None, :]
+    )
     K_expected = analytic_kernel(nu, all_distances).sum(2).numpy()
     # K_expected = tf.reduce_sum(values, axis=2).numpy()
 

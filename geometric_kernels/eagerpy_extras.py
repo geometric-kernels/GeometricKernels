@@ -12,14 +12,18 @@ from multipledispatch import Dispatcher
 from opt_einsum import contract
 
 __all__ = [
-    "absolute_value",
+    # Cast
     "cast_to_int",
     "cast_to_float",
+    "from_numpy",
+    # Operations
     "einsum",
     "rearrange",
     "reduce",
     "repeat",
     "take_along_axis",
+    # Math
+    "absolute_value",
     "cos",
     "sin",
 ]
@@ -32,6 +36,7 @@ cos = Dispatcher("sin")
 sin = Dispatcher("cos")
 cast_to_int = Dispatcher("cast_to_int")
 cast_to_float = Dispatcher("cast_to_float")
+from_numpy = Dispatcher("from_numpy")
 take_along_axis = Dispatcher("take_along_axis")
 
 
@@ -211,6 +216,51 @@ def _cast_to_float_torch(t: ep.PyTorchTensor):
 @cast_to_float.register(ep.NumPyTensor)
 def _cast_to_float_numpy(t: ep.NumPyTensor):
     return t.astype(np.float64)
+
+
+###############
+# from numpy
+###############
+@from_numpy.register(ep.TensorFlowTensor, np.ndarray)
+def _from_numpy_tf(t: ep.TensorFlowTensor, array) -> ep.TensorFlowTensor:
+    global tf
+    if tf is None:
+        tf = import_module("tensorflow")
+    return ep.astensor(tf.convert_to_tensor(array))  # type: ignore[misc]
+
+
+@from_numpy.register(ep.PyTorchTensor, np.ndarray)
+def _from_numpy_torch(t: ep.PyTorchTensor, array) -> ep.PyTorchTensor:
+    global torch
+    if torch is None:
+        torch = import_module("torch")
+    return ep.astensor(torch.from_numpy(array))  # type: ignore[misc]
+
+
+@from_numpy.register(ep.NumPyTensor, np.ndarray)
+def _from_numpy_numpy(t: ep.NumPyTensor, array) -> ep.NumPyTensor:
+    return ep.astensor(array)
+
+
+@from_numpy.register(ep.TensorFlowTensor, ep.NumPyTensor)
+def _from_numpy_tf_ep(t: ep.TensorFlowTensor, array) -> ep.TensorFlowTensor:
+    global tf
+    if tf is None:
+        tf = import_module("tensorflow")
+    return ep.astensor(tf.convert_to_tensor(array.raw))  # type: ignore[misc]
+
+
+@from_numpy.register(ep.PyTorchTensor, ep.NumPyTensor)
+def _from_numpy_torch_ep(t: ep.PyTorchTensor, array) -> ep.PyTorchTensor:
+    global torch
+    if torch is None:
+        torch = import_module("torch")
+    return ep.astensor(torch.from_numpy(array.raw))  # type: ignore[misc]
+
+
+@from_numpy.register(ep.NumPyTensor, ep.NumPyTensor)
+def _from_numpy_numpy_ep(t: ep.NumPyTensor, array) -> ep.NumPyTensor:
+    return array
 
 
 ###############
