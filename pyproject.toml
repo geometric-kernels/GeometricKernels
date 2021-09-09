@@ -21,6 +21,9 @@ gpflow = {version = "^2.2.1", optional = true}
 tensorflow = {version = "^2.6.0", optional = true}
 tensorflow-probability = {version = "^0.13.0", optional = true}
 multipledispatch = "^0.6.0"
+opt-einsum = "^3.3.0"
+geomstats = "^2.2.2"
+einops = "^0.3.2"
 
 [tool.poetry.extras]
 tensorflow = ["gpflow", "tensorflow", "tensorflow-probability"]
@@ -45,24 +48,24 @@ typing-extensions = "^3.7.0"
 # all dependencies need to be installed (PyTorch, TensorFlow, GPflow, GPyTorch, etc.).
 # Below are the specific tests for the different backends and frontends.
 lint = "pytest --pylint --cache-clear -m pylint --pylint-rcfile=extrapylint geometric_kernels"
-quicktest  = "pytest -x --ff -rn"
-check_format = "pytest -v --cache-clear --black --isort -m 'black or isort'"
+quicktest  = "pytest -x --ff -rn -vv"
+check_format = "pytest -vv --cache-clear --black --isort -m 'black or isort'"
 test = "pytest --pylint --mypy --black --isort --cache-clear -ra -v --cov geometric_kernels --cov-report term --cov-report xml:reports/coverage.xml --junitxml=reports/junit.xml -o junit_family=xunit2"
 
 # TensorFlow and GPflow
-quicktest_tensorflow = "task quicktest --ignore='tests/frontends/gpytorch'"
-check_format_tensorflow = "task check_format  --ignore='tests/frontends/gpytorch' --ignore='geometric_kernels/frontends/gpytorch'"
-test_tensorflow = "task test --ignore='tests/frontends/gpytorch' --ignore='geometric_kernels/frontends/gpytorch' && task lint --ignore='tests/frontends/gpytorch' --ignore='geometric_kernels/frontends/gpytorch'"
+quicktest_tensorflow = "task quicktest --ignore='tests/backends/pytorch'"
+check_format_tensorflow = "task check_format  --ignore='tests/backends/pytorch' --ignore='geometric_kernels/backends/pytorch'"
+test_tensorflow = "task test --ignore='tests/backends/pytorch' --ignore='geometric_kernels/backends/pytorch' && task lint --ignore='tests/backends/pytorch' --ignore='geometric_kernels/backends/pytorch'"
 
 # PyTorch and GPyTorch
-quicktest_pytorch = "task quicktest --ignore='tests/frontends/gpflow'"
-check_format_pytorch = "task check_format  --ignore='tests/frontends/gpflow' --ignore='geometric_kernels/frontends/gpflow'"
-test_pytorch = "task test --ignore='tests/frontends/gpflow' --ignore='geometric_kernels/frontends/gpflow' && task lint --ignore='tests/frontends/gpflow' --ignore='geometric_kernels/frontends/gpflow'"
+quicktest_pytorch = "task quicktest --ignore='tests/backends/tensorflow'"
+check_format_pytorch = "task check_format  --ignore='tests/backends/tensorflow' --ignore='geometric_kernels/backends/tensorflow'"
+test_pytorch = "task test --ignore='tests/backends/tensorflow' --ignore='geometric_kernels/backends/tensorflow' && task lint --ignore='tests/backends/tensorflow' --ignore='geometric_kernels/backends/tensorflow'"
 
 # Numpy
-quicktest_numpy = "task quicktest --ignore='tests/frontends' --ignore='geometric_kernels/frontends'"
-check_format_numpy = "task check_format  --ignore='tests/frontends' --ignore='geometric_kernels/frontends'"
-test_numpy = "task test --ignore='tests/frontends' --ignore='geometric_kernels/frontends' && task lint --ignore='tests/frontends' --ignore='geometric_kernels/frontends'"
+quicktest_numpy = "task quicktest --ignore='tests/backends' --ignore='geometric_kernels/backends'"
+check_format_numpy = "task check_format  --ignore='tests/backends' --ignore='geometric_kernels/backends'"
+test_numpy = "task test --ignore='tests/backends' --ignore='geometric_kernels/backends' && task lint --ignore='tests/backends' --ignore='geometric_kernels/backends'"
 
 black = "black ."
 isort = "isort --atomic -y"
@@ -84,3 +87,5 @@ line_length = 100
 multi_line_output = 3
 include_trailing_comma = true
 line_length = 95
+known_third_party = ["torch", "tensorflow"]
+known_first_party = ["gpflow", "gpytorch"]

@@ -1,10 +1,10 @@
-import gpytorch
 import meshzoo
 import numpy as np
 import polyscope as ps
 import torch
 
-from geometric_kernels.frontends.gpytorch import GPytorchGeometricKernel
+import gpytorch
+from geometric_kernels.backends.pytorch import GPytorchGeometricKernel
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import Mesh
 

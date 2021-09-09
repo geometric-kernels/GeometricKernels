@@ -1,9 +1,9 @@
-import gpflow
 import meshzoo
 import numpy as np
 import tensorflow as tf
 
-from geometric_kernels.frontends.gpflow import GPflowGeometricKernel
+import gpflow
+from geometric_kernels.backends.tensorflow import GPflowGeometricKernel
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import Mesh
 
@@ -32,8 +32,7 @@ class DefaultFloatZero(gpflow.mean_functions.Constant):
 
 def test_gpflow_integration():
     """
-    Builds a GPflow GPR model using a geometric kernel and tests
-    `predict_f` and `predict_f_samples`.
+    Build GPflow GPR model with a Mesh Geometric Kernel.
     """
     resolution = 10
     vertices, faces = meshzoo.icosa_sphere(resolution)

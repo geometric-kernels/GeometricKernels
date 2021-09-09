@@ -2,8 +2,8 @@
 Abstract base interface for spaces.
 """
 import abc
-from typing import Callable
 
+from geometric_kernels.eigenfunctions import Eigenfunctions
 from geometric_kernels.types import TensorLike
 
 
@@ -14,11 +14,17 @@ class Space(abc.ABC):
 
     @abc.abstractproperty
     def dimension(self) -> int:
-        """Dimension in which the space is embedded"""
+        """
+        Dimension of the manifold
+        Examples:
+         - circle: 1
+         - sphere: 2
+         - torus: 2
+        """
         raise NotImplementedError
 
 
-class SpaceWithEigenDecomposition(Space):
+class DiscreteSpectrumSpace(Space):
     """
     A Space for which we can obtain the eigenvalues and eigenfunctions of
     the Laplace-Beltrami operator.
@@ -27,7 +33,7 @@ class SpaceWithEigenDecomposition(Space):
     """
 
     @abc.abstractmethod
-    def get_eigenfunctions(self, num: int) -> Callable[[TensorLike], TensorLike]:
+    def get_eigenfunctions(self, num: int) -> Eigenfunctions:
         """
         First `num` eigenfunctions of the Laplace-Beltrami operator
         """

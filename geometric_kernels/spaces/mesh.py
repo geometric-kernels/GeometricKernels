@@ -1,39 +1,45 @@
 """
 Mesh object
 """
-from typing import Callable, Dict, Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 import eagerpy as ep
 import numpy as np
 import potpourri3d as pp3d
 import robust_laplacian
 import scipy.sparse.linalg as sla
+from eagerpy import Tensor
 
-from geometric_kernels.spaces import SpaceWithEigenDecomposition
-from geometric_kernels.types import TensorLike
-from geometric_kernels.utils import cast_to_int, take_along_axis
+from geometric_kernels.eagerpy_extras import cast_to_int, take_along_axis
+from geometric_kernels.eigenfunctions import Eigenfunctions
+from geometric_kernels.spaces import DiscreteSpectrumSpace
 
 
-class ConvertEigenvectorsToEigenfunctions:
+class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
     """
     Converts the array of eigenvectors to a callable objects,
     where inputs are given by the indices.
     """
 
     def __init__(self, eigenvectors: np.ndarray):
+        """
+        :param eigenvectors: [Nv, M]
+        """
         # Always numpy to seamleassy convert to a desired backend
         assert isinstance(eigenvectors, np.ndarray)
         self.eigenvectors_np = eigenvectors
-        self.eigenvectors: Optional[TensorLike] = None
+        self.eigenvectors: Optional[Tensor] = None
 
-    def __call__(self, indices: TensorLike) -> TensorLike:
+    def __call__(self, X: Tensor, **parameters) -> Tensor:
         """
-        Selects N locations from the  eigenvectors.
+        Selects `N` locations from the `M` eigenvectors.
 
-        :param indices: indices [N, 1]
-        :return: [N, L]
+        :param X: indices [N, 1]
+        :param parameters: unused
+        :return: [N, M]
         """
         # Convert stored numpy eigenvectors to whatever indices have as a backend
+        indices = X
         indices = ep.astensor(indices)
 
         if not isinstance(indices, type(self.eigenvectors)):
@@ -48,8 +54,12 @@ class ConvertEigenvectorsToEigenfunctions:
         Phi = take_along_axis(self.eigenvectors, indices, axis=0)
         return Phi
 
+    def num_eigenfunctions(self) -> int:
+        """Number of eigenvectos, M"""
+        return self.eigenvectors.shape[-1]
 
-class Mesh(SpaceWithEigenDecomposition):
+
+class Mesh(DiscreteSpectrumSpace):
     """
     A representation of a surface mesh. Mimics `PyMesh` interface. Uses
     `potpourri3d` to read mesh files.
@@ -91,21 +101,21 @@ class Mesh(SpaceWithEigenDecomposition):
 
         return self.cache[num]
 
-    def get_eigenvectors(self, num: int) -> TensorLike:
+    def get_eigenvectors(self, num: int) -> Tensor:
         """
         :param num: number of eigenvectors returned
         :return: eigenvectors [Nv, num]
         """
         return self.get_eigensystem(num)[0]
 
-    def get_eigenvalues(self, num: int) -> TensorLike:
+    def get_eigenvalues(self, num: int) -> Tensor:
         """
         :param num: number of eigenvalues returned
         :return: eigenvalues [num, 1]
         """
         return self.get_eigensystem(num)[1]
 
-    def get_eigenfunctions(self, num: int) -> Callable[[TensorLike], TensorLike]:
+    def get_eigenfunctions(self, num: int) -> Eigenfunctions:
         """
         First `num` eigenfunctions of the Laplace-Beltrami operator on the Mesh.
 
