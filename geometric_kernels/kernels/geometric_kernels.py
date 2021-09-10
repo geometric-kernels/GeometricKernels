@@ -3,9 +3,10 @@ Implementation of geometric kernels on several spaces
 """
 from typing import Optional
 
-import eagerpy as ep
+import lab as B
+from lab.types import Number
+
 import numpy as np
-from eagerpy.tensor.tensor import Tensor
 
 from geometric_kernels.eigenfunctions import Eigenfunctions
 from geometric_kernels.kernels import BaseGeometricKernel
@@ -52,28 +53,17 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         self.nu = nu
         self.num_eigenfunctions = num_eigenfunctions  # in code referred to as `M`.
 
-    def _spectrum(self, s: Tensor, lengthscale: Tensor):
+    def _spectrum(self, s: B.Numeric, lengthscale: B.Numeric) -> B.Numeric:
         """
         Matern or RBF spectrum evaluated at `s`. Depends on the
         `lengthscale` parameters.
         """
-        s, lengthscale = ep.astensors(s, lengthscale)
-        # cast `lengthscale` to eagerpy
-        # cast `s` to the same backend as `lengthscale`
-        # s = ep.from_numpy(lengthscale, s).astype(lengthscale.dtype)
-
-        def spectrum_rbf():
-            return ep.exp(-(lengthscale ** 2) / 2.0 * (s ** 2))
-
-        def spectrum_matern():
+        if self.nu == np.inf:
+            return B.exp(-(lengthscale ** 2) / 2.0 * (s ** 2))
+        elif self.nu > 0:
             power = -self.nu - self.space.dimension / 2.0
             base = 2.0 * self.nu / lengthscale ** 2 + (s ** 2)
-            return ep.astensor(base ** power)
-
-        if self.nu == np.inf:
-            return spectrum_rbf()
-        elif self.nu > 0:
-            return spectrum_matern()
+            return base ** power
         else:
             raise NotImplementedError
 
