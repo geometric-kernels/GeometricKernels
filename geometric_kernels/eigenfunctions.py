@@ -5,7 +5,6 @@ of the Laplace-Beltrami operator on a manifold.
 import abc
 
 import lab as B
-import numpy as np
 from opt_einsum import contract as einsum
 
 from geometric_kernels.lab_extras.extras import from_numpy
@@ -22,7 +21,7 @@ class Eigenfunctions(abc.ABC):
         self,
         weights: B.Numeric,
         X: B.Numeric,
-        X2: Optional[B.Numeric] = None,
+        X2: Optional[B.Numeric] = None,  # type: ignore
         **parameters,
     ) -> B.Numeric:
         r"""
@@ -105,7 +104,7 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         self,
         weights: B.Numeric,
         X: B.Numeric,
-        X2: Optional[B.Numeric] = None,
+        X2: Optional[B.Numeric] = None,  # type: ignore
         **parameters,
     ) -> B.Numeric:
         r"""
@@ -203,6 +202,6 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         raise NotImplementedError
 
     @abc.abstractproperty
-    def num_eigenfunctions_per_level(self) -> np.ndarray:
+    def num_eigenfunctions_per_level(self) -> B.Numeric:
         """Number of eigenfunctions per level"""
         raise NotImplementedError

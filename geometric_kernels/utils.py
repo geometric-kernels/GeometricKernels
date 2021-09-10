@@ -1,19 +1,19 @@
 """
 Convenience utilities.
 """
-from typing import Any, List
+from typing import Any, List, Type
 
 import einops
 import lab as B
 from plum import Union
 
 
-class _OptionalMeta(type):
-    def __getitem__(cls, *args):
-        return Union[(None,) + args]
+class OptionalMeta(type):
+    def __getitem__(cls, args: Type):
+        return Union[(None,) + (args,)]
 
 
-class Optional(metaclass=_OptionalMeta):
+class Optional(metaclass=OptionalMeta):
     pass
 
 

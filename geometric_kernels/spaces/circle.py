@@ -3,9 +3,9 @@ Spaces for which there exist analytical expressions for the manifold
 and the eigenvalues and functions. Examples include the `Circle` and the `Hypersphere`.
 The Geomstats package is used for most of the geometric calculations.
 """
+
 import geomstats as gs
 import lab as B
-import numpy as np
 
 from geometric_kernels.eigenfunctions import (
     Eigenfunctions,
@@ -75,7 +75,7 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         values = B.cos(freqs[None, None, :] * angle_between)  # [N, N2, L]
         values = (
             B.cast(
-                X.dtype, from_numpy(X, self.num_eigenfunctions_per_level[None, None, :])
+                X.dtype, from_numpy(X, self.num_eigenfunctions_per_level)[None, None, :]
             )
             * values
         )
@@ -92,7 +92,9 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         """
         N = X.shape[0]
         ones = B.ones(X.dtype, N, self.num_levels)  # [N, L]
-        value = ones * self.num_eigenfunctions_per_level[None, :]
+        value = ones * B.cast(
+            X.dtype, from_numpy(X, self.num_eigenfunctions_per_level)[None, :]
+        )
         return value  # [N, L]
 
     @property
@@ -111,9 +113,9 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         return self._num_levels
 
     @property
-    def num_eigenfunctions_per_level(self) -> np.ndarray:
+    def num_eigenfunctions_per_level(self) -> B.Numeric:
         """Number of eigenfunctions per level, [N_l]_{l=0}^{L-1}"""
-        return np.array([1 if level == 0 else 2 for level in range(self.num_levels)])
+        return [1 if level == 0 else 2 for level in range(self.num_levels)]
 
 
 class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
@@ -127,7 +129,7 @@ class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
     def is_tangent(
         self,
         vector: B.Numeric,
-        base_point: Optional[B.Numeric] = None,
+        base_point: Optional[B.Numeric] = None,  # type: ignore
         atol: float = gs.geometry.manifold.ATOL,
     ) -> bool:
         """

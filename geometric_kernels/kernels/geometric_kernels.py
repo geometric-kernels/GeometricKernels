@@ -88,7 +88,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         )
 
     def K(
-        self, X: B.Numeric, X2: Optional[B.Numeric] = None, **parameters
+        self, X: B.Numeric, X2: Optional[B.Numeric] = None, **parameters  # type: ignore
     ) -> B.Numeric:
         """Compute the mesh kernel via Laplace eigendecomposition"""
         weights = self.eigenvalues(**parameters)  # [M, 1]

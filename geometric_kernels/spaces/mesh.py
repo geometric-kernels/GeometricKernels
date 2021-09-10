@@ -10,7 +10,7 @@ import robust_laplacian
 import scipy.sparse.linalg as sla
 
 from geometric_kernels.eigenfunctions import Eigenfunctions
-from geometric_kernels.lab_extras import take_along_axis
+from geometric_kernels.lab_extras import from_numpy, take_along_axis
 from geometric_kernels.spaces import DiscreteSpectrumSpace
 from geometric_kernels.utils import Optional
 
@@ -28,7 +28,7 @@ class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
         # Always numpy to seamleassy convert to a desired backend
         assert isinstance(eigenvectors, np.ndarray)
         self.eigenvectors_np = eigenvectors
-        self.eigenvectors: Optional[B.Numeric] = None
+        self.eigenvectors: Optional[B.Numeric] = None  # type: ignore
 
     def __call__(self, X: B.Numeric, **parameters) -> B.Numeric:
         """
@@ -38,16 +38,17 @@ class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
         :param parameters: unused
         :return: [N, M]
         """
-        # Convert stored numpy eigenvectors to whatever indices have as a backend
         indices = X
-        # indices = ep.astensor(indices)
+        if self.eigenvectors is None:
+            # convert numpy eigenvectors to backend tensor
+            self.eigenvectors = from_numpy(X, self.eigenvectors_np)
 
         Phi = take_along_axis(self.eigenvectors_np, indices, axis=0)
         return Phi
 
     def num_eigenfunctions(self) -> int:
         """Number of eigenvectos, M"""
-        return self.eigenvectors.shape[-1]
+        return self.eigenvectors_np.shape[-1]
 
 
 class Mesh(DiscreteSpectrumSpace):
