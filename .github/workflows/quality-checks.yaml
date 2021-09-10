@@ -21,9 +21,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-          python-version: [3.6, 3.7, 3.8]
+        python-version: [3.6, 3.7, 3.8]
+      fail-fast: false
+
     name: Python-${{ matrix.python-version }}
     steps:
+      #----------------------------------------------
+      #       check-out repo and set-up python
+      #----------------------------------------------
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2
       with:
@@ -32,9 +37,15 @@ jobs:
       with:
         path: ${{ env.pythonLocation }}
         key: ${{ env.pythonLocation }}-${{ hashFiles('setup.py') }}
+      #----------------------------------------------
+      #       install
+      #----------------------------------------------
     - name: Install dependencies
       run: make install
-    - name: Run checks
+      #----------------------------------------------
+      #       Lint and test
+      #----------------------------------------------
+    - name: Run lint
       run: make lint
     - name: Run tests
       run: make test

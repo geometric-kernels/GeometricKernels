@@ -4,7 +4,7 @@
 from setuptools import find_namespace_packages, setup
 
 requirements = [
-    "numpy~=1.20.0",
+    "numpy==1.20.3",
     "scipy",
 ]
 
