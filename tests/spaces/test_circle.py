@@ -1,35 +1,42 @@
 import lab as B
-import lab.tensorflow  # noqa
 import numpy as np
 import pytest
 import tensorflow as tf
+import torch
 from opt_einsum import contract as einsum
+from plum import Tuple
 
 from geometric_kernels.eigenfunctions import EigenfunctionWithAdditionTheorem
 from geometric_kernels.kernels.geometric_kernels import MaternKarhunenLoeveKernel
+from geometric_kernels.lab_extras import from_numpy
 from geometric_kernels.spaces.circle import Circle, SinCosEigenfunctions
 from geometric_kernels.utils import chain
 
 
 class Consts:
-    seed = 0
+    seed = 42
     num_data = 7
     num_data2 = 5
     num_eigenfunctions = 11
 
 
-@pytest.fixture(name="inputs")
-def _inputs_fixure():
+def to_typed_tensor(value, backend):
+    if backend == "tensorflow":
+        return tf.convert_to_tensor(value)
+    elif backend == "torch":
+        return torch.tensor(value)
+    elif backend == "numpy":
+        return value
+    else:
+        raise ValueError("Unknown backend: {}".format(backend))
+
+
+@pytest.fixture(name="inputs", params=["tensorflow", "torch", "numpy"])
+def _inputs_fixure(request) -> Tuple[B.Numeric]:
     np.random.seed(Consts.seed)
     value = np.random.uniform(0, 2 * np.pi, size=(Consts.num_data, 1))
-    return tf.convert_to_tensor(value)
-
-
-@pytest.fixture(name="inputs2")
-def _inputs2_fixure():
-    np.random.seed(Consts.seed + 1)
-    value = np.random.uniform(0, 2 * np.pi, size=(Consts.num_data, 1))
-    return tf.convert_to_tensor(value)
+    value2 = np.random.uniform(0, 2 * np.pi, size=(Consts.num_data2, 1))
+    return to_typed_tensor(value, request.param), to_typed_tensor(value2, request.param)
 
 
 @pytest.fixture(name="eigenfunctions")
@@ -39,8 +46,10 @@ def _eigenfunctions_fixture():
 
 
 def test_call_eigenfunctions(
-    inputs: B.Numeric, eigenfunctions: EigenfunctionWithAdditionTheorem
+    inputs: Tuple[B.Numeric, B.Numeric],
+    eigenfunctions: EigenfunctionWithAdditionTheorem,
 ):
+    inputs, _ = inputs
     output = B.to_numpy(eigenfunctions(inputs))
     assert output.shape == (Consts.num_data, eigenfunctions.num_eigenfunctions)
 
@@ -72,20 +81,19 @@ def test_filter_weights(eigenfunctions: EigenfunctionWithAdditionTheorem):
 
 
 def test_weighted_outerproduct_with_addition_theorem(
-    inputs, inputs2, eigenfunctions: EigenfunctionWithAdditionTheorem
+    inputs, eigenfunctions: EigenfunctionWithAdditionTheorem
 ):
     """
     Eigenfunction will use addition theorem to compute outerproduct. We compare against the
     naive implementation.
     """
-    weights_per_level = np.random.randn(eigenfunctions.num_levels)
+    inputs, inputs2 = inputs
+    weights_per_level = from_numpy(inputs, np.random.randn(eigenfunctions.num_levels))
     weights = chain(weights_per_level, eigenfunctions.num_eigenfunctions_per_level)
     actual = B.to_numpy(eigenfunctions.weighted_outerproduct(weights, inputs, inputs2))
 
     Phi_X = eigenfunctions(inputs)
     Phi_X2 = eigenfunctions(inputs2)
-    print(Phi_X)
-    print(weights)
     expected = einsum("ni,ki,i->nk", Phi_X, Phi_X2, weights)
     np.testing.assert_array_almost_equal(actual, expected)
 
@@ -97,7 +105,8 @@ def test_weighted_outerproduct_with_addition_theorem_same_input(
     Eigenfunction will use addition theorem to compute outerproduct. We compare against the
     naive implementation.
     """
-    weights_per_level = np.random.randn(eigenfunctions.num_levels)
+    inputs, _ = inputs
+    weights_per_level = from_numpy(inputs, np.random.randn(eigenfunctions.num_levels))
     weights = chain(weights_per_level, eigenfunctions.num_eigenfunctions_per_level)
     first = B.to_numpy(eigenfunctions.weighted_outerproduct(weights, inputs, inputs))
     second = B.to_numpy(eigenfunctions.weighted_outerproduct(weights, inputs, None))
@@ -111,7 +120,8 @@ def test_weighted_outerproduct_diag_with_addition_theorem(
     Eigenfunction will use addition theorem to compute outerproduct. We compare against the
     naive implementation.
     """
-    weights_per_level = np.random.randn(eigenfunctions.num_levels)
+    inputs, _ = inputs
+    weights_per_level = from_numpy(inputs, np.random.randn(eigenfunctions.num_levels))
     weights = chain(weights_per_level, eigenfunctions.num_eigenfunctions_per_level)
     actual = eigenfunctions.weighted_outerproduct_diag(weights, inputs)
 
@@ -143,8 +153,9 @@ def analytic_kernel(nu: float, r: B.Numeric) -> B.Numeric:
         raise NotImplementedError
 
 
-@pytest.mark.parametrize("nu", [0.5, 1.5, 2.5, np.inf])
-def test_equivalence_kernel(nu, inputs, inputs2):
+@pytest.mark.parametrize("nu, decimal", [(0.5, 1), (1.5, 3), (2.5, 5), (np.inf, 6)])
+def test_equivalence_kernel(nu, decimal, inputs):
+    inputs, inputs2 = inputs
     # Spectral kernel
     circle = Circle()
     kernel = MaternKarhunenLoeveKernel(circle, nu, num_eigenfunctions=101)
@@ -159,5 +170,5 @@ def test_equivalence_kernel(nu, inputs, inputs2):
 
     # test equivalence
     np.testing.assert_array_almost_equal(
-        K_expected / K_expected[0, 0], K_actual / K_actual[0, 0], decimal=2
+        K_expected / K_expected[0, 0], K_actual / K_actual[0, 0], decimal=decimal
     )

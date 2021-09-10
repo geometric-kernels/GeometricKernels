@@ -8,6 +8,7 @@ import lab as B
 import numpy as np
 from opt_einsum import contract as einsum
 
+from geometric_kernels.lab_extras.extras import from_numpy
 from geometric_kernels.utils import Optional
 
 
@@ -126,6 +127,7 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
 
         sum_phi_phi_for_level = self._addition_theorem(X, X2, **parameters)  # [N, N, L]
         weights = self._filter_weights(weights)
+        weights = from_numpy(sum_phi_phi_for_level, weights)
 
         return einsum("i,nki->nk", weights, sum_phi_phi_for_level)  # [N, N2]
 

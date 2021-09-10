@@ -36,4 +36,4 @@ lint:
 
 
 test:  ## Run the tests, start with the failing ones and break on first fail.
-	pytest -rN -Wignore --tb=short --durations=10
+	pytest -v -x --ff -rN -Wignore -s --tb=short --durations=10
