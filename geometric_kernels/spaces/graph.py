@@ -1,9 +1,10 @@
 """
 Graphs: TODO
 """
+import lab as B
+
 from geometric_kernels.eigenfunctions import Eigenfunctions
 from geometric_kernels.spaces import DiscreteSpectrumSpace
-from geometric_kernels.types import TensorLike
 
 # from networkx import Graph
 
@@ -18,7 +19,7 @@ class Graph(DiscreteSpectrumSpace):
     def get_eigenfunctions(self, num: int) -> Eigenfunctions:
         pass
 
-    def get_eigenvalues(self, num: int) -> TensorLike:
+    def get_eigenvalues(self, num: int) -> B.Numeric:
         """
         First `num` eigenvalues of the Laplace-Beltrami operator
 

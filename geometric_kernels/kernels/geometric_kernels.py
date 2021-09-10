@@ -1,16 +1,14 @@
 """
 Implementation of geometric kernels on several spaces
 """
-from typing import Optional
 
 import lab as B
-from lab.types import Number
-
 import numpy as np
 
 from geometric_kernels.eigenfunctions import Eigenfunctions
 from geometric_kernels.kernels import BaseGeometricKernel
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
+from geometric_kernels.utils import Optional
 
 
 class MaternKarhunenLoeveKernel(BaseGeometricKernel):
@@ -74,7 +72,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         eigenfunctions = self.space.get_eigenfunctions(self.num_eigenfunctions)
         return eigenfunctions
 
-    def eigenvalues(self, **parameters) -> Tensor:
+    def eigenvalues(self, **parameters) -> B.Numeric:
         """
         Eigenvalues of the kernel.
 
@@ -89,30 +87,15 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             lengthscale=parameters["lengthscale"],
         )
 
-    def K(self, X: Tensor, X2: Optional[Tensor] = None, **parameters) -> Tensor:
+    def K(
+        self, X: B.Numeric, X2: Optional[B.Numeric] = None, **parameters
+    ) -> B.Numeric:
         """Compute the mesh kernel via Laplace eigendecomposition"""
         weights = self.eigenvalues(**parameters)  # [M, 1]
         Phi = self.eigenfunctions()
         return Phi.weighted_outerproduct(weights, X, X2, **parameters)  # [N, N2]
 
-    def K_diag(self, X: Tensor, **parameters) -> Tensor:
+    def K_diag(self, X: B.Numeric, **parameters) -> B.Numeric:
         weights = self.eigenvalues(**parameters)  # [M, 1]
         Phi = self.eigenfunctions()
         return Phi.weighted_outerproduct_diag(weights, X, **parameters)  # [N,]
-
-    # def K(self, X: TensorLike, X2: Optional[TensorLike] = None, **parameters) -> TensorLike:
-    #     Phi_X = self.eigenfunctions(**parameters)(X)  # [N, L]
-    #     if X2 is None:
-    #         Phi_X2 = Phi_X
-    #     else:
-    #         Phi_X2 = self.eigenfunctions(**parameters)(X2)  # [N2, L]
-
-    #     coeffs = self.eigenvalues(**parameters)  # [L, 1]
-    #     Kxx = ep.matmul(coeffs.T * Phi_X, Phi_X2.T)  # [N, N2]
-    #     return Kxx.raw
-
-    # def K_diag(self, X, **parameters):
-    #     Phi_X = self.eigenfunctions(**parameters)(X)  # [N, L]
-    #     coeffs = self.eigenvalues(**parameters)  # [L, 1]
-    #     Kx = ep.sum(coeffs.T * Phi_X ** 2, axis=1)  # [N,]
-    #     return Kx.raw

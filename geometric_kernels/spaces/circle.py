@@ -3,20 +3,16 @@ Spaces for which there exist analytical expressions for the manifold
 and the eigenvalues and functions. Examples include the `Circle` and the `Hypersphere`.
 The Geomstats package is used for most of the geometric calculations.
 """
-from typing import Optional
-
-import eagerpy as ep
 import geomstats as gs
+import lab as B
 import numpy as np
-from eagerpy import Tensor
 
-from geometric_kernels.eagerpy_extras import cast_to_float, cos, from_numpy, sin
 from geometric_kernels.eigenfunctions import (
     Eigenfunctions,
     EigenfunctionWithAdditionTheorem,
 )
 from geometric_kernels.spaces import DiscreteSpectrumSpace
-from geometric_kernels.utils import chain
+from geometric_kernels.utils import Optional, chain
 
 
 class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
@@ -35,25 +31,26 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         # We know `num_eigenfunctions` is odd, therefore:
         self._num_levels = num_eigenfunctions // 2 + 1
 
-    def __call__(self, X: Tensor, **parameters) -> Tensor:
+    def __call__(self, X: B.Numeric, **parameters) -> B.Numeric:
         """
         :param X: polar coordinates on the circle, [N, 1].
         :param parameters: unused.
         """
+        N = B.shape(X)[0]
         theta = X
         const = 2.0 ** 0.5
         values = []
         for level in range(self.num_levels):
             if level == 0:
-                values.append(ep.ones_like(theta))
+                values.append(B.ones(X.dtype, N, 1))
             else:
                 freq = 1.0 * level
-                values.append(const * cos(freq * theta))
-                values.append(const * sin(freq * theta))
+                values.append(const * B.cos(freq * theta))
+                values.append(const * B.sin(freq * theta))
 
-        return ep.concatenate(values, axis=1)  # [N, M]
+        return B.concat(*values, axis=1)  # [N, M]
 
-    def _addition_theorem(self, X: Tensor, X2: Tensor, **parameters) -> Tensor:
+    def _addition_theorem(self, X: B.Numeric, X2: B.Numeric, **parameters) -> B.Numeric:
         r"""
         Returns the result of applying the additional theorem when
         summing over all the eigenfunctions within a level, for each level
@@ -73,21 +70,22 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         """
         theta1, theta2 = X, X2
         angle_between = theta1[:, None, :] - theta2[None, :, :]  # [N, N2, 1]
-        freqs = cast_to_float(ep.arange(X, self.num_levels))  # [L]
-        values = cos(freqs[None, None, :] * angle_between)  # [N, N2, L]
-        values = (
-            cast_to_float(
-                from_numpy(
-                    values,
-                    self.num_eigenfunctions_per_level[None, None, :],
-                )
-            )
-            * values
-        )
-        print(">>>", values)
+        freqs = B.range(X.dtype, self.num_levels)  # [L]
+        values = B.cos(freqs[None, None, :] * angle_between)  # [N, N2, L]
+        values = self.num_eigenfunctions_per_level[None, None, :] * values
+        # values = (
+        #     cast_to_float(
+        #         from_numpy(
+        #             values,
+        #             self.num_eigenfunctions_per_level[None, None, :],
+        #         )
+        #     )
+        #     * values
+        # )
+        # print(">>>", values)
         return values  # [N, N2, L]
 
-    def _addition_theorem_diag(self, X: Tensor, **parameters) -> Tensor:
+    def _addition_theorem_diag(self, X: B.Numeric, **parameters) -> B.Numeric:
         """
         Returns the sum of eigenfunctions on a level for which we have a simplified expression
 
@@ -97,10 +95,8 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
             a value for each level [N, L]
         """
         N = X.shape[0]
-        ones = ep.ones(X, (N, self.num_levels))  # [N, L]
-        value = ones * cast_to_float(
-            from_numpy(X, self.num_eigenfunctions_per_level[None, :])
-        )
+        ones = B.ones(X.dtype, N, self.num_levels)  # [N, L]
+        value = ones * self.num_eigenfunctions_per_level[None, :]
         return value  # [N, L]
 
     @property
@@ -134,8 +130,8 @@ class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
 
     def is_tangent(
         self,
-        vector: Tensor,
-        base_point: Optional[Tensor] = None,
+        vector: B.Numeric,
+        base_point: Optional[B.Numeric] = None,
         atol: float = gs.geometry.manifold.ATOL,
     ) -> bool:
         """
@@ -161,18 +157,16 @@ class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
         """
         return SinCosEigenfunctions(num)
 
-    def get_eigenvalues(self, num: int) -> Tensor:
+    def get_eigenvalues(self, num: int) -> B.Numeric:
         """
         First `num` eigenvalues of the Laplace-Beltrami operator
 
         :return: [num, 1] array containing the eigenvalues
         """
         eigenfunctions = SinCosEigenfunctions(num)
-        eigenvalues_per_level = ep.astensor(
-            np.arange(eigenfunctions.num_levels) ** 2.0
-        )  # [L,]
+        eigenvalues_per_level = B.range(eigenfunctions.num_levels) ** 2  # [L,]
         eigenvalues = chain(
             eigenvalues_per_level,
             eigenfunctions.num_eigenfunctions_per_level,
         )  # [num,]
-        return ep.reshape(eigenvalues, (-1, 1))  # [num, 1]
+        return B.reshape(eigenvalues, -1, 1)  # [num, 1]
