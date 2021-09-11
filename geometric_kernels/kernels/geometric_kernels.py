@@ -1,15 +1,14 @@
 """
 Implementation of geometric kernels on several spaces
 """
-from typing import Callable, Mapping, Optional
 
-import eagerpy as ep
+import lab as B
 import numpy as np
-from eagerpy.tensor.tensor import Tensor
 
 from geometric_kernels.eigenfunctions import Eigenfunctions
 from geometric_kernels.kernels import BaseGeometricKernel
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
+from geometric_kernels.utils import Optional
 
 
 class MaternKarhunenLoeveKernel(BaseGeometricKernel):
@@ -52,28 +51,17 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         self.nu = nu
         self.num_eigenfunctions = num_eigenfunctions  # in code referred to as `M`.
 
-    def _spectrum(self, s: Tensor, lengthscale: Tensor):
+    def _spectrum(self, s: B.Numeric, lengthscale: B.Numeric) -> B.Numeric:
         """
         Matern or RBF spectrum evaluated at `s`. Depends on the
         `lengthscale` parameters.
         """
-        s, lengthscale = ep.astensors(s, lengthscale)
-        # cast `lengthscale` to eagerpy
-        # cast `s` to the same backend as `lengthscale`
-        # s = ep.from_numpy(lengthscale, s).astype(lengthscale.dtype)
-
-        def spectrum_rbf():
-            return ep.exp(-(lengthscale ** 2) / 2.0 * (s ** 2))
-
-        def spectrum_matern():
+        if self.nu == np.inf:
+            return B.exp(-(lengthscale ** 2) / 2.0 * (s ** 2))
+        elif self.nu > 0:
             power = -self.nu - self.space.dimension / 2.0
             base = 2.0 * self.nu / lengthscale ** 2 + (s ** 2)
-            return ep.astensor(base ** power)
-
-        if self.nu == np.inf:
-            return spectrum_rbf()
-        elif self.nu > 0:
-            return spectrum_matern()
+            return base ** power
         else:
             raise NotImplementedError
 
@@ -84,40 +72,30 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         eigenfunctions = self.space.get_eigenfunctions(self.num_eigenfunctions)
         return eigenfunctions
 
-    def eigenvalues(self, **parameters) -> Tensor:
+    def eigenvalues(self, **parameters) -> B.Numeric:
         """
         Eigenvalues of the kernel.
 
         :return: [M, 1]
         """
         assert "lengthscale" in parameters
-        eigenvalues_laplacian = self.space.get_eigenvalues(self.num_eigenfunctions)  # [M, 1]
-        return self._spectrum(eigenvalues_laplacian ** 0.5, lengthscale=parameters["lengthscale"])
+        eigenvalues_laplacian = self.space.get_eigenvalues(
+            self.num_eigenfunctions
+        )  # [M, 1]
+        return self._spectrum(
+            eigenvalues_laplacian ** 0.5,
+            lengthscale=parameters["lengthscale"],
+        )
 
-    def K(self, X: Tensor, X2: Optional[Tensor] = None, **parameters) -> Tensor:
+    def K(
+        self, X: B.Numeric, X2: Optional[B.Numeric] = None, **parameters  # type: ignore
+    ) -> B.Numeric:
         """Compute the mesh kernel via Laplace eigendecomposition"""
         weights = self.eigenvalues(**parameters)  # [M, 1]
         Phi = self.eigenfunctions()
         return Phi.weighted_outerproduct(weights, X, X2, **parameters)  # [N, N2]
 
-    def K_diag(self, X: Tensor, **parameters) -> Tensor:
+    def K_diag(self, X: B.Numeric, **parameters) -> B.Numeric:
         weights = self.eigenvalues(**parameters)  # [M, 1]
         Phi = self.eigenfunctions()
         return Phi.weighted_outerproduct_diag(weights, X, **parameters)  # [N,]
-
-    # def K(self, X: TensorLike, X2: Optional[TensorLike] = None, **parameters) -> TensorLike:
-    #     Phi_X = self.eigenfunctions(**parameters)(X)  # [N, L]
-    #     if X2 is None:
-    #         Phi_X2 = Phi_X
-    #     else:
-    #         Phi_X2 = self.eigenfunctions(**parameters)(X2)  # [N2, L]
-
-    #     coeffs = self.eigenvalues(**parameters)  # [L, 1]
-    #     Kxx = ep.matmul(coeffs.T * Phi_X, Phi_X2.T)  # [N, N2]
-    #     return Kxx.raw
-
-    # def K_diag(self, X, **parameters):
-    #     Phi_X = self.eigenfunctions(**parameters)(X)  # [N, L]
-    #     coeffs = self.eigenvalues(**parameters)  # [L, 1]
-    #     Kx = ep.sum(coeffs.T * Phi_X ** 2, axis=1)  # [N,]
-    #     return Kx.raw

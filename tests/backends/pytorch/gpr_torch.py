@@ -1,9 +1,9 @@
+import gpytorch
 import meshzoo
 import numpy as np
 import polyscope as ps
 import torch
 
-import gpytorch
 from geometric_kernels.backends.pytorch import GPytorchGeometricKernel
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import Mesh
@@ -66,7 +66,7 @@ ps_cloud = ps.register_point_cloud("my points", vertices[X_numpy.flatten()])
 ps_cloud.add_scalar_quantity("data", y.numpy().flatten())
 
 my_mesh = ps.register_surface_mesh("my mesh", vertices, faces, smooth_shade=True)
-my_mesh.add_scalar_quantity(f"sample", sample.squeeze(), enabled=True)
-my_mesh.add_scalar_quantity(f"mean", m.squeeze(), enabled=True)
-my_mesh.add_scalar_quantity(f"variance", v.squeeze(), enabled=True)
+my_mesh.add_scalar_quantity("sample", sample.squeeze(), enabled=True)
+my_mesh.add_scalar_quantity("mean", m.squeeze(), enabled=True)
+my_mesh.add_scalar_quantity("variance", v.squeeze(), enabled=True)
 ps.show()

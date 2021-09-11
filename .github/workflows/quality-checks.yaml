@@ -17,57 +17,42 @@ name: QualityChecks
 on: [push]
 
 jobs:
-  checks:
+  check-and-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        backend: ['numpy', 'tensorflow', 'pytorch']
+        python-version: [3.6, 3.7, 3.8]
       fail-fast: false
 
+    name: Python-${{ matrix.python-version }}
     steps:
       #----------------------------------------------
       #       check-out repo and set-up python
       #----------------------------------------------
-      - name: Check out repository
-        uses: actions/checkout@v2
-      - name: Set up python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.7
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    # TODO: Caching needs fixing!
+    # - uses: actions/cache@v2
+    #   with:
+    #     path: ${{ env.pythonLocation }}
+    #     key: ${{ env.pythonLocation }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.txt') }}-${{ hashFiles('dev_requirements.txt') }}
       #----------------------------------------------
-      #  -----  install & configure poetry  -----
+      #       install
       #----------------------------------------------
-      - name: Install Poetry
-        uses: snok/install-poetry@v1
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
+    - name: Install dependencies
+      run: |
+        sudo apt-get install gfortran
+        # We need to pin `pip`. See https://github.com/pypa/pip/issues/10373.
+        pip install --upgrade pip==20.2.2 setuptools numpy Cython
+        pip install --upgrade --upgrade-strategy eager --no-cache-dir -U -r requirements.txt -r dev_requirements.txt | cat
+        pip install --upgrade numpy
+        pip install -e .
       #----------------------------------------------
-      #       load cached venv if cache exists
+      #       Lint and test
       #----------------------------------------------
-      - name: Load cached venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v2
-        with:
-          path: .venv
-          key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-${{ matrix.backend }}
-      #----------------------------------------------
-      # install dependencies if cache does not exist
-      #----------------------------------------------
-      - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-        run: poetry install --no-interaction --no-root -E  ${{ matrix.backend }}
-      #----------------------------------------------
-      # install your root project, if required
-      #----------------------------------------------
-      - name: Install library
-        run: poetry install --no-interaction -E ${{ matrix.backend }}
-      #----------------------------------------------
-      #              run test suite
-      #----------------------------------------------
-      - name: Run tests
-        env: 
-          GEOMETRIC_KERNELS_BACKEND : ${{matrix.backend}} 
-        run: |
-          source .venv/bin/activate
-          poetry run task test_${{matrix.backend}}
+    - name: Run lint
+      run: make lint
+    - name: Run tests
+      run: make test
