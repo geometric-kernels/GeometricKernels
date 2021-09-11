@@ -31,6 +31,7 @@ class DefaultFloatZero(gpflow.mean_functions.Constant):
 # return mesh
 
 
+# TODO(VD) This needs fixing!
 @pytest.mark.skip()
 def test_gpflow_integration():
     """
