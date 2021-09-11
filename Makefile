@@ -7,17 +7,6 @@ help: ## Shows this help message
 
 install:  ## Install repo for developement
 	@echo "\n=== pip install package with dev requirements =============="
-ifeq ("$(UNAME_S)", "Linux")
-	sudo apt-get install gfortran
-	pip install --upgrade pip setuptools numpy Cython
-	pip install --no-cache-dir -U -r requirements.txt | cat
-	pip install --upgrade numpy
-endif
-ifeq ($(UNAME_S),Darwin)
-	brew install gcc
-	pip install --upgrade pip setuptools numpy Cython
-	pip install --upgrade numpy
-endif	
 	pip install --upgrade --upgrade-strategy eager \
 		-r requirements.txt \
 		-r dev_requirements.txt \

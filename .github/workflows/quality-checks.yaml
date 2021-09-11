@@ -41,7 +41,14 @@ jobs:
       #       install
       #----------------------------------------------
     - name: Install dependencies
-      run: make install
+      run: |
+        sudo apt-get install gfortran
+        # We need to pin `pip`. See https://github.com/pypa/pip/issues/10373.
+        pip install --upgrade pip==20.2.2 setuptools numpy Cython
+        pip install --no-cache-dir -U -r requirements.txt | cat
+        pip install --no-cache-dir -U -r dev_requirements.txt | cat
+        pip install --upgrade numpy
+        pip install -e .
       #----------------------------------------------
       #       Lint and test
       #----------------------------------------------
