@@ -45,6 +45,7 @@ def test_gpflow_integration():
     num_data = 25
 
     def get_data():
+        np.random.seed(0)
         _X = np.random.randint(mesh.num_vertices, size=(num_data, 1))
         _K = kernel.K(_X).numpy()
         _y = np.linalg.cholesky(_K + np.eye(num_data) * 1e-6) @ np.random.randn(
