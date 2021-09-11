@@ -1,6 +1,7 @@
 import gpflow
 import meshzoo
 import numpy as np
+import pytest
 import tensorflow as tf
 
 from geometric_kernels.backends.tensorflow import GPflowGeometricKernel
@@ -30,6 +31,7 @@ class DefaultFloatZero(gpflow.mean_functions.Constant):
 # return mesh
 
 
+@pytest.mark.skip()
 def test_gpflow_integration():
     """
     Build GPflow GPR model with a Mesh Geometric Kernel.
@@ -64,7 +66,7 @@ def test_gpflow_integration():
     # print(X_test)
     m, v = model.predict_f(X_test)
     m, v = m.numpy(), v.numpy()
-    sample = model.predict_f_samples(X_test).numpy()
+    model.predict_f_samples(X_test).numpy()
     # print(sample.shape)
 
     # ps.init()
