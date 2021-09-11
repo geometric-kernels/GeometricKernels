@@ -1,15 +1,23 @@
 """
 Convenience utilities.
 """
-from typing import Any, List
+from typing import Any, List, Type
 
-import eagerpy as ep
+import einops
+import lab as B
+from plum import Union
 
-from geometric_kernels.eagerpy_extras import repeat
-from geometric_kernels.types import TensorLike
+
+class OptionalMeta(type):
+    def __getitem__(cls, args: Type):
+        return Union[(None,) + (args,)]
 
 
-def chain(elements: List[Any], repetitions: List[int]) -> TensorLike:
+class Optional(metaclass=OptionalMeta):
+    pass
+
+
+def chain(elements: List[Any], repetitions: List[int]) -> B.Numeric:
     """
     Repeats each element in `elements` by a certain number of repetitions as
     specified in `repetitions`.  The length of `elements` and `repetitions`
@@ -22,7 +30,7 @@ def chain(elements: List[Any], repetitions: List[int]) -> TensorLike:
         print(out)  # ['a', 'a', 'b', 'c', 'c', 'c']
     """
     values = [
-        repeat(elements[i : i + 1], "j -> (tile j)", tile=repetitions[i])
+        einops.repeat(elements[i : i + 1], "j -> (tile j)", tile=repetitions[i])
         for i in range(len(repetitions))
     ]
-    return ep.concatenate(values, axis=0)
+    return B.concat(*values, axis=0)

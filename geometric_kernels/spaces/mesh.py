@@ -1,18 +1,18 @@
 """
 Mesh object
 """
-from typing import Dict, Optional, Tuple
+from typing import Dict, Tuple
 
-import eagerpy as ep
+import lab as B
 import numpy as np
 import potpourri3d as pp3d
 import robust_laplacian
 import scipy.sparse.linalg as sla
-from eagerpy import Tensor
 
-from geometric_kernels.eagerpy_extras import cast_to_int, take_along_axis
 from geometric_kernels.eigenfunctions import Eigenfunctions
+from geometric_kernels.lab_extras import from_numpy, take_along_axis
 from geometric_kernels.spaces import DiscreteSpectrumSpace
+from geometric_kernels.utils import Optional
 
 
 class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
@@ -28,9 +28,9 @@ class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
         # Always numpy to seamleassy convert to a desired backend
         assert isinstance(eigenvectors, np.ndarray)
         self.eigenvectors_np = eigenvectors
-        self.eigenvectors: Optional[Tensor] = None
+        self.eigenvectors: Optional[B.Numeric] = None  # type: ignore
 
-    def __call__(self, X: Tensor, **parameters) -> Tensor:
+    def __call__(self, X: B.Numeric, **parameters) -> B.Numeric:
         """
         Selects `N` locations from the `M` eigenvectors.
 
@@ -38,25 +38,19 @@ class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
         :param parameters: unused
         :return: [N, M]
         """
-        # Convert stored numpy eigenvectors to whatever indices have as a backend
         indices = X
-        indices = ep.astensor(indices)
+        print(indices)
+        if self.eigenvectors is None:
+            # convert numpy eigenvectors to backend tensor
+            self.eigenvectors = from_numpy(X, self.eigenvectors_np)
 
-        if not isinstance(indices, type(self.eigenvectors)):
-            self.eigenvectors = ep.from_numpy(indices, self.eigenvectors_np)
-
-        assert len(indices.shape) == 2
-        assert indices.shape[-1] == 1
-        indices = cast_to_int(indices)
-
-        # This is a very hacky way of taking along 0'th axis.
-        # For some reason eagerpy does not take along axis other than last.
         Phi = take_along_axis(self.eigenvectors, indices, axis=0)
+        print(Phi)
         return Phi
 
     def num_eigenfunctions(self) -> int:
         """Number of eigenvectos, M"""
-        return self.eigenvectors.shape[-1]
+        return self.eigenvectors_np.shape[-1]
 
 
 class Mesh(DiscreteSpectrumSpace):
@@ -101,14 +95,14 @@ class Mesh(DiscreteSpectrumSpace):
 
         return self.cache[num]
 
-    def get_eigenvectors(self, num: int) -> Tensor:
+    def get_eigenvectors(self, num: int) -> B.Numeric:
         """
         :param num: number of eigenvectors returned
         :return: eigenvectors [Nv, num]
         """
         return self.get_eigensystem(num)[0]
 
-    def get_eigenvalues(self, num: int) -> Tensor:
+    def get_eigenvalues(self, num: int) -> B.Numeric:
         """
         :param num: number of eigenvalues returned
         :return: eigenvalues [num, 1]

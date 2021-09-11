@@ -4,8 +4,16 @@
 from setuptools import find_namespace_packages, setup
 
 requirements = [
-    "numpy~=1.20.0",
-    "scipy",
+    "numpy>=1.16",
+    "scipy>=1.3",
+    "plum-dispatch>=1",
+    "backends>=1.4.3",
+    "potpourri3d",
+    "robust_laplacian",
+    "meshzoo",
+    "opt-einsum",
+    "geomstats",
+    "einops",
 ]
 
 with open("README.md", "r") as file:

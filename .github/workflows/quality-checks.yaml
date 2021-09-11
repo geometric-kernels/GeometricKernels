@@ -21,20 +21,38 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-          python-version: [3.6, 3.7, 3.8]
+        python-version: [3.6, 3.7, 3.8]
+      fail-fast: false
+
     name: Python-${{ matrix.python-version }}
     steps:
+      #----------------------------------------------
+      #       check-out repo and set-up python
+      #----------------------------------------------
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
-    - uses: actions/cache@v2
-      with:
-        path: ${{ env.pythonLocation }}
-        key: ${{ env.pythonLocation }}-${{ hashFiles('setup.py') }}
+    # TODO: Caching needs fixing!
+    # - uses: actions/cache@v2
+    #   with:
+    #     path: ${{ env.pythonLocation }}
+    #     key: ${{ env.pythonLocation }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.txt') }}-${{ hashFiles('dev_requirements.txt') }}
+      #----------------------------------------------
+      #       install
+      #----------------------------------------------
     - name: Install dependencies
-      run: make install
-    - name: Run checks
+      run: |
+        sudo apt-get install gfortran
+        # We need to pin `pip`. See https://github.com/pypa/pip/issues/10373.
+        pip install --upgrade pip==20.2.2 setuptools numpy Cython
+        pip install --upgrade --upgrade-strategy eager --no-cache-dir -U -r requirements.txt -r dev_requirements.txt | cat
+        pip install --upgrade numpy
+        pip install -e .
+      #----------------------------------------------
+      #       Lint and test
+      #----------------------------------------------
+    - name: Run lint
       run: make lint
     - name: Run tests
       run: make test

@@ -3,8 +3,9 @@ Abstract base interface for spaces.
 """
 import abc
 
+import lab as B
+
 from geometric_kernels.eigenfunctions import Eigenfunctions
-from geometric_kernels.types import TensorLike
 
 
 class Space(abc.ABC):
@@ -40,7 +41,7 @@ class DiscreteSpectrumSpace(Space):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_eigenvalues(self, num: int) -> TensorLike:
+    def get_eigenvalues(self, num: int) -> B.Numeric:
         """
         First `num` eigenvalues of the Laplace-Beltrami operator
 

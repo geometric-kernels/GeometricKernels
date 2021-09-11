@@ -1,13 +1,5 @@
-potpourri3d
-robust_laplacian
-meshzoo
-polyscope
 gpytorch
 torch
 gpflow
 tensorflow
 tensorflow-probability
-opt-einsum
-geomstats
-einops
-backends

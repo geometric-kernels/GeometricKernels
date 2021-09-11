@@ -5,23 +5,14 @@ help: ## Shows this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-24s\033[0m %s\n", $$1, $$2}'
 
 
-install:  ## Install repo for developement
-	@echo "\n=== pip install package with dev requirements =============="
-ifeq ("$(UNAME_S)", "Linux")
+install:  ## Install repo for developement (Only for Linux)
+	@echo "\n=== pip install package with dev requirements (Only for Linux!) =============="
 	sudo apt-get install gfortran
-	pip install --upgrade pip setuptools numpy Cython
-	pip install --no-cache-dir -U -r requirements.txt | cat
+	# We need to pin `pip`. See https://github.com/pypa/pip/issues/10373.
+	pip install --upgrade pip==20.2.2 setuptools numpy Cython
+	pip install --upgrade --upgrade-strategy eager --no-cache-dir -U -r requirements.txt -r dev_requirements.txt | cat
 	pip install --upgrade numpy
-endif
-ifeq ($(UNAME_S),Darwin)
-	brew install gcc
-	pip install --upgrade pip setuptools numpy Cython
-	pip install --upgrade numpy
-endif	
-	pip install --upgrade --upgrade-strategy eager \
-		-r requirements.txt \
-		-r dev_requirements.txt \
-		-e .
+	pip install -e .
 
 format:  ## Formats code with `autoflake`, `black` and `isort`
 	autoflake --remove-all-unused-imports --recursive --remove-unused-variables --in-place geometric_kernels tests --exclude=__init__.py

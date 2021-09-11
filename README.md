@@ -5,55 +5,35 @@ This package implements a suite of Geometric kernels.
 <img alt="class diagram" src="docs/class_diagram.svg">
 
 
-## Installation
+## Requirements and Installation
 
-We recommend using [`poetry`](https://python-poetry.org/) to install this `GeometricKernels`. Poetry manages your package, python version and other dependencies. Alternatively, virtual environments can be used.
+We recommend creating a virtual environment before installing the package.
 
-If Poetry is not yet installed on your system, run the following command
-**(Skip if you've got `poetry` on your system already)**:
-```bash
-curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+First, follow [the instructions here](https://gist.github.com/wesselb/4b44bf87f3789425f96e26c4308d0adc).
+Then simply run
 ```
-Next, run
-```bash
-poetry run pip install --upgrade pip
+pip install -e .
 ```
-Followed by
-```bash
-poetry install
+We use [LAB](https://github.com/wesselb/lab) to support multiple backends (e.g., TensorFlow, Jax, PyTorch). However, you are not required to install all of them on your system to use the Geometric Kernel package. Simply install the backend (and GP package) of your choice. For instance,
+
+- TensorFlow and GPflow
 ```
-You can then get a shell with the environment via `poetry shell`.
-
----
-**NOTE**
-
-Following the steps above will install the package with only Numpy support. To use it with, for example, GPflow (TensorFlow) or GPyTorch (PyTorch), follow the additional steps below.
-
----
-
-## Next, choose the backend
-
-TODO:
-First, follow these instructions: https://gist.github.com/wesselb/4b44bf87f3789425f96e26c4308d0adc
-
-<!-- Geometric kernels can use `tensorflow`, `pytorch`, ~~`jax`~~ (under development) and `numpy` (default) as backend thanks to [EagerPy](https://github.com/jonasrauber/eagerpy). To install the required dependencies for this run the following command -->
-
-- For TensorFlow with GPflow
+pip install tensorflow tensorflow-probability gpflow
 ```
-poetry install -E tensorflow
+then import as follows
 ```
-and export
-```
-export GEOMETRIC_KERNELS_BACKEND=tensorflow
+import geometric_kernels.tensorflow  # noqa
+import tensorflow as tf
 ```
 
-- Or, for PyTorch with GPyTorch
+- PyTorch and GPyTorch
 ```
-poetry install -E pytorch
+pip install torch gpytorch
 ```
-and export
+then import as follows
 ```
-export GEOMETRIC_KERNELS_BACKEND=pytorch
+import geometric_kernels.pytorch  # noqa
+import torch
 ```
 
 

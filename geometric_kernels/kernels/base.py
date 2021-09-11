@@ -4,8 +4,9 @@ Base class for geometric kernels
 import abc
 from typing import Generic, TypeVar
 
+import lab as B
+
 from geometric_kernels.spaces import Space
-from geometric_kernels.types import TensorLike
 
 T = TypeVar("T", bound=Space)
 """
@@ -29,14 +30,14 @@ class BaseGeometricKernel(abc.ABC, Generic[T]):
         return self._space
 
     @abc.abstractmethod
-    def K(self, X, X2=None, **kwargs) -> TensorLike:
+    def K(self, X, X2=None, **kwargs) -> B.Numeric:
         """
         Returns pairwise covariance between `X` and `X2`.
         """
         raise NotImplementedError
 
     @abc.abstractmethod
-    def K_diag(self, X, **kwargs) -> TensorLike:
+    def K_diag(self, X, **kwargs) -> B.Numeric:
         """
         Returns covariance between elements in `X`.
         """
