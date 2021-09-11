@@ -8,6 +8,12 @@ requirements = [
     "scipy>=1.3",
     "plum-dispatch>=1",
     "backends>=1.4.3",
+    "potpourri3d",
+    "robust_laplacian",
+    "meshzoo",
+    "opt-einsum",
+    "geomstats",
+    "einops",
 ]
 
 with open("README.md", "r") as file:
