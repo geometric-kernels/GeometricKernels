@@ -25,3 +25,11 @@ def from_numpy(
     """
     print("HERE!!!")
     return torch.tensor(b)
+
+
+@dispatch
+def trapz(y: B.Numeric, x: B.Numeric, dx=1.0, axis=-1):
+    """
+    Integrate along the given axis using the trapezoidal rule.
+    """
+    return torch.trapz(y, x, dim=axis)

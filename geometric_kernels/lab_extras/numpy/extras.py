@@ -22,3 +22,11 @@ def from_numpy(_: B.NPNumeric, b: Union[List, B.NPNumeric, B.Number]):  # type: 
     Converts the array `b` to a tensor of the same backend as `a`
     """
     return np.array(b)
+
+
+@dispatch
+def trapz(y: B.Numeric, x: B.Numeric, dx=1.0, axis=-1):
+    """
+    Integrate along the given axis using the composite trapezoidal rule.
+    """
+    return np.trapz(y, x, dx, axis)

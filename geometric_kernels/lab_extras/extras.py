@@ -20,3 +20,11 @@ def from_numpy(_: B.Numeric, b: Union[List, B.Numeric]):
     """
     Converts the array `b` to a tensor of the same backend as `a`
     """
+
+
+@dispatch
+@abstract
+def trapz(y: B.Numeric, x: B.Numeric, dx=1.0, axis=-1):
+    """
+    Integrate along the given axis using the trapezoidal rule.
+    """
