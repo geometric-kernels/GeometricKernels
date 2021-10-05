@@ -7,10 +7,10 @@ import numpy as np
 
 from geometric_kernels.eigenfunctions import Eigenfunctions
 from geometric_kernels.kernels import BaseGeometricKernel
+from geometric_kernels.lab_extras import logspace, trapz
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.hyperbolic import Hyperbolic
 from geometric_kernels.utils import Optional
-from geometric_kernels.extras import trapz
 
 
 class MaternKarhunenLoeveKernel(BaseGeometricKernel):
@@ -105,17 +105,39 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
 
 class MaternIntegratedKernel(BaseGeometricKernel):
     def __init__(
-            self,
-            space: Hyperbolic,
-            nu: float,
-            num_points_t: int,
-            num_points_b: int,
+        self,
+        space: Hyperbolic,
+        nu: float,
+        num_points_t: int,
     ):
 
         super().__init__(space)
         self.nu = nu
         self.num_points_t = num_points_t  # in code referred to as `T`.
-        self.num_points_b = num_points_b
+
+    def link_function(self, distance: B.Numeric, t: B.Numeric, lengthscale: B.Numeric):
+        """
+        This function links the heat kernel to the Matérn kernel, i.e., the Matérn kernel correspond to the integral of
+        this function from 0 to inf.
+        Parameters
+        ----------
+        :param distance: precomputed distance between the inputs
+        :param t: heat kernel lengthscale
+        Returns
+        -------
+        :return: link function between the heat and Matérn kernels
+        """
+        heat_kernel = self.space.heat_kernel(
+            distance, t, self.num_points_t
+        )  # (..., N1, N2, T)
+
+        result = (
+            B.power(t, self.nu - 1.0)
+            * B.exp(-2.0 * self.nu / lengthscale ** 2 * t)
+            * heat_kernel
+        )
+
+        return result
 
     def K(
         self, X: B.Numeric, X2: Optional[B.Numeric] = None, **parameters  # type: ignore
@@ -125,45 +147,22 @@ class MaternIntegratedKernel(BaseGeometricKernel):
         lengthscale = parameters["lengthscale"]
 
         # Compute cosh of hyperbolic distance
-        cosh_distance = B.cosh(self.space.distance(X1, X2, diag=False))
+        distance = self.space.distance(X, X2, diag=False)
 
-        # Evaluate integral: this is a double integral, one for computing the heat kernel, and one for the Matérn
         shift = B.log(lengthscale)  # Log 10
-        t_vals = B.logspace(-5 + shift, 3 + shift, self.num_points_t)  # TODO
-        b_vals = B.logspace(-4, 1.5, self.num_points_b)  # TODO
+        t_vals = logspace(-2.5 + shift, 1.5 + shift, self.num_points_t)  # (T,)
 
-        # self.link_function(cosh_distance, t_vals[0], b_vals[0])
+        integral_vals = self.link_function(distance, t_vals, lengthscale)
 
-        # integral_vals = torch.zeros([self.nb_points_integral_t, self.nb_points_integral_b] + list(cosh_distance.shape))
-        # for i in range(self.nb_points_integral_t):
-        #     for j in range(self.nb_points_integral_b):
-        #         integral_vals[i, j] = self.link_function(cosh_distance, t_vals[i], b_vals[j])
-        # build a grid
-        tt, bb = None, None
-
-        integral_vals = self.space.link_function(cosh_distance, tt, bb, self.nu, lengthscale)
-
-        # Integral to obtain the heat kernel values
-        heat_kernel_integral_vals = trapz(integral_vals, b_vals, axis=1)
         # Integral over heat kernel to obtain the Matérn kernel values
-        kernel = trapz(heat_kernel_integral_vals, t_vals, axis=0)
+        kernel = trapz(integral_vals, t_vals, axis=-1)
 
-        # heat_kernel_integral_vals = torch.trapz(integral_vals, b_vals, dim=1)
-        # # Integral over heat kernel to obtain the Matérn kernel values
-        # kernel = torch.trapz(heat_kernel_integral_vals, t_vals, dim=0)
-
-        # Evaluate the integral for the normalizing constant
-        # integral_vals_normalizing_cst = torch.zeros(self.nb_points_integral_t, self.nb_points_integral_b)
-        # for i in range(self.nb_points_integral_t):
-        #     for j in range(self.nb_points_integral_b):
-        #         integral_vals_normalizing_cst[i, j] = self.link_function(torch.ones(1, 1), t_vals[i], b_vals[j])
-        # Normalizing constant
-        # normalizating_cst = torch.trapz(torch.trapz(integral_vals_normalizing_cst, b_vals, dim=1), t_vals, dim=0)
-
-        integral_vals_normalizing_cst = self.link_function(1.0, tt, bb)
-        normalizing_cst = trapz(trapz(integral_vals_normalizing_cst, b_vals, axis=1), t_vals, axis=0)
+        integral_vals_normalizing_cst = self.link_function(
+            0.0, t_vals, lengthscale=lengthscale
+        )
+        normalizing_cst = trapz(integral_vals_normalizing_cst, t_vals, axis=-1)
 
         return kernel / normalizing_cst
 
     def K_diag(self, X: B.Numeric, **parameters) -> B.Numeric:
-        pass
+        raise NotImplementedError
