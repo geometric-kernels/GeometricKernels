@@ -38,7 +38,7 @@ class DefaultFloatZero(gpflow.mean_functions.Constant):
 
 
 # TODO(VD) This needs fixing!
-@pytest.mark.skipif(sys.version_info < (3, 7), reason="meshzoo requires Python>=3.7")
+@pytest.mark.skipif()
 def test_gpflow_integration():
     """
     Build GPflow GPR model with a Mesh Geometric Kernel.
