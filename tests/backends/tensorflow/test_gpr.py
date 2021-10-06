@@ -1,5 +1,3 @@
-import sys
-
 import gpflow
 import numpy as np
 import pytest
