@@ -1,5 +1,6 @@
+import sys
+
 import gpflow
-import meshzoo
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -7,6 +8,11 @@ import tensorflow as tf
 from geometric_kernels.backends.tensorflow import GPflowGeometricKernel
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import Mesh
+
+try:  # a temporary workaround for Python<3.7
+    import meshzoo
+except SyntaxError:
+    pass
 
 
 class DefaultFloatZero(gpflow.mean_functions.Constant):
@@ -32,7 +38,7 @@ class DefaultFloatZero(gpflow.mean_functions.Constant):
 
 
 # TODO(VD) This needs fixing!
-@pytest.mark.skip()
+@pytest.mark.skipif(sys.version_info < (3, 7), reason="meshzoo requires Python>=3.7")
 def test_gpflow_integration():
     """
     Build GPflow GPR model with a Mesh Geometric Kernel.
