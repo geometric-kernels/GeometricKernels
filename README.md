@@ -1,3 +1,5 @@
+**WARNING: this is a development (unstable) version of the package**
+
 # Geometric Kernels
 
 This package implements a suite of Geometric kernels.
