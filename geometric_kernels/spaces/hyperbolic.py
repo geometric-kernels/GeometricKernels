@@ -35,6 +35,14 @@ class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
     ) -> B.Numeric:
         """
         Compute the heat kernel associated with the space.
+
+        We use Millson's formula for the heat kernel.
+
+        References:
+        [1] A. Grigoryan and M. Noguchi,
+        The heat kernel on hyperbolic space.
+        Bulletin of the London Mathematical Society, 30(6):643–650, 1998.
+
         Parameters
         ----------
         :param distance: precomputed distance between the inputs

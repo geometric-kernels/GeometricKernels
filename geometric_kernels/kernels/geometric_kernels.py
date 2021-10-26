@@ -104,25 +104,46 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
 
 
 class MaternIntegratedKernel(BaseGeometricKernel):
+    r"""
+    This class computes a Matérn kernel by integrating over the heat kernel [1].
+
+    For non-compact manifolds:
+    .. math:: k_{\nu, \kappa, \sigma^2}(x, x') = \int_0^{\infty} u^{\nu - 1} e^{-\frac{2 \nu}{\kappa^2} u} k_{\infty, \sqrt{2 u}, \sigma^2}(x, x') \d u
+
+    For compact manifolds:
+    .. math:: k_{\nu, \kappa, \sigma^2}(x, x') = \int_0^{\infty} u^{\nu - 1 + d/2} e^{-\frac{2 \nu}{\kappa^2} u} k_{\infty, \sqrt{2 u}, \sigma^2}(x, x') \d u
+
+    References:
+
+    [1] N. Jaquier, V. Borovitskiy, A. Smolensky, A. Terenin, T. Afour, and L. Rozo.
+        Geometry-aware Bayesian Optimization in Robotics using Riemannian Matérn Kernels. CoRL 2021.
+    """
+
     def __init__(
         self,
         space: Hyperbolic,
         nu: float,
         num_points_t: int,
     ):
+        r"""
+        :param space: Space providing the heat kernel and distance.
+        :param nu: Determines continuity of the Mat'ern kernel. Typical values include 1/2 (i.e., the Exponential kernel), 3/2, 5/2.
+        :param num_point_t: number of points used in the integral.
+        """
 
         super().__init__(space)
         self.nu = nu
         self.num_points_t = num_points_t  # in code referred to as `T`.
 
     def link_function(self, distance: B.Numeric, t: B.Numeric, lengthscale: B.Numeric):
-        """
+        r"""
         This function links the heat kernel to the Matérn kernel, i.e., the Matérn kernel correspond to the integral of
         this function from 0 to inf.
         Parameters
         ----------
         :param distance: precomputed distance between the inputs
         :param t: heat kernel lengthscale
+        :param lenghtscale: lengthscale parameter of the kernel
         Returns
         -------
         :return: link function between the heat and Matérn kernels
@@ -146,7 +167,7 @@ class MaternIntegratedKernel(BaseGeometricKernel):
         assert "lengthscale" in parameters
         lengthscale = parameters["lengthscale"]
 
-        # Compute cosh of hyperbolic distance
+        # Compute the geodesic distance
         distance = self.space.distance(X, X2, diag=False)
 
         shift = B.log(lengthscale)  # Log 10
