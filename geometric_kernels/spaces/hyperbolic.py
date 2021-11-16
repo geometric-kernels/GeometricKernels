@@ -7,7 +7,7 @@ from typing import Optional
 import geomstats as gs
 import lab as B
 
-from geometric_kernels.lab_extras import cosh, trapz
+from geometric_kernels.lab_extras import cosh, logspace, trapz
 from geometric_kernels.spaces import Space
 
 
@@ -66,7 +66,8 @@ class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
             # due to the division in the computation of the integral value and
             # depends on the start of the s_vals interval
             s_vals = (
-                B.linspace(1.5e-1, 100.0, num_points) + expanded_distance
+                logspace(B.log(1e-2), B.log(100.0), num_points, base=B.exp(1.0))
+                + expanded_distance
             )  # (..., N1, N2, 1, S)
             integral_vals = (
                 s_vals

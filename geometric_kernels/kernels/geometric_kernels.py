@@ -170,7 +170,7 @@ class MaternIntegratedKernel(BaseGeometricKernel):
         # Compute the geodesic distance
         distance = self.space.distance(X, X2, diag=False)
 
-        shift = B.log(lengthscale)  # Log 10
+        shift = B.log(lengthscale) / B.log(10.0)  # Log 10
         t_vals = logspace(-2.5 + shift, 1.5 + shift, self.num_points_t)  # (T,)
 
         integral_vals = self.link_function(distance, t_vals, lengthscale)
