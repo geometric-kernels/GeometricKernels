@@ -14,6 +14,12 @@ from geometric_kernels.spaces import Space
 class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
     r"""
     Hyperbolic manifold.
+
+    The class implements the hyperboloid model of the hyperbolic space H^n.
+
+    :math: H^n = \{ (x_0, \ldots, x_{n}) | x_0^2 - \sum_{i=1}^{n} x_i^2 = 1, x_0 > 0 \}
+
+    The class inherits the interface of geomstats's `Hyperbolic` with `point_type=extrinsic`.
     """
 
     def __init__(self, dim=1):
