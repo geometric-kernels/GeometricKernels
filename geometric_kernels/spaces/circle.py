@@ -16,6 +16,9 @@ from geometric_kernels.spaces import DiscreteSpectrumSpace
 from geometric_kernels.utils import Optional, chain
 
 
+ATOL = 1e-12
+
+
 class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
     """
     Eigenfunctions Laplace-Beltrami operator on the circle correspond
@@ -130,7 +133,7 @@ class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
         self,
         vector: B.Numeric,
         base_point: Optional[B.Numeric] = None,  # type: ignore
-        atol: float = gs.geometry.manifold.ATOL,
+        atol: float = ATOL,
     ) -> bool:
         """
         Check whether the `vector` is tangent at `base_point`.
