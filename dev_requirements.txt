@@ -8,3 +8,5 @@ autoflake
 isort
 typing-extensions
 plotly
+jupytext
+nbconvert
