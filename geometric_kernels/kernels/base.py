@@ -30,14 +30,23 @@ class BaseGeometricKernel(abc.ABC, Generic[T]):
         return self._space
 
     @abc.abstractmethod
-    def K(self, X, X2=None, **kwargs) -> B.Numeric:
+    def init_params_and_state(self):
+        """
+        Returns initial parameters and state of the kernels.
+        params is a dict of trainable parameters of the kernel, such as lengthscale.
+        ntparams is a dict non-trainable parameters of the kernel.
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def K(self, params, state, X, X2=None, **kwargs) -> B.Numeric:
         """
         Returns pairwise covariance between `X` and `X2`.
         """
         raise NotImplementedError
 
     @abc.abstractmethod
-    def K_diag(self, X, **kwargs) -> B.Numeric:
+    def K_diag(self, params, state, X, **kwargs) -> B.Numeric:
         """
         Returns covariance between elements in `X`.
         """

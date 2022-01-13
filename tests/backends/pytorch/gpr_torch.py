@@ -4,6 +4,7 @@ import numpy as np
 import polyscope as ps
 import torch
 
+import geometric_kernels.torch  # noqa
 from geometric_kernels.backends.pytorch import GPytorchGeometricKernel
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import Mesh
@@ -15,19 +16,19 @@ class ExactGPModel(gpytorch.models.ExactGP):
         self.mean_module = gpytorch.means.ZeroMean()
         self.covar_module = kernel
 
-    def forward(self, x):  # pylint: disable=arguments-differ
+    def forward(self, x):  # pylint: disable=arguments-differq
         mean_x = self.mean_module(x)
         covar_x = self.covar_module(x)
         return gpytorch.distributions.MultivariateNormal(mean_x, covar_x)
 
 
-resolution = 10
+resolution = 40
 vertices, faces = meshzoo.icosa_sphere(resolution)
 mesh = Mesh(vertices, faces)
 
 nu = 1 / 2.0
 truncation_level = 20
-base_kernel = MaternKarhunenLoeveKernel(mesh, nu, truncation_level)
+base_kernel = MaternKarhunenLoeveKernel(mesh, truncation_level)
 geometric_kernel = GPytorchGeometricKernel(base_kernel)
 geometric_kernel.double()
 num_data = 25
@@ -43,9 +44,9 @@ def get_data():
 
 
 gaussian = gpytorch.likelihoods.GaussianLikelihood(
-    noise_constraint=gpytorch.constraints.GreaterThan(1e-7)
+    noise_constraint=gpytorch.constraints.GreaterThan(1e-6)
 )
-gaussian.noise = torch.tensor(1e-6)
+gaussian.noise = torch.tensor(1e-5)
 
 X, y = get_data()
 model = ExactGPModel(X, y, gaussian, geometric_kernel)

@@ -25,7 +25,12 @@ class GPflowGeometricKernel(gpflow.kernels.Kernel):
     ):
         super().__init__(active_dims, name)
         self._kernel = kernel
-        self.lengthscale = gpflow.Parameter(1.0, transform=positive())
+
+        params, state = self._kernel.init_params_and_state()
+
+        self.lengthscale = gpflow.Parameter(params["lengthscale"], transform=positive())
+        self.nu = gpflow.Parameter(params["nu"], transform=positive())
+        self.state = state
 
     @property
     def space(self) -> Space:
@@ -34,8 +39,12 @@ class GPflowGeometricKernel(gpflow.kernels.Kernel):
 
     def K(self, X, X2=None):
         lengthscale = tf.convert_to_tensor(self.lengthscale)
-        return self._kernel.K(X, X2, lengthscale=lengthscale)
+        nu = tf.convert_to_tensor(self.nu)
+        params = dict(lengthscale=lengthscale, nu=nu)
+        return self._kernel.K(params, self.state, X, X2)
 
     def K_diag(self, X):
         lengthscale = tf.convert_to_tensor(self.lengthscale)
-        return self._kernel.K_diag(X, lengthscale=lengthscale)
+        nu = tf.convert_to_tensor(self.nu)
+        params = dict(lengthscale=lengthscale, nu=nu)
+        return self._kernel.K_diag(params, self.state, X)
