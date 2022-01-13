@@ -15,6 +15,8 @@ from geometric_kernels.lab_extras import from_numpy
 from geometric_kernels.spaces import DiscreteSpectrumSpace
 from geometric_kernels.utils import Optional, chain
 
+ATOL = 1e-12
+
 
 class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
     """
@@ -130,7 +132,7 @@ class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
         self,
         vector: B.Numeric,
         base_point: Optional[B.Numeric] = None,  # type: ignore
-        atol: float = gs.geometry.manifold.ATOL,
+        atol: float = ATOL,
     ) -> bool:
         """
         Check whether the `vector` is tangent at `base_point`.
