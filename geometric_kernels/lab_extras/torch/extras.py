@@ -23,5 +23,4 @@ def from_numpy(
     """
     Converts the array `b` to a tensor of the same backend as `a`
     """
-    print("HERE!!!")
     return torch.tensor(b)

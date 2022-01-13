@@ -7,3 +7,4 @@ flake8
 autoflake
 isort
 typing-extensions
+plotly

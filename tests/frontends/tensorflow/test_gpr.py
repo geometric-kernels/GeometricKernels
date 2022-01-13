@@ -4,26 +4,10 @@ import numpy as np
 import pytest
 import tensorflow as tf
 
-from geometric_kernels.backends.tensorflow import GPflowGeometricKernel
+from geometric_kernels.frontends.tensorflow.gpflow import GPflowGeometricKernel, DefaultFloatZeroMeanFunction
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import Mesh
 
-
-class DefaultFloatZero(gpflow.mean_functions.Constant):
-    """
-    Simple zero mean function that uses gpflow's default_float
-    as dtype instead of the default input's dtype. In our case this
-    leads to dtype mismatch because the inputs are integer indices.
-    """
-
-    def __init__(self, output_dim=1):
-        super().__init__()
-        self.output_dim = output_dim
-        del self.c
-
-    def __call__(self, inputs):
-        output_shape = tf.concat([tf.shape(inputs)[:-1], [self.output_dim]], axis=0)
-        return tf.zeros(output_shape, dtype=gpflow.default_float())
 
 
 # filename = Path(__file__).parent / "../teddy.obj"
@@ -59,7 +43,7 @@ def test_gpflow_integration():
     X, y = get_data()
 
     model = gpflow.models.GPR(
-        (X, y), kernel, mean_function=DefaultFloatZero(), noise_variance=1.1e-6
+        (X, y), kernel, mean_function=DefaultFloatZeroMeanFunction(), noise_variance=1.1e-6
     )
 
     print(model.log_marginal_likelihood())
