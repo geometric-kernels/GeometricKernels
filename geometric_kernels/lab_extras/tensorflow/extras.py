@@ -7,8 +7,6 @@ from plum import Union
 
 _Numeric = Union[B.Number, B.TFNumeric, B.NPNumeric]
 
-print("lab_extras/tensorflow/extras.py")
-
 
 @dispatch
 def take_along_axis(a: _Numeric, index: _Numeric, axis: int = 0) -> _Numeric:  # type: ignore

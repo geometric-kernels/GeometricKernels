@@ -17,7 +17,6 @@
 import glob
 import os
 import sys
-import time
 import traceback
 
 import jupytext
@@ -30,8 +29,7 @@ from nbconvert.preprocessors.execute import CellExecutionError
 # but without any directory component). If there are several notebooks in
 # different directories with the same base name, they will all get blacklisted
 # (change the blacklisting check to something else in that case, if need be!)
-BLACKLISTED_NOTEBOOKS = [
-]
+BLACKLISTED_NOTEBOOKS = []
 
 
 def _nbpath():
@@ -60,7 +58,9 @@ def get_notebooks():
 
 def _preproc():
     pythonkernel = "python" + str(sys.version_info[0])
-    return ExecutePreprocessor(timeout=300, kernel_name=pythonkernel, interrupt_on_timeout=True)
+    return ExecutePreprocessor(
+        timeout=300, kernel_name=pythonkernel, interrupt_on_timeout=True
+    )
 
 
 def _exec_notebook(notebook_filename):
@@ -81,4 +81,6 @@ def test_notebook(notebook_file):
 
 
 def test_has_notebooks():
-    assert len(get_notebooks()) >= 1, "there are probably some notebooks that were not discovered"
+    assert (
+        len(get_notebooks()) >= 1
+    ), "there are probably some notebooks that were not discovered"

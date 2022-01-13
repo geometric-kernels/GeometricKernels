@@ -11,7 +11,6 @@ from gpflow.utilities import positive
 from geometric_kernels.kernels import BaseGeometricKernel
 from geometric_kernels.spaces.base import Space
 
-print("frontends/tensorflow/gpflow.py")
 
 class GPflowGeometricKernel(gpflow.kernels.Kernel):
     """
@@ -40,7 +39,6 @@ class GPflowGeometricKernel(gpflow.kernels.Kernel):
     def K_diag(self, X):
         lengthscale = tf.convert_to_tensor(self.lengthscale)
         return self._kernel.K_diag(X, lengthscale=lengthscale)
-
 
 
 class DefaultFloatZeroMeanFunction(gpflow.mean_functions.Constant):
