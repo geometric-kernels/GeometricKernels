@@ -152,8 +152,13 @@ class MaternIntegratedKernel(BaseGeometricKernel):
             distance, t, self.num_points_t
         )  # (..., N1, N2, T)
 
+        if self.space.is_compact:
+            power_term = B.power(t, self.nu + self.space.dimension/2 - 1.0)
+        else:
+            power_term = B.power(t, self.nu - 1.0)
+
         result = (
-            B.power(t, self.nu - 1.0)
+            power_term
             * B.exp(-2.0 * self.nu / lengthscale ** 2 * t)
             * heat_kernel
         )

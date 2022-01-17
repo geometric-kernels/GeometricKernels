@@ -23,6 +23,10 @@ class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
     def dimension(self) -> int:
         return self.dim
 
+    @property
+    def is_compact(self) -> bool:
+        return False
+
     def distance(
         self, x1: B.Numeric, x2: B.Numeric, diag: Optional[bool] = False
     ) -> B.Numeric:
