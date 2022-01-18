@@ -3,3 +3,5 @@ torch
 gpflow
 tensorflow
 tensorflow-probability
+jax==0.2.20
+jaxlib
