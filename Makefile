@@ -21,8 +21,8 @@ format:  ## Formats code with `autoflake`, `black` and `isort`
 
 lint:
 	flake8 geometric_kernels tests
-	black geometric_kernels tests --check
-	isort geometric_kernels tests --check-only
+	black geometric_kernels tests --check --diff
+	isort geometric_kernels tests --check-only --diff
 	mypy geometric_kernels
 
 

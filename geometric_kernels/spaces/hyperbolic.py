@@ -7,13 +7,19 @@ from typing import Optional
 import geomstats as gs
 import lab as B
 
-from geometric_kernels.lab_extras import cosh, trapz
+from geometric_kernels.lab_extras import cosh, logspace, trapz
 from geometric_kernels.spaces import Space
 
 
 class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
     r"""
     Hyperbolic manifold.
+
+    The class implements the hyperboloid model of the hyperbolic space H^n.
+
+    :math: H^n = \{ (x_0, \ldots, x_{n}) | x_0^2 - \sum_{i=1}^{n} x_i^2 = 1, x_0 > 0 \}
+
+    The class inherits the interface of geomstats's `Hyperbolic` with `point_type=extrinsic`.
     """
 
     def __init__(self, dim=1):
@@ -32,7 +38,18 @@ class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
     ) -> B.Numeric:
         assert B.all(self.belongs(x1)) and B.all(self.belongs(x2))
 
-        return self.metric.dist(x1, x2)
+        if B.rank(x1) == 1:
+            x1 = B.expand_dims(x1)
+        if B.rank(x2) == 1:
+            x2 = B.expand_dims(x2)
+
+        # compute pairwise distance between arrays of points `x1` and `x2`
+        # `x1` (N, dim+1)
+        # `x2` (M, dim+1)
+        x1_ = B.tile(x1[..., None, :], 1, x2.shape[0], 1)  # (N, M, dim+1)
+        x2_ = B.tile(x2[None], x1.shape[0], 1, 1)  # (N, M, dim+1)
+
+        return self.metric.dist(x1_, x2_).squeeze()  # (N, M)
 
     def heat_kernel(
         self, distance: B.Numeric, t: B.Numeric, num_points: int = 100
@@ -70,7 +87,8 @@ class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
             # due to the division in the computation of the integral value and
             # depends on the start of the s_vals interval
             s_vals = (
-                B.linspace(1.5e-1, 100.0, num_points) + expanded_distance
+                logspace(B.log(1e-2), B.log(100.0), num_points, base=B.exp(1.0))
+                + expanded_distance
             )  # (..., N1, N2, 1, S)
             integral_vals = (
                 s_vals
