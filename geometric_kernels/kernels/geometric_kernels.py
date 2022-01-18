@@ -135,7 +135,7 @@ class MaternIntegratedKernel(BaseGeometricKernel):
         self.nu = nu
         self.num_points_t = num_points_t  # in code referred to as `T`.
 
-    def link_function(self, distance: B.Numeric, t: B.Numeric, lengthscale: B.Numeric):
+    def link_function(self, distance: B.Numeric, t: B.Numeric, lengthscale: B.Numeric, **parameters):
         r"""
         This function links the heat kernel to the Matérn kernel, i.e., the Matérn kernel correspond to the integral of
         this function from 0 to inf.
@@ -149,7 +149,7 @@ class MaternIntegratedKernel(BaseGeometricKernel):
         :return: link function between the heat and Matérn kernels
         """
         heat_kernel = self.space.heat_kernel(
-            distance, t, self.num_points_t
+            distance, t, **parameters
         )  # (..., N1, N2, T)
 
         if self.space.is_compact:
@@ -171,6 +171,7 @@ class MaternIntegratedKernel(BaseGeometricKernel):
         """Compute the kernel via integration of heat kernel"""
         assert "lengthscale" in parameters
         lengthscale = parameters["lengthscale"]
+        parameters.pop("lengthscale")
 
         # Compute the geodesic distance
         distance = self.space.distance(X, X2, diag=False)
@@ -178,7 +179,7 @@ class MaternIntegratedKernel(BaseGeometricKernel):
         shift = B.log(lengthscale) / B.log(10.0)  # Log 10
         t_vals = logspace(-2.5 + shift, 1.5 + shift, self.num_points_t)  # (T,)
 
-        integral_vals = self.link_function(distance, t_vals, lengthscale)
+        integral_vals = self.link_function(distance, t_vals, lengthscale, **parameters)
 
         # Integral over heat kernel to obtain the Matérn kernel values
         kernel = trapz(integral_vals, t_vals, axis=-1)
