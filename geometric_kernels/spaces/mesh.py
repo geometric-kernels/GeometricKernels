@@ -39,13 +39,11 @@ class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
         :return: [N, M]
         """
         indices = X
-        print(indices)
         if self.eigenvectors is None:
             # convert numpy eigenvectors to backend tensor
             self.eigenvectors = from_numpy(X, self.eigenvectors_np)
 
         Phi = take_along_axis(self.eigenvectors, indices, axis=0)
-        print(Phi)
         return Phi
 
     def num_eigenfunctions(self) -> int:
