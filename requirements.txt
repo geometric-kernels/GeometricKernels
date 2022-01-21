@@ -2,6 +2,6 @@ gpytorch
 torch
 gpflow
 tensorflow
-tensorflow-probability
+tensorflow-probability==0.14.0
 jax<=0.2.20
 jaxlib
