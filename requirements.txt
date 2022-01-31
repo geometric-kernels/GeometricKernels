@@ -3,6 +3,6 @@ torch
 gpflow
 tensorflow
 tensorflow-probability==0.14.0
-jax<=0.2.20
+jax
 jaxlib
 sparsegpax @ git+https://github.com/aterenin/SparseGPAX.git
