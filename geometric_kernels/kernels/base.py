@@ -2,7 +2,7 @@
 Base class for geometric kernels
 """
 import abc
-from typing import Generic, Mapping, Tuple, TypeVar
+from typing import Generic, TypeVar
 
 import lab as B
 
