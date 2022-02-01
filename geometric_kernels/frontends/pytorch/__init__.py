@@ -1,5 +1,5 @@
 """
-GPyTorch and PyTorch specific code
+A place for pytorch based GP packages.
 """
 import lab.torch
 

@@ -58,7 +58,7 @@ def plot_mesh(mesh: Mesh, vertices_colors=None):
     return plot
 
 
-resolution = 40
+resolution = 30
 vertices, faces = meshzoo.icosa_sphere(resolution)
 mesh = Mesh(vertices, faces)
 

@@ -41,8 +41,6 @@ jobs:
       #----------------------------------------------
       #       install
       #----------------------------------------------
-    - name: Checks
-      run: which python3
     - name: Install dependencies
       run: |
         sudo apt-get install gfortran
