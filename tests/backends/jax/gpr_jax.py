@@ -6,7 +6,6 @@ import meshzoo
 import numpy as np
 import polyscope as ps
 
-import geometric_kernels.jax  # noqa
 from geometric_kernels.backends.jax import SparseGPaxGeometricKernel
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import Mesh

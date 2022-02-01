@@ -54,7 +54,8 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         """
         Get initial params and state.
 
-        In this case, state is Laplacian eigenvalues and eigenfunctions.
+        In this case, state is Laplacian eigenvalues and eigenfunctions,
+        and params contains the lengthscale and smoothness parameter `nu`.
 
         :return: tuple(params, state)
         """

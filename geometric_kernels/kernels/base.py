@@ -2,7 +2,7 @@
 Base class for geometric kernels
 """
 import abc
-from typing import Generic, TypeVar
+from typing import Generic, Mapping, Tuple, TypeVar
 
 import lab as B
 
@@ -30,11 +30,13 @@ class BaseGeometricKernel(abc.ABC, Generic[T]):
         return self._space
 
     @abc.abstractmethod
-    def init_params_and_state(self):
+    def init_params_and_state(
+        self,
+    ) -> Tuple[Mapping[str, B.Numeric], Mapping[str, B.Numeric]]:
         """
         Returns initial parameters and state of the kernels.
         params is a dict of trainable parameters of the kernel, such as lengthscale.
-        ntparams is a dict non-trainable parameters of the kernel.
+        state is a dict non-trainable parameters of the kernel.
         """
         raise NotImplementedError
 
