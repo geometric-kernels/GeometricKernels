@@ -30,9 +30,7 @@ class BaseGeometricKernel(abc.ABC, Generic[T]):
         return self._space
 
     @abc.abstractmethod
-    def init_params_and_state(
-        self,
-    ) -> Tuple[Mapping[str, B.Numeric], Mapping[str, B.Numeric]]:
+    def init_params_and_state(self):
         """
         Returns initial parameters and state of the kernels.
         params is a dict of trainable parameters of the kernel, such as lengthscale.
