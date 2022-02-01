@@ -57,7 +57,8 @@ def get_notebooks():
 
 
 def _preproc():
-    pythonkernel = "python"
+    pythonkernel = "python" + str(sys.version_info[0])
+    print(pythonkernel)
     return ExecutePreprocessor(
         timeout=300, kernel_name=pythonkernel, interrupt_on_timeout=True
     )
