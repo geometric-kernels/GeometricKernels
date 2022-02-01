@@ -10,3 +10,4 @@ typing-extensions
 plotly
 jupytext
 nbconvert
+ipykernel
