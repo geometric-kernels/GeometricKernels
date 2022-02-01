@@ -16,7 +16,7 @@ def take_along_axis(a: B.Numeric, index: B.Numeric, axis: int = 0):
 
 @dispatch
 @abstract()
-def from_numpy(_: B.Numeric, b: Union[List, B.Numeric]):
+def from_numpy(_: B.Numeric, b: Union[List, B.Numeric, B.NPNumeric]):
     """
     Converts the array `b` to a tensor of the same backend as `a`
     """
