@@ -76,7 +76,7 @@ def _exec_notebook(notebook_filename):
             pytest.fail(msg.format(notebook_filename, str(cell_error)))
 
 
-@pytest.mark.skipif(sys.version_info[1] in [8, 9])
+@pytest.mark.skipif(sys.version_info > (3, 7), reason="Requires python3.7 or lower")
 @pytest.mark.parametrize("notebook_file", get_notebooks())
 def test_notebook(notebook_file):
     _exec_notebook(notebook_file)
