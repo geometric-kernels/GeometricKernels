@@ -41,6 +41,8 @@ jobs:
       #----------------------------------------------
       #       install
       #----------------------------------------------
+    - name: Checks
+      run: which python
     - name: Install dependencies
       run: |
         sudo apt-get install gfortran
