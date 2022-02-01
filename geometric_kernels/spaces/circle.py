@@ -132,7 +132,7 @@ class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
         self,
         vector: B.Numeric,
         base_point: Optional[B.Numeric] = None,  # type: ignore
-        atol: float = ATOL,
+        atol: float = gs.backend.atol,
     ) -> bool:
         """
         Check whether the `vector` is tangent at `base_point`.

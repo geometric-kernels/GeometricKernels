@@ -1,3 +1,6 @@
 """
-GP Package (e.g., GPflow, GPyTorch) and backend (e.g., TensorFlow, PyTorch) specific code
+Specific code to GP packages:
+- GPflow (TensorFlow),
+- GPyTorch (PyTorch),
+- SparseGPax (Jax)
 """
