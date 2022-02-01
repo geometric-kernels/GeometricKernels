@@ -1,3 +1,6 @@
+**WARNING: this is a development (unstable) version of the package**
+
+
 # Geometric Kernels
 
 This package implements a suite of Geometric kernels.
@@ -5,16 +8,23 @@ This package implements a suite of Geometric kernels.
 <img alt="class diagram" src="docs/class_diagram.svg">
 
 
-## Requirements and Installation
+##  Installation
 
-We recommend creating a virtual environment before installing the package.
+1. [Prerequisite] install [LAB](https://github.com/wesselb/lab) following [the these instructions](https://gist.github.com/wesselb/4b44bf87f3789425f96e26c4308d0adc).
 
-First, follow [the instructions here](https://gist.github.com/wesselb/4b44bf87f3789425f96e26c4308d0adc).
-Then simply run
+2. Clone the repository.
+```bash
+git clone https://github.com/GPflow/GeometricKernels.git
 ```
+
+3. Move (`cd`) to the root directory of GeometricKernels and install it in the active environment
+```bash
 pip install -e .
 ```
-We use [LAB](https://github.com/wesselb/lab) to support multiple backends (e.g., TensorFlow, Jax, PyTorch). However, you are not required to install all of them on your system to use the Geometric Kernel package. Simply install the backend (and GP package) of your choice. For instance,
+
+4. Install a backend of your choice
+
+We use [LAB](https://github.com/wesselb/lab) to support multiple backends (e.g., TensorFlow, Jax, PyTorch). However, you are not required to install all of them on your system to use the Geometric Kernel package. Simply install the backend (and GP package) of your choice. For example,
 
 - TensorFlow and GPflow
 ```
@@ -47,26 +57,16 @@ Ready|Backend                                      | GP package
 🚧   |[Jax](https://github.com/google/jax)         |??
  
 
-## Running the tests
+## For development and running the tests
 
-Run these commands from the root directory of this repository. 
-To run the full test suite, including pylint and Mypy, run: 
+Run these commands from the root directory of the repository. 
 
+Install all backends (currently PyTorch and TensorFlow) and the dev requirements (Pytest, black, etc.)
 ```bash
-poetry run task test
+pip install -r dev_requirements.txt -r requirements.txt
 ```
 
-Alternatively, you can run just the unit tests, starting with the failing tests and exiting after
-the first test failure:
-
+Run the tests
 ```bash
-poetry run task quicktest
+make test
 ```
-
-**NOTE:** Running the tests requires
-that the project virtual environment has been updated. See [Installation](#Installation).
-
-## Adding new Python dependencies
-
-- To specify dependencies required by `GeometricKernels`, run `poetry add`.
-- To specify dependencies required to build or test the project, run `poetry add --dev`.
