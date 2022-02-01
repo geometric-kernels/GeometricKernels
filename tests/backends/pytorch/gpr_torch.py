@@ -16,7 +16,7 @@ class ExactGPModel(gpytorch.models.ExactGP):
         self.mean_module = gpytorch.means.ZeroMean()
         self.covar_module = kernel
 
-    def forward(self, x):  # pylint: disable=arguments-differq
+    def forward(self, x):  # pylint: disable=arguments-differ
         mean_x = self.mean_module(x)
         covar_x = self.covar_module(x)
         return gpytorch.distributions.MultivariateNormal(mean_x, covar_x)
@@ -35,7 +35,7 @@ num_data = 25
 
 
 def get_data():
-    _X = torch.tensor(np.random.randint(mesh.num_vertices, size=(num_data,)))
+    _X = torch.tensor(np.random.randint(mesh.num_vertices, size=(num_data,))).int()
     _K = geometric_kernel(_X).numpy()
     _y = torch.tensor(
         np.linalg.cholesky(_K + np.eye(num_data) * 1e-6) @ np.random.randn(num_data)
