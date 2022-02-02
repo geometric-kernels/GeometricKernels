@@ -11,7 +11,10 @@ _NU = 2.5
 
 def plot_hyperbolic_matern():
     hyperboloid = Hyperbolic(dim=2)
-    kernel = MaternIntegratedKernel(hyperboloid, _NU, _NUM_POINTS)
+    kernel = MaternIntegratedKernel(hyperboloid, _NUM_POINTS)
+    params, state = kernel.init_params_and_state()
+    params["nu"] = _NU
+    params["lengthscale"] = 0.5
 
     # construct a `uniform` grid on hyperbolic space
     s = np.linspace(-5, 5, 25)
@@ -22,13 +25,13 @@ def plot_hyperbolic_matern():
     # base point to compute the kernel from
     base_point = hyperboloid.from_coordinates(np.r_[0, 0], "intrinsic")
 
-    kernel_vals = kernel.K(base_point, points, lengthscale=0.5)
+    kernel_vals = kernel.K(params, state, base_point, points)
 
     # vizualize
     plt.figure(figsize=(5, 5))
     visualization.plot(points, space="H2_poincare_disk", c=kernel_vals, cmap="plasma")
 
-    # plt.savefig('./test_hyperbolic_matern.png')
+    # plt.savefig("./test_hyperbolic_matern.png")
     plt.show()
 
 
@@ -53,8 +56,13 @@ def plot_distance_vs_kernel_hyperbolic():
         distances, np.array(0.5 * lengthscale ** 2)[None], num_points=1000
     )  # Lengthscale to heat kernel t parameter
     heat_kernel_vals_normalized = heat_kernel_vals / heat_kernel_vals[-1]
-    matern_kernel = MaternIntegratedKernel(hyperboloid, _NU, _NUM_POINTS)
-    matern_kernel_vals = matern_kernel.K(x1, x2, lengthscale=1.0)
+
+    matern_kernel = MaternIntegratedKernel(hyperboloid, _NUM_POINTS)
+    params, state = matern_kernel.init_params_and_state()
+    params["nu"] = _NU
+    params["lengthscale"] = lengthscale
+
+    matern_kernel_vals = matern_kernel.K(params, state, x1, x2)
 
     # Plot kernel value in function of the distance
     plt.figure(figsize=(12, 6))

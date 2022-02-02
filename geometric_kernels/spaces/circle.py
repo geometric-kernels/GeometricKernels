@@ -15,6 +15,8 @@ from geometric_kernels.lab_extras import from_numpy
 from geometric_kernels.spaces import DiscreteSpectrumSpace
 from geometric_kernels.utils import Optional, chain
 
+ATOL = 1e-12
+
 
 class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
     """
