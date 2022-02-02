@@ -34,6 +34,10 @@ class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
     ) -> B.Numeric:
         assert B.all(self.belongs(x1)) and B.all(self.belongs(x2))
 
+        if diag:
+            # Return a pointwise distance between `x1` and `x2`
+            return self.metric.dist(x1, x2)  # (N, )
+
         if B.rank(x1) == 1:
             x1 = B.expand_dims(x1)
         if B.rank(x2) == 1:
@@ -45,7 +49,7 @@ class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
         x1_ = B.tile(x1[..., None, :], 1, x2.shape[0], 1)  # (N, M, dim+1)
         x2_ = B.tile(x2[None], x1.shape[0], 1, 1)  # (N, M, dim+1)
 
-        return self.metric.dist(x1_, x2_).squeeze()  # (N, M)
+        return self.metric.dist(x1_, x2_)  # (N, M)
 
     def heat_kernel(
         self, distance: B.Numeric, t: B.Numeric, num_points: int = 100

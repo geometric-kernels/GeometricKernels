@@ -25,7 +25,7 @@ def from_numpy(_: B.JAXNumeric, b: Union[List, B.NPNumeric, B.Number, B.JAXNumer
 
 
 @dispatch
-def trapz(y: _Numeric, x: _Numeric, dx: _Numeric = 1.0, axis: int = -1):  # type: ignore
+def trapz(y: B.JAXNumeric, x: _Numeric, dx: _Numeric = 1.0, axis: int = -1):  # type: ignore
     """
     Integrate along the given axis using the trapezoidal rule.
     """
@@ -33,7 +33,7 @@ def trapz(y: _Numeric, x: _Numeric, dx: _Numeric = 1.0, axis: int = -1):  # type
 
 
 @dispatch
-def logspace(start: _Numeric, stop: _Numeric, num: int = 50):  # type: ignore
+def logspace(start: B.JAXNumeric, stop: _Numeric, num: int = 50):  # type: ignore
     """
     Return numbers spaced evenly on a log scale.
     """

@@ -28,7 +28,7 @@ def from_numpy(
 
 
 @dispatch
-def trapz(y: _Numeric, x: _Numeric, dx: _Numeric = 1.0, axis: int = -1):  # type: ignore
+def trapz(y: B.TorchNumeric, x: _Numeric, dx: _Numeric = 1.0, axis: int = -1):  # type: ignore
     """
     Integrate along the given axis using the trapezoidal rule.
     """
@@ -44,7 +44,7 @@ def norm(x: _Numeric, ord: Optional[Any] = None, axis: Optional[int] = None):  #
 
 
 @dispatch
-def logspace(start: _Numeric, stop: _Numeric, num: int = 50, base: _Numeric = 10.0):  # type: ignore
+def logspace(start: B.TorchNumeric, stop: _Numeric, num: int = 50, base: _Numeric = 10.0):  # type: ignore
     """
     Return numbers spaced evenly on a log scale.
     """

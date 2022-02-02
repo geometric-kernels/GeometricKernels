@@ -206,17 +206,22 @@ class MaternIntegratedKernel(BaseGeometricKernel):
 
         return result
 
-    def K(
-        self, params, state, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs  # type: ignore
+    def kernel(
+        self, params, X: B.Numeric, X2: Optional[B.Numeric] = None, diag: bool = False, **kwargs  # type: ignore
     ) -> B.Numeric:
-        """Compute the kernel via integration of heat kernel"""
         assert "nu" in params
         assert "lengthscale" in params
 
         lengthscale = params["lengthscale"]
 
+        if X2 is None:
+            X2 = X
+
         # Compute the geodesic distance
-        distance = self.space.distance(X, X2, diag=False)
+        if diag:
+            distance = self.space.distance(X, X, diag=True)
+        else:
+            distance = self.space.distance(X, X2, diag=False)
 
         shift = B.log(lengthscale) / B.log(10.0)  # Log 10
         t_vals = logspace(-2.5 + shift, 1.5 + shift, self.num_points_t)  # (T,)
@@ -231,5 +236,12 @@ class MaternIntegratedKernel(BaseGeometricKernel):
 
         return kernel / normalizing_cst
 
+    def K(
+        self, params, state, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs  # type: ignore
+    ) -> B.Numeric:
+        """Compute the kernel via integration of heat kernel"""
+        return self.kernel(params, X, X2, diag=False)
+
     def K_diag(self, params, state, X: B.Numeric, **kwargs) -> B.Numeric:
-        raise NotImplementedError
+        """Compute the kernel via integration of heat kernel"""
+        return self.kernel(params, X, diag=True)

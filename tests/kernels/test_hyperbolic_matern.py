@@ -9,6 +9,42 @@ _NUM_POINTS = 50
 _NU = 2.5
 
 
+def test_K_shapes():
+    hyperboloid = Hyperbolic(dim=2)
+    kernel = MaternIntegratedKernel(hyperboloid, _NUM_POINTS)
+    params, state = kernel.init_params_and_state()
+    params["nu"] = _NU
+    params["lengthscale"] = 0.5
+
+    N = 10
+
+    # Data points
+    base = np.r_[7.14142843e00, -5.00000000e00, -5.00000000e00]
+    point = np.r_[14.17744688, 10.0, 10.0]
+    geodesic = hyperboloid.metric.geodesic(initial_point=base, end_point=point)
+    x1 = geodesic(np.linspace(0.0, 1.0, N))  # (N, 3)
+    x2 = x1[-1, None]  # (1, 3)
+    x3 = np.vstack((x2, x2))  # (2, 3)
+
+    K = kernel.K(params, state, x1, None)
+    assert K.shape == (N, N)
+
+    K = kernel.K(params, state, x1, x2)
+    assert K.shape == (N, 1)
+
+    K = kernel.K(params, state, x1, x3)
+    assert K.shape == (N, 2)
+
+    K = kernel.K(params, state, x2)
+    assert K.shape == (1, 1)
+
+    K = kernel.K_diag(params, state, x1)
+    assert K.shape == (N,)
+
+    K = kernel.K_diag(params, state, x2)
+    assert K.shape == (1,)
+
+
 def plot_hyperbolic_matern():
     hyperboloid = Hyperbolic(dim=2)
     kernel = MaternIntegratedKernel(hyperboloid, _NUM_POINTS)
@@ -54,7 +90,7 @@ def plot_distance_vs_kernel_hyperbolic():
     # Compute heat and Matérn kernels
     heat_kernel_vals = hyperboloid.heat_kernel(
         distances, np.array(0.5 * lengthscale ** 2)[None], num_points=1000
-    )  # Lengthscale to heat kernel t parameter
+    ).squeeze()  # Lengthscale to heat kernel t parameter
     heat_kernel_vals_normalized = heat_kernel_vals / heat_kernel_vals[-1]
 
     matern_kernel = MaternIntegratedKernel(hyperboloid, _NUM_POINTS)
@@ -78,5 +114,7 @@ def plot_distance_vs_kernel_hyperbolic():
 
 
 if __name__ == "__main__":
+    test_K_shapes()
+
     plot_hyperbolic_matern()
     plot_distance_vs_kernel_hyperbolic()
