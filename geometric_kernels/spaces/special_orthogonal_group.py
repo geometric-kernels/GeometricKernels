@@ -7,13 +7,15 @@ The code is courtеsy of  Iskander Azangulov* и Andrei Smolensky*
 """
 
 import geomstats as gs
-import lab as B
+import itertools as it
+# import lab as B
 import numpy as np
-# import operator
+import math
+import operator
 
 from functools import reduce
 from geometric_kernels.eigenfunctions import Eigenfunctions
-from geomertic_kernels.lab_extras import from_numpy
+# from geomertic_kernels.lab_extras import from_numpy
 from geometric_kernels.spaces import DiscreteSpectrumSpace
 
 
@@ -60,7 +62,7 @@ def fixed_length_partitions(n, L):
         partition[0] = s
 
 
-class SOEigenfunctions(Eigenfuctions):
+class SOEigenfunctions(Eigenfunctions):
     """Eigenfunctions for SO"""
 
     def __init__(self, dim: int, num_representations: int = 10):
@@ -71,7 +73,7 @@ class SOEigenfunctions(Eigenfuctions):
         if self.dim % 2 == 0:
             self.rho = np.arange(self.rank)[::-1]
         else:
-            self.rho = np.arange(self.rank)[::-1] + 0.5        
+            self.rho = np.arange(self.rank)[::-1] + 0.5
 
         self.signatures, self.repr_dims, self.repr_eigenvalues = self._generate_signatures(self.num_representations)
 
@@ -91,10 +93,24 @@ class SOEigenfunctions(Eigenfuctions):
         if X2 is None:
             X2 = X
 
-        x1x2T = np.einsum('nij,bkj->nbik', X1, X2)
+        x1x2T = np.einsum('nij,bkj->nbik', X, X2)
 
         # for sgn, rep_dim, eign in zip(self.signatures, self.repr_dims, self.kernel_eigenvalues):
-        pass
+        Phi_prod = self.__call__(x1x2T)  # [M, N, N2]
+
+        prod = np.einsum('mnb,m->nb', Phi_prod, weights)
+
+        return prod
+
+    def weighted_outerproduct_diag(self, weights, X, **parameters):
+        x1x2T = np.einsum('nij,nkj->nik', X, X)
+
+        # for sgn, rep_dim, eign in zip(self.signatures, self.repr_dims, self.kernel_eigenvalues):
+        Phi_prod = self.__call__(x1x2T)  # [M, N]
+
+        prod = np.einsum('mn,m->n', Phi_prod, weights)
+
+        return prod  # [N, ]
 
     def __call__(self, X, **parameters):
         # X [..., D, D]
@@ -106,27 +122,26 @@ class SOEigenfunctions(Eigenfuctions):
 
         return chi
 
-
     def torus_embed(self, X):
         # X [..., D, D]
         eigv = np.linalg.eigvals(X)  # [..., D]
         sorted_ind = np.argsort(np.real(eigv), axis=-1)  # [D, ]
         eigv = np.take_along_axis(eigv, sorted_ind, axis=-1)  # [..., D]
-        gamma = eigv[..., 0:-1:2] # [..., R]
+        gamma = eigv[..., 0:-1:2]  # [..., R]
         return gamma
 
     def xi0(self, qs, gamma):
         # qs [M, R]
         # gamma [..., R]
         gamma_expanded = np.expand_dims(gamma, (gamma.ndim, gamma.ndim+1))  # [..., R, 1, 1]
-        a = np.power(gamma_expanded, qs) + np.power(gamma_expanded, -qs)  # [..., R, M,  R] !
+        a = np.power(gamma_expanded, qs) + np.power(gamma_expanded, -qs)  # [..., R, M, R]
         a = np.moveaxis(a, -3, -2)  # [..., M, R, R]
         return np.linalg.det(a)  # [..., M]
 
     def xi1(self, qs, gamma):
         # qs [M, R]
         # gamma [..., R]
-        gamma_expanded = np.expand_dims(gamma, (gamma.ndim, gamma.ndim+1))  # [..., R, 1, 1]        
+        gamma_expanded = np.expand_dims(gamma, (gamma.ndim, gamma.ndim+1))  # [..., R, 1, 1]
         a = np.power(gamma_expanded, qs) - np.power(gamma_expanded, -qs)  # [..., R, M, R]
         a = np.moveaxis(a, -3, -2)  # [..., M, R, R]
         return np.linalg.det(a)  # [..., M]
@@ -140,7 +155,8 @@ class SOEigenfunctions(Eigenfuctions):
 
         if self.dim % 2:
             qs = sgn + self.rank - np.arange(sgn.shape[-1]) - 1 / 2  # [M, R]
-            ret = self.xi1(qs, gamma) / self.xi1(np.arange(self.rank, 0, -1) - 1 / 2, gamma) # [..., M]
+            ret = self.xi1(qs, gamma) / self.xi1(np.arange(self.rank, 0, -1) - 1 / 2, gamma)  # [..., M]
+            return ret
         else:
             qs = sgn + self.rank - np.arange(sgn.shape[-1]) - 1  # [M, R]
             qs[:, self.rank - 1] = np.abs(sgn[:, self.rank - 1])
@@ -171,8 +187,8 @@ class SOEigenfunctions(Eigenfuctions):
             else:
                 qs = [pk + self.rank - k - 1 if k != self.rank - 1 else abs(pk) for k, pk in enumerate(signature)]
                 rep_dim = int(reduce(operator.mul, (2 / math.factorial(2 * k) for k in range(1, self.rank)))
-                             * reduce(operator.mul, ((qs[i] - qs[j]) * (qs[i] + qs[j])
-                                                     for i, j in it.combinations(range(self.rank), 2)), 1))
+                              * reduce(operator.mul, ((qs[i] - qs[j]) * (qs[i] + qs[j])
+                                                      for i, j in it.combinations(range(self.rank), 2)), 1))
                 return int(round(rep_dim))
 
         def _compute_eigenvalue(sgn):
@@ -193,17 +209,32 @@ class SOEigenfunctions(Eigenfuctions):
         eigenvalues = np.array([x[2] for x in signatures_vals])  # [M, ]
 
         return signatures, dims, eigenvalues
-        
 
 
 class SpecialOrthogonalGroup(DiscreteSpectrumSpace, gs.geometry.special_orthogonal_group.SpecialOrthogonal):
     def __init__(self, dim):
         super().__init__(self, dim=dim)
-        self.cache: Dict[int, Tuple[np.ndarray, np.ndarray, np.ndarray]]
+        self.cache = {}
 
     @property
     def dimension(self):
         return self.dim
 
+    def get_eigenvalues(self, num: int):
+        if num not in self.cache:
+            eigenfunctions = SOEigenfunctions(self.dim, num)
+            eigenvalues = eigenfunctions.repr_eigenvalues ** 2
+            self.cache[num] = eigenfunctions
+            return eigenvalues
+        else:
+            eigenfunctions = self.cache[num]
+            eigenvalues = eigenfunctions.repr_eigenvalues ** 2
+            return eigenvalues
 
-
+    def get_eigenfunctions(self, num):
+        if num not in self.cache:
+            eigenfunctions = SOEigenfunctions(self.dim, num)
+            self.cache[num] = eigenfunctions
+            return eigenfunctions
+        else:
+            return self.cache[num]
