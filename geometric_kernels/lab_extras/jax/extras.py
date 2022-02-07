@@ -22,3 +22,19 @@ def from_numpy(_: B.JAXNumeric, b: Union[List, B.NPNumeric, B.Number, B.JAXNumer
     Converts the array `b` to a tensor of the same backend as `a`
     """
     return jnp.array(b)
+
+
+@dispatch
+def swapaxes(a: B.JAXNumeric, axis1: int, axis2: int) -> B.Numeric:
+    """
+    Interchange two axes of an array.
+    """
+    return jnp.swapaxes(a, axis1, axis2)
+
+
+@dispatch
+def copysign(a: B.JAXNumeric, b: _Numeric) -> B.Numeric:  # type: ignore
+    """
+    Change the sign of `a` to that of `b`, element-wise.
+    """
+    return jnp.copysign(a, b)

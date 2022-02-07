@@ -25,3 +25,19 @@ def from_numpy(
     """
     print("HERE!!!")
     return torch.tensor(b)
+
+
+@dispatch
+def swapaxes(a: B.TorchNumeric, axis1: int, axis2: int) -> B.Numeric:
+    """
+    Interchange two axes of an array.
+    """
+    return torch.transpose(a, axis1, axis2)
+
+
+@dispatch
+def copysign(a: B.TorchNumeric, b: _Numeric) -> B.Numeric:  # type: ignore
+    """
+    Change the sign of `a` to that of `b`, element-wise.
+    """
+    return torch.copysign(a, b)

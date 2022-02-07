@@ -3,7 +3,9 @@ profile = "black"
 skip_glob = [
     "geometric_kernel/__init__.py",
 ]
-
+known_third_party = [
+     "lab",
+]
 
 [tool.mypy]
 ignore_missing_imports = true

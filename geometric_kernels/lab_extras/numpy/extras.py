@@ -22,3 +22,19 @@ def from_numpy(_: B.NPNumeric, b: Union[List, B.NPNumeric, B.Number]):  # type: 
     Converts the array `b` to a tensor of the same backend as `a`
     """
     return np.array(b)
+
+
+@dispatch
+def swapaxes(a: B.NPNumeric, axis1: int, axis2: int) -> B.Numeric:
+    """
+    Interchange two axes of an array.
+    """
+    return np.swapaxes(a, axis1, axis2)
+
+
+@dispatch
+def copysign(a: B.NPNumeric, b: _Numeric) -> B.Numeric:  # type: ignore
+    """
+    Change the sign of `a` to that of `b`, element-wise.
+    """
+    return np.copysign(a, b)
