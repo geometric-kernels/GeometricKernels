@@ -5,7 +5,7 @@ import polyscope as ps
 import torch
 
 import geometric_kernels.torch  # noqa
-from geometric_kernels.backends.pytorch import GPytorchGeometricKernel
+from geometric_kernels.frontends.pytorch.gpytorch import GPytorchGeometricKernel
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import Mesh
 

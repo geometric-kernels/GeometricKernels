@@ -48,3 +48,20 @@ class GPflowGeometricKernel(gpflow.kernels.Kernel):
         nu = tf.convert_to_tensor(self.nu)
         params = dict(lengthscale=lengthscale, nu=nu)
         return self._kernel.K_diag(params, self.state, X)
+
+
+class DefaultFloatZeroMeanFunction(gpflow.mean_functions.Constant):
+    """
+    Zero mean function. The default GPflow `ZeroMeanFunction`
+    uses the input's dtype as output type, this minor adaptation
+    uses GPflow's `default_float` instead.
+    """
+
+    def __init__(self, output_dim=1):
+        super().__init__()
+        self.output_dim = output_dim
+        del self.c
+
+    def __call__(self, inputs):
+        output_shape = tf.concat([tf.shape(inputs)[:-1], [self.output_dim]], axis=0)
+        return tf.zeros(output_shape, dtype=gpflow.default_float())

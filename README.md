@@ -30,22 +30,11 @@ We use [LAB](https://github.com/wesselb/lab) to support multiple backends (e.g.,
 ```
 pip install tensorflow tensorflow-probability gpflow
 ```
-then import as follows
-```
-import geometric_kernels.tensorflow  # noqa
-import tensorflow as tf
-```
 
 - PyTorch and GPyTorch
 ```
 pip install torch gpytorch
 ```
-then import as follows
-```
-import geometric_kernels.pytorch  # noqa
-import torch
-```
-
 
 ### Supported backends with associated GP packaes
 
