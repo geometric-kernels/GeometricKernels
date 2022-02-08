@@ -59,7 +59,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
 
         :return: tuple(params, state)
         """
-        params = dict(lengthscale=1.0, nu=0.5)
+        params = dict(lengthscale=np.r_[1.0], nu=np.r_[0.5])
 
         eigenvalues_laplacian = self.space.get_eigenvalues(self.num_eigenfunctions)
         eigenfunctions = self.space.get_eigenfunctions(self.num_eigenfunctions)

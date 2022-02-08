@@ -10,6 +10,7 @@ import itertools as it
 import math
 import operator
 from functools import reduce
+from typing import Any, Dict
 
 import geomstats as gs
 import lab as B
@@ -71,6 +72,10 @@ class SOEigenfunctions(Eigenfunctions):
         :param dim: dimensionality in which the group acts.
         :param num_representation: number of representations of the group to compute. Values larger than 10 are impractical.
         """
+        assert (
+            dim != 4
+        ), "Dimension 4 is not supported since SO(4) is not a semisimple group."
+
         self.dim = dim  # In code referred to as D
         self.rank = dim // 2  # In code referred to as R
         self.num_representations = num_representations
@@ -113,7 +118,7 @@ class SOEigenfunctions(Eigenfunctions):
 
         Phi_prod = self.__call__(x1x2T)  # [N, N2, M]
 
-        prod = B.sum(Phi_prod, weights, axis=-1)  # [N, N2]
+        prod = B.sum(Phi_prod * B.squeeze(weights), axis=-1)  # [N, N2]
 
         return prod
 
@@ -133,7 +138,7 @@ class SOEigenfunctions(Eigenfunctions):
 
         Phi_prod = self.__call__(x1x2T)  # [N, M]
 
-        prod = B.sum(Phi_prod * weights, axis=-1)  # [N, ]
+        prod = B.sum(Phi_prod * B.squeeze(weights), axis=-1)  # [N, ]
 
         return prod  # [N, ]
 
@@ -146,7 +151,6 @@ class SOEigenfunctions(Eigenfunctions):
         :return: [..., M] eigenfunctions
         """
         gamma = self.torus_embed(X)  # [..., R]
-
         chi = self.chi(gamma, from_numpy(X, self.signatures))  # [..., M]
         chi *= from_numpy(X, self.repr_dims)  # [..., M]
 
@@ -172,7 +176,7 @@ class SOEigenfunctions(Eigenfunctions):
         :return: [..., M]
         """
         gamma_expanded = B.expand_dims(
-            gamma, (B.rank(gamma), B.rank(gamma) + 1)
+            B.expand_dims(gamma, B.rank(gamma)), B.rank(gamma) + 1
         )  # [..., R, 1, 1]
         a = B.power(gamma_expanded, qs) + B.power(gamma_expanded, -qs)  # [..., R, M, R]
         a = swapaxes(a, -3, -2)  # [..., M, R, R]
@@ -186,7 +190,7 @@ class SOEigenfunctions(Eigenfunctions):
         :return: [..., M]
         """
         gamma_expanded = B.expand_dims(
-            gamma, (B.rank(gamma), B.rank(gamma) + 1)
+            B.expand_dims(gamma, B.rank(gamma)), B.rank(gamma) + 1
         )  # [..., R, 1, 1]
         a = B.power(gamma_expanded, qs) - B.power(gamma_expanded, -qs)  # [..., R, M, R]
         a = swapaxes(a, -3, -2)  # [..., M, R, R]
@@ -210,19 +214,18 @@ class SOEigenfunctions(Eigenfunctions):
             return ret
         else:
             qs = (
-                sgn[:, ::-1] + self.rank - B.range(B.shape(sgn)[-1] - 1) - 1
+                sgn[:, :-1] + self.rank - B.range(B.shape(sgn)[-1] - 1) - 1
             )  # [M, R - 1]
-            qs = B.stack(qs, B.abs(sgn[:, self.rank - 1]))  # [M, R]
-            # qs[:, self.rank - 1] = B.abs(sgn[:, self.rank - 1])
-            if sgn[-1] == 0:
-                return self.xi0(qs, gamma) / self.xi0(
-                    B.range(self.rank)[None, ::-1], gamma
-                )
-            else:
-                sign = B.sign(sgn[:, -1])
-                return self.xi0(qs, gamma) + self.xi1(qs, gamma) * sign / self.xi0(
-                    B.range(self.rank)[None, ::-1], gamma
-                )
+            qs = B.concat(qs, B.abs(sgn[:, None, self.rank - 1]), axis=1)  # [M, R]
+            ret = B.where(
+                sgn[:, -1] == 0,
+                self.xi0(qs, gamma) / self.xi0(B.range(self.rank)[None, ::-1], gamma),
+                self.xi0(qs, gamma)
+                + self.xi1(qs, gamma)
+                * B.sign(sgn[:, -1])
+                / self.xi0(B.range(self.rank)[None, ::-1], gamma),
+            )
+            return ret
 
     def _generate_signatures(self, num_repr):
         r"""
@@ -279,7 +282,9 @@ class SOEigenfunctions(Eigenfunctions):
 
         def _compute_eigenvalue(sgn):
             np_sgn = np.array(sgn)
-            return np.norm(self.rho + np_sgn) ** 2 - np.norm(self.rho) ** 2
+            return (
+                np.linalg.norm(self.rho + np_sgn) ** 2 - np.linalg.norm(self.rho) ** 2
+            )
 
         signatures_vals = []
         for sgn in signatures:
@@ -298,20 +303,23 @@ class SOEigenfunctions(Eigenfunctions):
 
 
 class SpecialOrthogonalGroup(
-    DiscreteSpectrumSpace, gs.geometry.special_orthogonal_group.SpecialOrthogonal
+    DiscreteSpectrumSpace, gs.geometry.special_orthogonal._SpecialOrthogonalMatrices
 ):
     r"""
-    Special orthogonal group SO(n), that is a group of orthogonal matrices
+    Special orthogonal group `SO(n)`, that is a group of orthogonal matrices
     with determinant equal to 1.
     """
 
-    def __init__(self, dim):
-        super().__init__(self, dim=dim)
-        self.cache = {}
+    def __init__(self, n: int):
+        r"""
+        :param n: Dimensionality `SO(n)`, aka the size of the matrices.
+        """
+        self.cache: Dict[int, Any] = {}
+        super().__init__(n=n)
 
     @property
     def dimension(self):
-        return self.dim
+        return self.n
 
     def get_eigenvalues(self, num: int):
         """
@@ -322,7 +330,7 @@ class SpecialOrthogonalGroup(
         :return: [num, 1] array containing the eigenvalues.
         """
         if num not in self.cache:
-            eigenfunctions = SOEigenfunctions(self.dim, num)
+            eigenfunctions = SOEigenfunctions(self.n, num)
             eigenvalues = eigenfunctions.repr_eigenvalues ** 2
             self.cache[num] = eigenfunctions
             return B.reshape(eigenvalues, -1, 1)
