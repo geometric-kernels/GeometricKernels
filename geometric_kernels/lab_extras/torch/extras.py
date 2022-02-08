@@ -41,3 +41,16 @@ def copysign(a: B.TorchNumeric, b: _Numeric) -> B.Numeric:  # type: ignore
     Change the sign of `a` to that of `b`, element-wise.
     """
     return torch.copysign(a, b)
+
+
+@dispatch
+def take_along_last_axis(a: B.TorchNumeric, indices: _Numeric):  # type: ignore
+    """
+    Takes elements of `a` along the last axis. `indices` must be the same rank (ndim) as
+    `a`. Useful in e.g. argsorting and then recovering the sorted array.
+    ```
+
+    E.g. for 3d case:
+    output[i, j, k] = a[i, j, indices[i, j, k]]
+    """
+    return torch.gather(a, -1, indices)

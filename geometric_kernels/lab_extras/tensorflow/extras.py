@@ -43,3 +43,16 @@ def copysign(a: B.TFNumeric, b: _Numeric) -> B.Numeric:  # type: ignore
     """
 
     return tf.where(tf.equal(tf.math.sign(a), tf.math.sign(b)), -a, a)
+
+
+@dispatch
+def take_along_last_axis(a: B.TFNumeric, indices: _Numeric):  # type: ignore
+    """
+    Takes elements of `a` along the last axis. `indices` must be the same rank (ndim) as
+    `a`. Useful in e.g. argsorting and then recovering the sorted array.
+    ```
+
+    E.g. for 3d case:
+    output[i, j, k] = a[i, j, indices[i, j, k]]
+    """
+    return tf.gather(a, indices, batch_dims=-1)

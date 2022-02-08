@@ -11,6 +11,26 @@ from plum import Union
 def take_along_axis(a: B.Numeric, index: B.Numeric, axis: int = 0):
     """
     Gathers elements of `a` along `axis` at `index` locations.
+
+    The index array will be flattened.
+
+    :param a: [N1, ..., Nj, ..., Nn]
+    :param index: [J...]
+
+    :return: [N1, ..., J, ..., Nn]
+    """
+
+
+@dispatch
+@abstract()
+def take_along_last_axis(a: B.Numeric, indices: B.Numeric) -> B.Numeric:
+    """
+    Takes elements of `a` along the last axis. `indices` must be the same rank (ndim) as
+    `a`. Useful in e.g. argsorting and then recovering the sorted array.
+    ```
+
+    E.g. for 3d case:
+    output[i, j, k] = a[i, j, indices[i, j, k]]
     """
 
 

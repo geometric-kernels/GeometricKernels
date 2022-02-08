@@ -17,7 +17,7 @@ import lab as B
 import numpy as np
 
 from geometric_kernels.eigenfunctions import Eigenfunctions
-from geometric_kernels.lab_extras import from_numpy, swapaxes, take_along_axis
+from geometric_kernels.lab_extras import from_numpy, swapaxes, take_along_last_axis
 from geometric_kernels.spaces import DiscreteSpectrumSpace
 
 
@@ -163,8 +163,8 @@ class SOEigenfunctions(Eigenfunctions):
         :return: [..., R]
         """
         eigv = B.eig(X, compute_eigvecs=False)  # [..., D]
-        sorted_ind = B.argsort(np.real(eigv), axis=-1)  # [D, ]
-        eigv = take_along_axis(eigv, sorted_ind, axis=-1)  # [..., D]
+        sorted_ind = B.argsort(B.real(eigv), axis=-1)  # [..., D ]
+        eigv = take_along_last_axis(eigv, sorted_ind)  # [..., D]
         gamma = eigv[..., 0:-1:2]  # [..., R]
         return gamma
 
@@ -219,11 +219,12 @@ class SOEigenfunctions(Eigenfunctions):
             qs = B.concat(qs, B.abs(sgn[:, None, self.rank - 1]), axis=1)  # [M, R]
             ret = B.where(
                 sgn[:, -1] == 0,
-                self.xi0(qs, gamma) / self.xi0(B.range(self.rank)[None, ::-1], gamma),
+                self.xi0(qs, gamma)
+                / self.xi0(B.range(self.rank)[None, ::-1].copy(), gamma),
                 self.xi0(qs, gamma)
                 + self.xi1(qs, gamma)
                 * B.sign(sgn[:, -1])
-                / self.xi0(B.range(self.rank)[None, ::-1], gamma),
+                / self.xi0(B.range(self.rank)[None, ::-1].copy(), gamma),
             )
             return ret
 
