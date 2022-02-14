@@ -1,3 +1,4 @@
+import jax.numpy as jnp
 import numpy as np
 import pytest
 import tensorflow as tf
@@ -80,9 +81,24 @@ def test_so_kernel_tf(so_kernel):
     tf.linalg.cholesky(K + 1e-6 * tf.eye(K.shape[0], dtype=K.dtype))
 
 
+def test_so_kernel_jax(so_kernel):
+    kernel, params, state = so_kernel
+
+    dim = kernel.space.dimension
+
+    m = random_so_matrix(dim=dim, num=3)
+
+    M = jnp.array(m)
+    K = kernel.K(params, state, M, M)
+
+    jnp.linalg.cholesky(K + 1e-7 * jnp.eye(K.shape[0]))
+
+
 if __name__ == "__main__":
+    import lab.jax  # noqa
     import lab.tensorflow  # noqa
 
+    import geometric_kernels.jax  # noqa
     import geometric_kernels.lab_extras.tensorflow  # noqa
     import geometric_kernels.torch  # noqa
 
@@ -95,3 +111,5 @@ if __name__ == "__main__":
     test_so_kernel_torch((kernel, params, state))
 
     test_so_kernel_tf((kernel, params, state))
+
+    test_so_kernel_jax((kernel, params, state))
