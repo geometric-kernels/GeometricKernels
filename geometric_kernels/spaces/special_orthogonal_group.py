@@ -87,7 +87,7 @@ class SOEigenfunctions(Eigenfunctions):
         self.num_representations = num_representations
 
         if self.dim % 2 == 0:
-            self.rho = np.arange(self.rank)[::-1]
+            self.rho = np.arange(self.rank)[::-1].astype(np.float64)
         else:
             self.rho = np.arange(self.rank)[::-1] + 0.5
 
