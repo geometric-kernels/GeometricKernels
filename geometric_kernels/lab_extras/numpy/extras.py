@@ -13,7 +13,7 @@ def take_along_axis(a: _Numeric, index: _Numeric, axis: int = 0) -> _Numeric:  #
     """
     Gathers elements of `a` along `axis` at `index` locations.
     """
-    return np.take_along_axis(a, np.ravel(index), axis=axis)
+    return np.take_along_axis(a, index, axis=axis)
 
 
 @dispatch

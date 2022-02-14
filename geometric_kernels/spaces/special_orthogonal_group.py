@@ -15,9 +15,15 @@ from typing import Any, Dict
 import geomstats as gs
 import lab as B
 import numpy as np
+from opt_einsum import contract as einsum
 
 from geometric_kernels.eigenfunctions import Eigenfunctions
-from geometric_kernels.lab_extras import from_numpy, swapaxes, take_along_last_axis
+from geometric_kernels.lab_extras import (
+    from_numpy,
+    isclose,
+    swapaxes,
+    take_along_last_axis,
+)
 from geometric_kernels.spaces import DiscreteSpectrumSpace
 
 
@@ -114,13 +120,22 @@ class SOEigenfunctions(Eigenfunctions):
         if X2 is None:
             X2 = X
 
-        x1x2T = B.einsum("nij,bkj->nbik", X, X2)
+        x1x2T = einsum("nij,mkj->nmik", X, X2)
+
+        close_to_eye = self._close_to_eye(x1x2T)
 
         Phi_prod = self.__call__(x1x2T)  # [N, N2, M]
 
         prod = B.sum(Phi_prod * B.squeeze(weights), axis=-1)  # [N, N2]
 
-        return prod
+        normalizing_constant = B.sum(
+            from_numpy(X, B.squeeze(weights))
+            * B.cast(B.dtype(X), from_numpy(X, self.repr_dims)) ** 2
+        )
+
+        output = B.where(close_to_eye, normalizing_constant, prod)  # [N, N2]
+
+        return output / normalizing_constant
 
     def weighted_outerproduct_diag(self, weights, X, **parameters):
         r"""
@@ -134,13 +149,38 @@ class SOEigenfunctions(Eigenfunctions):
 
         :return: shape [N, ]
         """
-        x1x2T = B.einsum("nij,nkj->nik", X, X)
+        x1x2T = einsum("nij,nkj->nik", X, X)
+
+        close_to_eye = self._close_to_eye(x1x2T)  # [N, ]
 
         Phi_prod = self.__call__(x1x2T)  # [N, M]
 
         prod = B.sum(Phi_prod * B.squeeze(weights), axis=-1)  # [N, ]
 
-        return prod  # [N, ]
+        normalizing_constant = B.sum(
+            from_numpy(X, B.squeeze(weights))
+            * B.cast(B.dtype(X), from_numpy(X, self.repr_dims)) ** 2
+        )
+
+        output = B.where(close_to_eye, normalizing_constant, prod)  # [N, ]
+
+        return output / normalizing_constant  # [N, ]
+
+    def _close_to_eye(self, gram):
+        r"""Check positions of the Gram matrix at which the product is near identity.
+
+        :param gram: [..., D, D]
+        :return: [..., ]
+        """
+        eye = B.eye(B.shape(gram)[-2], B.shape(gram)[-1])  # (D, D)
+        eye = B.tile(eye, *(B.shape(gram)[:-2]), 1, 1)  # (..., D, D)
+        eye = B.cast(B.dtype(gram), eye)
+
+        close_to_eye = from_numpy(
+            gram, B.all(B.all(isclose(gram, eye), axis=-1), axis=-1)
+        )  # (...)
+
+        return close_to_eye
 
     def __call__(self, X, **parameters):
         r"""
@@ -152,9 +192,9 @@ class SOEigenfunctions(Eigenfunctions):
         """
         gamma = self.torus_embed(X)  # [..., R]
         chi = self.chi(gamma, from_numpy(X, self.signatures))  # [..., M]
-        chi *= from_numpy(X, self.repr_dims)  # [..., M]
+        chi *= B.cast(B.dtype(chi), from_numpy(X, self.repr_dims))  # [..., M]
 
-        return chi  # [..., M]
+        return B.real(chi)  # [..., M]
 
     def torus_embed(self, X):
         r"""
@@ -175,6 +215,7 @@ class SOEigenfunctions(Eigenfunctions):
 
         :return: [..., M]
         """
+        qs = B.cast(B.dtype(gamma), qs)
         gamma_expanded = B.expand_dims(
             B.expand_dims(gamma, B.rank(gamma)), B.rank(gamma) + 1
         )  # [..., R, 1, 1]
@@ -189,6 +230,7 @@ class SOEigenfunctions(Eigenfunctions):
 
         :return: [..., M]
         """
+        qs = B.cast(B.dtype(gamma), qs)
         gamma_expanded = B.expand_dims(
             B.expand_dims(gamma, B.rank(gamma)), B.rank(gamma) + 1
         )  # [..., R, 1, 1]
@@ -207,24 +249,38 @@ class SOEigenfunctions(Eigenfunctions):
         gamma += eps  # [..., R]
 
         if self.dim % 2:
-            qs = sgn + self.rank - B.range(B.shape(sgn)[-1]) - 1 / 2  # [M, R]
+            qs = (
+                B.cast(B.dtype_float(sgn), sgn)
+                + B.cast(B.dtype_float(self.rank), self.rank)
+                - B.range(
+                    B.dtype_float(sgn),
+                    B.shape(sgn)[-1],
+                )
+                - 1 / 2
+            )  # [M, R]
             ret = self.xi1(qs, gamma) / self.xi1(
-                B.range(self.rank, 0, -1)[None, ::-1] - 1 / 2, gamma
+                B.range(self.rank, 0, -1)[None, :] - 1 / 2, gamma
             )  # [..., M]
             return ret
         else:
             qs = (
-                sgn[:, :-1] + self.rank - B.range(B.shape(sgn)[-1] - 1) - 1
+                B.cast(B.dtype_float(sgn), sgn[:, :-1])
+                + B.cast(B.dtype_float(self.rank), self.rank)
+                - B.range(B.dtype_float(sgn), B.shape(sgn)[-1] - 1)
+                - 1
             )  # [M, R - 1]
-            qs = B.concat(qs, B.abs(sgn[:, None, self.rank - 1]), axis=1)  # [M, R]
+            qs = B.concat(
+                qs, B.cast(B.dtype(qs), B.abs(sgn[:, None, self.rank - 1])), axis=1
+            )  # [M, R]
             ret = B.where(
                 sgn[:, -1] == 0,
                 self.xi0(qs, gamma)
-                / self.xi0(B.range(self.rank)[None, ::-1].copy(), gamma),
-                self.xi0(qs, gamma)
-                + self.xi1(qs, gamma)
-                * B.sign(sgn[:, -1])
-                / self.xi0(B.range(self.rank)[None, ::-1].copy(), gamma),
+                / self.xi0(B.range(B.dtype(qs), self.rank - 1, -1, -1)[None, :], gamma),
+                (
+                    self.xi0(qs, gamma)
+                    + self.xi1(qs, gamma) * B.cast(B.dtype(gamma), B.sign(sgn[:, -1]))
+                )
+                / self.xi0(B.range(B.dtype(qs), self.rank - 1, -1, -1)[None, :], gamma),
             )
             return ret
 

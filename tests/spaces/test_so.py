@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
+import tensorflow as tf
 import torch
 
-import geometric_kernels.torch  # noqa
 from geometric_kernels.kernels.geometric_kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import SpecialOrthogonalGroup
 
@@ -51,10 +51,7 @@ def test_so_group(so_kernel, size):
 
     assert K.shape == (size, size)
 
-    try:
-        np.linalg.cholesky(K)
-    except np.linalg.LinAlgError:
-        print(f"Failed for {dim}")
+    np.linalg.cholesky(K + 1e-6 * np.eye(K.shape[0]))
 
 
 def test_so_kernel_torch(so_kernel):
@@ -67,17 +64,34 @@ def test_so_kernel_torch(so_kernel):
     M = torch.tensor(m)  # [7, 6, 6]
     K = kernel.K(params, state, M, M)
 
-    try:
-        torch.linalg.cholesky(K)
-    except RuntimeError:
-        print("Fail")
+    torch.linalg.cholesky(K + torch.tensor(1e-6) * torch.eye(K.shape[0]))
+
+
+def test_so_kernel_tf(so_kernel):
+    kernel, params, state = so_kernel
+
+    dim = kernel.space.dimension
+
+    m = random_so_matrix(dim=dim, num=3)
+
+    M = tf.convert_to_tensor(m)
+    K = kernel.K(params, state, M, M)
+
+    tf.linalg.cholesky(K + 1e-6 * tf.eye(K.shape[0], dtype=K.dtype))
 
 
 if __name__ == "__main__":
-    so_group = SpecialOrthogonalGroup(n=7)
+    import lab.tensorflow  # noqa
+
+    import geometric_kernels.lab_extras.tensorflow  # noqa
+    import geometric_kernels.torch  # noqa
+
+    so_group = SpecialOrthogonalGroup(n=5)
 
     kernel = MaternKarhunenLoeveKernel(so_group, 16)
     params, state = kernel.init_params_and_state()
-    test_so_group((kernel, params, state), size=5)
+    test_so_group((kernel, params, state), size=3)
 
     test_so_kernel_torch((kernel, params, state))
+
+    test_so_kernel_tf((kernel, params, state))

@@ -56,3 +56,13 @@ def copysign(a: B.Numeric, b: B.Numeric) -> B.Numeric:
     """
     Change the sign of `a` to that of `b`, element-wise.
     """
+
+
+def isclose(a: B.Numeric, b: B.Numeric, rtol=1e-5, atol=1e-8):
+    """Returns a boolean array where two arrays are element-wise equal within a
+    tolerance."""
+
+    rtol = B.cast(B.dtype(a), rtol)
+    atol = B.cast(B.dtype(a), atol)
+
+    return B.lt(B.abs(a - b), from_numpy(a, atol) + from_numpy(a, rtol) * B.abs(b))

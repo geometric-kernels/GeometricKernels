@@ -30,6 +30,10 @@ def swapaxes(a: B.TFNumeric, axis1: int, axis2: int) -> B.Numeric:
     Interchange two axes of an array.
     """
     perm = list(range(tf.rank(a)))
+    if axis1 < 0:
+        axis1 = tf.rank(a) + axis1
+    if axis2 < 0:
+        axis2 = tf.rank(a) + axis2
     perm[axis1] = axis2
     perm[axis2] = axis1
 
