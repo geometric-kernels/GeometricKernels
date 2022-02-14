@@ -8,21 +8,15 @@ from typing import Tuple
 
 import geomstats as gs
 import lab as B
+from spherical_harmonics import SphericalHarmonics as _SphericalHarmonics
+from spherical_harmonics.fundamental_set import num_harmonics
 
 from geometric_kernels.eigenfunctions import (
     Eigenfunctions,
     EigenfunctionWithAdditionTheorem,
 )
-from geometric_kernels.lab_extras import from_numpy
 from geometric_kernels.spaces import DiscreteSpectrumSpace
 from geometric_kernels.utils import Optional, chain
-
-from spherical_harmonics import SphericalHarmonics as _SphericalHarmonics
-from spherical_harmonics.utils import l2norm
-from spherical_harmonics.fundamental_set import num_harmonics
-
-
-ATOL = 1e-12
 
 
 class SphericalHarmonics(EigenfunctionWithAdditionTheorem):
@@ -45,10 +39,8 @@ class SphericalHarmonics(EigenfunctionWithAdditionTheorem):
             num_eigenfunctions
         )
         self._spherical_harmonics = _SphericalHarmonics(
-            dimension=dim + 1, degree=self._num_levels
+            dimension=dim + 1, degrees=self._num_levels
         )
-        assert len(self._spherical_harmonics) == self._num_eigenfunctions
-        assert self._num_eigenfunctions >= num_eigenfunctions
 
     def num_eigenfunctions_to_degree(self, num_eigenfunctions: int) -> Tuple[int, int]:
         """
@@ -134,7 +126,7 @@ class SphericalHarmonics(EigenfunctionWithAdditionTheorem):
     @property
     def num_eigenfunctions_per_level(self) -> B.Numeric:
         """Number of eigenfunctions per level, [N_l]_{l=0}^{L-1}"""
-        return [num_harmonics(self.dim + 1, l) for l in range(self.num_levels)]
+        return [num_harmonics(self.dim + 1, level) for level in range(self.num_levels)]
 
 
 class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
@@ -184,8 +176,11 @@ class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
 
         :return: [num, 1] array containing the eigenvalues
         """
-        eigenfunctions = SphericalHarmonics(num)
-        eigenvalues_per_level = B.range(eigenfunctions.num_levels) ** 2  # [L,]
+        eigenfunctions = SphericalHarmonics(self.dim, num)
+        eigenvalues_per_level = [
+            level.eigenvalue()
+            for level in eigenfunctions._spherical_harmonics.harmonic_levels
+        ]
         eigenvalues = chain(
             eigenvalues_per_level,
             eigenfunctions.num_eigenfunctions_per_level,
