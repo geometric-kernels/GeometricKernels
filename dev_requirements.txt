@@ -7,3 +7,7 @@ flake8
 autoflake
 isort
 typing-extensions
+plotly
+jupytext
+nbconvert
+ipykernel
