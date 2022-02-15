@@ -6,7 +6,7 @@ import meshzoo
 import numpy as np
 import polyscope as ps
 
-from geometric_kernels.backends.jax import SparseGPaxGeometricKernel
+from geometric_kernels.frontends.jax.sparsegpax import SparseGPaxGeometricKernel
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import Mesh
 
@@ -40,9 +40,7 @@ num_data = 25
 
 
 def get_data():
-    _X = jax.random.randint(
-        next(rng), minval=0, maxval=mesh.num_vertices, shape=(num_data, 1)
-    )
+    _X = jax.random.randint(next(rng), minval=0, maxval=mesh.num_vertices, shape=(num_data, 1))
     _K = geometric_kernel.matrix(init_params, _X, _X)
     _y = jnp.linalg.cholesky(_K + jnp.eye(num_data) * 1e-6) @ jax.random.normal(
         next(rng), (num_data,)

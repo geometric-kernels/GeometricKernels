@@ -1,4 +1,6 @@
 from lab import dispatch
 
-import geometric_kernels.lab_extras.numpy  # noqa
-from geometric_kernels.lab_extras.extras import *  # noqa
+from geometric_kernels.lab_extras.extras import *
+
+# Always load the numpy backend because we assume numpy is always installed.
+from geometric_kernels.lab_extras.numpy import *

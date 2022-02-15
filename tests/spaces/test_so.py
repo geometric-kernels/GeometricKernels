@@ -95,11 +95,8 @@ def test_so_kernel_jax(so_kernel):
 
 
 if __name__ == "__main__":
-    import lab.jax  # noqa
-    import lab.tensorflow  # noqa
-
     import geometric_kernels.jax  # noqa
-    import geometric_kernels.lab_extras.tensorflow  # noqa
+    import geometric_kernels.tensorflow  # noqa
     import geometric_kernels.torch  # noqa
 
     so_group = SpecialOrthogonalGroup(n=5)
