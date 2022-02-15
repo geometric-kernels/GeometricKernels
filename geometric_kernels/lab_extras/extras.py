@@ -59,8 +59,10 @@ def copysign(a: B.Numeric, b: B.Numeric) -> B.Numeric:
 
 
 def isclose(a: B.Numeric, b: B.Numeric, rtol=1e-5, atol=1e-8):
-    """Returns a boolean array where two arrays are element-wise equal within a
-    tolerance."""
+    """
+    Returns a boolean array where two arrays are element-wise equal within a
+    tolerance.
+    """
 
     rtol = B.cast(B.dtype(a), rtol)
     atol = B.cast(B.dtype(a), atol)
