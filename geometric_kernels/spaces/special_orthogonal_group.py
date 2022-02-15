@@ -1,9 +1,9 @@
 """
-Special orthogonal group, SO(n)
+Special orthogonal group, SO(n).
 
-The code is courtеsy of  Iskander Azangulov* и Andrei Smolensky*
+The code is courtеsy of Iskander Azangulov (*) and Andrei Smolensky (*)
 
-* St. Petersburg University
+(*) St. Petersburg University
 """
 
 import itertools as it
