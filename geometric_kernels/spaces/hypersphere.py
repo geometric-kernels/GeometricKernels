@@ -47,7 +47,7 @@ class SphericalHarmonics(EigenfunctionWithAdditionTheorem):
         Returns the minimum degree for which there are at least
         `num_eigenfunctions` in the collection.
         """
-        n, d = 0, 0
+        n, d = 0, 0  # n: number of harmonics, d: degree (or level)
         while n < num_eigenfunctions:
             n += num_harmonics(self.dim + 1, d)
             d += 1
@@ -140,25 +140,6 @@ class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
         """
         super().__init__(dim=dim)
         self.dim = dim
-
-    def is_tangent(
-        self,
-        vector: B.Numeric,
-        base_point: Optional[B.Numeric] = None,  # type: ignore
-        atol: float = gs.backend.atol,
-    ) -> bool:
-        """
-        Check whether the `vector` is tangent at `base_point`.
-        :param vector: shape=[..., dim]
-            Vector to evaluate.
-        :param base_point: shape=[..., dim]
-            Point on the manifold. Defaults to `None`.
-        :param atol: float
-            Absolute tolerance.
-            Optional, default: 1e-6.
-        :return: Boolean denoting if vector is a tangent vector at the base point.
-        """
-        raise NotImplementedError("`is_tangent` is not implemented for `Hypersphere`")
 
     @property
     def dimension(self) -> int:
