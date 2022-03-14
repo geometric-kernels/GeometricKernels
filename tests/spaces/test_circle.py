@@ -158,8 +158,12 @@ def test_equivalence_kernel(nu, decimal, inputs):
     inputs, inputs2 = inputs
     # Spectral kernel
     circle = Circle()
-    kernel = MaternKarhunenLoeveKernel(circle, nu, num_eigenfunctions=101)
-    K_actual = B.to_numpy(kernel.K(inputs, inputs2, lengthscale=np.r_[1.0]))
+    kernel = MaternKarhunenLoeveKernel(circle, num_eigenfunctions=101)
+    params, state = kernel.init_params_and_state()
+    params["nu"] = np.r_[nu]
+    params["lengthscale"] = np.r_[1.0]
+
+    K_actual = B.to_numpy(kernel.K(params, state, inputs, inputs2))
 
     # Kernel by summing over all distances
     geodesic = inputs[:, None, :] - inputs2[None, :, :]  # [N, N2, 1]

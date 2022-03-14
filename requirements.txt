@@ -2,4 +2,8 @@ gpytorch
 torch
 gpflow
 tensorflow
-tensorflow-probability
+tensorflow-probability==0.14.0
+jax
+jaxlib
+sparsegpax @ git+https://github.com/aterenin/SparseGPAX.git
+spherical-harmonics @ git+https://github.com/vdutor/SphericalHarmonics.git
