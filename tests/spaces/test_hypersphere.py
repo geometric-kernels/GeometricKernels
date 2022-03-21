@@ -68,11 +68,9 @@ def test_weighted_outerproduct_with_addition_theorem(
     naive implementation.
     """
     inputs, inputs2 = inputs
-    print(inputs.shape)
-    print(inputs2.shape)
     weights_per_level = np.random.randn(eigenfunctions.num_levels)
     weights = chain(weights_per_level, eigenfunctions.num_eigenfunctions_per_level)
-    actual = eigenfunctions.weighted_outerproduct(weights, inputs, inputs2).numpy()
+    actual = B.to_numpy(eigenfunctions.weighted_outerproduct(weights, inputs, inputs2))
 
     Phi_X = eigenfunctions(inputs)
     Phi_X2 = eigenfunctions(inputs2)
