@@ -8,6 +8,7 @@ from typing import Tuple
 
 import geomstats as gs
 import lab as B
+import numpy as np
 from spherical_harmonics import SphericalHarmonics as _SphericalHarmonics
 from spherical_harmonics.fundamental_set import num_harmonics
 
@@ -158,10 +159,12 @@ class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
         :return: [num, 1] array containing the eigenvalues
         """
         eigenfunctions = SphericalHarmonics(self.dim, num)
-        eigenvalues_per_level = [
-            level.eigenvalue()
-            for level in eigenfunctions._spherical_harmonics.harmonic_levels
-        ]
+        eigenvalues_per_level = np.array(
+            [
+                level.eigenvalue()
+                for level in eigenfunctions._spherical_harmonics.harmonic_levels
+            ]
+        )
         eigenvalues = chain(
             eigenvalues_per_level,
             eigenfunctions.num_eigenfunctions_per_level,
