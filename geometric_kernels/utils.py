@@ -1,7 +1,7 @@
 """
 Convenience utilities.
 """
-from typing import Any, List, Type
+from typing import List, Type
 
 import einops
 import lab as B
@@ -17,7 +17,7 @@ class Optional(metaclass=OptionalMeta):
     pass
 
 
-def chain(elements: List[Any], repetitions: List[int]) -> B.Numeric:
+def chain(elements: B.Numeric, repetitions: List[int]) -> B.Numeric:
     """
     Repeats each element in `elements` by a certain number of repetitions as
     specified in `repetitions`.  The length of `elements` and `repetitions`
