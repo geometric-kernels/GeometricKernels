@@ -2,6 +2,8 @@
 Implement product spaces
 """
 
+from typing import List
+
 import lab as B
 import numpy as np
 
@@ -11,7 +13,25 @@ from geometric_kernels.eigenfunctions import Eigenfunctions
 
 
 class ProductEigenfunctions(Eigenfunctions):
-    def __init__(self, dimensions, eigenindicies, *eigenfunctions):
+    def __init__(
+        self,
+        dimensions: List[int],
+        eigenindicies: B.Numeric,
+        *eigenfunctions: Eigenfunctions,
+    ):
+        """
+        Wrapper class for handling eigenfunctions on product spaces
+
+        Parameters
+        ----------
+        dimensions : List[int]
+            The dimensions of the spaces being producted together
+        eigenindicies : B.Numeric
+            An array mapping i'th eigenfunction of the product space to
+            the index of the eigenfunctions of the subspaces
+        eigenfunctions : Eigenfunctions
+
+        """
         self.dimension_indices = []
         i = 0
         inds = B.linspace(0, sum(dimensions) - 1, sum(dimensions)).astype(int)
@@ -21,7 +41,9 @@ class ProductEigenfunctions(Eigenfunctions):
         self.eigenindicies = eigenindicies
         self.eigenfunctions = eigenfunctions
 
-    def __call__(self, X, **parameters):
+        assert self.eigenindicies.shape[-1] == len(self.eigenfunctions)
+
+    def __call__(self, X: B.Numeric, **parameters) -> B.Numeric:
         Xs = [B.take(X, inds, axis=-1) for inds in self.dimension_indices]
 
         eigenfunctions = B.stack(
@@ -40,60 +62,84 @@ class ProductEigenfunctions(Eigenfunctions):
             ).astype(int),
         ].prod(axis=-1)
 
-    def num_eigenfunctions(self):
+    def num_eigenfunctions(self) -> int:
         return self.eigenindicies.shape[0]
 
 
 class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
-    def __init__(self, *spaces, num_eigen=100):
-        """_summary_
+    def __init__(self, *spaces: DiscreteSpectrumSpace, num_eigen: int = 100):
+        """Implementation of products of discrete spectrum spaces.
+        Assumes the spaces are compact manifolds and that the eigenfunctions are the
+        eigenfunctions of the Laplace-Beltrami operator. On such a space the eigen(values/functions)
+        on the product space associated with the multiindex alpha are given by
+            lambda_alpha = \sum_i lambda_{i, alpha_i}
+            phi_alpha = \prod_i phi_{i, alpha_i}
+        where lambda_{i, j} is the j'th eigenvalue on the i'th manifold in the product
+        and phi_{i, j} is the j'th eigenfunction on the i'th manifold in the product.
+
+        The eigenfunctions of such manifolds can't in genreal be analytically ordered, and
+        so they must be precomputed.
 
         Parameters
         ----------
-        spaces : _type_
-            _description_
-        num_eigenfunctions : _type_
-            _description_
+        spaces : DiscreteSpecturmSpace
+            The spaces to product together
+        num_eigen : int, optional
+            number of eigenfunctions to use for this product space, by default 100
         """
         for space in spaces:
             assert isinstance(space, DiscreteSpectrumSpace)
 
-        self.spaces = spaces
+        self.sub_spaces = spaces
         self.num_eigen = num_eigen
 
         self.sub_space_eigenindicies = B.stack(
-            *[B.zeros(int, self.num_eigen) for space in self.spaces], axis=1
+            *[B.zeros(int, self.num_eigen) for space in self.sub_spaces], axis=1
         )
 
+        # perform an breadth-first search for the smallest eigenvalues,
+        # assuming that the eigenvalues come sorted,the next biggest eigenvalue
+        # can be found by taking a one-index step in any direction from the current
+        # edge of the searchspace
+
+        # prefetch the eigenvalues of the subspaces
         sub_space_eigenvalues = B.stack(
-            *[space.get_eigenvalues(self.num_eigen)[:, 0] for space in self.spaces],
+            *[space.get_eigenvalues(self.num_eigen)[:, 0] for space in self.sub_spaces],
             axis=0,
         )
+        # prebuild array for indexing the first index of the eigenvalue array
+        first_index = B.linspace(
+            0, len(self.sub_spaces) - 1, len(self.sub_spaces)
+        ).astype(int)
+        i = 0
 
         # first eigenvalue is the sum of the first eigenvalues of the individual spaces
-        curr_sub_space_idx = B.zeros(int, len(self.spaces))[None, :]
-        # prebuild array for indexing the first index of the eigenvalue array
-        first_index = B.linspace(0, len(self.spaces) - 1, len(self.spaces)).astype(int)
-        # perform an iterative search for the smallest eigenvalues.
-        # assuming that the eigenvalues come sorted, the next smallest is going to increment
-        # on of the subspace eigenindicies by 1.
-        i = 0
+        curr_sub_space_idx = B.zeros(int, len(self.sub_spaces))[None, :]
         while i < self.num_eigen:
+            # compute eigenvalues of the proposals
             eigenvalues = sub_space_eigenvalues[first_index, curr_sub_space_idx].sum(
                 axis=1
             )
+
+            # Compute tied smallest new eigenvalues
             highest_eigenvalue_index = int(eigenvalues.argmin())
             tied_eigenvalues = eigenvalues == eigenvalues[highest_eigenvalue_index]
             tied_eigenvalues_indexes = B.linspace(
                 0, len(tied_eigenvalues) - 1, len(tied_eigenvalues)
             ).astype(int)[tied_eigenvalues]
+
+            # Add new eigenvalues to indexing array
             for index in tied_eigenvalues_indexes:
                 self.sub_space_eigenindicies[i, :] = curr_sub_space_idx[index]
                 i += 1
                 if i >= self.num_eigen:
                     break
 
+            # create new proposal eigenindicies
+
+            # keep unaccepted ones around
             old_indices = curr_sub_space_idx[~tied_eigenvalues]
+            # mutate just accepted ones by adding one to each eigenindex
             new_indices = curr_sub_space_idx[tied_eigenvalues][..., None, :] + B.eye(
                 int, curr_sub_space_idx.shape[-1]
             )
@@ -120,30 +166,30 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
             ]
 
         self._eigenvalues = sub_space_eigenvalues[
-            B.linspace(0, len(self.spaces) - 1, len(self.spaces)).astype(int),
+            B.linspace(0, len(self.sub_spaces) - 1, len(self.sub_spaces)).astype(int),
             self.sub_space_eigenindicies[: self.num_eigen, :],
         ].sum(axis=1)
 
     @property
-    def dimension(self):
-        return sum([space.dimension for space in self.spaces])
+    def dimension(self) -> int:
+        return sum([space.dimension for space in self.sub_spaces])
 
-    def get_eigenfunctions(self, num):
+    def get_eigenfunctions(self, num: int) -> Eigenfunctions:
         assert num <= self.num_eigen
 
-        max_eigenvalue = self.sub_space_eigenindicies[:num, :].max()
+        max_eigenvalue = self.sub_space_eigenindicies[:num, :].max() + 1
 
         sub_space_eigenfunctions = [
-            space.get_eigenfunctions(max_eigenvalue) for space in self.spaces
+            space.get_eigenfunctions(max_eigenvalue) for space in self.sub_spaces
         ]
 
         return ProductEigenfunctions(
-            [space.dimension for space in self.spaces],
+            [space.dimension for space in self.sub_spaces],
             self.sub_space_eigenindicies,
             *sub_space_eigenfunctions,
         )
 
-    def get_eigenvalues(self, num):
+    def get_eigenvalues(self, num: int) -> B.Numeric:
         assert num <= self.num_eigen
 
         return self._eigenvalues[:num, None]
