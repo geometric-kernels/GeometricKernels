@@ -3,6 +3,7 @@ Spaces for which there exist analytical expressions for the manifold
 and the eigenvalues and functions. Examples include the `Circle` and the `Hypersphere`.
 The Geomstats package is used for most of the geometric calculations.
 """
+from math import ceil
 
 import geomstats as gs
 import lab as B
@@ -23,14 +24,14 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
     """
 
     def __init__(self, num_eigenfunctions: int) -> None:
-        assert (
-            num_eigenfunctions % 2 == 1
-        ), "num_eigenfunctions needs to be odd to include all eigenfunctions within a level."
-        assert num_eigenfunctions >= 1
+        # assert (
+        #     num_eigenfunctions % 2 == 1
+        # ), "num_eigenfunctions needs to be odd to include all eigenfunctions within a level."
+        # assert num_eigenfunctions >= 1
 
         self._num_eigenfunctions = num_eigenfunctions
-        # We know `num_eigenfunctions` is odd, therefore:
-        self._num_levels = num_eigenfunctions // 2 + 1
+        # Compute level that fully encompasses all the requested eigenfunctions in a level
+        self._num_levels = ceil(num_eigenfunctions / 2) + 1
 
     def __call__(self, X: B.Numeric, **parameters) -> B.Numeric:
         """
@@ -49,7 +50,8 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
                 values.append(const * B.cos(freq * theta))
                 values.append(const * B.sin(freq * theta))
 
-        return B.concat(*values, axis=1)  # [N, M]
+        # Possibly clip last eigenfunction
+        return B.concat(*values, axis=1)[:, : self._num_eigenfunctions]  # [N, M]
 
     def _addition_theorem(self, X: B.Numeric, X2: B.Numeric, **parameters) -> B.Numeric:
         r"""
@@ -69,6 +71,11 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         :return: Evaluate the sum of eigenfunctions on each level. Returns
             a value for each level [N, N2, L]
         """
+        assert (
+            self._num_eigenfunctions % 2 == 1
+        ), "num_eigenfunctions needs to be odd to include all eigenfunctions within a level."
+        assert self._num_eigenfunctions >= 1
+
         theta1, theta2 = X, X2
         angle_between = theta1[:, None, :] - theta2[None, :, :]  # [N, N2, 1]
         freqs = B.range(X.dtype, self.num_levels)  # [L]
@@ -90,6 +97,11 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         :return: Evaluate the sum of eigenfunctions on each level. Returns
             a value for each level [N, L]
         """
+        assert (
+            self._num_eigenfunctions % 2 == 1
+        ), "num_eigenfunctions needs to be odd to include all eigenfunctions within a level."
+        assert self._num_eigenfunctions >= 1
+
         N = X.shape[0]
         ones = B.ones(X.dtype, N, self.num_levels)  # [N, L]
         value = ones * B.cast(
