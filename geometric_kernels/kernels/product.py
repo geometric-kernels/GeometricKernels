@@ -33,7 +33,7 @@ class ProductGeometricKernel(BaseGeometricKernel):
     def init_params_and_state(self) -> Tuple(List[dict], List[dict]):
         params_and_state = [kernel.init_params_and_state() for kernel in self.kernels]
 
-        return [l[0] for l in params_and_state], [l[1] for l in params_and_state]
+        return [p[0] for p in params_and_state], [s[1] for s in params_and_state]
 
     def K(self, params, state, X, X2=None, **kwargs) -> B.Numeric:
         if X2 is None:
