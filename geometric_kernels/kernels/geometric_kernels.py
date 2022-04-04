@@ -78,14 +78,14 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         Depends on the `lengthscale` parameters.
         """
         if nu == np.inf:
-            return B.exp(-(lengthscale ** 2) / 2.0 * (s ** 2))
+            return B.exp(-(lengthscale**2) / 2.0 * (s**2))
         elif nu > 0:
             power = -nu - self.space.dimension / 2.0
-            base = 2.0 * nu / lengthscale ** 2 + B.cast(
+            base = 2.0 * nu / lengthscale**2 + B.cast(
                 B.dtype(nu),
-                from_numpy(nu, s ** 2)
+                from_numpy(nu, s**2)
             )
-            return base ** power
+            return base**power
         else:
             raise NotImplementedError
 
@@ -109,7 +109,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
 
         eigenvalues_laplacian = state["eigenvalues_laplacian"]  # [M, 1]
         return self._spectrum(
-            eigenvalues_laplacian ** 0.5,
+            eigenvalues_laplacian**0.5,
             nu=params["nu"],
             lengthscale=params["lengthscale"],
         )
