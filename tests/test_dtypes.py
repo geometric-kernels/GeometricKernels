@@ -34,8 +34,10 @@ def to_typed_tensor(value, backend):
 
 def mesh_point():
     n_vertices = 10
-    vertices = np.array([(1.0 * (i % 2), 1.0 * (i // 2), 0.0) for i in range(n_vertices)])
-    faces = np.array([(i, i+1, i+2) for i in range(n_vertices - 2)])
+    vertices = np.array(
+        [(1.0 * (i % 2), 1.0 * (i // 2), 0.0) for i in range(n_vertices)]
+    )
+    faces = np.array([(i, i + 1, i + 2) for i in range(n_vertices - 2)])
     mesh = Mesh(vertices, faces)
     point = np.array([0]).reshape(1, 1)
 
@@ -79,11 +81,10 @@ def test_dtype(spacepoint, dtype, backend):
     kernel = MaternKarhunenLoeveKernel(space, 3)
 
     params, state = kernel.init_params_and_state()
-    params["nu"] = to_typed_tensor(to_typed_ndarray(np.r_[0.5], dtype),
-                                   backend)
+    params["nu"] = to_typed_tensor(to_typed_ndarray(np.r_[0.5], dtype), backend)
     params["lenghtscale"] = to_typed_tensor(
-        to_typed_ndarray(np.r_[0.5], dtype),
-        backend)
+        to_typed_ndarray(np.r_[0.5], dtype), backend
+    )
 
     # make sure that it just runs
     kernel.K(params, state, point)

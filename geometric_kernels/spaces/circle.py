@@ -75,7 +75,8 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         values = B.cos(freqs[None, None, :] * angle_between)  # [N, N2, L]
         values = (
             B.cast(
-                B.dtype(X), from_numpy(X, self.num_eigenfunctions_per_level)[None, None, :]
+                B.dtype(X),
+                from_numpy(X, self.num_eigenfunctions_per_level)[None, None, :],
             )
             * values
         )
