@@ -13,7 +13,7 @@ from geometric_kernels.eigenfunctions import (
     EigenfunctionWithAdditionTheorem,
 )
 from geometric_kernels.lab_extras import from_numpy
-from geometric_kernels.spaces import DiscreteSpectrumSpace
+from geometric_kernels.spaces import DiscreteSpectrumSpaceW
 from geometric_kernels.utils import Optional, chain
 
 
@@ -129,8 +129,13 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         """Number of eigenfunctions per level, [N_l]_{l=0}^{L-1}"""
         return [1 if level == 0 else 2 for level in range(self.num_levels)]
 
+    @classmethod
+    def from_levels(cls, num):
+        num_eigenfunctions = 2 * num - 1
+        return cls(num_eigenfunctions)
 
-class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
+
+class Circle(DiscreteSpectrumSpaceWithAdditionTheorem, gs.geometry.hypersphere.Hypersphere):
     r"""
     Circle :math:`\mathbb{S}^1` manifold with sinusoids and cosines eigenfunctions.
     """
@@ -180,3 +185,6 @@ class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
             eigenfunctions.num_eigenfunctions_per_level,
         )  # [num,]
         return B.reshape(eigenvalues, -1, 1)  # [num, 1]
+
+
+    def get_eigenfunctions_from_levels():

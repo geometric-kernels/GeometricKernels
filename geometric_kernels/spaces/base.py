@@ -5,7 +5,10 @@ import abc
 
 import lab as B
 
-from geometric_kernels.eigenfunctions import Eigenfunctions
+from geometric_kernels.eigenfunctions import (
+    Eigenfunctions,
+    EigenfunctionWithAdditionTheorem,
+)
 
 
 class Space(abc.ABC):
@@ -46,5 +49,22 @@ class DiscreteSpectrumSpace(Space):
         First `num` eigenvalues of the Laplace-Beltrami operator
 
         :return: [num, 1] array containing the eigenvalues
+        """
+        raise NotImplementedError
+
+
+class DiscreteSpectrumSpaceWithAdditionTheorem(DiscreteSpectrumSpace):
+    """In addition to the DiscreteSpecturmSpace properties, there
+    exists an addition theorem for the eigenfunctions of this space
+    such that
+        \sum_{i \in level} eigenfunction_i(x) eigenfunction_i(y) = addition_function_i(x,y)
+    """
+
+    @abc.abstractmethod
+    def get_eigenfunctions_from_levels(
+        self, num: int
+    ) -> EigenfunctionWithAdditionTheorem:
+        """
+        First `num` levels of eigenfunctions of the Laplace-Beltrami operator
         """
         raise NotImplementedError

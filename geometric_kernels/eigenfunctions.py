@@ -205,3 +205,8 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
     def num_eigenfunctions_per_level(self) -> B.Numeric:
         """Number of eigenfunctions per level"""
         raise NotImplementedError
+
+    @abc.abstractclassmethod
+    def from_levels(cls, num: int):
+        """Construct a instance with num levels worth of eigenfunctions"""
+        raise NotImplementedError
