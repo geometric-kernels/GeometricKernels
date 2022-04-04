@@ -80,7 +80,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             return B.exp(-(lengthscale ** 2) / 2.0 * (s ** 2))
         elif nu > 0:
             power = -nu - self.space.dimension / 2.0
-            base = 2.0 * nu / lengthscale ** 2 + s ** 2  # from_numpy(nu, s ** 2)
+            base = 2.0 * nu / lengthscale ** 2 + from_numpy(nu, s ** 2)
             return base ** power
         else:
             raise NotImplementedError

@@ -59,7 +59,7 @@ class Eigenfunctions(abc.ABC):
         :return: shape [N,]
         """
         Phi_X = self.__call__(X, **parameters)  # [N, L]
-        Kx = B.sum(B.transpose(weights) * Phi_X ** 2, axis=1)  # [N,]
+        Kx = B.sum(B.transpose(weights) * Phi_X**2, axis=1)  # [N,]
         return Kx
 
     @abc.abstractmethod

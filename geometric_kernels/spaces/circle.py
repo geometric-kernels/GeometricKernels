@@ -40,7 +40,7 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         """
         N = B.shape(X)[0]
         theta = X
-        const = 2.0 ** 0.5
+        const = 2.0**0.5
         values = []
         for level in range(self.num_levels):
             if level == 0:
