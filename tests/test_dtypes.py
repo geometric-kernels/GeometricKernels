@@ -33,11 +33,30 @@ def to_typed_tensor(value, backend):
 
 
 def mesh_point():
-    n_vertices = 10
+    n_base = 4
+    n_vertices = 2 * n_base
     vertices = np.array(
-        [(1.0 * (i % 2), 1.0 * (i // 2), 0.0) for i in range(n_vertices)]
+        [
+            (
+                1.0 * (i % 2),
+                np.cos(2 * np.pi * (i // 2) / n_base),
+                np.sin(2 * np.pi * (i // 2) / n_base),
+            )
+            for i in range(n_vertices)
+        ]
     )
-    faces = np.array([(i, i + 1, i + 2) for i in range(n_vertices - 2)])
+    faces = np.array(
+        [
+            (i % n_vertices, (i + 1) % n_vertices, (i + 2) % n_vertices)
+            for i in range(n_vertices)
+        ]  # box without sides
+        + [
+            (i % 2, (i + 2) % n_vertices, (i + 4) % n_vertices)
+            for i in range(n_vertices - 4)
+        ]  # sides
+    )
+    # this is just a box
+
     mesh = Mesh(vertices, faces)
     point = np.array([0]).reshape(1, 1)
 
@@ -74,7 +93,6 @@ def _spacepoint_fixture(request):
 @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
 def test_dtype(spacepoint, dtype, backend):
     space, point = spacepoint
-    # if not isinstance(space, Mesh):
     point = to_typed_ndarray(point, dtype)
     point = to_typed_tensor(point, backend)
 
