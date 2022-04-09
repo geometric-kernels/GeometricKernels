@@ -1,7 +1,7 @@
 polyscope
 mypy
 pytest
-black==20.8b1
+black
 pytest-cov
 flake8
 autoflake

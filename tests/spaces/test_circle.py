@@ -126,7 +126,7 @@ def test_weighted_outerproduct_diag_with_addition_theorem(
     actual = eigenfunctions.weighted_outerproduct_diag(weights, inputs)
 
     Phi_X = eigenfunctions(inputs)
-    expected = einsum("ni,i->n", Phi_X ** 2, weights)
+    expected = einsum("ni,i->n", Phi_X**2, weights)
     np.testing.assert_array_almost_equal(B.to_numpy(actual), B.to_numpy(expected))
 
 
@@ -146,9 +146,9 @@ def analytic_kernel(nu: float, r: B.Numeric) -> B.Numeric:
         return (1.0 + sqrt3 * r) * B.exp(-sqrt3 * r)
     elif nu == 2.5:
         sqrt5 = np.sqrt(5.0)
-        return (1.0 + sqrt5 * r + 5.0 / 3.0 * (r ** 2)) * B.exp(-sqrt5 * r)
+        return (1.0 + sqrt5 * r + 5.0 / 3.0 * (r**2)) * B.exp(-sqrt5 * r)
     elif nu == np.inf:
-        return B.exp(-0.5 * r ** 2)
+        return B.exp(-0.5 * r**2)
     else:
         raise NotImplementedError
 

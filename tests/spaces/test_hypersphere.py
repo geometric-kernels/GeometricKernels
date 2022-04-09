@@ -24,7 +24,7 @@ def _eigenfunctions_fixture():
 @pytest.fixture(name="inputs")
 def _inputs_fixure(request) -> Tuple[B.Numeric]:
     def _norm(v):
-        return np.sum(v ** 2, axis=-1, keepdims=True) ** 0.5
+        return np.sum(v**2, axis=-1, keepdims=True) ** 0.5
 
     np.random.seed(Consts.seed)
     value = np.random.randn(Consts.num_data, Consts.dimension + 1)
@@ -106,5 +106,5 @@ def test_weighted_outerproduct_diag_with_addition_theorem(
     actual = eigenfunctions.weighted_outerproduct_diag(weights, inputs)
 
     Phi_X = eigenfunctions(inputs)
-    expected = einsum("ni,i->n", Phi_X ** 2, weights)
+    expected = einsum("ni,i->n", Phi_X**2, weights)
     np.testing.assert_array_almost_equal(B.to_numpy(actual), B.to_numpy(expected))

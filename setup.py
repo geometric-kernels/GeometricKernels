@@ -14,6 +14,7 @@ requirements = [
     "opt-einsum",
     "geomstats",
     "einops",
+    "spherical-harmonics @ git+https://github.com/vdutor/SphericalHarmonics.git",
 ]
 
 with open("README.md", "r", encoding="utf-8") as file:

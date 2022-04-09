@@ -42,6 +42,9 @@ class Eigenfunctions(abc.ABC):
         else:
             Phi_X2 = self.__call__(X2, **parameters)  # [N2, L]
 
+        Phi_X = B.cast(B.dtype(weights), Phi_X)
+        Phi_X2 = B.cast(B.dtype(weights), Phi_X2)
+
         Kxx = B.matmul(B.transpose(weights) * Phi_X, Phi_X2, tr_b=True)  # [N, N2]
         return Kxx
 
@@ -59,7 +62,7 @@ class Eigenfunctions(abc.ABC):
         :return: shape [N,]
         """
         Phi_X = self.__call__(X, **parameters)  # [N, L]
-        Kx = B.sum(B.transpose(weights) * Phi_X ** 2, axis=1)  # [N,]
+        Kx = B.sum(B.transpose(weights) * Phi_X**2, axis=1)  # [N,]
         return Kx
 
     @abc.abstractmethod
@@ -127,6 +130,7 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         sum_phi_phi_for_level = self._addition_theorem(X, X2, **parameters)  # [N, N, L]
         weights = self._filter_weights(weights)
         weights = from_numpy(sum_phi_phi_for_level, weights)
+        sum_phi_phi_for_level = B.cast(B.dtype(weights), sum_phi_phi_for_level)
 
         return einsum("i,nki->nk", weights, sum_phi_phi_for_level)  # [N, N2]
 
