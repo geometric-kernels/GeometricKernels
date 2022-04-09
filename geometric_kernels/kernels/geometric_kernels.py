@@ -80,7 +80,9 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             return B.exp(-(lengthscale ** 2) / 2.0 * (s ** 2))
         elif nu > 0:
             power = -nu - self.space.dimension / 2.0
-            base = 2.0 * nu / lengthscale ** 2 + from_numpy(nu, s ** 2)
+            base = 2.0 * nu / lengthscale ** 2 + B.cast(
+                B.dtype(nu), from_numpy(nu, s ** 2)
+            )
             return base ** power
         else:
             raise NotImplementedError
@@ -117,7 +119,9 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         assert "eigenfunctions" in state
         assert "eigenvalues_laplacian" in state
 
-        weights = self.eigenvalues(params, state)  # [M, 1]
+        weights = B.cast(
+            B.dtype(params["nu"]), self.eigenvalues(params, state)
+        )  # [M, 1]
         Phi = state["eigenfunctions"]
 
         return Phi.weighted_outerproduct(weights, X, X2, **params)  # [N, N2]

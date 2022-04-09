@@ -38,7 +38,7 @@ class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
         :param parameters: unused
         :return: [N, M]
         """
-        indices = X
+        indices = B.cast(B.dtype_int(X), X)
         if self.eigenvectors is None:
             # convert numpy eigenvectors to backend tensor
             self.eigenvectors = from_numpy(X, self.eigenvectors_np)

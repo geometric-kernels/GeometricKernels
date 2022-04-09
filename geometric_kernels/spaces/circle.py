@@ -44,7 +44,7 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         values = []
         for level in range(self.num_levels):
             if level == 0:
-                values.append(B.ones(X.dtype, N, 1))
+                values.append(B.ones(B.dtype(X), N, 1))
             else:
                 freq = 1.0 * level
                 values.append(const * B.cos(freq * theta))
@@ -78,11 +78,12 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
 
         theta1, theta2 = X, X2
         angle_between = theta1[:, None, :] - theta2[None, :, :]  # [N, N2, 1]
-        freqs = B.range(X.dtype, self.num_levels)  # [L]
+        freqs = B.range(B.dtype(X), self.num_levels)  # [L]
         values = B.cos(freqs[None, None, :] * angle_between)  # [N, N2, L]
         values = (
             B.cast(
-                X.dtype, from_numpy(X, self.num_eigenfunctions_per_level)[None, None, :]
+                B.dtype(X),
+                from_numpy(X, self.num_eigenfunctions_per_level)[None, None, :],
             )
             * values
         )
@@ -103,9 +104,9 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         assert self._num_eigenfunctions >= 1
 
         N = X.shape[0]
-        ones = B.ones(X.dtype, N, self.num_levels)  # [N, L]
+        ones = B.ones(B.dtype(X), N, self.num_levels)  # [N, L]
         value = ones * B.cast(
-            X.dtype, from_numpy(X, self.num_eigenfunctions_per_level)[None, :]
+            B.dtype(X), from_numpy(X, self.num_eigenfunctions_per_level)[None, :]
         )
         return value  # [N, L]
 
