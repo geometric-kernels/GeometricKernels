@@ -29,7 +29,10 @@ Installation and Requirements
 =============================
 
 This is a **Python 3** library.
-To install Geometric Kernels, run
+
+First of all, you will need to install `LAB <https://github.com/wesselb/lab>`_, the library that makes it possible for GeometricKernels to be backend-independent. To do this, follow `these instructions <https://gist.github.com/wesselb/4b44bf87f3789425f96e26c4308d0adc>`_.
+
+After doing so, to install GeometricKernels, run
 
 .. code::
 
