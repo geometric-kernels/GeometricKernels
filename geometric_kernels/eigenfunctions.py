@@ -129,7 +129,6 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
 
         sum_phi_phi_for_level = self._addition_theorem(X, X2, **parameters)  # [N, N, L]
         weights = self._filter_weights(weights)
-        weights = from_numpy(sum_phi_phi_for_level, weights)
         sum_phi_phi_for_level = B.cast(B.dtype(weights), sum_phi_phi_for_level)
 
         return einsum("i,nki->nk", weights, sum_phi_phi_for_level)  # [N, N2]
@@ -171,7 +170,7 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         # TODO(VD) write check for this.
         i = 0
         for num in self.num_eigenfunctions_per_level:
-            weights_per_level.append(weights[i] * B.ones(1))
+            weights_per_level.append(weights[i] * B.cast(B.dtype(weights), B.ones(1)))
             i += num
         return B.concat(*weights_per_level, axis=0)  # [L,]
 
