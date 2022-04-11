@@ -78,7 +78,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         Depends on the `lengthscale` parameters.
         """
         if nu == np.inf:
-            return B.exp(-(lengthscale**2) / 2.0 * (s**2))
+            return B.exp(-(lengthscale**2) / 2.0 * from_numpy(lengthscale, s**2))
         elif nu > 0:
             power = -nu - self.space.dimension / 2.0
             base = 2.0 * nu / lengthscale**2 + B.cast(
