@@ -170,3 +170,12 @@ class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
             eigenfunctions.num_eigenfunctions_per_level,
         )  # [num,]
         return B.reshape(eigenvalues, -1, 1)  # [num, 1]
+
+    def ehess2rhess(self, x, egrad, ehess, direction):
+        """
+        Riemannian Hessian along a given direction computed from the Euclidean Hessian
+
+        :return: [dim] array containing Hess_f(x)[direction]
+        """
+        normal_gradient = egrad - self.to_tangent(egrad, x)
+        return self.to_tangent(ehess, x) - self.metric.inner_product(x, normal_gradient, x) * direction
