@@ -31,10 +31,6 @@ extensions = [
     'sphinx.ext.autodoc',
 ]
 
-# autosummary
-#extensions.append("sphinx.ext.autosummary")
-#autosummary_generate = True
-
 # autoapi
 extensions.append("autoapi.extension")
 autoapi_dirs = ["../geometric_kernels"]
@@ -75,8 +71,3 @@ html_theme = 'sphinx_rtd_theme'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
-
-# This suppresses warnings from constructions like "`Manifold`s". Otherwise the
-# trailing "s" would cause "WARNING: Inline interpreted text or phrase
-# reference start-string without end-string."
-character_level_inline_markup = True
