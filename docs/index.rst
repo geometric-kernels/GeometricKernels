@@ -47,30 +47,34 @@ A Basic Example
 
 In the following example we show how to initialize the Matern52 kernel on the two-dimensional sphere and how to compute a kernel matrix for a vector of random points on the sphere.
 
-.. code-block:: python
+.. doctest:: python
 
-   # Import a backend
-   import numpy as np
-   # Import the geometric_kernels backend.
-   import geometric_kernels
-   # Import a space and an appropriate kernel
-   from geometric_kernels.spaces.hypersphere import Hypersphere
-   from geometric_kernels.kernels.geometric_kernels import MaternKarhunenLoeveKernel
+   >>> # Import a backend.
+   >>> import numpy as np
+   >>> # Import the geometric_kernels backend.
+   >>> import geometric_kernels
+   >>> # Import a space and an appropriate kernel.
+   >>> from geometric_kernels.spaces.hypersphere import Hypersphere
+   >>> from geometric_kernels.kernels.geometric_kernels import MaternKarhunenLoeveKernel
 
-   # Create a manifold (2-dim sphere)
-   hypersphere = Hypersphere(dim=2)
+   >>> # Create a manifold (2-dim sphere).
+   >>> hypersphere = Hypersphere(dim=2)
 
-   # Generate 3 random points on the sphere
-   xs = hypersphere.random_point(3)
+   >>> # Generate 3 random points on the sphere.
+   >>> xs = np.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
 
-   # Initialize kernel, use 100 terms to approximate the infinite series.
-   kernel = MaternKarhunenLoeveKernel(hypersphere, 100)
-   params, state = kernel.init_params_and_state()
-   params["nu"] = np.array([5/2])
-   params["lengthscale"] = np.array([1.])
+   >>> # Initialize kernel, use 100 terms to approximate the infinite series.
+   >>> kernel = MaternKarhunenLoeveKernel(hypersphere, 100)
+   >>> params, state = kernel.init_params_and_state()
+   >>> params["nu"] = np.array([5/2])
+   >>> params["lengthscale"] = np.array([1.])
 
-   # Compute and print out the 3x3 kernel matrix.
-   print(kernel.K(params, state, xs))
+   >>> # Compute and print out the 3x3 kernel matrix.
+   >>> print(kernel.K(params, state, xs))
+   [[0.00855354 0.00305004 0.00305004]
+    [0.00305004 0.00855354 0.00305004]
+    [0.00305004 0.00305004 0.00855354]]
+
 
 We used NumPy above. To use other backends (PyTorch, TensorFlow, JAX), the line
 
@@ -95,11 +99,13 @@ Indices and tables
 * :ref:`search`
 
 .. toctree::
+   :hidden:
 
-   Overview <self>
+   Geometric Kernels <self>
 
 .. toctree::
-   :glob:
-   :maxdepth: 2
+   :maxdepth: 1
+   :titlesonly:
+   :hidden:
 
-   autoapi/geometric_kernels/*
+   API reference <autoapi/geometric_kernels/index>

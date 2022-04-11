@@ -6,7 +6,7 @@ import lab as B
 import numpy as np
 
 from geometric_kernels.eigenfunctions import Eigenfunctions
-from geometric_kernels.kernels import BaseGeometricKernel
+from geometric_kernels.kernels.base import BaseGeometricKernel
 from geometric_kernels.lab_extras import from_numpy
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.utils import Optional

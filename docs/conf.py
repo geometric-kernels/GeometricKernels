@@ -9,11 +9,9 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
-
+import os
+import sys
+sys.path.insert(0, os.path.abspath('../..'))  # Source code dir relative to this file
 
 # -- Project information -----------------------------------------------------
 
@@ -31,11 +29,33 @@ extensions = [
     'sphinx.ext.duration',
     'sphinx.ext.doctest',
     'sphinx.ext.autodoc',
-    'sphinx.ext.autosummary',
-    'autoapi.extension',
+]
+
+# autosummary
+#extensions.append("sphinx.ext.autosummary")
+#autosummary_generate = True
+
+# autoapi
+extensions.append("autoapi.extension")
+autoapi_dirs = ["../geometric_kernels"]
+#autoapi_ignore = ["../geometric_kernels/lab_extras/jax/*",
+#                  "../geometric_kernels/lab_extras/numpy/*",
+#                  "../geometric_kernels/lab_extras/torch/*",
+#                  "../geometric_kernels/lab_extras/tensorflow/*",]
+#autoapi_ignore = ["*/geometric_kernels/lab_extras/*"]
+autoapi_add_toctree_entry = False
+autoapi_keep_files = True
+autoapi_python_class_content = "both"
+autoapi_options = [
+    "members",
+    "private-members",
+    "special-members",
+    "imported-members",
+    "show-inheritance",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
+# The templates are as in https://stackoverflow.com/a/62613202
 templates_path = ['_templates']
 
 # List of patterns, relative to source directory, that match files and
@@ -56,5 +76,7 @@ html_theme = 'sphinx_rtd_theme'
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-# Source code directories to document using `autoapi`.
-autoapi_dirs = ['../geometric_kernels']
+# This suppresses warnings from constructions like "`Manifold`s". Otherwise the
+# trailing "s" would cause "WARNING: Inline interpreted text or phrase
+# reference start-string without end-string."
+character_level_inline_markup = True

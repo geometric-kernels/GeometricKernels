@@ -17,10 +17,12 @@ class Space(abc.ABC):
     def dimension(self) -> int:
         """
         Dimension of the manifold
+
         Examples:
-         - circle: 1
-         - sphere: 2
-         - torus: 2
+
+        * circle: 1
+        * sphere: 2
+        * torus: 2
         """
         raise NotImplementedError
 
@@ -30,7 +32,7 @@ class DiscreteSpectrumSpace(Space):
     A Space for which we can obtain the eigenvalues and eigenfunctions of
     the Laplace-Beltrami operator.
 
-    Examples includes `Graph`s, `Manifold`s and `Mesh`es.
+    Examples includes `Graph`\s, `Manifold`\s and `Mesh`\es.
     """
 
     @abc.abstractmethod

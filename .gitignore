@@ -71,6 +71,7 @@ instance/
 # Sphinx documentation
 docs/_build/
 docs/generated/
+docs/autoapi/
 
 # PyBuilder
 target/
@@ -131,3 +132,6 @@ dmypy.json
 
 # Emacs backup files
 *~
+
+# Vim swp files
+*.swp
