@@ -15,9 +15,9 @@ sys.path.insert(0, os.path.abspath('../..'))  # Source code dir relative to this
 
 # -- Project information -----------------------------------------------------
 
-project = 'Geometric Kernels'
-copyright = '2022, The Geometric Kernels Contributors'
-author = 'The Geometric Kernels Contributors'
+project = 'GeometricKernels'
+copyright = '2022, The GeometricKernels Contributors'
+author = 'The GeometricKernels Contributors'
 
 
 # -- General configuration ---------------------------------------------------
