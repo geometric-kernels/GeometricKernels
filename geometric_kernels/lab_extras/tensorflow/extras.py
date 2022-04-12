@@ -26,7 +26,7 @@ def from_numpy(_: B.TFNumeric, b: Union[List, B.Numeric, B.NPNumeric, B.TFNumeri
 
 
 @dispatch
-def trapz(y: _Numeric, x: _Numeric, dx=1.0, axis=-1):  # type: ignore
+def trapz(y: _Numeric, x: _Numeric, dx=None, axis=-1):  # type: ignore
     """
     Integrate along the given axis using the composite trapezoidal rule.
     """

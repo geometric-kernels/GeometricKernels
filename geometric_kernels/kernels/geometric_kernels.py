@@ -203,9 +203,11 @@ class MaternIntegratedKernel(BaseGeometricKernel):
         heat_kernel = self.space.heat_kernel(
             distance, t, self.num_points_t
         )  # (..., N1, N2, T)
+        print('heat', heat_kernel.shape)
+        print('t', t.shape)
 
         result = (
-            B.power(t, nu - 1.0) * B.exp(-2.0 * nu / lengthscale ** 2 * t) * heat_kernel
+            B.power(t, nu - 1.0) * B.exp(-2.0 * nu / lengthscale**2 * t) * heat_kernel
         )
 
         return result
@@ -230,13 +232,25 @@ class MaternIntegratedKernel(BaseGeometricKernel):
         shift = B.log(lengthscale) / B.log(10.0)  # Log 10
         t_vals = logspace(-2.5 + shift, 1.5 + shift, self.num_points_t)  # (T,)
 
-        integral_vals = self.link_function(params, distance, t_vals)
+        integral_vals = self.link_function(params, distance, t_vals)  # (N1, N2, T) or [N, T]
+
+        reshape = [1] * B.rank(integral_vals)
+        reshape[:-1] = B.shape(integral_vals)[:-1]  # [N1, N2, 1] or [N, 1]
+        t_vals_integrator = B.tile(
+            t_vals[None, :] if diag else t_vals[None, None, :],
+            *reshape
+        )  # (N1, N2, T) or (N, T)
+        t_vals_integrator = B.cast(B.dtype(integral_vals), t_vals_integrator)  # (T, )
+        print('integr, t_vals', B.dtype(integral_vals), B.dtype(t_vals_integrator))
 
         # Integral over heat kernel to obtain the Matérn kernel values
-        kernel = trapz(integral_vals, t_vals, axis=-1)
+        kernel = trapz(integral_vals, t_vals_integrator, axis=-1)
 
-        integral_vals_normalizing_cst = self.link_function(params, 0.0, t_vals)
-        normalizing_cst = trapz(integral_vals_normalizing_cst, t_vals, axis=-1)
+        zero = B.cast(B.dtype(distance), from_numpy(distance, 0.0))
+
+        integral_vals_normalizing_cst = self.link_function(params, zero, t_vals)
+        t_vals_integrator = B.cast(B.dtype(integral_vals_normalizing_cst), t_vals)
+        normalizing_cst = trapz(integral_vals_normalizing_cst, t_vals_integrator, axis=-1)
 
         return kernel / normalizing_cst
 

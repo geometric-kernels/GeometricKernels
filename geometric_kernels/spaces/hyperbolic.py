@@ -6,8 +6,9 @@ from typing import Optional
 
 import geomstats as gs
 import lab as B
+from opt_einsum import contract as einsum
 
-from geometric_kernels.lab_extras import cosh, logspace, trapz
+from geometric_kernels.lab_extras import cosh, from_numpy, logspace, trapz
 from geometric_kernels.spaces import Space
 
 
@@ -32,24 +33,60 @@ class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
     def distance(
         self, x1: B.Numeric, x2: B.Numeric, diag: Optional[bool] = False
     ) -> B.Numeric:
-        assert B.all(self.belongs(x1)) and B.all(self.belongs(x2))
+        """Compute the hyperbolic distance between `x1` and `x2`.
 
+        The code is a reimplementation of `geomstats.geometry.hyperboloid.HyperbolicMetric` for `lab`.
+
+        Parameters
+        ----------
+        :param x1: [N, dim+1] array of points in the hyperbolic space
+        :param x2: [M, dim+1] array of points in the hyperbolic space
+        :param diag: if True, compute elementwise distance. Default False.
+
+        Returns
+        -------
+        :return: hyperbolic distance.
+        """
         if diag:
-            # Return a pointwise distance between `x1` and `x2`
-            return self.metric.dist(x1, x2)  # (N, )
+            # Compute a pointwise distance between `x1` and `x2`
+            x1_ = x1
+            x2_ = x2
+        else:
+            if B.rank(x1) == 1:
+                x1 = B.expand_dims(x1)
+            if B.rank(x2) == 1:
+                x2 = B.expand_dims(x2)
 
-        if B.rank(x1) == 1:
-            x1 = B.expand_dims(x1)
-        if B.rank(x2) == 1:
-            x2 = B.expand_dims(x2)
+            # compute pairwise distance between arrays of points `x1` and `x2`
+            # `x1` (N, dim+1)
+            # `x2` (M, dim+1)
+            x1_ = B.tile(x1[..., None, :], 1, x2.shape[0], 1)  # (N, M, dim+1)
+            x2_ = B.tile(x2[None], x1.shape[0], 1, 1)  # (N, M, dim+1)
 
-        # compute pairwise distance between arrays of points `x1` and `x2`
-        # `x1` (N, dim+1)
-        # `x2` (M, dim+1)
-        x1_ = B.tile(x1[..., None, :], 1, x2.shape[0], 1)  # (N, M, dim+1)
-        x2_ = B.tile(x2[None], x1.shape[0], 1, 1)  # (N, M, dim+1)
+        sq_norm_1 = self.inner_product(x1_, x1_)
+        sq_norm_2 = self.inner_product(x2_, x2_)
+        inner_prod = self.inner_product(x1_, x2_)
 
-        return self.metric.dist(x1_, x2_)  # (N, M)
+        cosh_angle = -inner_prod / B.sqrt(sq_norm_1 * sq_norm_2)
+
+        one = B.cast(B.dtype(cosh_angle), from_numpy(cosh_angle, [1.0]))
+        large_constant = B.cast(B.dtype(cosh_angle), from_numpy(cosh_angle, [1e24]))
+
+        # clip values into [1.0, 1e24]
+        cosh_angle = B.where(cosh_angle < one, one, cosh_angle)
+        cosh_angle = B.where(cosh_angle > large_constant, large_constant, cosh_angle)
+
+        dist = B.log(cosh_angle + B.sqrt(cosh_angle**2 - 1))  # arccosh
+        dist = B.cast(B.dtype(x1_), dist)
+        print('diag, dist', diag, dist.shape)
+        return dist
+
+    def inner_product(self, vector_a, vector_b):
+        q = self.dimension
+        p = 1
+        diagonal = from_numpy(vector_a, [-1.0] * p + [1.0] * q)  # (dim+1)
+        diagonal = B.cast(B.dtype(vector_a), diagonal)
+        return einsum("...i,...i->...", diagonal * vector_a, vector_b)
 
     def heat_kernel(
         self, distance: B.Numeric, t: B.Numeric, num_points: int = 100
@@ -79,24 +116,45 @@ class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
             )  # (..., N1, N2, T)
 
         elif self.dimension == 2:
+            print('dist_1', distance.shape)
             expanded_distance = B.expand_dims(
                 B.expand_dims(distance, -1), -1
             )  # (... N1, N2) -> (..., N1, N2, 1, 1)
+
+            print('exp_d', expanded_distance.shape)
 
             # TODO: the behavior of this kernel is not so stable around zero distance
             # due to the division in the computation of the integral value and
             # depends on the start of the s_vals interval
             s_vals = (
-                logspace(B.log(1e-2), B.log(100.0), num_points, base=B.exp(1.0))
+                B.cast(
+                    B.dtype(expanded_distance),
+                    from_numpy(
+                        expanded_distance,
+                        logspace(
+                            B.log(1e-2), B.log(100.0), num_points, base=B.exp(1.0)
+                        ),
+                    ),
+                )
                 + expanded_distance
             )  # (..., N1, N2, 1, S)
+            print('s_vals', s_vals.shape)
+            reshape = [1] * B.rank(s_vals)  # len(B.shape(s_vals))
+            reshape[-2] = B.shape(t)[-1]
+            s_vals = B.tile(s_vals, *reshape)  # (N1, N2, T, S)
             integral_vals = (
                 s_vals
-                * B.exp(-(s_vals ** 2) / (4 * t[:, None]))
+                * B.exp(-(s_vals**2) / (4 * t[:, None]))
                 / B.sqrt(cosh(s_vals) - cosh(expanded_distance))
             )  # (..., N1, N2, T, S)
+            print('s_vals', s_vals.shape)
+            print('t_s', B.shape(t))
+
+            integral_vals = B.cast(B.dtype(s_vals), integral_vals)
+            print('integral', integral_vals.shape)
 
             heat_kernel = trapz(integral_vals, s_vals, axis=-1)  # (..., N1, N2, T)
+            print('heat', heat_kernel.shape)
 
         elif self.dimension == 3:
             heat_kernel = B.exp(

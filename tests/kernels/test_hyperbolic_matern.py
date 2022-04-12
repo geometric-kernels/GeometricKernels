@@ -89,7 +89,7 @@ def plot_distance_vs_kernel_hyperbolic():
     distances = hyperboloid.distance(x1, x2)
     # Compute heat and Matérn kernels
     heat_kernel_vals = hyperboloid.heat_kernel(
-        distances, np.array(0.5 * lengthscale ** 2)[None], num_points=1000
+        distances, np.array(0.5 * lengthscale**2)[None], num_points=1000
     ).squeeze()  # Lengthscale to heat kernel t parameter
     heat_kernel_vals_normalized = heat_kernel_vals / heat_kernel_vals[-1]
 
