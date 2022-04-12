@@ -7,8 +7,9 @@ import numpy as np
 
 from geometric_kernels.eigenfunctions import Eigenfunctions
 from geometric_kernels.kernels import BaseGeometricKernel
-from geometric_kernels.lab_extras import from_numpy
+from geometric_kernels.lab_extras import from_numpy, logspace, trapz
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
+from geometric_kernels.spaces.hyperbolic import Hyperbolic
 from geometric_kernels.utils import Optional
 
 
@@ -135,3 +136,129 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         Phi = state["eigenfunctions"]
 
         return Phi.weighted_outerproduct_diag(weights, X, **params)  # [N,]
+
+
+class MaternIntegratedKernel(BaseGeometricKernel):
+    r"""
+    This class computes a Matérn kernel by integrating over the heat kernel [1].
+
+    For non-compact manifolds:
+    .. math:: k_{\nu, \kappa, \sigma^2}(x, x') = \int_0^{\infty} u^{\nu - 1} e^{-\frac{2 \nu}{\kappa^2} u} k_{\infty, \sqrt{2 u}, \sigma^2}(x, x') \d u
+
+    For compact manifolds:
+    .. math:: k_{\nu, \kappa, \sigma^2}(x, x') = \int_0^{\infty} u^{\nu - 1 + d/2} e^{-\frac{2 \nu}{\kappa^2} u} k_{\infty, \sqrt{2 u}, \sigma^2}(x, x') \d u
+
+    References:
+
+    [1] N. Jaquier, V. Borovitskiy, A. Smolensky, A. Terenin, T. Afour, and L. Rozo.
+        Geometry-aware Bayesian Optimization in Robotics using Riemannian Matérn Kernels. CoRL 2021.
+    """
+
+    def __init__(
+        self,
+        space: Hyperbolic,
+        num_points_t: int,
+    ):
+        r"""
+        :param space: Space providing the heat kernel and distance.
+        :param num_point_t: number of points used in the integral.
+        """
+
+        super().__init__(space)
+        self.num_points_t = num_points_t  # in code referred to as `T`.
+
+    def init_params_and_state(self):
+        """
+        Get initial params and state.
+
+        For `MaternIntegratedKernel`, params contains the lengthscale and smoothness parameter `nu`. The state is an empty `dict`.
+
+        :return: tuple(params, state)
+        """
+        params = dict(lengthscale=1.0, nu=0.5)
+        state = dict()
+
+        return params, state
+
+    def link_function(self, params, distance: B.Numeric, t: B.Numeric):
+        r"""
+        This function links the heat kernel to the Matérn kernel, i.e., the Matérn kernel correspond to the integral of
+        this function from 0 to inf.
+        Parameters
+        ----------
+        :param distance: precomputed distance between the inputs
+        :param params: dictionary with `lengthscale` - the kernel lengthscale and `nu` - the smoothness parameter
+        :param t: the heat kernel lengthscales to integrate against
+        Returns
+        -------
+        :return: link function between the heat and Matérn kernels
+        """
+        assert "nu" in params
+        assert "lengthscale" in params
+
+        nu = params["nu"]
+        lengthscale = params["lengthscale"]
+
+        heat_kernel = self.space.heat_kernel(
+            distance, t, self.num_points_t
+        )  # (..., N1, N2, T)
+
+        result = (
+            B.power(t, nu - 1.0) * B.exp(-2.0 * nu / lengthscale**2 * t) * heat_kernel
+        )
+
+        return result
+
+    def kernel(
+        self, params, X: B.Numeric, X2: Optional[B.Numeric] = None, diag: bool = False, **kwargs  # type: ignore
+    ) -> B.Numeric:
+        assert "nu" in params
+        assert "lengthscale" in params
+
+        lengthscale = params["lengthscale"]
+
+        if X2 is None:
+            X2 = X
+
+        # Compute the geodesic distance
+        if diag:
+            distance = self.space.distance(X, X, diag=True)
+        else:
+            distance = self.space.distance(X, X2, diag=False)
+
+        shift = B.log(lengthscale) / B.log(10.0)  # Log 10
+        t_vals = logspace(-2.5 + shift, 1.5 + shift, self.num_points_t)  # (T,)
+
+        integral_vals = self.link_function(
+            params, distance, t_vals
+        )  # (N1, N2, T) or (N, T)
+
+        reshape = [1] * B.rank(integral_vals)
+        reshape[:-1] = B.shape(integral_vals)[:-1]  # (N1, N2, 1) or (N, 1)
+        t_vals_integrator = B.tile(
+            t_vals[None, :] if diag else t_vals[None, None, :], *reshape
+        )  # (N1, N2, T) or (N, T)
+        t_vals_integrator = B.cast(B.dtype(integral_vals), t_vals_integrator)  # (T, )
+
+        # Integral over heat kernel to obtain the Matérn kernel values
+        kernel = trapz(integral_vals, t_vals_integrator, axis=-1)
+
+        zero = B.cast(B.dtype(distance), from_numpy(distance, 0.0))
+
+        integral_vals_normalizing_cst = self.link_function(params, zero, t_vals)
+        t_vals_integrator = B.cast(B.dtype(integral_vals_normalizing_cst), t_vals)
+        normalizing_cst = trapz(
+            integral_vals_normalizing_cst, t_vals_integrator, axis=-1
+        )
+
+        return kernel / normalizing_cst
+
+    def K(
+        self, params, state, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs  # type: ignore
+    ) -> B.Numeric:
+        """Compute the kernel via integration of heat kernel"""
+        return self.kernel(params, X, X2, diag=False)
+
+    def K_diag(self, params, state, X: B.Numeric, **kwargs) -> B.Numeric:
+        """Compute the kernel via integration of heat kernel"""
+        return self.kernel(params, X, diag=True)

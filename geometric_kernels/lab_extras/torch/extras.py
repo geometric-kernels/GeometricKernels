@@ -1,4 +1,4 @@
-from typing import List
+from typing import Any, List, Optional
 
 import lab as B
 import torch
@@ -24,3 +24,27 @@ def from_numpy(
     Converts the array `b` to a tensor of the same backend as `a`
     """
     return torch.tensor(b)
+
+
+@dispatch
+def trapz(y: B.TorchNumeric, x: _Numeric, dx: _Numeric = 1.0, axis: int = -1):  # type: ignore
+    """
+    Integrate along the given axis using the trapezoidal rule.
+    """
+    return torch.trapz(y, x, dim=axis)
+
+
+@dispatch
+def norm(x: _Numeric, ord: Optional[Any] = None, axis: Optional[int] = None):  # type: ignore
+    """
+    Matrix or vector norm.
+    """
+    return torch.linalg.norm(x, ord=ord, dim=axis)
+
+
+@dispatch
+def logspace(start: B.TorchNumeric, stop: _Numeric, num: int = 50, base: _Numeric = 10.0):  # type: ignore
+    """
+    Return numbers spaced evenly on a log scale.
+    """
+    return torch.logspace(start, stop, num, base)
