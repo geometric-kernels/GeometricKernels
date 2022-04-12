@@ -161,7 +161,6 @@ class MaternIntegratedKernel(BaseGeometricKernel):
     ):
         r"""
         :param space: Space providing the heat kernel and distance.
-        :param nu: Determines continuity of the Mat'ern kernel. Typical values include 1/2 (i.e., the Exponential kernel), 3/2, 5/2.
         :param num_point_t: number of points used in the integral.
         """
 
@@ -188,8 +187,8 @@ class MaternIntegratedKernel(BaseGeometricKernel):
         Parameters
         ----------
         :param distance: precomputed distance between the inputs
-        :param t: heat kernel lengthscale
-        :param lenghtscale: lengthscale parameter of the kernel
+        :param params: dictionary with `lengthscale` - the kernel lengthscale and `nu` - the smoothness parameter
+        :param t: the heat kernel lengthscales to integrate against
         Returns
         -------
         :return: link function between the heat and Matérn kernels
@@ -232,10 +231,10 @@ class MaternIntegratedKernel(BaseGeometricKernel):
 
         integral_vals = self.link_function(
             params, distance, t_vals
-        )  # (N1, N2, T) or [N, T]
+        )  # (N1, N2, T) or (N, T)
 
         reshape = [1] * B.rank(integral_vals)
-        reshape[:-1] = B.shape(integral_vals)[:-1]  # [N1, N2, 1] or [N, 1]
+        reshape[:-1] = B.shape(integral_vals)[:-1]  # (N1, N2, 1) or (N, 1)
         t_vals_integrator = B.tile(
             t_vals[None, :] if diag else t_vals[None, None, :], *reshape
         )  # (N1, N2, T) or (N, T)

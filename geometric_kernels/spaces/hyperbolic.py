@@ -134,7 +134,7 @@ class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
                 )
                 + expanded_distance
             )  # (..., N1, N2, 1, S)
-            reshape = [1] * B.rank(s_vals)  # len(B.shape(s_vals))
+            reshape = [1] * B.rank(s_vals)
             reshape[-2] = B.shape(t)[-1]
             s_vals = B.tile(s_vals, *reshape)  # (N1, N2, T, S)
             integral_vals = (
