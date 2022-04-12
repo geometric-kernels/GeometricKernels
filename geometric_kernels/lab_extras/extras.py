@@ -44,3 +44,11 @@ def cosh(x: B.Numeric) -> B.Numeric:
     .. math:: cosh(x) = \frac{\exp(x) + \exp(-x)}{2} ,
     """
     return 0.5 * (B.exp(x) + B.exp(-x))
+
+
+def sinh(x: B.Numeric) -> B.Numeric:
+    r"""
+    Compute hyperbolic sine using the formula
+    .. math:: cosh(x) = \frac{\exp(x) - \exp(-x)}{2} ,
+    """
+    return 0.5 * (B.exp(x) - B.exp(-x))

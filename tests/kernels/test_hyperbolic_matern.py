@@ -1,6 +1,7 @@
 import geomstats.visualization as visualization
 import matplotlib.pyplot as plt
 import numpy as np
+import pytest
 
 from geometric_kernels.kernels.geometric_kernels import MaternIntegratedKernel
 from geometric_kernels.spaces.hyperbolic import Hyperbolic
@@ -9,8 +10,17 @@ _NUM_POINTS = 50
 _NU = 2.5
 
 
-def test_K_shapes():
-    hyperboloid = Hyperbolic(dim=2)
+@pytest.fixture(name="spacepoints", params=[1, 2, 3])
+def _spacepoints_fixture(request):
+    dim = request.param
+    hyperboloid = Hyperbolic(dim=dim)
+    points = hyperboloid.random_point(2).reshape(2, -1)
+    return hyperboloid, points[0], points[1]
+
+
+def test_K_shapes(spacepoints):
+    # hyperboloid = Hyperbolic(dim=2)
+    hyperboloid, base, point = spacepoints
     kernel = MaternIntegratedKernel(hyperboloid, _NUM_POINTS)
     params, state = kernel.init_params_and_state()
     params["nu"] = _NU
@@ -19,12 +29,10 @@ def test_K_shapes():
     N = 10
 
     # Data points
-    base = np.r_[7.14142843e00, -5.00000000e00, -5.00000000e00]
-    point = np.r_[14.17744688, 10.0, 10.0]
     geodesic = hyperboloid.metric.geodesic(initial_point=base, end_point=point)
-    x1 = geodesic(np.linspace(0.0, 1.0, N))  # (N, 3)
-    x2 = x1[-1, None]  # (1, 3)
-    x3 = np.vstack((x2, x2))  # (2, 3)
+    x1 = geodesic(np.linspace(0.0, 1.0, N))  # (N, dim+1)
+    x2 = x1[-1, None]  # (1, dim+1)
+    x3 = np.vstack((x2, x2))  # (2, dim+1)
 
     K = kernel.K(params, state, x1, None)
     assert K.shape == (N, N)

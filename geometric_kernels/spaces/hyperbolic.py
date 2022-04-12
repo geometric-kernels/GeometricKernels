@@ -8,7 +8,7 @@ import geomstats as gs
 import lab as B
 from opt_einsum import contract as einsum
 
-from geometric_kernels.lab_extras import cosh, from_numpy, logspace, trapz
+from geometric_kernels.lab_extras import cosh, from_numpy, logspace, sinh, trapz
 from geometric_kernels.spaces import Space
 
 
@@ -152,7 +152,9 @@ class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
                 -B.power(distance[..., None], 2) / (4 * t)
             )  # (..., N1, N2, T)
             heat_kernel = (
-                heat_kernel * (distance + 1e-8) / B.sinh(distance + 1e-8)
+                heat_kernel
+                * (distance[..., None] + 1e-8)
+                / sinh(distance[..., None] + 1e-8)
             )  # Adding 1e-8 avoids numerical issues around d=0
 
         else:
