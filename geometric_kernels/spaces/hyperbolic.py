@@ -78,7 +78,6 @@ class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
 
         dist = B.log(cosh_angle + B.sqrt(cosh_angle**2 - 1))  # arccosh
         dist = B.cast(B.dtype(x1_), dist)
-        print('diag, dist', diag, dist.shape)
         return dist
 
     def inner_product(self, vector_a, vector_b):
@@ -116,12 +115,9 @@ class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
             )  # (..., N1, N2, T)
 
         elif self.dimension == 2:
-            print('dist_1', distance.shape)
             expanded_distance = B.expand_dims(
                 B.expand_dims(distance, -1), -1
             )  # (... N1, N2) -> (..., N1, N2, 1, 1)
-
-            print('exp_d', expanded_distance.shape)
 
             # TODO: the behavior of this kernel is not so stable around zero distance
             # due to the division in the computation of the integral value and
@@ -138,7 +134,6 @@ class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
                 )
                 + expanded_distance
             )  # (..., N1, N2, 1, S)
-            print('s_vals', s_vals.shape)
             reshape = [1] * B.rank(s_vals)  # len(B.shape(s_vals))
             reshape[-2] = B.shape(t)[-1]
             s_vals = B.tile(s_vals, *reshape)  # (N1, N2, T, S)
@@ -147,14 +142,10 @@ class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
                 * B.exp(-(s_vals**2) / (4 * t[:, None]))
                 / B.sqrt(cosh(s_vals) - cosh(expanded_distance))
             )  # (..., N1, N2, T, S)
-            print('s_vals', s_vals.shape)
-            print('t_s', B.shape(t))
 
             integral_vals = B.cast(B.dtype(s_vals), integral_vals)
-            print('integral', integral_vals.shape)
 
             heat_kernel = trapz(integral_vals, s_vals, axis=-1)  # (..., N1, N2, T)
-            print('heat', heat_kernel.shape)
 
         elif self.dimension == 3:
             heat_kernel = B.exp(
