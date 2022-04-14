@@ -7,7 +7,6 @@ import abc
 import lab as B
 from opt_einsum import contract as einsum
 
-from geometric_kernels.lab_extras.extras import from_numpy
 from geometric_kernels.utils import Optional
 
 
