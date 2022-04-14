@@ -11,7 +11,17 @@ _TRUNCATION_LEVEL = 10
 _NU = 2.5
 
 
-def manifold_laplacian(manifold, egrad, ehess, x):
+def manifold_laplacian(manifold, x, egrad, ehess):
+    r"""
+    Computes the manifold Laplacian of a given function at a given point x.
+
+    :param manifold: manifold space, based on geomstats
+    :param x: point on the manifold at which to compute the Laplacian
+    :param egrad: Euclidean gradient of the function
+    :param ehess: Euclidean Hessian of the function
+
+    :return: manifold Laplacian
+    """
     dim = manifold.dim
     onb = torch.tensor(tangent_onb(manifold, x.detach().numpy()))
     result = 0.
@@ -26,6 +36,14 @@ def manifold_laplacian(manifold, egrad, ehess, x):
 
 
 def tangent_onb(manifold, x):
+    r"""
+    Computes an orthonormal basis on the tangent space at x.
+
+    :param manifold: manifold space, based on geomstats
+    :param x: point on the manifold
+
+    :return: [num, num] array containing the orthonormal basis
+    """
     ambient_dim = manifold.dim + 1
     manifold_dim = manifold.dim
     ambient_onb = np.eye(ambient_dim)
@@ -66,7 +84,7 @@ def test_sphere_heat_kernel():
     params, state = kernel.init_params_and_state()
     params["nu"] = torch.tensor(torch.inf)
 
-    # Define function
+    # Define heat kernel function
     def heat_kernel(t, x, y):
         params["lengthscale"] = B.sqrt(2*t)
         return kernel.K(params, state, x, y)
@@ -74,14 +92,14 @@ def test_sphere_heat_kernel():
     for t in ts:
         for x in xs:
             for y in ys:
+                # Compute the derivative of the kernel function wrt t
                 dfdt, _, _ = torch.autograd.grad(heat_kernel(t, x[None], y[None]), (t, x, y))
+                # Compute the Laplacian of the kernel on the manifold
                 egrad = lambda u: torch.autograd.grad(heat_kernel(t, u[None], y[None]), (t, u, y))[1]
                 fx = lambda u: heat_kernel(t, u[None], y[None])
                 ehess = lambda u, h: torch.autograd.functional.hvp(fx, u, h)[1]
+                lapf = manifold_laplacian(hypersphere, x, egrad, ehess)
 
-                lapf = manifold_laplacian(hypersphere, egrad, ehess, x)
-                # print('t = %0.2f' % t, 'x =', x, 'y =', y)
-                # print('df/dt(t, x, y)   = %0.8f' % dfdt)
-                # print('Delta f(t, x, y) = %0.8f' % lapf)
+                # Check that they match
                 assert np.isclose(dfdt.detach().numpy(), lapf)
 
