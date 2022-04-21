@@ -95,11 +95,10 @@ def test_sphere_heat_kernel():
                 # Compute the derivative of the kernel function wrt t
                 dfdt, _, _ = torch.autograd.grad(heat_kernel(t, x[None], y[None]), (t, x, y))
                 # Compute the Laplacian of the kernel on the manifold
-                egrad = lambda u: torch.autograd.grad(heat_kernel(t, u[None], y[None]), (t, u, y))[1]
-                fx = lambda u: heat_kernel(t, u[None], y[None])
-                ehess = lambda u, h: torch.autograd.functional.hvp(fx, u, h)[1]
+                egrad = lambda u: torch.autograd.grad(heat_kernel(t, u[None], y[None]), (t, u, y))[1]  # pylint: disable=E731
+                fx = lambda u: heat_kernel(t, u[None], y[None])  # pylint: disable=E731
+                ehess = lambda u, h: torch.autograd.functional.hvp(fx, u, h)[1]  # pylint: disable=E731
                 lapf = manifold_laplacian(hypersphere, x, egrad, ehess)
 
                 # Check that they match
                 assert np.isclose(dfdt.detach().numpy(), lapf)
-
