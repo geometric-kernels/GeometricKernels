@@ -169,7 +169,7 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         # TODO(VD) write check for this.
         i = 0
         for num in self.num_eigenfunctions_per_level:
-            weights_per_level.append(weights[i] * B.cast(B.dtype(weights), B.ones(1)))
+            weights_per_level.append(weights[i] * B.ones(B.dtype(weights), 1))
             i += num
         return B.concat(*weights_per_level, axis=0)  # [L,]
 
