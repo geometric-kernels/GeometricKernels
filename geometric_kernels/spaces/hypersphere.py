@@ -176,6 +176,11 @@ class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
         Riemannian Hessian along a given direction computed from the Euclidean Hessian
 
         :return: [dim] array containing Hess_f(x)[direction]
+
+        References:
+
+        [1] P.-A. Absil, R. Mahony, R. Sepulchre.
+            Optimization algorithms on matrix manifolds. Princeton University Press 2007.
         """
         normal_gradient = egrad - self.to_tangent(egrad, x)
         return self.to_tangent(ehess, x) - self.metric.inner_product(x, normal_gradient, x) * direction
