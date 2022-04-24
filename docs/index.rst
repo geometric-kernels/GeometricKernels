@@ -34,9 +34,9 @@ Before doing anything, you might want to create and activate a new virtualenv en
 
 .. code::
 
-   $ pip install virtualenv
-   $ virtualenv [env_name]
-   $ source [env_name]/bin/activate
+   pip install virtualenv
+   virtualenv [env_name]
+   source [env_name]/bin/activate
 
 
 First of all, you will need to install `LAB <https://github.com/wesselb/lab>`_, the library that makes it possible for GeometricKernels to be backend-independent. To do this, follow `the instructions <https://gist.github.com/wesselb/4b44bf87f3789425f96e26c4308d0adc>`_.
@@ -45,7 +45,7 @@ After getting ``LAB``, to install GeometricKernels, run
 
 .. code::
 
-   $ pip install git+https://github.com/GPflow/GeometricKernels.git
+   pip install git+https://github.com/GPflow/GeometricKernels.git
 
 The kernels are compatible with several backends, namely
 
