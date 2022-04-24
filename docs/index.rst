@@ -39,7 +39,7 @@ Before doing anything, you might want to create and activate a new virtualenv en
    $ source [env_name]/bin/activate
 
 
-First of all, you will need to install `LAB <https://github.com/wesselb/lab>`_, the library that makes it possible for GeometricKernels to be backend-independent. To do this, follow `these instructions <https://gist.github.com/wesselb/4b44bf87f3789425f96e26c4308d0adc>`_.
+First of all, you will need to install `LAB <https://github.com/wesselb/lab>`_, the library that makes it possible for GeometricKernels to be backend-independent. To do this, follow `the instructions <https://gist.github.com/wesselb/4b44bf87f3789425f96e26c4308d0adc>`_.
 
 After getting ``LAB``, to install GeometricKernels, run
 
@@ -58,6 +58,7 @@ Any backend, except for ``NumPy``, should be installed.
 
 .. raw:: html
 
+   <div class="bootstrap">
    <div class="accordion" id="backends">
      <div class="accordion-item">
        <h2 class="accordion-header mb-0" id="backendsHeadingOne">
@@ -136,6 +137,7 @@ To install JAX, follow `these instructions <https://github.com/google/jax#instal
        </div>
      </div>
    </div>
+   </div>
    <br>
 
 A Basic Example
@@ -145,6 +147,7 @@ In the following example we show how to initialize the Matern52 kernel on the tw
 
 .. raw:: html
 
+   <div class="bootstrap">
    <div class="accordion" id="example">
      <div class="accordion-item">
        <h2 class="accordion-header mb-0" id="exampleHeadingOne">
@@ -327,16 +330,10 @@ In the following example we show how to initialize the Matern52 kernel on the tw
        </div>
      </div>
    </div>
+   </div>
    <br>
 
 You can find more examples in our `example notebooks <TODO>`_.
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 
 .. toctree::
    :hidden:

@@ -16,7 +16,7 @@ sys.path.insert(0, os.path.abspath('../..'))  # Source code dir relative to this
 # -- Project information -----------------------------------------------------
 
 project = 'GeometricKernels'
-copyright = '2022, The GeometricKernels Contributors'
+copyright = '2022, the GeometricKernels contributors'
 author = 'The GeometricKernels Contributors'
 
 
@@ -75,7 +75,8 @@ html_static_path = ['_static']
 # These paths are either relative to html_static_path
 # or fully qualified paths (eg. https://...)
 html_css_files = [
-    'css/bootstrap.min.css',
+#    'css/bootstrap.min.css',
+    'css/bootstrap_namespaced.css',
 ]
 
 html_js_files = [
