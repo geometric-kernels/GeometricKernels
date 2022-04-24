@@ -11,6 +11,13 @@ Some of the features are specifically inspired by it, most notably by the proble
 
 ##  Installation
 
+0. [Optionally] install and run virtualenv
+```bash
+[sudo] pip install virtualenv
+virtualenv [env_name]
+source [env_name]/bin/activate
+```
+
 1. [Prerequisite] install [LAB](https://github.com/wesselb/lab) following [these instructions](https://gist.github.com/wesselb/4b44bf87f3789425f96e26c4308d0adc).
 
 2. Install the library in the active environment by running
@@ -32,14 +39,19 @@ pip install tensorflow tensorflow-probability gpflow
 pip install torch gpytorch
 ```
 
+- JAX (the cpu version)
+```
+pip install "jax[cpu]"
+```
+
 ### Supported backends with associated GP packaes
 
 Ready|Backend                                      | GP package
 -----|---------------------------------------------|------------------------------------------
 ✅   |[Tensorflow](https://www.tensorflow.org/)    |[GPflow](https://github.com/GPflow/GPflow)
 ✅   |[PyTorch](https://github.com/pytorch/pytorch)|[GPyTorch](https://gpytorch.ai/)
-✅   |[Numpy](https://numpy.org/)                  |[GPy](https://github.com/SheffieldML/GPy)
-✅   |[Jax](https://github.com/google/jax)         |[SparseGPAX](https://github.com/aterenin/SparseGPAX)
+✅   |[Numpy](https://numpy.org/)                  | -
+✅   |[JAX](https://github.com/google/jax)         | -
  
 ## A basic example
 
