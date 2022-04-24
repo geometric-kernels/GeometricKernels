@@ -28,7 +28,7 @@ class Space(abc.ABC):
 
 
 class DiscreteSpectrumSpace(Space):
-    """
+    r"""
     A Space for which we can obtain the eigenvalues and eigenfunctions of
     the Laplace-Beltrami operator.
 
