@@ -39,11 +39,7 @@ def tangent_onb(manifold, x):
     manifold_dim = manifold.dim
     ambient_onb = np.eye(ambient_dim)
 
-    projected_onb = np.ones_like(ambient_onb)
-
-    for j in range(ambient_dim):
-        cur_vec = ambient_onb[j, :]
-        projected_onb[j, :] = manifold.to_tangent(cur_vec, base_point=x)
+    projected_onb = manifold.to_tangent(ambient_onb, base_point=x)
 
     projected_onb_eigvals, projected_onb_eigvecs = np.linalg.eigh(projected_onb)
 
