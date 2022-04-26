@@ -17,7 +17,7 @@ from geometric_kernels.eigenfunctions import (
     EigenfunctionWithAdditionTheorem,
 )
 from geometric_kernels.spaces import DiscreteSpectrumSpace
-from geometric_kernels.utils import chain
+from geometric_kernels.utils.utils import chain
 
 
 class SphericalHarmonics(EigenfunctionWithAdditionTheorem):

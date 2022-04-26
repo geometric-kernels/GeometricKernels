@@ -12,7 +12,7 @@ import scipy.sparse.linalg as sla
 from geometric_kernels.eigenfunctions import Eigenfunctions
 from geometric_kernels.lab_extras import from_numpy, take_along_axis
 from geometric_kernels.spaces import DiscreteSpectrumSpace
-from geometric_kernels.utils import Optional
+from geometric_kernels.utils.utils import Optional
 
 
 class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):

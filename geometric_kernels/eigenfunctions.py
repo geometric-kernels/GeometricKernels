@@ -7,7 +7,7 @@ import abc
 import lab as B
 from opt_einsum import contract as einsum
 
-from geometric_kernels.utils import Optional
+from geometric_kernels.utils.utils import Optional
 
 
 class Eigenfunctions(abc.ABC):

@@ -10,7 +10,7 @@ from geometric_kernels.eigenfunctions import EigenfunctionWithAdditionTheorem
 from geometric_kernels.kernels.geometric_kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.lab_extras import from_numpy
 from geometric_kernels.spaces.circle import Circle, SinCosEigenfunctions
-from geometric_kernels.utils import chain
+from geometric_kernels.utils.utils import chain
 
 
 class Consts:

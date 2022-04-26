@@ -10,7 +10,7 @@ from geometric_kernels.kernels import BaseGeometricKernel
 from geometric_kernels.lab_extras import from_numpy, logspace, trapz
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.hyperbolic import Hyperbolic
-from geometric_kernels.utils import Optional
+from geometric_kernels.utils.utils import Optional
 
 
 class MaternKarhunenLoeveKernel(BaseGeometricKernel):

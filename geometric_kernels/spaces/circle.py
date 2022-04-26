@@ -13,7 +13,7 @@ from geometric_kernels.eigenfunctions import (
 )
 from geometric_kernels.lab_extras import from_numpy
 from geometric_kernels.spaces import DiscreteSpectrumSpace
-from geometric_kernels.utils import Optional, chain
+from geometric_kernels.utils.utils import Optional, chain
 
 
 class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
