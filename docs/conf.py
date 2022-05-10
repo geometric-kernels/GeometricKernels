@@ -34,11 +34,6 @@ extensions = [
 # autoapi
 extensions.append("autoapi.extension")
 autoapi_dirs = ["../geometric_kernels"]
-#autoapi_ignore = ["../geometric_kernels/lab_extras/jax/*",
-#                  "../geometric_kernels/lab_extras/numpy/*",
-#                  "../geometric_kernels/lab_extras/torch/*",
-#                  "../geometric_kernels/lab_extras/tensorflow/*",]
-#autoapi_ignore = ["*/geometric_kernels/lab_extras/*"]
 autoapi_add_toctree_entry = False
 autoapi_keep_files = True
 autoapi_python_class_content = "both"
@@ -75,7 +70,6 @@ html_static_path = ['_static']
 # These paths are either relative to html_static_path
 # or fully qualified paths (eg. https://...)
 html_css_files = [
-#    'css/bootstrap.min.css',
     'css/bootstrap_namespaced.css',
 ]
 
