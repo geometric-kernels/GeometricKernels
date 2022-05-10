@@ -46,7 +46,7 @@ def test_sphere_heat_kernel():
                     heat_kernel(t, x[None], y[None]), (t, x, y)
                 )
                 # Compute the Laplacian of the kernel on the manifold
-                egrad = lambda u: torch.autograd.grad(
+                egrad = lambda u: torch.autograd.grad(  # noqa
                     heat_kernel(t, u[None], y[None]), (t, u, y)
                 )[
                     1
