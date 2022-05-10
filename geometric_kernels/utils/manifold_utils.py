@@ -1,5 +1,5 @@
-import numpy as np
 import lab as B
+import numpy as np
 
 from geometric_kernels.lab_extras import from_numpy
 
@@ -7,6 +7,10 @@ from geometric_kernels.lab_extras import from_numpy
 def manifold_laplacian(x: B.Numeric, manifold, egrad, ehess):
     r"""
     Computes the manifold Laplacian of a given function at a given point x.
+    The manifold Laplacian equals the trace of the manifold Hessian, i.e.,
+    :math:`\Delta_M f(x) = \sum_{i=0}^{D-1} \nabla^2 f(x_i, x_i)`,
+    where :math:`[x_i]_{i=0}^{D-1}` is an orthonormal basis of the tangent
+    space at x.
 
     :param x: point on the manifold at which to compute the Laplacian
     :param manifold: manifold space, based on geomstats
@@ -14,6 +18,12 @@ def manifold_laplacian(x: B.Numeric, manifold, egrad, ehess):
     :param ehess: Euclidean Hessian of the function
 
     :return: manifold Laplacian
+
+    References:
+
+        [1] J. Jost.
+            Riemannian geometry and geometric analysis. Springer, 2017.
+            Chapter 3.1.
     """
     dim = manifold.dim
 
