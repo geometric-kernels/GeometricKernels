@@ -1,27 +1,34 @@
 import numpy as np
-import torch
+import lab as B
+
+from geometric_kernels.lab_extras import from_numpy
 
 
-def manifold_laplacian(manifold, x, egrad, ehess):
+def manifold_laplacian(x: B.Numeric, manifold, egrad, ehess):
     r"""
     Computes the manifold Laplacian of a given function at a given point x.
 
-    :param manifold: manifold space, based on geomstats
     :param x: point on the manifold at which to compute the Laplacian
+    :param manifold: manifold space, based on geomstats
     :param egrad: Euclidean gradient of the function
     :param ehess: Euclidean Hessian of the function
 
     :return: manifold Laplacian
     """
     dim = manifold.dim
-    onb = torch.tensor(tangent_onb(manifold, x.detach().numpy()))
-    result = 0.
+
+    onb = tangent_onb(manifold, B.to_numpy(x))
+    result = 0.0
     for j in range(dim):
         cur_vec = onb[:, j]
-        egrad_x = egrad(x).detach().numpy()
-        ehess_x = ehess(x, cur_vec).detach().numpy()
-        hess_vec_prod = manifold.ehess2rhess(x.detach().numpy(), egrad_x, ehess_x, cur_vec.detach().numpy())
-        result += manifold.metric.inner_product(hess_vec_prod, cur_vec.detach().numpy(), base_point=x.detach().numpy())
+        egrad_x = B.to_numpy(egrad(x))
+        ehess_x = B.to_numpy(ehess(x, from_numpy(x, cur_vec)))
+        hess_vec_prod = manifold.ehess2rhess(
+            B.to_numpy(x), egrad_x, ehess_x, cur_vec
+        )
+        result += manifold.metric.inner_product(
+            hess_vec_prod, cur_vec, base_point=B.to_numpy(x)
+        )
 
     return result
 
@@ -44,9 +51,9 @@ def tangent_onb(manifold, x):
     projected_onb_eigvals, projected_onb_eigvecs = np.linalg.eigh(projected_onb)
 
     # Getting rid of the zero eigenvalues:
-    projected_onb_eigvals = projected_onb_eigvals[ambient_dim - manifold_dim:]
-    projected_onb_eigvecs = projected_onb_eigvecs[:, ambient_dim - manifold_dim:]
+    projected_onb_eigvals = projected_onb_eigvals[ambient_dim - manifold_dim :]
+    projected_onb_eigvecs = projected_onb_eigvecs[:, ambient_dim - manifold_dim :]
 
-    assert(np.all(np.isclose(projected_onb_eigvals, 1.)))
+    assert np.all(np.isclose(projected_onb_eigvals, 1.0))
 
     return projected_onb_eigvecs
