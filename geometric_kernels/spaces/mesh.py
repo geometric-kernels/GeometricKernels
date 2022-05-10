@@ -11,7 +11,7 @@ import scipy.sparse.linalg as sla
 
 from geometric_kernels.eigenfunctions import Eigenfunctions
 from geometric_kernels.lab_extras import from_numpy, take_along_axis
-from geometric_kernels.spaces import DiscreteSpectrumSpace
+from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.utils import Optional
 
 
@@ -63,6 +63,7 @@ class Mesh(DiscreteSpectrumSpace):
             D is the dimention of the embedding space (D must be either 2 or 3).
         :param faces: A [Nf, 3] array of vertex indices that represents a
             generalized array of faces, where Nf is the number of faces.
+
             .. Note:
                 Only 3 vertex indices per face are supported
         """
