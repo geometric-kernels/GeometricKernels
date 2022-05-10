@@ -1,12 +1,11 @@
+import lab as B
 import numpy as np
 import torch
-import lab as B
 
 import geometric_kernels.torch  # noqa
-from geometric_kernels.spaces.hypersphere import Hypersphere
 from geometric_kernels.kernels.geometric_kernels import MaternKarhunenLoeveKernel
+from geometric_kernels.spaces.hypersphere import Hypersphere
 from geometric_kernels.utils.manifold_utils import manifold_laplacian
-
 
 _TRUNCATION_LEVEL = 10
 _NU = 2.5
