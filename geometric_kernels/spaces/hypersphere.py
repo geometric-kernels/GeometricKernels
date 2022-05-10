@@ -183,4 +183,7 @@ class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
             Optimization algorithms on matrix manifolds. Princeton University Press 2007.
         """
         normal_gradient = egrad - self.to_tangent(egrad, x)
-        return self.to_tangent(ehess, x) - self.metric.inner_product(x, normal_gradient, x) * direction
+        return (
+            self.to_tangent(ehess, x)
+            - self.metric.inner_product(x, normal_gradient, x) * direction
+        )

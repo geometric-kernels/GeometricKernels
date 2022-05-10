@@ -23,7 +23,9 @@ def test_sphere_heat_kernel():
 
     # Generate samples
     ts = torch.linspace(0.1, 1, grid_size, requires_grad=True)
-    xs = torch.tensor(np.array(hypersphere.random_point(nb_samples)), requires_grad=True)
+    xs = torch.tensor(
+        np.array(hypersphere.random_point(nb_samples)), requires_grad=True
+    )
     ys = xs
 
     # Define kernel
@@ -33,7 +35,7 @@ def test_sphere_heat_kernel():
 
     # Define heat kernel function
     def heat_kernel(t, x, y):
-        params["lengthscale"] = B.sqrt(2*t)
+        params["lengthscale"] = B.sqrt(2 * t)
         return kernel.K(params, state, x, y)
 
     for t in ts:
@@ -45,7 +47,7 @@ def test_sphere_heat_kernel():
                 egrad = lambda u: torch.autograd.grad(heat_kernel(t, u[None], y[None]), (t, u, y))[1]  # noqa
                 fx = lambda u: heat_kernel(t, u[None], y[None])  # noqa
                 ehess = lambda u, h: torch.autograd.functional.hvp(fx, u, h)[1]  # noqa
-                lapf = manifold_laplacian(hypersphere, x, egrad, ehess)
+                lapf = manifold_laplacian(x, hypersphere, egrad, ehess)
 
                 # Check that they match
-                assert np.isclose(dfdt.detach().numpy(), lapf, atol=1.e-6)
+                assert np.isclose(dfdt.detach().numpy(), lapf, atol=1.0e-6)
