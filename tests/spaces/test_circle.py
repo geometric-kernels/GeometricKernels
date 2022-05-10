@@ -160,8 +160,8 @@ def test_equivalence_kernel(nu, decimal, inputs):
     circle = Circle()
     kernel = MaternKarhunenLoeveKernel(circle, num_eigenfunctions=101)
     params, state = kernel.init_params_and_state()
-    params["nu"] = np.r_[nu]
-    params["lengthscale"] = np.r_[1.0]
+    params["nu"] = from_numpy(inputs, np.r_[nu])
+    params["lengthscale"] = from_numpy(inputs, np.r_[1.0])
 
     K_actual = B.to_numpy(kernel.K(params, state, inputs, inputs2))
 
