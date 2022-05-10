@@ -23,9 +23,7 @@ def manifold_laplacian(x: B.Numeric, manifold, egrad, ehess):
         cur_vec = onb[:, j]
         egrad_x = B.to_numpy(egrad(x))
         ehess_x = B.to_numpy(ehess(x, from_numpy(x, cur_vec)))
-        hess_vec_prod = manifold.ehess2rhess(
-            B.to_numpy(x), egrad_x, ehess_x, cur_vec
-        )
+        hess_vec_prod = manifold.ehess2rhess(B.to_numpy(x), egrad_x, ehess_x, cur_vec)
         result += manifold.metric.inner_product(
             hess_vec_prod, cur_vec, base_point=B.to_numpy(x)
         )
