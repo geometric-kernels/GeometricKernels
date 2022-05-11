@@ -5,7 +5,7 @@ from opt_einsum import contract as einsum
 from plum import Tuple
 
 from geometric_kernels.spaces.hypersphere import SphericalHarmonics
-from geometric_kernels.utils import chain
+from geometric_kernels.utils.utils import chain
 
 
 class Consts:
