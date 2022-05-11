@@ -93,7 +93,7 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
     Example 2:
     The sphere manifold S^d eigenfunctions, known as the spherical harmonics, also adhere
     to this property. It is known as the addition theorem.  See, for example, Theorem 4.11 (p.60
-     Frye and Efthimiou (2012).
+    Frye and Efthimiou (2012).
 
     In the case the weights over a level in the `weighted_outproduct` are identical
     we can make use of this expression to simplify computations.
@@ -113,9 +113,10 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         Computes :math:`\sum w_i \phi_i(x1) \phi_i(x2)`.
 
         :param weights: [L, 1]
+
             .. note:
-                The length of `weights` is equal to the number of levels.
-                This is **not** the same as the number of eigenfunctions.
+               The length of `weights` is equal to the number of levels.
+               This is **not** the same as the number of eigenfunctions.
 
         :param X: Inputs where to evaluate the eigenfunctions, shape = [N, D].
         :param X2: Inputs where to evaluate the eigenfunctions, shape = [N2, D].

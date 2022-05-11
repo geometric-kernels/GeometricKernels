@@ -63,6 +63,7 @@ class Mesh(DiscreteSpectrumSpace):
             D is the dimention of the embedding space (D must be either 2 or 3).
         :param faces: A [Nf, 3] array of vertex indices that represents a
             generalized array of faces, where Nf is the number of faces.
+
             .. Note:
                 Only 3 vertex indices per face are supported
         """
