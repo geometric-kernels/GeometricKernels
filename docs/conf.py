@@ -11,7 +11,8 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../..'))  # Source code dir relative to this file
+
+sys.path.insert(0, os.path.abspath('..'))  # Source code dir relative to this file
 
 # -- Project information -----------------------------------------------------
 
@@ -26,6 +27,7 @@ author = 'The GeometricKernels Contributors'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "sphinx.ext.viewcode",
     'sphinx.ext.duration',
     'sphinx.ext.doctest',
     'sphinx.ext.autodoc',
@@ -34,9 +36,13 @@ extensions = [
 # autoapi
 extensions.append("autoapi.extension")
 autoapi_dirs = ["../geometric_kernels"]
+autodoc_typehints = 'description'
 autoapi_add_toctree_entry = False
 autoapi_keep_files = True
 autoapi_python_class_content = "both"
+autoapi_member_order = "groupwise"
+# ignore these files to surpress warning multiple dispatch
+autoapi_ignore = [f'**/lab_extras/{b}**' for b in ["torch", "jax", "tensorflow", "numpy"]]
 autoapi_options = [
     "members",
     "private-members",
@@ -44,6 +50,7 @@ autoapi_options = [
     "imported-members",
     "show-inheritance",
 ]
+
 
 # Add any paths that contain templates here, relative to this directory.
 # The templates are as in https://stackoverflow.com/a/62613202
@@ -53,6 +60,7 @@ templates_path = ['_templates']
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+
 
 
 # -- Options for HTML output -------------------------------------------------

@@ -12,7 +12,7 @@ from geometric_kernels.eigenfunctions import (
     EigenfunctionWithAdditionTheorem,
 )
 from geometric_kernels.lab_extras import from_numpy
-from geometric_kernels.spaces import DiscreteSpectrumSpace
+from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.utils.utils import Optional, chain
 
 

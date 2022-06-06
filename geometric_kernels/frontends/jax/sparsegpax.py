@@ -10,8 +10,11 @@ from geometric_kernels.kernels import BaseGeometricKernel
 
 
 class GeometricKernelParameters(NamedTuple):
+    """Kernel hyperparameters"""
     log_lengthscale: jnp.ndarray
+    """log of the lengthscales"""
     log_nu: jnp.ndarray
+    r"""Matérn differentiability (typically 1/2, 3/2 or 5/2)"""
 
 
 class SparseGPaxGeometricKernel(sparsegpax.kernel.AbstractKernel):
