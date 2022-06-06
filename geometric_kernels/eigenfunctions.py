@@ -7,8 +7,7 @@ import abc
 import lab as B
 from opt_einsum import contract as einsum
 
-from geometric_kernels.lab_extras.extras import from_numpy
-from geometric_kernels.utils import Optional
+from geometric_kernels.utils.utils import Optional
 
 
 class Eigenfunctions(abc.ABC):
@@ -94,7 +93,7 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
     Example 2:
     The sphere manifold S^d eigenfunctions, known as the spherical harmonics, also adhere
     to this property. It is known as the addition theorem.  See, for example, Theorem 4.11 (p.60
-     Frye and Efthimiou (2012).
+    Frye and Efthimiou (2012).
 
     In the case the weights over a level in the `weighted_outproduct` are identical
     we can make use of this expression to simplify computations.
@@ -114,9 +113,10 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         Computes :math:`\sum w_i \phi_i(x1) \phi_i(x2)`.
 
         :param weights: [L, 1]
+
             .. note:
-                The length of `weights` is equal to the number of levels.
-                This is **not** the same as the number of eigenfunctions.
+               The length of `weights` is equal to the number of levels.
+               This is **not** the same as the number of eigenfunctions.
 
         :param X: Inputs where to evaluate the eigenfunctions, shape = [N, D].
         :param X2: Inputs where to evaluate the eigenfunctions, shape = [N2, D].
@@ -129,7 +129,6 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
 
         sum_phi_phi_for_level = self._addition_theorem(X, X2, **parameters)  # [N, N, L]
         weights = self._filter_weights(weights)
-        weights = from_numpy(sum_phi_phi_for_level, weights)
         sum_phi_phi_for_level = B.cast(B.dtype(weights), sum_phi_phi_for_level)
 
         return einsum("i,nki->nk", weights, sum_phi_phi_for_level)  # [N, N2]
@@ -171,7 +170,7 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         # TODO(VD) write check for this.
         i = 0
         for num in self.num_eigenfunctions_per_level:
-            weights_per_level.append(weights[i] * B.ones(1))
+            weights_per_level.append(weights[i] * B.ones(B.dtype(weights), 1))
             i += num
         return B.concat(*weights_per_level, axis=0)  # [L,]
 

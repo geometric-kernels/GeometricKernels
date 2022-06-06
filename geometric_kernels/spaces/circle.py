@@ -13,7 +13,7 @@ from geometric_kernels.eigenfunctions import (
 )
 from geometric_kernels.lab_extras import from_numpy
 from geometric_kernels.spaces import DiscreteSpectrumSpace
-from geometric_kernels.utils import Optional, chain
+from geometric_kernels.utils.utils import Optional, chain
 
 
 class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
@@ -61,7 +61,7 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         .. math:
             \sin(l \theta_1) \sin(l \theta_2) + \cos(l \theta_1) \cos(l \theta_2)
                 = N_l \cos(l (\theta_1 - \theta_2)),
-        where N_l = 1 for l = 0, else N_l = 2.
+            where N_l = 1 for l = 0, else N_l = 2.
 
         :param X: [N, 1]
         :param X2: [N2, 1]
@@ -135,6 +135,7 @@ class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
     ) -> bool:
         """
         Check whether the `vector` is tangent at `base_point`.
+
         :param vector: shape=[..., dim]
             Vector to evaluate.
         :param base_point: shape=[..., dim]
