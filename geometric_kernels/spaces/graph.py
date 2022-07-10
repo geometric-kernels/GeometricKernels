@@ -3,7 +3,7 @@ Graph object
 """
 
 import warnings
-from typing import List
+from typing import List, Dict, Tuple
 
 import lab as B
 import numpy as np
@@ -29,8 +29,7 @@ class Graph(DiscreteSpectrumSpace):
         self.cache: Dict[int, Tuple[np.ndarray, np.ndarray]] = {}
         self.set_laplacian(adjacency_matrix.astype('float'))
 
-    @staticmethod
-    def _checks(adjacency):
+    def _checks(self, adjacency):
         # check dtype
         assert isinstance(adjacency, np.ndarray) and \
                len(adjacency.shape) == 2 and \
@@ -57,8 +56,8 @@ class Graph(DiscreteSpectrumSpace):
         return 0
 
     def set_laplacian(self, adjacency):
-        self._laplacian = np.diag(adjacency.sum(axis=0)) - \
-                          adjacency
+        self._laplacian = \
+            np.diag(adjacency.sum(axis=0)) - adjacency
 
     def get_eigensystem(self, num):
         """
@@ -100,4 +99,3 @@ class Graph(DiscreteSpectrumSpace):
         :return: eigenvalues [num, 1]
         """
         return self.get_eigensystem(num)[1]
-
