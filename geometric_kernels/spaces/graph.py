@@ -3,16 +3,19 @@ Graph object
 """
 
 import warnings
-from typing import List, Dict, Tuple
+from typing import Dict, Tuple
 
 import lab as B
 import numpy as np
-from scipy.sparse.linalg import eigsh
-# from networkx import Graph
+import scipy.sparse as sp
 
 from geometric_kernels.eigenfunctions import Eigenfunctions
+from geometric_kernels.lab_extras import degree
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.mesh import ConvertEigenvectorsToEigenfunctions
+
+SP_TO_DENSE_WARN = "Converting graph to dense as sp.linalg.eigsh fails if \
+num == n in the case of a sparse graph."
 
 
 class Graph(DiscreteSpectrumSpace):
@@ -20,44 +23,21 @@ class Graph(DiscreteSpectrumSpace):
     Represents an arbitrary undirected graph.
     """
 
-    def __init__(self, adjacency_matrix: List[np.array]):
+    def __init__(self, adjacency_matrix: Tuple[np.array, sp.spmatrix]):  # type: ignore
         """
-        :param adjacency_matrix: An n-dimensional square matrix
-            representing edges.
+        :param adjacency_matrix: An n-dimensional square, symmetric, binary
+            matrix, where adjacency_matrix[i, j] is one if there is an edge
+            between nodes i and j.
         """
-        adjacency_matrix = self._checks(adjacency_matrix)
         self.cache: Dict[int, Tuple[np.ndarray, np.ndarray]] = {}
-        self.set_laplacian(adjacency_matrix.astype('float'))
-
-    def _checks(self, adjacency):
-        # check dtype
-        assert isinstance(adjacency, np.ndarray) and \
-               len(adjacency.shape) == 2 and \
-               adjacency.shape[0] == adjacency.shape[1]
-
-        if not np.isin(adjacency, [0, 1]).all():
-            warnings.warn("Adjacency is weighted, ignoring weights.")
-            adjacency = self._discard_edge_weights(adjacency)
-
-        if not (adjacency == adjacency.T).all():
-            warnings.warn("Adjacency is not symmetric, ignoring directions.")
-            adjacency = self._discard_edge_weights(adjacency + adjacency.T)
-
-        return adjacency
-
-    @staticmethod
-    def _discard_edge_weights(adjacency):
-        adjacency[adjacency > 0] = 1
-        return adjacency
+        self.set_laplacian(adjacency_matrix.astype("float"))  # type: ignore
 
     @property
     def dimension(self) -> int:
-        """ TODO(AR): Make sure this is correct. """
-        return 0
+        return 0  # this is needed for the kernel math to work out
 
     def set_laplacian(self, adjacency):
-        self._laplacian = \
-            np.diag(adjacency.sum(axis=0)) - adjacency
+        self._laplacian = degree(adjacency) - adjacency
 
     def get_eigensystem(self, num):
         """
@@ -70,8 +50,19 @@ class Graph(DiscreteSpectrumSpace):
         :return: A Tuple of eigenvectors [n, num], eigenvalues [num, 1]
         """
         if num not in self.cache:
-            evals, evecs = eigsh(self._laplacian, num, sigma=1e-8)
-            # evecs, _ = np.linalg.qr(evecs)
+            is_sparse = sp.issparse(self._laplacian)
+            all_eigens = num == self._laplacian.shape[0]
+            if is_sparse and all_eigens:
+                warnings.warn(SP_TO_DENSE_WARN)
+                laplacian = self._laplacian.toarray()
+            else:
+                laplacian = self._laplacian
+
+            evals, evecs = sp.linalg.eigsh(laplacian, num, sigma=1e-8)
+
+            if evals[0] < 0:
+                evals[0] = np.finfo(float).eps  # lowest eigenval is frequently -1e-15
+
             self.cache[num] = (evecs, evals.reshape(-1, 1))
 
         return self.cache[num]

@@ -52,3 +52,11 @@ def sinh(x: B.Numeric) -> B.Numeric:
     .. math:: cosh(x) = \frac{\exp(x) - \exp(-x)}{2} ,
     """
     return 0.5 * (B.exp(x) - B.exp(-x))
+
+
+@dispatch
+@abstract()
+def degree(a):
+    """
+    Diagonal matrix with x as main diagonal.
+    """

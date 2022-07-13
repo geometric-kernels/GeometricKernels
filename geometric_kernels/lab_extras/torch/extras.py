@@ -48,3 +48,12 @@ def logspace(start: B.TorchNumeric, stop: _Numeric, num: int = 50, base: _Numeri
     Return numbers spaced evenly on a log scale.
     """
     return torch.logspace(start, stop, num, base)
+
+
+# this would be needed for torch sparse tensor transposes
+# @dispatch
+# def transpose(x: B.TorchNumeric):
+#     """
+#     Transposes a matrix
+#     """
+#     return torch.t(x)
