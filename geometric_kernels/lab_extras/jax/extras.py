@@ -56,3 +56,12 @@ def eigenpairs(L: B.JAXNumeric, k: int):
     """
     l, u = jnp.linalg.eigh(L)
     return l[:k], u[:, :k]
+
+
+@dispatch
+def set_value(a: B.JAXNumeric, index: B.Numeric, value: B.Numeric):
+    """
+    Set a[index] = value.
+    """
+    a = a.at[index].set(value)
+    return a

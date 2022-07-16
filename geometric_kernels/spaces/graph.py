@@ -9,7 +9,7 @@ import numpy as np
 import scipy.sparse as sp
 
 from geometric_kernels.eigenfunctions import Eigenfunctions
-from geometric_kernels.lab_extras import degree, eigenpairs, take_along_axis
+from geometric_kernels.lab_extras import degree, eigenpairs, set_value, take_along_axis
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 
 
@@ -80,9 +80,9 @@ class Graph(DiscreteSpectrumSpace):
         """
         if num not in self.cache:
             evals, evecs = eigenpairs(self._laplacian, num)
-
-            if evals[0] < 0:
-                evals[0] = np.finfo(float).eps  # lowest eigenval should be zero
+            evals = set_value(
+                evals, 0, np.finfo(float).eps
+            )  # lowest eigenval should be zero
 
             self.cache[num] = (evecs, evals[:, None])
 

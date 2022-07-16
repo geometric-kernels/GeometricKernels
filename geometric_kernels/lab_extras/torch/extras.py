@@ -69,3 +69,12 @@ def eigenpairs(L: B.TorchNumeric, k: int):
     """
     l, u = torch.linalg.eigh(L)
     return l[:k], u[:, :k]
+
+
+@dispatch
+def set_value(a: B.TorchNumeric, index: B.Numeric, value: B.Numeric):
+    """
+    Set a[index] = value.
+    """
+    a[index] = value
+    return a

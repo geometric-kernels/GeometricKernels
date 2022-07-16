@@ -33,3 +33,12 @@ def eigenpairs(L: Union[SparseArray, _Numeric], k: int):
     if sp.issparse(L) and (k == L.shape[0]):
         L = L.toarray()
     return sp.linalg.eigsh(L, k, sigma=1e-8)
+
+
+@dispatch
+def set_value(a: Union[SparseArray, _Numeric], index: _Numeric, value: _Numeric):
+    """
+    Set a[index] = value.
+    """
+    a[index] = value
+    return a

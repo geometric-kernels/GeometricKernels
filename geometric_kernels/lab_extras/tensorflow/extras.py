@@ -66,3 +66,12 @@ def eigenpairs(L: B.TFNumeric, k: int):
     """
     l, u = tf.linalg.eigh(L)
     return l[:k], u[:, :k]
+
+
+@dispatch
+def set_value(a: B.TFNumeric, index: int, value: B.Numeric):
+    """
+    Set a[index] = value.
+    """
+    a = tf.where(tf.range(len(a)) == index, value, a)
+    return a

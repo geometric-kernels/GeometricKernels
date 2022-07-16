@@ -68,3 +68,11 @@ def eigenpairs(L, k: int):
     """
     Obtain the k highest eigenpairs of a symmetric PSD matrix L.
     """
+
+
+@dispatch
+@abstract()
+def set_value(a, index: B.Numeric, value: B.Numeric):
+    """
+    Set a[index] = value.
+    """
