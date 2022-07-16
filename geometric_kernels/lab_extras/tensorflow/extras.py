@@ -48,3 +48,21 @@ def logspace(start: _Numeric, stop: _Numeric, num: int = 50, base: _Numeric = 50
     """
     y = tf.linspace(start, stop, num)
     return tf.math.pow(base, y)
+
+
+@dispatch
+def degree(a: B.TFNumeric):  # type: ignore
+    """
+    Diagonal matrix with x as main diagonal.
+    """
+    degrees = tf.reduce_sum(a, axis=0)  # type: ignore
+    return tf.linalg.diag(degrees)
+
+
+@dispatch
+def eigenpairs(L: B.TFNumeric, k: int):
+    """
+    Obtain the k highest eigenpairs of a symmetric PSD matrix L.
+    """
+    l, u = tf.linalg.eigh(L)
+    return l[:k], u[:, :k]

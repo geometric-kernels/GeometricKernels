@@ -38,3 +38,21 @@ def logspace(start: B.JAXNumeric, stop: _Numeric, num: int = 50):  # type: ignor
     Return numbers spaced evenly on a log scale.
     """
     return jnp.logspace(start, stop, num)
+
+
+@dispatch
+def degree(a: B.JAXNumeric):  # type: ignore
+    """
+    Diagonal matrix with x as main diagonal.
+    """
+    degrees = a.sum(axis=0)  # type: ignore
+    return jnp.diag(degrees)
+
+
+@dispatch
+def eigenpairs(L: B.JAXNumeric, k: int):
+    """
+    Obtain the k highest eigenpairs of a symmetric PSD matrix L.
+    """
+    l, u = jnp.linalg.eigh(L)
+    return l[:k], u[:, :k]

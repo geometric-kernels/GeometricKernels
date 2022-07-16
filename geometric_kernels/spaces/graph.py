@@ -2,7 +2,6 @@
 Graph object
 """
 
-import warnings
 from typing import Dict, Tuple
 
 import lab as B
@@ -10,12 +9,39 @@ import numpy as np
 import scipy.sparse as sp
 
 from geometric_kernels.eigenfunctions import Eigenfunctions
-from geometric_kernels.lab_extras import degree
+from geometric_kernels.lab_extras import degree, eigenpairs, take_along_axis
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
-from geometric_kernels.spaces.mesh import ConvertEigenvectorsToEigenfunctions
 
-SP_TO_DENSE_WARN = "Converting graph to dense as sp.linalg.eigsh fails if \
-num == n in the case of a sparse graph."
+
+class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
+    """
+    Converts the array of eigenvectors to a callable objects,
+    where inputs are given by the indices. Based on
+    from geometric_kernels.spaces.mesh import ConvertEigenvectorsToEigenfunctions.
+    TODO(AR): Combine this and mesh.ConvertEigenvectorsToEigenfunctions.
+    """
+
+    def __init__(self, eigenvectors: B.Numeric):
+        """
+        :param eigenvectors: [Nv, M]
+        """
+        self.eigenvectors = eigenvectors
+
+    def __call__(self, X: B.Numeric, **parameters) -> B.Numeric:
+        """
+        Selects `N` locations from the `M` eigenvectors.
+
+        :param X: indices [N, 1]
+        :param parameters: unused
+        :return: [N, M]
+        """
+        indices = B.cast(B.dtype_int(X), X)
+        Phi = take_along_axis(self.eigenvectors, indices, axis=0)
+        return Phi
+
+    def num_eigenfunctions(self) -> int:
+        """Number of eigenvectos, M"""
+        return B.shape(self.eigenvectors)[-1]
 
 
 class Graph(DiscreteSpectrumSpace):
@@ -30,7 +56,7 @@ class Graph(DiscreteSpectrumSpace):
             between nodes i and j.
         """
         self.cache: Dict[int, Tuple[np.ndarray, np.ndarray]] = {}
-        self.set_laplacian(adjacency_matrix.astype("float"))  # type: ignore
+        self.set_laplacian(adjacency_matrix)  # type: ignore
 
     @property
     def dimension(self) -> int:
@@ -42,7 +68,10 @@ class Graph(DiscreteSpectrumSpace):
     def get_eigensystem(self, num):
         """
         Returns the first `num` eigenvalues and eigenvectors of the graph Laplacian.
-        Caches the solution to prevent re-computing the same values.
+        Caches the solution to prevent re-computing the same values. Note that, if a
+        sparse scipy matrix is input, requesting all n eigenpairs will lead to a
+        conversion of the sparse matrix to a dense one due to scipy.sparse.linalg.eigsh
+        limitations.
 
         TODO(AR): Make sure this is optimal.
 
@@ -50,20 +79,12 @@ class Graph(DiscreteSpectrumSpace):
         :return: A Tuple of eigenvectors [n, num], eigenvalues [num, 1]
         """
         if num not in self.cache:
-            is_sparse = sp.issparse(self._laplacian)
-            all_eigens = num == self._laplacian.shape[0]
-            if is_sparse and all_eigens:
-                warnings.warn(SP_TO_DENSE_WARN)
-                laplacian = self._laplacian.toarray()
-            else:
-                laplacian = self._laplacian
-
-            evals, evecs = sp.linalg.eigsh(laplacian, num, sigma=1e-8)
+            evals, evecs = eigenpairs(self._laplacian, num)
 
             if evals[0] < 0:
-                evals[0] = np.finfo(float).eps  # lowest eigenval is frequently -1e-15
+                evals[0] = np.finfo(float).eps  # lowest eigenval should be zero
 
-            self.cache[num] = (evecs, evals.reshape(-1, 1))
+            self.cache[num] = (evecs, evals[:, None])
 
         return self.cache[num]
 

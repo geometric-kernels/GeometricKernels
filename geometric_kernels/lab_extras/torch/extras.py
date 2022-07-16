@@ -23,7 +23,9 @@ def from_numpy(
     """
     Converts the array `b` to a tensor of the same backend as `a`
     """
-    return torch.tensor(b)
+    if not torch.is_tensor(b):
+        b = torch.tensor(b)
+    return b
 
 
 @dispatch
@@ -50,10 +52,20 @@ def logspace(start: B.TorchNumeric, stop: _Numeric, num: int = 50, base: _Numeri
     return torch.logspace(start, stop, num, base)
 
 
-# this would be needed for torch sparse tensor transposes
-# @dispatch
-# def transpose(x: B.TorchNumeric):
-#     """
-#     Transposes a matrix
-#     """
-#     return torch.t(x)
+@dispatch
+def degree(a: B.TorchNumeric):  # type: ignore
+    """
+    Diagonal matrix with x as main diagonal.
+    """
+    degrees = a.sum(axis=0)  # type: ignore
+    return torch.diag(degrees)
+
+
+@dispatch
+def eigenpairs(L: B.TorchNumeric, k: int):
+    """
+    Obtain the k highest eigenpairs of a symmetric PSD matrix L.
+    TODO(AR): Replace with torch.lobpcg after sparse matrices are supported by torch.
+    """
+    l, u = torch.linalg.eigh(L)
+    return l[:k], u[:, :k]

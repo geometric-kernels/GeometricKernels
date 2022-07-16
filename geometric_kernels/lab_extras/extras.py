@@ -60,3 +60,11 @@ def degree(a):
     """
     Diagonal matrix with x as main diagonal.
     """
+
+
+@dispatch
+@abstract()
+def eigenpairs(L, k: int):
+    """
+    Obtain the k highest eigenpairs of a symmetric PSD matrix L.
+    """

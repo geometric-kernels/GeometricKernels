@@ -2,6 +2,8 @@ import scipy.sparse as sp
 from lab import dispatch
 from plum import Union
 
+from .extras import _Numeric
+
 SparseArray = Union(
     sp.bsr.bsr_matrix,
     sp.coo.coo_matrix,
@@ -21,3 +23,13 @@ def degree(a: SparseArray):  # type: ignore
     """
     d = a.sum(axis=0)  # type: ignore
     return sp.spdiags(d, 0, d.size, d.size)
+
+
+@dispatch
+def eigenpairs(L: Union[SparseArray, _Numeric], k: int):
+    """
+    Obtain the k highest eigenpairs of a symmetric PSD matrix L.
+    """
+    if sp.issparse(L) and (k == L.shape[0]):
+        L = L.toarray()
+    return sp.linalg.eigsh(L, k, sigma=1e-8)
