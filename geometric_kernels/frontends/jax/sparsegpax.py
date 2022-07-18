@@ -11,6 +11,7 @@ from geometric_kernels.kernels import BaseGeometricKernel
 
 class GeometricKernelParameters(NamedTuple):
     """Kernel hyperparameters"""
+
     log_lengthscale: jnp.ndarray
     """log of the lengthscales"""
     log_nu: jnp.ndarray
