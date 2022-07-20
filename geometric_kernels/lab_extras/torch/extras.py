@@ -45,11 +45,11 @@ def norm(x: _Numeric, ord: Optional[Any] = None, axis: Optional[int] = None):  #
 
 
 @dispatch
-def logspace(start: B.TorchNumeric, stop: _Numeric, num: int = 50, base: _Numeric = 10.0):  # type: ignore
+def logspace(start: B.TorchNumeric, stop: B.TorchNumeric, num: int = 50, base: _Numeric = 10.0):  # type: ignore
     """
     Return numbers spaced evenly on a log scale.
     """
-    return torch.logspace(start, stop, num, base)
+    return torch.logspace(start.item(), stop.item(), num, base)
 
 
 @dispatch

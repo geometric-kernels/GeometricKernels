@@ -11,6 +11,7 @@ import scipy.sparse as sp
 from geometric_kernels.eigenfunctions import Eigenfunctions
 from geometric_kernels.lab_extras import degree, eigenpairs, set_value, take_along_axis
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
+from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 
 
 class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
