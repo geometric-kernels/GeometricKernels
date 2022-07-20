@@ -23,12 +23,22 @@ class Graph(DiscreteSpectrumSpace):
 
     def __init__(self, adjacency_matrix: Tuple[np.array, sp.spmatrix]):  # type: ignore
         """
-        :param adjacency_matrix: An n-dimensional square, symmetric, binary
-            matrix, where adjacency_matrix[i, j] is one if there is an edge
+        :param adjacency_matrix: An n-dimensional square, symmetric matrix,
+            where adjacency_matrix[i, j] is non-zero if there is an edge
             between nodes i and j.
         """
         self.cache: Dict[int, Tuple[np.ndarray, np.ndarray]] = {}
+        self._checks(adjacency_matrix)
         self.set_laplacian(adjacency_matrix)  # type: ignore
+
+    @staticmethod
+    def _checks(adjacency):
+        assert (
+            len(B.shape(adjacency)) == 2 and adjacency.shape[0] == adjacency.shape[1]
+        ), "Matrix is not square."
+
+        # this is more efficient than (adj == adj.T).all()
+        assert not B.any(adjacency != B.T(adjacency)), "Adjacency is not symmetric."
 
     @property
     def dimension(self) -> int:
@@ -44,8 +54,6 @@ class Graph(DiscreteSpectrumSpace):
         sparse scipy matrix is input, requesting all n eigenpairs will lead to a
         conversion of the sparse matrix to a dense one due to scipy.sparse.linalg.eigsh
         limitations.
-
-        TODO(AR): Make sure this is optimal.
 
         :param num: number of eigenvalues and functions to return.
         :return: A Tuple of eigenvectors [n, num], eigenvalues [num, 1]

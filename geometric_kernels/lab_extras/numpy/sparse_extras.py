@@ -1,6 +1,7 @@
+import lab as B
 import scipy.sparse as sp
 from lab import dispatch
-from plum import Union
+from plum import Signature, Union
 
 from .extras import _Numeric
 
@@ -18,6 +19,8 @@ SparseArray = Union(
     sp.lil.lil_matrix,
     alias="SparseArray",
 )
+
+_SparseArraySign = Signature(SparseArray)
 
 
 @dispatch
@@ -46,3 +49,21 @@ def set_value(a: Union[SparseArray, _Numeric], index: _Numeric, value: _Numeric)
     """
     a[index] = value
     return a
+
+
+def sparse_transpose(a):
+    return a.T
+
+
+def sparse_shape(a):
+    return a.shape
+
+
+def sparse_any(a):
+    return bool((a == True).sum())  # noqa
+
+
+""" Register methods for the shape, transpose and any of a sparse array. """
+B.T.register(_SparseArraySign, sparse_transpose)
+B.shape.register(_SparseArraySign, sparse_shape)
+B.any.register(_SparseArraySign, sparse_any)
