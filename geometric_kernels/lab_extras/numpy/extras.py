@@ -51,7 +51,7 @@ def logspace(start: _Numeric, stop: _Numeric, num: int = 50, base: _Numeric = 50
 @dispatch
 def degree(a: _Numeric):  # type: ignore
     """
-    Diagonal matrix with x as main diagonal.
+    Given a vector a, return a diagonal matrix with a as main diagonal.
     """
     degrees = a.sum(axis=0)  # type: ignore
     return np.diag(degrees)

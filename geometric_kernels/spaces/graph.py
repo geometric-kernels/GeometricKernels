@@ -8,41 +8,12 @@ import lab as B
 import numpy as np
 import scipy.sparse as sp
 
-from geometric_kernels.eigenfunctions import Eigenfunctions
-from geometric_kernels.lab_extras import degree, eigenpairs, set_value, take_along_axis
-from geometric_kernels.spaces.base import DiscreteSpectrumSpace
+from geometric_kernels.lab_extras import degree, eigenpairs, set_value
+from geometric_kernels.spaces.base import (
+    ConvertEigenvectorsToEigenfunctions,
+    DiscreteSpectrumSpace,
+)
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
-
-
-class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
-    """
-    Converts the array of eigenvectors to a callable objects,
-    where inputs are given by the indices. Based on
-    from geometric_kernels.spaces.mesh import ConvertEigenvectorsToEigenfunctions.
-    TODO(AR): Combine this and mesh.ConvertEigenvectorsToEigenfunctions.
-    """
-
-    def __init__(self, eigenvectors: B.Numeric):
-        """
-        :param eigenvectors: [Nv, M]
-        """
-        self.eigenvectors = eigenvectors
-
-    def __call__(self, X: B.Numeric, **parameters) -> B.Numeric:
-        """
-        Selects `N` locations from the `M` eigenvectors.
-
-        :param X: indices [N, 1]
-        :param parameters: unused
-        :return: [N, M]
-        """
-        indices = B.cast(B.dtype_int(X), X)
-        Phi = take_along_axis(self.eigenvectors, indices, axis=0)
-        return Phi
-
-    def num_eigenfunctions(self) -> int:
-        """Number of eigenvectos, M"""
-        return B.shape(self.eigenvectors)[-1]
 
 
 class Graph(DiscreteSpectrumSpace):

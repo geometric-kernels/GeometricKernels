@@ -9,10 +9,12 @@ _Numeric = Union[B.Number, B.TorchNumeric]
 
 
 @dispatch
-def take_along_axis(a: _Numeric, index: _Numeric, axis: int = 0) -> _Numeric:  # type: ignore
+def take_along_axis(a: Union[_Numeric, B.Numeric], index: _Numeric, axis: int = 0) -> _Numeric:  # type: ignore
     """
     Gathers elements of `a` along `axis` at `index` locations.
     """
+    if not torch.is_tensor(a):
+        a = torch.tensor(a).to(index.device)  # type: ignore
     return torch.index_select(a, axis, B.flatten(index))
 
 
@@ -55,7 +57,7 @@ def logspace(start: B.TorchNumeric, stop: B.TorchNumeric, num: int = 50, base: _
 @dispatch
 def degree(a: B.TorchNumeric):  # type: ignore
     """
-    Diagonal matrix with x as main diagonal.
+    Given a vector a, return a diagonal matrix with a as main diagonal.
     """
     degrees = a.sum(axis=0)  # type: ignore
     return torch.diag(degrees)

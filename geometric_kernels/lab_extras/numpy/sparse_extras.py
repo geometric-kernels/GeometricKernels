@@ -4,6 +4,10 @@ from plum import Union
 
 from .extras import _Numeric
 
+"""
+SparseArray defines a lab data type that covers all possible sparse
+scipy arrays, so that multiple dispatch works with such arrays.
+"""
 SparseArray = Union(
     sp.bsr.bsr_matrix,
     sp.coo.coo_matrix,
@@ -19,7 +23,7 @@ SparseArray = Union(
 @dispatch
 def degree(a: SparseArray):  # type: ignore
     """
-    Diagonal matrix with x as main diagonal.
+    Given a vector a, return a diagonal matrix with a as main diagonal.
     """
     d = a.sum(axis=0)  # type: ignore
     return sp.spdiags(d, 0, d.size, d.size)

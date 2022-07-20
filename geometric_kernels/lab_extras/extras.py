@@ -58,7 +58,7 @@ def sinh(x: B.Numeric) -> B.Numeric:
 @abstract()
 def degree(a):
     """
-    Diagonal matrix with x as main diagonal.
+    Given a vector a, return a diagonal matrix with a as main diagonal.
     """
 
 
