@@ -43,10 +43,12 @@ def eigenpairs(L: Union[SparseArray, _Numeric], k: int):
 
 
 @dispatch
-def set_value(a: Union[SparseArray, _Numeric], index: _Numeric, value: _Numeric):
+def set_value(a: Union[SparseArray, _Numeric], index: int, value: float):
     """
     Set a[index] = value.
+    This operation is not done in place and a new array is returned.
     """
+    a = a.copy()
     a[index] = value
     return a
 

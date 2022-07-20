@@ -69,9 +69,10 @@ def eigenpairs(L: B.TFNumeric, k: int):
 
 
 @dispatch
-def set_value(a: B.TFNumeric, index: int, value: B.Numeric):
+def set_value(a: B.TFNumeric, index: int, value: float):
     """
     Set a[index] = value.
+    This operation is not done in place and a new array is returned.
     """
     a = tf.where(tf.range(len(a)) == index, value, a)
     return a

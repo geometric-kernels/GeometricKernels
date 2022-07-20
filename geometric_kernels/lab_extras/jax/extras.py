@@ -61,9 +61,10 @@ def eigenpairs(L: B.JAXNumeric, k: int):
 
 
 @dispatch
-def set_value(a: B.JAXNumeric, index: B.Numeric, value: B.Numeric):
+def set_value(a: B.JAXNumeric, index: int, value: float):
     """
     Set a[index] = value.
+    This operation is not done in place and a new array is returned.
     """
     a = a.at[index].set(value)
     return a

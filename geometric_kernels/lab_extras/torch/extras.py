@@ -74,9 +74,11 @@ def eigenpairs(L: B.TorchNumeric, k: int):
 
 
 @dispatch
-def set_value(a: B.TorchNumeric, index: B.Numeric, value: B.Numeric):
+def set_value(a: B.TorchNumeric, index: int, value: float):
     """
     Set a[index] = value.
+    This operation is not done in place and a new array is returned.
     """
+    a = a.clone()
     a[index] = value
     return a

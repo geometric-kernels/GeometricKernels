@@ -72,7 +72,8 @@ def eigenpairs(L, k: int):
 
 @dispatch
 @abstract()
-def set_value(a, index: B.Numeric, value: B.Numeric):
+def set_value(a, index: int, value: float):
     """
     Set a[index] = value.
+    This operation is not done in place and a new array is returned.
     """
