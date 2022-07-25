@@ -122,7 +122,7 @@ def test_karhunen_loeve_dtype(kl_spacepoint, dtype, backend):
 
     params, state = kernel.init_params_and_state()
     params["nu"] = to_typed_tensor(to_typed_ndarray(np.r_[0.5], dtype), backend)
-    params["lenghtscale"] = to_typed_tensor(
+    params["lengthscale"] = to_typed_tensor(
         to_typed_ndarray(np.r_[0.5], dtype), backend
     )
 
@@ -141,7 +141,7 @@ def test_integrated_matern_dtype(heat_spacepoint, dtype, backend):
 
     params, state = kernel.init_params_and_state()
     params["nu"] = to_typed_tensor(to_typed_ndarray(np.r_[0.5], dtype), backend)
-    params["lenghtscale"] = to_typed_tensor(
+    params["lengthscale"] = to_typed_tensor(
         to_typed_ndarray(np.r_[0.5], dtype), backend
     )
 

@@ -3,8 +3,8 @@ Graphs: TODO
 """
 import lab as B
 
-from geometric_kernels.eigenfunctions import Eigenfunctions
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
+from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 
 # from networkx import Graph
 

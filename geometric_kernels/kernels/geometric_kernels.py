@@ -5,10 +5,10 @@ Implementation of geometric kernels on several spaces
 import lab as B
 import numpy as np
 
-from geometric_kernels.eigenfunctions import Eigenfunctions
 from geometric_kernels.kernels.base import BaseGeometricKernel
 from geometric_kernels.lab_extras import from_numpy, logspace, trapz
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
+from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 from geometric_kernels.spaces.hyperbolic import Hyperbolic
 from geometric_kernels.utils.utils import Optional
 
@@ -227,7 +227,9 @@ class MaternIntegratedKernel(BaseGeometricKernel):
             distance = self.space.distance(X, X2, diag=False)
 
         shift = B.log(lengthscale) / B.log(10.0)  # Log 10
-        t_vals = logspace(-2.5 + shift, 1.5 + shift, self.num_points_t)  # (T,)
+        t_vals = B.reshape(
+            logspace(-2.5 + shift, 1.5 + shift, self.num_points_t), -1
+        )  # (T,)
 
         integral_vals = self.link_function(
             params, distance, t_vals
@@ -238,7 +240,9 @@ class MaternIntegratedKernel(BaseGeometricKernel):
         t_vals_integrator = B.tile(
             t_vals[None, :] if diag else t_vals[None, None, :], *reshape
         )  # (N1, N2, T) or (N, T)
-        t_vals_integrator = B.cast(B.dtype(integral_vals), t_vals_integrator)  # (T, )
+        t_vals_integrator = B.cast(
+            B.dtype(integral_vals), t_vals_integrator
+        )  # (N1, N2, T) or (N, T)
 
         # Integral over heat kernel to obtain the Matérn kernel values
         kernel = trapz(integral_vals, t_vals_integrator, axis=-1)

@@ -12,11 +12,11 @@ import numpy as np
 from spherical_harmonics import SphericalHarmonics as _SphericalHarmonics
 from spherical_harmonics.fundamental_set import num_harmonics
 
-from geometric_kernels.eigenfunctions import (
+from geometric_kernels.spaces import DiscreteSpectrumSpace
+from geometric_kernels.spaces.eigenfunctions import (
     Eigenfunctions,
     EigenfunctionWithAdditionTheorem,
 )
-from geometric_kernels.spaces import DiscreteSpectrumSpace
 from geometric_kernels.utils.utils import chain
 
 
