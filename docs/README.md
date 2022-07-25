@@ -1,7 +1,3 @@
-# Prerequisites
-
-TODO
-
 # Compiling documentation
 
 First, execute doctests by running the following command in this dirrectory

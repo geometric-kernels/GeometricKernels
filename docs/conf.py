@@ -84,3 +84,11 @@ html_css_files = [
 html_js_files = [
     'js/bootstrap.min.js',
 ]
+
+# Theme-specific options. See theme docs for more info
+html_context = {
+  'display_github': True,
+  'github_user': 'GPflow',
+  'github_repo': 'GeometricKernels',
+  'github_version': 'main/docs/'
+}

@@ -334,7 +334,7 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    </div>
    <br>
 
-You can find more examples in our `example notebooks <TODO>`_.
+You can find more examples in our `example notebooks <https://github.com/GPflow/GeometricKernels/tree/main/notebooks>`_.
 
 .. toctree::
    :hidden:
@@ -347,3 +347,4 @@ You can find more examples in our `example notebooks <TODO>`_.
    :hidden:
 
    API reference <autoapi/geometric_kernels/index>
+   GitHub <https://github.com/GPflow/GeometricKernels>
