@@ -6,7 +6,6 @@ from typing import Dict, Tuple
 
 import lab as B
 import numpy as np
-import scipy.sparse as sp
 
 from geometric_kernels.lab_extras import degree, eigenpairs, set_value
 from geometric_kernels.spaces.base import (
@@ -21,13 +20,13 @@ class Graph(DiscreteSpectrumSpace):
     Represents an arbitrary undirected graph.
     """
 
-    def __init__(self, adjacency_matrix: Tuple[np.array, sp.spmatrix]):  # type: ignore
+    def __init__(self, adjacency_matrix: B.Numeric):  # type: ignore
         """
         :param adjacency_matrix: An n-dimensional square, symmetric matrix,
             where adjacency_matrix[i, j] is non-zero if there is an edge
-            between nodes i and j.
+            between nodes i and j. Scipy's sparse matrices are supported.
         """
-        self.cache: Dict[int, Tuple[np.ndarray, np.ndarray]] = {}
+        self.cache: Dict[int, Tuple[B.Numeric, B.Numeric]] = {}
         self._checks(adjacency_matrix)
         self.set_laplacian(adjacency_matrix)  # type: ignore
 

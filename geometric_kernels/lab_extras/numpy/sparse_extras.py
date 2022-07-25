@@ -26,7 +26,10 @@ _SparseArraySign = Signature(SparseArray)
 @dispatch
 def degree(a: SparseArray):  # type: ignore
     """
-    Given a vector a, return a diagonal matrix with a as main diagonal.
+    Given an adjacency matrix `a`, return a diagonal matrix
+    with the col-sums of `a` as main diagonal - this is the
+    degree matrix representing the number of nodes each node
+    is connected to.
     """
     d = a.sum(axis=0)  # type: ignore
     return sp.spdiags(d, 0, d.size, d.size)

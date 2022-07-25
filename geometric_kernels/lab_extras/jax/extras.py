@@ -45,7 +45,10 @@ def logspace(start: B.JAXNumeric, stop: _Numeric, num: int = 50):  # type: ignor
 @dispatch
 def degree(a: B.JAXNumeric):  # type: ignore
     """
-    Given a vector a, return a diagonal matrix with a as main diagonal.
+    Given an adjacency matrix `a`, return a diagonal matrix
+    with the col-sums of `a` as main diagonal - this is the
+    degree matrix representing the number of nodes each node
+    is connected to.
     """
     degrees = a.sum(axis=0)  # type: ignore
     return jnp.diag(degrees)

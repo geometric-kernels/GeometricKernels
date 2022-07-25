@@ -53,7 +53,10 @@ def logspace(start: _Numeric, stop: _Numeric, num: int = 50, base: _Numeric = 50
 @dispatch
 def degree(a: B.TFNumeric):  # type: ignore
     """
-    Given a vector a, return a diagonal matrix with a as main diagonal.
+    Given an adjacency matrix `a`, return a diagonal matrix
+    with the col-sums of `a` as main diagonal - this is the
+    degree matrix representing the number of nodes each node
+    is connected to.
     """
     degrees = tf.reduce_sum(a, axis=0)  # type: ignore
     return tf.linalg.diag(degrees)
