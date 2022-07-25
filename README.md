@@ -1,5 +1,10 @@
 **WARNING: this is a development (unstable) version of the package**
 
+[![Quality checks and Tests](https://github.com/GPflow/GeometricKernels/actions/workflows/quality-checks.yaml/badge.svg)](https://github.com/GPflow/GeometricKernels/actions/workflows/quality-checks.yaml)
+
+[![Documentation](https://github.com/GPflow/GeometricKernels/actions/workflows/docs.yaml/badge.svg)](https://github.com/GPflow/GeometricKernels/actions/workflows/docs.yaml)
+
+
 
 # Geometric Kernels
 
