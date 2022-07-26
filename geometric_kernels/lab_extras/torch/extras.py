@@ -9,10 +9,12 @@ _Numeric = Union[B.Number, B.TorchNumeric]
 
 
 @dispatch
-def take_along_axis(a: _Numeric, index: _Numeric, axis: int = 0) -> _Numeric:  # type: ignore
+def take_along_axis(a: Union[_Numeric, B.Numeric], index: _Numeric, axis: int = 0) -> _Numeric:  # type: ignore
     """
     Gathers elements of `a` along `axis` at `index` locations.
     """
+    if not torch.is_tensor(a):
+        a = torch.tensor(a).to(index.device)  # type: ignore
     return torch.index_select(a, axis, B.flatten(index))
 
 
@@ -23,7 +25,9 @@ def from_numpy(
     """
     Converts the array `b` to a tensor of the same backend as `a`
     """
-    return torch.tensor(b)
+    if not torch.is_tensor(b):
+        b = torch.tensor(b)
+    return b
 
 
 @dispatch
@@ -48,3 +52,36 @@ def logspace(start: B.TorchNumeric, stop: B.TorchNumeric, num: int = 50, base: _
     Return numbers spaced evenly on a log scale.
     """
     return torch.logspace(start.item(), stop.item(), num, base)
+
+
+@dispatch
+def degree(a: B.TorchNumeric):  # type: ignore
+    """
+    Given an adjacency matrix `a`, return a diagonal matrix
+    with the col-sums of `a` as main diagonal - this is the
+    degree matrix representing the number of nodes each node
+    is connected to.
+    """
+    degrees = a.sum(axis=0)  # type: ignore
+    return torch.diag(degrees)
+
+
+@dispatch
+def eigenpairs(L: B.TorchNumeric, k: int):
+    """
+    Obtain the k highest eigenpairs of a symmetric PSD matrix L.
+    TODO(AR): Replace with torch.lobpcg after sparse matrices are supported by torch.
+    """
+    l, u = torch.linalg.eigh(L)
+    return l[:k], u[:, :k]
+
+
+@dispatch
+def set_value(a: B.TorchNumeric, index: int, value: float):
+    """
+    Set a[index] = value.
+    This operation is not done in place and a new array is returned.
+    """
+    a = a.clone()
+    a[index] = value
+    return a
