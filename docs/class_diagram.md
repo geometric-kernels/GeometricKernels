@@ -44,7 +44,6 @@
             get_eigenvalues(num)
           }
           class Hypersphere {
-            dim
             dimension
             ehess2rhess(x, egrad, ehess, direction)
             get_eigenfunctions(num)
