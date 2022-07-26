@@ -16,9 +16,9 @@ class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
     r"""
     Hyperbolic manifold.
 
-    The class implements the hyperboloid model of the hyperbolic space H^n.
+    The class implements the hyperboloid model of the hyperbolic space :math:`H^n`.
 
-    :math: H^n = \{ (x_0, \ldots, x_{n}) | x_0^2 - \sum_{i=1}^{n} x_i^2 = 1, x_0 > 0 \}
+    :math:`H^n = \{ (x_0, \ldots, x_{n}) | x_0^2 - \sum_{i=1}^{n} x_i^2 = 1, x_0 > 0 \}`
 
     The class inherits the interface of geomstats's `Hyperbolic` with `point_type=extrinsic`.
     """
@@ -37,14 +37,9 @@ class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
 
         The code is a reimplementation of `geomstats.geometry.hyperboloid.HyperbolicMetric` for `lab`.
 
-        Parameters
-        ----------
         :param x1: [N, dim+1] array of points in the hyperbolic space
         :param x2: [M, dim+1] array of points in the hyperbolic space
         :param diag: if True, compute elementwise distance. Default False.
-
-        Returns
-        -------
         :return: hyperbolic distance.
         """
         if diag:
@@ -96,17 +91,13 @@ class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
         We use Millson's formula for the heat kernel.
 
         References:
-        [1] A. Grigoryan and M. Noguchi,
-        The heat kernel on hyperbolic space.
-        Bulletin of the London Mathematical Society, 30(6):643–650, 1998.
+            [1] A. Grigoryan and M. Noguchi,
+            The heat kernel on hyperbolic space.
+            Bulletin of the London Mathematical Society, 30(6):643–650, 1998.
 
-        Parameters
-        ----------
         :param distance: precomputed distance between the inputs
         :param t: heat kernel lengthscale
         :param num_points: number of points in the integral
-        Returns
-        -------
         :return: heat kernel values
         """
         if self.dimension == 1:

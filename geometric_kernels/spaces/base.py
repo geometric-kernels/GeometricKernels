@@ -20,9 +20,9 @@ class Space(abc.ABC):
 
         Examples:
 
-        * circle: 1
-        * sphere: 2
-        * torus: 2
+        * circle: 1 dimensional
+        * sphere: 2 dimensional
+        * torus: 2 dimensional
         """
         raise NotImplementedError
 

@@ -313,7 +313,7 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> xs = np.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
 
    >>> # Initialize kernel, use 100 terms to approximate the infinite series.
-   >>> kernel = MaternKarhunenLoeveKernel(hypersphere, 10)
+   >>> kernel = MaternKarhunenLoeveKernel(hypersphere, 100)
    >>> params, state = kernel.init_params_and_state()
    >>> params["nu"] = jnp.r_[5/2]
    >>> params["lengthscale"] = jnp.r_[1.]
@@ -324,6 +324,7 @@ In the following example we show how to initialize the Matern52 kernel on the tw
     [0.00305004 0.00855354 0.00305004]
     [0.00305004 0.00305004 0.00855354]]
 
+
 .. raw:: html
 
          </div>
@@ -333,7 +334,7 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    </div>
    <br>
 
-You can find more examples in our `example notebooks <TODO>`_.
+You can find more examples in our `example notebooks <https://github.com/GPflow/GeometricKernels/tree/main/notebooks>`_.
 
 .. toctree::
    :hidden:
@@ -346,3 +347,4 @@ You can find more examples in our `example notebooks <TODO>`_.
    :hidden:
 
    API reference <autoapi/geometric_kernels/index>
+   GitHub <https://github.com/GPflow/GeometricKernels>
