@@ -4,8 +4,12 @@ import pytest
 import tensorflow as tf
 import torch
 
-from geometric_kernels.kernels.geometric_kernels import MaternKarhunenLoeveKernel
+from geometric_kernels.kernels.geometric_kernels import (
+    MaternIntegratedKernel,
+    MaternKarhunenLoeveKernel,
+)
 from geometric_kernels.spaces.circle import Circle
+from geometric_kernels.spaces.hyperbolic import Hyperbolic
 from geometric_kernels.spaces.hypersphere import Hypersphere
 from geometric_kernels.spaces.mesh import Mesh
 
@@ -22,7 +26,7 @@ def to_typed_ndarray(value, dtype):
 def to_typed_tensor(value, backend):
     if backend == "tensorflow":
         return tf.convert_to_tensor(value)
-    elif backend == "torch":
+    elif backend in ["torch", "pytorch"]:
         return torch.tensor(value)
     elif backend == "numpy":
         return value
@@ -79,20 +83,38 @@ def hypersphere_point():
     return hypersphere, point
 
 
-@pytest.fixture(name="spacepoint", params=["circle", "hypersphere", "mesh"])
-def _spacepoint_fixture(request):
+def hyperbolic_point():
+    hyperboloid = Hyperbolic(dim=2)
+
+    point = hyperboloid.random_point(1).reshape(1, -1)
+
+    return hyperboloid, point
+
+
+@pytest.fixture(name="heat_spacepoint", params=["hyperbolic"])
+def _heat_spacepoint(request):
+    if request.param == "hyperbolic":
+        return hyperbolic_point()
+    else:
+        raise ValueError("Unknown space {}".format(request.param))
+
+
+@pytest.fixture(name="kl_spacepoint", params=["circle", "hypersphere", "mesh"])
+def _kl_spacepoint_fixture(request):
     if request.param == "circle":
         return circle_point()
     elif request.param == "hypersphere":
         return hypersphere_point()
     elif request.param == "mesh":
         return mesh_point()
+    else:
+        raise ValueError("Unknown space {}".format(request.param))
 
 
 @pytest.mark.parametrize("dtype", ["float32", "float64"])
 @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
-def test_dtype(spacepoint, dtype, backend):
-    space, point = spacepoint
+def test_karhunen_loeve_dtype(kl_spacepoint, dtype, backend):
+    space, point = kl_spacepoint
     point = to_typed_ndarray(point, dtype)
     point = to_typed_tensor(point, backend)
 
@@ -100,7 +122,26 @@ def test_dtype(spacepoint, dtype, backend):
 
     params, state = kernel.init_params_and_state()
     params["nu"] = to_typed_tensor(to_typed_ndarray(np.r_[0.5], dtype), backend)
-    params["lenghtscale"] = to_typed_tensor(
+    params["lengthscale"] = to_typed_tensor(
+        to_typed_ndarray(np.r_[0.5], dtype), backend
+    )
+
+    # make sure that it just runs
+    kernel.K(params, state, point)
+
+
+@pytest.mark.parametrize("dtype", ["float32", "float64"])
+@pytest.mark.parametrize("backend", ["numpy", "jax", "torch", "tensorflow"])
+def test_integrated_matern_dtype(heat_spacepoint, dtype, backend):
+    space, point = heat_spacepoint
+    point = to_typed_ndarray(point, dtype)
+    point = to_typed_tensor(point, backend)
+
+    kernel = MaternIntegratedKernel(space, 30)
+
+    params, state = kernel.init_params_and_state()
+    params["nu"] = to_typed_tensor(to_typed_ndarray(np.r_[0.5], dtype), backend)
+    params["lengthscale"] = to_typed_tensor(
         to_typed_ndarray(np.r_[0.5], dtype), backend
     )
 

@@ -9,46 +9,11 @@ import potpourri3d as pp3d
 import robust_laplacian
 import scipy.sparse.linalg as sla
 
-from geometric_kernels.eigenfunctions import Eigenfunctions
-from geometric_kernels.lab_extras import from_numpy, take_along_axis
-from geometric_kernels.spaces import DiscreteSpectrumSpace
-from geometric_kernels.utils import Optional
-
-
-class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
-    """
-    Converts the array of eigenvectors to a callable objects,
-    where inputs are given by the indices.
-    """
-
-    def __init__(self, eigenvectors: np.ndarray):
-        """
-        :param eigenvectors: [Nv, M]
-        """
-        # Always numpy to seamleassy convert to a desired backend
-        assert isinstance(eigenvectors, np.ndarray)
-        self.eigenvectors_np = eigenvectors
-        self.eigenvectors: Optional[B.Numeric] = None  # type: ignore
-
-    def __call__(self, X: B.Numeric, **parameters) -> B.Numeric:
-        """
-        Selects `N` locations from the `M` eigenvectors.
-
-        :param X: indices [N, 1]
-        :param parameters: unused
-        :return: [N, M]
-        """
-        indices = B.cast(B.dtype_int(X), X)
-        if self.eigenvectors is None:
-            # convert numpy eigenvectors to backend tensor
-            self.eigenvectors = from_numpy(X, self.eigenvectors_np)
-
-        Phi = take_along_axis(self.eigenvectors, indices, axis=0)
-        return Phi
-
-    def num_eigenfunctions(self) -> int:
-        """Number of eigenvectos, M"""
-        return self.eigenvectors_np.shape[-1]
+from geometric_kernels.spaces.base import (
+    ConvertEigenvectorsToEigenfunctions,
+    DiscreteSpectrumSpace,
+)
+from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 
 
 class Mesh(DiscreteSpectrumSpace):
@@ -63,6 +28,7 @@ class Mesh(DiscreteSpectrumSpace):
             D is the dimention of the embedding space (D must be either 2 or 3).
         :param faces: A [Nf, 3] array of vertex indices that represents a
             generalized array of faces, where Nf is the number of faces.
+
             .. Note:
                 Only 3 vertex indices per face are supported
         """

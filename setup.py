@@ -26,7 +26,7 @@ with open("VERSION", "r") as file:
 setup(
     name="GeometricKernels",
     version=version,
-    author="Vincent Dutordoir",
+    author="The GeometricKernels contributors",
     author_email="vd309@cam.ac.uk",
     long_description=long_description,
     long_description_content_type="text/markdown",
