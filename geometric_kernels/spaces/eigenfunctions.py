@@ -13,7 +13,7 @@ from geometric_kernels.utils.utils import Optional
 class Eigenfunctions(abc.ABC):
     r"""
     Represents a set of eigenfunctions of an operator. Referred to as
-    :math:`Phi = [\phi_i]_{i=0}^{M-1}`.
+    :math:`\Phi = [\phi_i]_{i=0}^{M-1}`.
     """
 
     def weighted_outerproduct(
@@ -85,10 +85,10 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
     Eigenfunctions for which the sum over a level has a simpler expression.
 
     Example 1:
-    On the circle S^1 the eigenfunctions are given by :math:`{\sin(l \theta), \cos(l \theta)}`,
-    where we refer to :math:`l` as the level. Summing over the eigenfunctions of a level
-    as follows :math:`\cos(l x) \cos(l x') + \sin(l x) \sin(l x)` can be simplified to
-    :math:`cos(l (x-x'))` thanks to some trigonometric identity.
+    On the circle S^1 the eigenfunctions are given by :math:`{\sin(\ell \theta), \cos(\ell \theta)}`,
+    where we refer to :math:`\ell` as the level. Summing over the eigenfunctions of a level
+    as follows :math:`\cos(\ell x) \cos(\ell x') + \sin(\ell x) \sin(\ell x)` can be simplified to
+    :math:`cos(\ell (x-x'))` thanks to some trigonometric identity.
 
     Example 2:
     The sphere manifold S^d eigenfunctions, known as the spherical harmonics, also adhere
@@ -110,7 +110,7 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         **parameters,
     ) -> B.Numeric:
         r"""
-        Computes :math:`\sum w_i \phi_i(x1) \phi_i(x2)`.
+        Computes :math:`\sum w_i \phi_i(x_1) \phi_i(x_2)`.
 
         :param weights: [L, 1]
 

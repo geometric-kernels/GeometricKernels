@@ -7,12 +7,12 @@ The Geomstats package is used for most of the geometric calculations.
 import geomstats as gs
 import lab as B
 
-from geometric_kernels.eigenfunctions import (
+from geometric_kernels.lab_extras import from_numpy
+from geometric_kernels.spaces.base import DiscreteSpectrumSpace
+from geometric_kernels.spaces.eigenfunctions import (
     Eigenfunctions,
     EigenfunctionWithAdditionTheorem,
 )
-from geometric_kernels.lab_extras import from_numpy
-from geometric_kernels.spaces import DiscreteSpectrumSpace
 from geometric_kernels.utils.utils import Optional, chain
 
 
