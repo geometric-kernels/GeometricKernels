@@ -9,7 +9,7 @@ import numpy as np
 
 from .base import DiscreteSpectrumSpace
 
-from geometric_kernels.eigenfunctions import (
+from geometric_kernels.spaces.eigenfunctions import (
     Eigenfunctions,
     EigenfunctionWithAdditionTheorem,
 )
@@ -185,7 +185,7 @@ class ProductEigenfunctionWithAdditionTheorem(
     ):
         """
         Wrapper class for handling eigenfunctions on product spaces where an addition
-        theorem is avaliable.
+        theorem is available.
 
         Parameters
         ----------

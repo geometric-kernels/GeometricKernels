@@ -28,11 +28,11 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         #     num_eigenfunctions % 2 == 1
         # ), "num_eigenfunctions needs to be odd to include all eigenfunctions within a level."
         # assert num_eigenfunctions >= 1
-        assert self._num_eigenfunctions >= 1
+        assert num_eigenfunctions >= 1
 
         self._num_eigenfunctions = num_eigenfunctions
         # Compute level that fully encompasses all the requested eigenfunctions in a level
-        self._num_levels = ceil(num_eigenfunctions / 2) + 1
+        self._num_levels = ceil(num_eigenfunctions / 2)
 
     @property
     def complete_levels(self):
@@ -45,7 +45,7 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         """
         N = B.shape(X)[0]
         theta = X
-        const = 2.0 ** 0.5
+        const = 2.0**0.5
         values = []
         for level in range(self.num_levels):
             if level == 0:
@@ -187,7 +187,7 @@ class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
         :return: [num, 1] array containing the eigenvalues
         """
         eigenfunctions = SinCosEigenfunctions(num)
-        eigenvalues_per_level = B.range(eigenfunctions.num_levels) ** 2  # [L,]
+        eigenvalues_per_level = B.range(ceil(num / 2) + 1) ** 2  # [L,]
         eigenvalues = chain(
             eigenvalues_per_level,
             eigenfunctions.num_eigenfunctions_per_level,

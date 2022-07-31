@@ -129,6 +129,14 @@ class SphericalHarmonics(EigenfunctionWithAdditionTheorem):
         """Number of eigenfunctions per level, [N_l]_{l=0}^{L-1}"""
         return [num_harmonics(self.dim + 1, level) for level in range(self.num_levels)]
 
+    @classmethod
+    def from_levels(cls, dimension, num_levels):
+        num_eigenfunctions = 0
+        for i in range(num_levels):
+            n += num_harmonics(dimension, i)
+
+        return cls(dim, num_eigenfunctions)
+
 
 class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
     r"""

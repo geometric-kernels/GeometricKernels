@@ -5,7 +5,7 @@ import abc
 
 import lab as B
 
-from geometric_kernels.eigenfunctions import (
+from geometric_kernels.spaces.eigenfunctions import (
     Eigenfunctions,
     EigenfunctionWithAdditionTheorem,
 )
