@@ -9,6 +9,7 @@ from geometric_kernels.eigenfunctions import Eigenfunctions
 from geometric_kernels.kernels import BaseGeometricKernel
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.utils import Optional
+from geometric_kernels.lab_extras import from_numpy
 
 
 class MaternKarhunenLoeveKernel(BaseGeometricKernel):
@@ -58,7 +59,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
 
         :return: tuple(params, state)
         """
-        params = dict(lengthscale=1.0, nu=0.5)
+        params = dict(lengthscale=np.array(1.0), nu=np.array(0.5))
 
         eigenvalues_laplacian = self.space.get_eigenvalues(self.num_eigenfunctions)
         eigenfunctions = self.space.get_eigenfunctions(self.num_eigenfunctions)

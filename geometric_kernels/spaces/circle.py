@@ -13,7 +13,7 @@ from geometric_kernels.eigenfunctions import (
     EigenfunctionWithAdditionTheorem,
 )
 from geometric_kernels.lab_extras import from_numpy
-from geometric_kernels.spaces import DiscreteSpectrumSpaceW
+from geometric_kernels.spaces import DiscreteSpectrumSpace
 from geometric_kernels.utils import Optional, chain
 
 
@@ -28,10 +28,15 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         #     num_eigenfunctions % 2 == 1
         # ), "num_eigenfunctions needs to be odd to include all eigenfunctions within a level."
         # assert num_eigenfunctions >= 1
+        assert self._num_eigenfunctions >= 1
 
         self._num_eigenfunctions = num_eigenfunctions
         # Compute level that fully encompasses all the requested eigenfunctions in a level
         self._num_levels = ceil(num_eigenfunctions / 2) + 1
+
+    @property
+    def complete_levels(self):
+        return self._num_eigenfunctions % 2 == 1
 
     def __call__(self, X: B.Numeric, **parameters) -> B.Numeric:
         """
@@ -40,7 +45,7 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         """
         N = B.shape(X)[0]
         theta = X
-        const = 2.0**0.5
+        const = 2.0 ** 0.5
         values = []
         for level in range(self.num_levels):
             if level == 0:
@@ -72,9 +77,8 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
             a value for each level [N, N2, L]
         """
         assert (
-            self._num_eigenfunctions % 2 == 1
+            self.complete_levels
         ), "num_eigenfunctions needs to be odd to include all eigenfunctions within a level."
-        assert self._num_eigenfunctions >= 1
 
         theta1, theta2 = X, X2
         angle_between = theta1[:, None, :] - theta2[None, :, :]  # [N, N2, 1]
@@ -99,9 +103,8 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
             a value for each level [N, L]
         """
         assert (
-            self._num_eigenfunctions % 2 == 1
+            self.complete_levels
         ), "num_eigenfunctions needs to be odd to include all eigenfunctions within a level."
-        assert self._num_eigenfunctions >= 1
 
         N = X.shape[0]
         ones = B.ones(B.dtype(X), N, self.num_levels)  # [N, L]
@@ -128,6 +131,9 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
     @property
     def num_eigenfunctions_per_level(self) -> B.Numeric:
         """Number of eigenfunctions per level, [N_l]_{l=0}^{L-1}"""
+        assert (
+            self.complete_levels
+        ), "num_eigenfunctions needs to be odd to include all eigenfunctions within a level."
         return [1 if level == 0 else 2 for level in range(self.num_levels)]
 
     @classmethod
@@ -136,7 +142,7 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         return cls(num_eigenfunctions)
 
 
-class Circle(DiscreteSpectrumSpaceWithAdditionTheorem, gs.geometry.hypersphere.Hypersphere):
+class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
     r"""
     Circle :math:`\mathbb{S}^1` manifold with sinusoids and cosines eigenfunctions.
     """
@@ -186,6 +192,3 @@ class Circle(DiscreteSpectrumSpaceWithAdditionTheorem, gs.geometry.hypersphere.H
             eigenfunctions.num_eigenfunctions_per_level,
         )  # [num,]
         return B.reshape(eigenvalues, -1, 1)  # [num, 1]
-
-
-    def get_eigenfunctions_from_levels():
