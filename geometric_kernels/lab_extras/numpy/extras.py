@@ -46,3 +46,15 @@ def logspace(start: _Numeric, stop: _Numeric, num: int = 50, base: _Numeric = 50
     Return numbers spaced evenly on a log scale.
     """
     return np.logspace(start, stop, num, base=base)
+
+
+@dispatch
+def degree(a: _Numeric):  # type: ignore
+    """
+    Given an adjacency matrix `a`, return a diagonal matrix
+    with the col-sums of `a` as main diagonal - this is the
+    degree matrix representing the number of nodes each node
+    is connected to.
+    """
+    degrees = a.sum(axis=0)  # type: ignore
+    return np.diag(degrees)
