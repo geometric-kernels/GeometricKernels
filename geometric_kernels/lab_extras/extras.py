@@ -41,7 +41,9 @@ def logspace(start: B.Numeric, stop: B.Numeric, num: int = 50):
 def cosh(x: B.Numeric) -> B.Numeric:
     r"""
     Compute hyperbolic cosine using the formula
-    .. math:: cosh(x) = \frac{\exp(x) + \exp(-x)}{2} ,
+
+    .. math::
+        \textrm{cosh}(x) = \frac{\exp(x) + \exp(-x)}{2}.
     """
     return 0.5 * (B.exp(x) + B.exp(-x))
 
@@ -49,6 +51,36 @@ def cosh(x: B.Numeric) -> B.Numeric:
 def sinh(x: B.Numeric) -> B.Numeric:
     r"""
     Compute hyperbolic sine using the formula
-    .. math:: cosh(x) = \frac{\exp(x) - \exp(-x)}{2} ,
+
+    .. math::
+        \textrm{sinh}(x) = \frac{\exp(x) - \exp(-x)}{2}.
     """
     return 0.5 * (B.exp(x) - B.exp(-x))
+
+
+@dispatch
+@abstract()
+def degree(a):
+    """
+    Given an adjacency matrix `a`, return a diagonal matrix
+    with the col-sums of `a` as main diagonal - this is the
+    degree matrix representing the number of nodes each node
+    is connected to.
+    """
+
+
+@dispatch
+@abstract()
+def eigenpairs(L, k: int):
+    """
+    Obtain the k highest eigenpairs of a symmetric PSD matrix L.
+    """
+
+
+@dispatch
+@abstract()
+def set_value(a, index: int, value: float):
+    """
+    Set a[index] = value.
+    This operation is not done in place and a new array is returned.
+    """
