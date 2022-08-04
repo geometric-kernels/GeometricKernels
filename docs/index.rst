@@ -345,4 +345,4 @@ You can find more examples in our `example notebooks <TODO>`_.
    :titlesonly:
    :hidden:
 
-   API reference <autoapi/geometric_kernels/index>
+   API <autoapi/geometric_kernels/index>
