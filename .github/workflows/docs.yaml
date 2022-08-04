@@ -59,6 +59,7 @@ jobs:
     - name: Push to GitHub
       run: |
         git add .
+        git add docs/autoapi/*
         git config --global user.email "none"
         git config --global user.name "github-actions-bot"
         git commit -m "build documentation [ci skip]"
