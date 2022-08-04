@@ -45,7 +45,9 @@ jobs:
         pip install -e .
         pip install -r docs/requirements.txt
     - name: Build documentation
-      run: make docs
+      run: |
+        make docs
+        ls -all docs/_build/html
     - name: Clean
       run: |
         TMP_DIR=$(mktemp -d -p $(pwd))
