@@ -54,6 +54,7 @@ jobs:
         mv docs/_build/html/* $TMP_DIR
         rm -rf docs
         mv $TMP_DIR docs
+        ls -all docs
         touch docs/.nojekyll
     - name: Push to GitHub
       run: |
