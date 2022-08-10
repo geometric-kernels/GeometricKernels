@@ -1,8 +1,15 @@
 .PHONY: help install docs format check test check-and-test
 
+SUCCESS='\033[0;32m'
+
+
 help: ## Shows this help message
 	# $(MAKEFILE_LIST) is set by make itself; the following parses the `target:  ## help line` format and adds color highlighting
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-24s\033[0m %s\n", $$1, $$2}'
+
+docs:
+	(cd docs ; make doctest; make html)
+	@echo "\n${SUCCESS}============== Docs are available at docs/_build/html/index.html ============== ${SUCCESS}"
 
 
 install:  ## Install repo for developement (Only for Linux)
