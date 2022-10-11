@@ -5,13 +5,14 @@ from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.lab_extras.extras import from_numpy
 from geometric_kernels.spaces import Circle, ProductDiscreteSpectrumSpace
 
-_TRUNCATION_LEVEL = 11 ** 2
-_GRID_SIZE = 20
+# _TRUNCATION_LEVEL = 11 ** 2
+_TRUNC_LEVEL = 128
+_GRID_SIZE = 3
 
 
 def test_circle_product_kernel():
     circle = Circle()
-    product = ProductDiscreteSpectrumSpace(circle, circle, num_eigen=11 ** 2)
+    product = ProductDiscreteSpectrumSpace(Circle(), Circle(), num_eigen=_TRUNC_LEVEL**2)
 
     grid = B.linspace(0, 2 * B.pi, _GRID_SIZE)
     ones = B.ones(_GRID_SIZE)
@@ -22,8 +23,8 @@ def test_circle_product_kernel():
 
     for ls in [0.1, 0.5, 1.0, 2.0, 5.0]:
 
-        kernel = MaternKarhunenLoeveKernel(product, 11 ** 2)
-        kernel_single = MaternKarhunenLoeveKernel(circle, 11)
+        kernel = MaternKarhunenLoeveKernel(product, _TRUNC_LEVEL**2)
+        kernel_single = MaternKarhunenLoeveKernel(Circle(), _TRUNC_LEVEL)
 
         params, state = kernel.init_params_and_state()
         params["nu"] = from_numpy(grid_, np.inf)
@@ -45,3 +46,9 @@ def test_circle_product_kernel():
         ).reshape(_GRID_SIZE, _GRID_SIZE, _GRID_SIZE, _GRID_SIZE)
 
         k_xx_product = k_xx_single_1 * k_xx_single_2
+
+        print(k_xx)
+        print('=========')
+        print(k_xx_product)
+
+        assert np.allclose(B.to_numpy(k_xx), B.to_numpy(k_xx_product))

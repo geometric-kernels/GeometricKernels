@@ -23,20 +23,11 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
     to the Fourier basis, i.e. sin and cosines..
     """
 
-    def __init__(self, num_eigenfunctions: int) -> None:
-        # assert (
-        #     num_eigenfunctions % 2 == 1
-        # ), "num_eigenfunctions needs to be odd to include all eigenfunctions within a level."
-        # assert num_eigenfunctions >= 1
-        assert num_eigenfunctions >= 1
+    def __init__(self, num_levels: int) -> None:
+        assert num_levels >= 1
 
-        self._num_eigenfunctions = num_eigenfunctions
-        # Compute level that fully encompasses all the requested eigenfunctions in a level
-        self._num_levels = ceil(num_eigenfunctions / 2)
-
-    @property
-    def complete_levels(self):
-        return self._num_eigenfunctions % 2 == 1
+        self._num_eigenfunctions = num_levels*2 - 1
+        self._num_levels = num_levels
 
     def __call__(self, X: B.Numeric, **parameters) -> B.Numeric:
         """
@@ -55,8 +46,7 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
                 values.append(const * B.cos(freq * theta))
                 values.append(const * B.sin(freq * theta))
 
-        # Possibly clip last eigenfunction
-        return B.concat(*values, axis=1)[:, : self._num_eigenfunctions]  # [N, M]
+        return B.concat(*values, axis=1)[:, :self._num_eigenfunctions]  # [N, M]
 
     def _addition_theorem(self, X: B.Numeric, X2: B.Numeric, **parameters) -> B.Numeric:
         r"""
@@ -76,10 +66,6 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         :return: Evaluate the sum of eigenfunctions on each level. Returns
             a value for each level [N, N2, L]
         """
-        assert (
-            self.complete_levels
-        ), "num_eigenfunctions needs to be odd to include all eigenfunctions within a level."
-
         theta1, theta2 = X, X2
         angle_between = theta1[:, None, :] - theta2[None, :, :]  # [N, N2, 1]
         freqs = B.range(B.dtype(X), self.num_levels)  # [L]
@@ -102,9 +88,9 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         :return: Evaluate the sum of eigenfunctions on each level. Returns
             a value for each level [N, L]
         """
-        assert (
-            self.complete_levels
-        ), "num_eigenfunctions needs to be odd to include all eigenfunctions within a level."
+        # assert (
+        #    self.complete_levels
+        # ), "num_eigenfunctions needs to be odd to include all eigenfunctions within a level."
 
         N = X.shape[0]
         ones = B.ones(B.dtype(X), N, self.num_levels)  # [N, L]
@@ -131,15 +117,12 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
     @property
     def num_eigenfunctions_per_level(self) -> B.Numeric:
         """Number of eigenfunctions per level, [N_l]_{l=0}^{L-1}"""
-        assert (
-            self.complete_levels
-        ), "num_eigenfunctions needs to be odd to include all eigenfunctions within a level."
         return [1 if level == 0 else 2 for level in range(self.num_levels)]
 
-    @classmethod
-    def from_levels(cls, num):
-        num_eigenfunctions = 2 * num - 1
-        return cls(num_eigenfunctions)
+    # @classmethod
+    # def from_levels(cls, num):
+    #    num_eigenfunctions = 2 * num - 1
+    #    return cls(num_eigenfunctions)
 
 
 class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
@@ -176,20 +159,21 @@ class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
 
     def get_eigenfunctions(self, num: int) -> Eigenfunctions:
         """
-        :param num: number of eigenfunctions returned.
+        :param num: number of eigenlevels returned.
         """
         return SinCosEigenfunctions(num)
 
     def get_eigenvalues(self, num: int) -> B.Numeric:
         """
-        First `num` eigenvalues of the Laplace-Beltrami operator
+        Eigenvalues of the Laplace-Beltrami operator corresponding to the first `num` levels.
 
-        :return: [num, 1] array containing the eigenvalues
+        :return: [M, 1] array containing the eigenvalues
         """
         eigenfunctions = SinCosEigenfunctions(num)
-        eigenvalues_per_level = B.range(ceil(num / 2) + 1) ** 2  # [L,]
-        eigenvalues = chain(
-            eigenvalues_per_level,
-            eigenfunctions.num_eigenfunctions_per_level,
-        )  # [num,]
-        return B.reshape(eigenvalues, -1, 1)  # [num, 1]
+        eigenvalues_per_level = B.range(num) ** 2  # [num,]
+        # eigenvalues = chain(
+        #    eigenvalues_per_level,
+        #   eigenfunctions.num_eigenfunctions_per_level,
+        #)  # [M,]
+        eigenvalues = eigenvalues_per_level
+        return B.reshape(eigenvalues, -1, 1)  # [M, 1]

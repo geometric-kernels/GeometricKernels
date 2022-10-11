@@ -60,9 +60,22 @@ class Eigenfunctions(abc.ABC):
         :param parameters: any additional parameters
         :return: shape [N,]
         """
-        Phi_X = self.__call__(X, **parameters)  # [N, L]
+        Phi_X = self.__call__(X, **parameters)  # [N, M]
         Kx = B.sum(B.transpose(weights) * Phi_X**2, axis=1)  # [N,]
         return Kx
+
+    def phi_product(self, X1: B.Numeric, X2: B.Numeric, **parameters) -> B.Numeric:
+        r"""
+        Computes :math:`\{\phi_i(x_1) \phi_i(x_2)\}_{i=0}^{L}` where `L` is the number of eigenfuctions.
+
+        :param X1: Inputs where to evaluate the eigenfunctions, shape = [N, D]
+        :param X2: Inputs where to evaluate the eigenfunctions, shape = [M, D]
+        :param parameters: any additional parameters
+        :return: shape [N, M, L].
+        """
+        Phi_X = self.__call__(X1, **parameters)  # [N, L]
+        Phi_X2 = self.__call__(X2, **parameters)   # [M, L]
+        return einsum("nl,ml->nml", Phi_X, Phi_X2)  # [N, M, L]
 
     @abc.abstractmethod
     def __call__(self, X: B.Numeric, **parameters) -> B.Numeric:
@@ -128,8 +141,9 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
             X2 = X
 
         sum_phi_phi_for_level = self._addition_theorem(X, X2, **parameters)  # [N, N, L]
-        weights = self._filter_weights(weights)
+        # weights = self._filter_weights(weights)
         sum_phi_phi_for_level = B.cast(B.dtype(weights), sum_phi_phi_for_level)
+        print('we', B.shape(weights))
 
         return einsum("i,nki->nk", weights, sum_phi_phi_for_level)  # [N, N2]
 
@@ -153,9 +167,12 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         :return: shape [N,]
         """
         addition_theorem_X = self._addition_theorem_diag(X, **parameters)  # [N, L]
-        weights = self._filter_weights(weights)
+        # weights = self._filter_weights(weights)
         # weights = from_numpy(addition_theorem_X, weights)
-        return einsum("i,ni->n", weights, addition_theorem_X)  # [N,]
+        return einsum("id,ni->n", weights, addition_theorem_X)  # [N,]
+
+    def phi_product(self, X1, X2, **parameters):
+        return self._addition_theorem(X1, X2, **parameters)
 
     def _filter_weights(self, weights: B.Numeric) -> B.Numeric:
         """
@@ -209,7 +226,9 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         """Number of eigenfunctions per level"""
         raise NotImplementedError
 
-    @abc.abstractclassmethod
-    def from_levels(cls, num: int):
-        """Construct a instance with num levels worth of eigenfunctions"""
-        raise NotImplementedError
+    # def 
+
+    # @abc.abstractclassmethod
+    # def from_levels(cls, num: int):
+    #    """Construct a instance with num levels worth of eigenfunctions"""
+    #    raise NotImplementedError

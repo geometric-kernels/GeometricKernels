@@ -55,6 +55,12 @@ class DiscreteSpectrumSpace(Space):
         """
         raise NotImplementedError
 
+    def get_level_eigenvalues(self, num: int) -> B.Numeric:
+        """First `num` unique eigenvalues of the Laplace-Beltrami operator.
+
+        :return: [
+        """
+        pass
 
 class DiscreteSpectrumSpaceWithAdditionTheorem(DiscreteSpectrumSpace):
     """In addition to the DiscreteSpecturmSpace properties, there

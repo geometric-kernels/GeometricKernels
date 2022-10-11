@@ -26,22 +26,29 @@ class SphericalHarmonics(EigenfunctionWithAdditionTheorem):
     spherical harmonics.
     """
 
-    def __init__(self, dim: int, num_eigenfunctions: int) -> None:
+    def __init__(self, dim: int, num_levels: int) -> None:
         """
         :param dim:
             S^{dim}. Example: dim = 2 is the sphere in R^3. Follows geomstats convention.
 
-        :param num_eigenfunctions:
-            Specifies the minimum degree of the spherical harmonic collection so that
-            there are at least `num_eigenfunctions`.
+        :param num_levels:
+            Specifies the number of levels (degrees) of the spherical harmonics.
         """
         self.dim = dim
-        self._num_levels, self._num_eigenfunctions = self.num_eigenfunctions_to_degree(
-            num_eigenfunctions
-        )
+        self._num_levels = num_levels
+        self._num_eigenfunctions = self.degree_to_num_eigenfunctions(self._num_levels)
         self._spherical_harmonics = _SphericalHarmonics(
             dimension=dim + 1, degrees=self._num_levels
         )
+
+    def degree_to_num_eigenfunctions(self, degree: int) -> int:
+        """
+        Returns the number of eigenfunctions that span the first `degree` degrees.
+        """
+        n = 0
+        for d in range(degree):
+            n += num_harmonics(self.dim + 1, d)
+        return n
 
     def num_eigenfunctions_to_degree(self, num_eigenfunctions: int) -> Tuple[int, int]:
         """
@@ -173,10 +180,11 @@ class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
                 for level in eigenfunctions._spherical_harmonics.harmonic_levels
             ]
         )
-        eigenvalues = chain(
-            eigenvalues_per_level,
-            eigenfunctions.num_eigenfunctions_per_level,
-        )  # [num,]
+        # eigenvalues = chain(
+        #     eigenvalues_per_level,
+        #     eigenfunctions.num_eigenfunctions_per_level,
+        # )  # [num,]
+        eigenvalues = eigenvalues_per_level
         return B.reshape(eigenvalues, -1, 1)  # [num, 1]
 
     def ehess2rhess(self, x, egrad, ehess, direction):

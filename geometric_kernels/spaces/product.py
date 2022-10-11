@@ -156,22 +156,127 @@ class ProductEigenfunctions(Eigenfunctions):
 
         eigenfunctions = B.stack(
             *[
-                eigenfunction(X, **parameters)
+                eigenfunction(X, **parameters)  # [N, M]
                 for eigenfunction, X in zip(self.eigenfunctions, Xs)
             ],
             axis=-1,
-        )
+        )  # [N, M, S]
+
+        # eigenindices shape [M, S]
 
         return eigenfunctions[
             :,
             self.eigenindicies,
-            B.linspace(
-                0, self.eigenindicies.shape[1] - 1, self.eigenindicies.shape[1]
-            ).astype(int),
-        ].prod(axis=-1)
+            B.range(self.eigenindicies.shape[1]),
+        ].prod(axis=-1)  # [N, M, S] --> [N, M]
 
     def num_eigenfunctions(self) -> int:
         return self.eigenindicies.shape[0]
+
+    def weighted_outerproduct(self, weights, X, X2=None, **parameters):
+        if X2 is None:
+            X2 = X
+        Xs = [B.take(X, inds, axis=-1) for inds in self.dimension_indices]
+        Xs2 = [B.take(X2, inds, axis=-1) for inds in self.dimension_indices]
+
+        sum_phis = B.stack(
+            *[
+                eigenfunction.phi_product(X1, X2, **parameters)
+                for eigenfunction, X1, X2 in zip(self.eigenfunctions, Xs, Xs2)
+            ],
+            axis=-1,
+        )  # [N, M, L, S]
+        print('sum_phis', B.shape(sum_phis))
+
+        # weights [L]
+        prod_phis = sum_phis[
+            :,
+            :,
+            self.eigenindicies,
+            B.range(self.eigenindicies.shape[1]),
+        ].prod(axis=-1)  # [N, M, L, S] -> [N, M, L]
+
+        print('prod_phis', B.shape(prod_phis))
+        print('weights', B.shape(weights))
+
+        out = B.sum(B.flatten(weights) * prod_phis, axis=-1)   # [N, M, L] -> [N, M]
+
+        return out
+
+class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
+    def __init__(self, *spaces: DiscreteSpectrumSpace, num_eigen: int = 100):
+        r"""Implementation of products of discrete spectrum spaces.
+        Assumes the spaces are compact manifolds and that the eigenfunctions are the
+        eigenfunctions of the Laplace-Beltrami operator. On such a space the eigen(values/functions)
+        on the product space associated with the multiindex alpha are given by
+            lambda_alpha = \sum_i lambda_{i, alpha_i}
+            phi_alpha = \prod_i phi_{i, alpha_i}
+        where lambda_{i, j} is the j'th eigenvalue on the i'th manifold in the product
+        and phi_{i, j} is the j'th eigenfunction on the i'th manifold in the product.
+
+        The eigenfunctions of such manifolds can't in genreal be analytically ordered, and
+        so they must be precomputed.
+
+        Parameters
+        ----------
+        spaces : DiscreteSpecturmSpace
+            The spaces to product together
+        num_eigen : int, optional
+            number of eigenfunctions to use for this product space, by default 100
+        """
+        for space in spaces:
+            assert isinstance(space, DiscreteSpectrumSpace)
+
+        self.sub_spaces = spaces
+        self.num_eigen = num_eigen
+
+        # perform an breadth-first search for the smallest eigenvalues,
+        # assuming that the eigenvalues come sorted,the next biggest eigenvalue
+        # can be found by taking a one-index step in any direction from the current
+        # edge of the searchspace
+
+        # prefetch the eigenvalues of the subspaces
+        sub_space_eigenvalues = B.stack(
+            *[space.get_eigenvalues(self.num_eigen)[:, 0] for space in self.sub_spaces],
+            axis=0,
+        )  # [M, S]
+        print('sub_scape_eigvals')
+        print(sub_space_eigenvalues)
+
+        self.sub_space_eigenindices = find_lowest_sum_combinations(
+            sub_space_eigenvalues, self.num_eigen
+        )
+
+        self._eigenvalues = sub_space_eigenvalues[
+            B.range(len(self.sub_spaces)),
+            self.sub_space_eigenindices[: self.num_eigen, :],
+        ].sum(axis=1)
+        print('eivals')
+        print(self._eigenvalues)
+
+    @property
+    def dimension(self) -> int:
+        return sum([space.dimension for space in self.sub_spaces])
+
+    def get_eigenfunctions(self, num: int) -> Eigenfunctions:
+        assert num <= self.num_eigen
+
+        max_eigenvalue = self.sub_space_eigenindices[:num, :].max() + 1
+
+        sub_space_eigenfunctions = [
+            space.get_eigenfunctions(max_eigenvalue) for space in self.sub_spaces
+        ]
+
+        return ProductEigenfunctions(
+            [space.dimension for space in self.sub_spaces],
+            self.sub_space_eigenindices,
+            *sub_space_eigenfunctions,
+        )
+
+    def get_eigenvalues(self, num: int) -> B.Numeric:
+        assert num <= self.num_eigen
+
+        return self._eigenvalues[:num, None]
 
 
 class ProductEigenfunctionWithAdditionTheorem(
@@ -219,7 +324,7 @@ class ProductEigenfunctionWithAdditionTheorem(
         )
         self.additionfunctions = [
             lambda X, X2, **parameters: eigenfunction._addition_theorem(
-                X, X2 ** parameters
+                X, X2, ** parameters
             )
             if isinstance(eigenfunction, EigenfunctionWithAdditionTheorem)
             else lambda X, X2, **parameters: eigenfunction(X, **parameters)[
@@ -325,73 +430,3 @@ class ProductEigenfunctionWithAdditionTheorem(
             )
 
 
-class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
-    def __init__(self, *spaces: DiscreteSpectrumSpace, num_eigen: int = 100):
-        r"""Implementation of products of discrete spectrum spaces.
-        Assumes the spaces are compact manifolds and that the eigenfunctions are the
-        eigenfunctions of the Laplace-Beltrami operator. On such a space the eigen(values/functions)
-        on the product space associated with the multiindex alpha are given by
-            lambda_alpha = \sum_i lambda_{i, alpha_i}
-            phi_alpha = \prod_i phi_{i, alpha_i}
-        where lambda_{i, j} is the j'th eigenvalue on the i'th manifold in the product
-        and phi_{i, j} is the j'th eigenfunction on the i'th manifold in the product.
-
-        The eigenfunctions of such manifolds can't in genreal be analytically ordered, and
-        so they must be precomputed.
-
-        Parameters
-        ----------
-        spaces : DiscreteSpecturmSpace
-            The spaces to product together
-        num_eigen : int, optional
-            number of eigenfunctions to use for this product space, by default 100
-        """
-        for space in spaces:
-            assert isinstance(space, DiscreteSpectrumSpace)
-
-        self.sub_spaces = spaces
-        self.num_eigen = num_eigen
-
-        # perform an breadth-first search for the smallest eigenvalues,
-        # assuming that the eigenvalues come sorted,the next biggest eigenvalue
-        # can be found by taking a one-index step in any direction from the current
-        # edge of the searchspace
-
-        # prefetch the eigenvalues of the subspaces
-        sub_space_eigenvalues = B.stack(
-            *[space.get_eigenvalues(self.num_eigen)[:, 0] for space in self.sub_spaces],
-            axis=0,
-        )
-
-        self.sub_space_eigenindicies = find_lowest_sum_combinations(
-            sub_space_eigenvalues, self.num_eigen
-        )
-
-        self._eigenvalues = sub_space_eigenvalues[
-            B.linspace(0, len(self.sub_spaces) - 1, len(self.sub_spaces)).astype(int),
-            self.sub_space_eigenindicies[: self.num_eigen, :],
-        ].sum(axis=1)
-
-    @property
-    def dimension(self) -> int:
-        return sum([space.dimension for space in self.sub_spaces])
-
-    def get_eigenfunctions(self, num: int) -> Eigenfunctions:
-        assert num <= self.num_eigen
-
-        max_eigenvalue = self.sub_space_eigenindicies[:num, :].max() + 1
-
-        sub_space_eigenfunctions = [
-            space.get_eigenfunctions(max_eigenvalue) for space in self.sub_spaces
-        ]
-
-        return ProductEigenfunctions(
-            [space.dimension for space in self.sub_spaces],
-            self.sub_space_eigenindicies,
-            *sub_space_eigenfunctions,
-        )
-
-    def get_eigenvalues(self, num: int) -> B.Numeric:
-        assert num <= self.num_eigen
-
-        return self._eigenvalues[:num, None]
