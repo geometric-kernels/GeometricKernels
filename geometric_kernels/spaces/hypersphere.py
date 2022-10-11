@@ -99,7 +99,7 @@ class SphericalHarmonics(EigenfunctionWithAdditionTheorem):
             level.addition(X, X2)[..., None]  # [N1, N2, 1]
             for level in self._spherical_harmonics.harmonic_levels
         ]
-        return B.concat(*values, axis=2)  # [N, N2, L]
+        return B.concat(*values, axis=-1)  # [N, N2, L]
 
     def _addition_theorem_diag(self, X: B.Numeric, **parameters) -> B.Numeric:
         """

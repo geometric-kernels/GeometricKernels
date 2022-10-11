@@ -112,7 +112,7 @@ def _kl_spacepoint_fixture(request):
 
 
 @pytest.mark.parametrize("dtype", ["float32", "float64"])
-@pytest.mark.parametrize("backend", ["numpy", "torch", ])
+@pytest.mark.parametrize("backend", ["numpy", "torch", "tensorflow", "jax"])
 def test_karhunen_loeve_dtype(kl_spacepoint, dtype, backend):
     space, point = kl_spacepoint
     point = to_typed_ndarray(point, dtype)
