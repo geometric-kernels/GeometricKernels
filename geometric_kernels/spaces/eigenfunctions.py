@@ -145,7 +145,7 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         sum_phi_phi_for_level = B.cast(B.dtype(weights), sum_phi_phi_for_level)
         print('we', B.shape(weights))
 
-        return einsum("id,nki->nk", weights, sum_phi_phi_for_level)  # [N, N2]
+        return einsum("id,...nki->...nk", weights, sum_phi_phi_for_level)  # [N, N2]
 
     def weighted_outerproduct_diag(
         self, weights: B.Numeric, X: B.Numeric, **parameters
