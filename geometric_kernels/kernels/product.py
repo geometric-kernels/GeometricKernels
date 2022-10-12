@@ -5,8 +5,8 @@ from typing import List, Tuple
 
 import lab as B
 
-from geometric_kernels.spaces import Space
 from geometric_kernels.kernels import BaseGeometricKernel
+from geometric_kernels.spaces import Space
 
 
 class ProductGeometricKernel(BaseGeometricKernel):

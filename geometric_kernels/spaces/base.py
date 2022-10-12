@@ -5,10 +5,8 @@ import abc
 
 import lab as B
 
-from geometric_kernels.spaces.eigenfunctions import (
-    Eigenfunctions,
-)
 from geometric_kernels.lab_extras import take_along_axis
+from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 
 
 class Space(abc.ABC):

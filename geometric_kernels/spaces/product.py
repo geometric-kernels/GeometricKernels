@@ -7,12 +7,12 @@ from typing import List
 import lab as B
 import numpy as np
 
-from .base import DiscreteSpectrumSpace
-
 from geometric_kernels.spaces.eigenfunctions import (
     Eigenfunctions,
     EigenfunctionWithAdditionTheorem,
 )
+
+from .base import DiscreteSpectrumSpace
 
 
 def find_lowest_sum_combinations(array, k):
