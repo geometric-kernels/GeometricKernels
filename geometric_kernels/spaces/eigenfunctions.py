@@ -77,6 +77,10 @@ class Eigenfunctions(abc.ABC):
         Phi_X2 = self.__call__(X2, **parameters)  # [M, L]
         return einsum("nl,ml->nml", Phi_X, Phi_X2)  # [N, M, L]
 
+    def phi_product_diag(self, X: B.Numeric, **parameters):
+        Phi_X = self.__call__(X, **parameters)  # [N, L]
+        return Phi_X**2
+
     @abc.abstractmethod
     def __call__(self, X: B.Numeric, **parameters) -> B.Numeric:
         """
@@ -181,6 +185,9 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
 
     def phi_product(self, X1, X2, **parameters):
         return self._addition_theorem(X1, X2, **parameters)
+
+    def phi_product_diag(self, X, **parameters):
+        return self._addition_theorem_diag(X, **parameters)
 
     def _filter_weights(self, weights: B.Numeric) -> B.Numeric:
         """

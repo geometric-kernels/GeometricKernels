@@ -229,6 +229,30 @@ class ProductEigenfunctions(Eigenfunctions):
 
         return out
 
+    def weighted_outerproduct_diag(
+        self, weights: B.Numeric, X: B.Numeric, **parameters
+    ) -> B.Numeric:
+        Xs = [B.take(X, inds, axis=-1) for inds in self.dimension_indices]
+
+        phis = B.stack(
+            *[
+                eigenfunction.phi_product_diag(X1, **parameters)
+                for eigenfunction, X1 in zip(self.eigenfunctions, Xs)
+            ],
+            axis=-1,
+        )  # [N, L, S]
+
+        prod_phis = phis[
+            :,
+            self.eigenindicies,
+            B.range(self.eigenindicies.shape[1]),
+        ].prod(
+            axis=-1
+        )  # [N, L, S] -> [N, L]
+
+        out = B.sum(B.flatten(weights) * prod_phis, axis=-1)  # [N, L] -> [N,]
+        return out
+
     @property
     def dim_of_eigenspaces(self):
         return total_multiplicities(self.eigenindicies, self.nums_per_level)
