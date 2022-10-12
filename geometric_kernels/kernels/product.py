@@ -1,7 +1,7 @@
 """
 Product of kernels
 """
-from typing import List, Tuple
+from typing import List, Mapping, Tuple
 
 import lab as B
 
@@ -19,7 +19,7 @@ class ProductGeometricKernel(BaseGeometricKernel):
     kernels : BaseGeometricKernel
         kernels to compute the product for
     dimension_indices : List[B.Numeric], optional
-        List of indices the corespond to the indices of the input that should be fed to each kernel.
+        List of indices the correspond to the indices of the input that should be fed to each kernel.
         If None, assume the each kernel takes kernel.space.dimension inputs, and that the input will
         be a stack of this size, by default None
     """
@@ -40,11 +40,10 @@ class ProductGeometricKernel(BaseGeometricKernel):
                 self.dimension_indices.append(inds[i : i + dim])
                 i += dim
         else:
-            # TODO: fix this later
-            # assert len(dimension_indices) == len(self.kernels)
-            # for i in dimension_indices:
-            #    assert i.dtype == B.Int
-            #    assert (i >= 0).all()
+            assert len(dimension_indices) == len(self.kernels)
+            for idx in dimension_indices:
+                assert idx.dtype == B.Int
+                assert B.all(idx >= 0)
 
             self.dimension_indices = dimension_indices
 
@@ -52,12 +51,14 @@ class ProductGeometricKernel(BaseGeometricKernel):
     def space(self) -> List[Space]:
         return [kernel.space for kernel in self.kernels]
 
-    def init_params_and_state(self) -> Tuple[List[dict], List[dict]]:
+    def init_params_and_state(self) -> Tuple[List[Mapping], List[Mapping]]:
         params_and_state = [kernel.init_params_and_state() for kernel in self.kernels]
 
         return [p[0] for p in params_and_state], [s[1] for s in params_and_state]
 
-    def K(self, params, state, X, X2=None, **kwargs) -> B.Numeric:
+    def K(
+        self, params: List[Mapping], state: List[Mapping], X, X2=None, **kwargs
+    ) -> B.Numeric:
         if X2 is None:
             X2 = X
 
@@ -66,7 +67,7 @@ class ProductGeometricKernel(BaseGeometricKernel):
 
         return B.stack(
             *[
-                kernel.K(X, X2, p, s)
+                kernel.K(p, s, X, X2)
                 for kernel, X, X2, p, s in zip(self.kernels, Xs, X2s, params, state)
             ],
             axis=-1,
@@ -77,7 +78,7 @@ class ProductGeometricKernel(BaseGeometricKernel):
 
         return B.stack(
             *[
-                kernel.K_diag(X, p, s)
+                kernel.K_diag(p, s, X)
                 for kernel, X, p, s in zip(self.kernels, Xs, params, state)
             ],
             axis=-1,
