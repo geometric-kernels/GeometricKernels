@@ -74,7 +74,7 @@ class Eigenfunctions(abc.ABC):
         :return: shape [N, M, L].
         """
         Phi_X = self.__call__(X1, **parameters)  # [N, L]
-        Phi_X2 = self.__call__(X2, **parameters)   # [M, L]
+        Phi_X2 = self.__call__(X2, **parameters)  # [M, L]
         return einsum("nl,ml->nml", Phi_X, Phi_X2)  # [N, M, L]
 
     @abc.abstractmethod
@@ -143,7 +143,7 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         sum_phi_phi_for_level = self._addition_theorem(X, X2, **parameters)  # [N, N, L]
         # weights = self._filter_weights(weights)
         sum_phi_phi_for_level = B.cast(B.dtype(weights), sum_phi_phi_for_level)
-        print('we', B.shape(weights))
+        print("we", B.shape(weights))
 
         return einsum("id,...nki->...nk", weights, sum_phi_phi_for_level)  # [N, N2]
 
@@ -225,8 +225,6 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
     def num_eigenfunctions_per_level(self) -> B.Numeric:
         """Number of eigenfunctions per level"""
         raise NotImplementedError
-
-    # def 
 
     # @abc.abstractclassmethod
     # def from_levels(cls, num: int):

@@ -17,7 +17,6 @@ from geometric_kernels.spaces.eigenfunctions import (
     Eigenfunctions,
     EigenfunctionWithAdditionTheorem,
 )
-from geometric_kernels.utils.utils import chain
 
 
 class SphericalHarmonics(EigenfunctionWithAdditionTheorem):
@@ -140,9 +139,9 @@ class SphericalHarmonics(EigenfunctionWithAdditionTheorem):
     def from_levels(cls, dimension, num_levels):
         num_eigenfunctions = 0
         for i in range(num_levels):
-            n += num_harmonics(dimension, i)
+            num_eigenfunctions += num_harmonics(dimension, i)
 
-        return cls(dim, num_eigenfunctions)
+        return cls(dimension, num_eigenfunctions)
 
 
 class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):

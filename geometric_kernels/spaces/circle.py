@@ -3,8 +3,6 @@ Spaces for which there exist analytical expressions for the manifold
 and the eigenvalues and functions. Examples include the `Circle` and the `Hypersphere`.
 The Geomstats package is used for most of the geometric calculations.
 """
-from math import ceil
-
 import geomstats as gs
 import lab as B
 
@@ -14,7 +12,7 @@ from geometric_kernels.spaces.eigenfunctions import (
     Eigenfunctions,
     EigenfunctionWithAdditionTheorem,
 )
-from geometric_kernels.utils.utils import Optional, chain
+from geometric_kernels.utils.utils import Optional
 
 
 class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
@@ -26,7 +24,7 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
     def __init__(self, num_levels: int) -> None:
         assert num_levels >= 1
 
-        self._num_eigenfunctions = num_levels*2 - 1
+        self._num_eigenfunctions = num_levels * 2 - 1
         self._num_levels = num_levels
 
     def __call__(self, X: B.Numeric, **parameters) -> B.Numeric:
@@ -46,7 +44,7 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
                 values.append(const * B.cos(freq * theta))
                 values.append(const * B.sin(freq * theta))
 
-        return B.concat(*values, axis=1)[:, :self._num_eigenfunctions]  # [N, M]
+        return B.concat(*values, axis=1)[:, : self._num_eigenfunctions]  # [N, M]
 
     def _addition_theorem(self, X: B.Numeric, X2: B.Numeric, **parameters) -> B.Numeric:
         r"""
@@ -169,11 +167,10 @@ class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
 
         :return: [M, 1] array containing the eigenvalues
         """
-        eigenfunctions = SinCosEigenfunctions(num)
         eigenvalues_per_level = B.range(num) ** 2  # [num,]
         # eigenvalues = chain(
         #    eigenvalues_per_level,
         #   eigenfunctions.num_eigenfunctions_per_level,
-        #)  # [M,]
+        # )  # [M,]
         eigenvalues = eigenvalues_per_level
         return B.reshape(eigenvalues, -1, 1)  # [M, 1]

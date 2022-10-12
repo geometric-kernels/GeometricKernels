@@ -90,13 +90,15 @@ def test_weighted_outerproduct_with_addition_theorem(
     """
     inputs, inputs2 = inputs
     weights_per_level = from_numpy(inputs, np.random.randn(eigenfunctions.num_levels))
-    weights = B.reshape(weights_per_level, -1, 1) # chain(weights_per_level, eigenfunctions.num_eigenfunctions_per_level)
-    chained_weights = B.reshape(chain(weights_per_level, eigenfunctions.num_eigenfunctions_per_level), -1, 1)
+    weights = B.reshape(weights_per_level, -1, 1)
+    chained_weights = chain(
+        weights_per_level, eigenfunctions.num_eigenfunctions_per_level
+    )
     actual = B.to_numpy(eigenfunctions.weighted_outerproduct(weights, inputs, inputs2))
 
     Phi_X = eigenfunctions(inputs)
     Phi_X2 = eigenfunctions(inputs2)
-    expected = einsum("ni,ki,id->nk", Phi_X, Phi_X2, chained_weights)
+    expected = einsum("ni,ki,i->nk", Phi_X, Phi_X2, chained_weights)
     np.testing.assert_array_almost_equal(actual, expected)
 
 
@@ -109,7 +111,7 @@ def test_weighted_outerproduct_with_addition_theorem_same_input(
     """
     inputs, _ = inputs
     weights_per_level = from_numpy(inputs, np.random.randn(eigenfunctions.num_levels))
-    weights = B.reshape(weights_per_level, -1, 1) # chain(weights_per_level, eigenfunctions.num_eigenfunctions_per_level)
+    weights = B.reshape(weights_per_level, -1, 1)
     first = B.to_numpy(eigenfunctions.weighted_outerproduct(weights, inputs, inputs))
     second = B.to_numpy(eigenfunctions.weighted_outerproduct(weights, inputs, None))
     np.testing.assert_array_almost_equal(first, second)
@@ -124,7 +126,9 @@ def test_weighted_outerproduct_diag_with_addition_theorem(
     """
     inputs, _ = inputs
     weights_per_level = from_numpy(inputs, np.random.randn(eigenfunctions.num_levels))
-    chained_weights = chain(weights_per_level, eigenfunctions.num_eigenfunctions_per_level)
+    chained_weights = chain(
+        weights_per_level, eigenfunctions.num_eigenfunctions_per_level
+    )
     weights = B.reshape(weights_per_level, -1, 1)
     actual = eigenfunctions.weighted_outerproduct_diag(weights, inputs)
 

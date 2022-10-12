@@ -11,15 +11,16 @@ _GRID_SIZE = 3
 
 
 def test_circle_product_kernel():
-    circle = Circle()
-    product = ProductDiscreteSpectrumSpace(Circle(), Circle(), num_eigen=_TRUNC_LEVEL**2)
+    product = ProductDiscreteSpectrumSpace(
+        Circle(), Circle(), num_eigen=_TRUNC_LEVEL**2
+    )
 
     grid = B.linspace(0, 2 * B.pi, _GRID_SIZE)
     ones = B.ones(_GRID_SIZE)
     grid = B.stack(
         grid[:, None] * ones[None, :], grid[None, :] * ones[:, None], axis=-1
     )
-    grid_ = B.reshape(grid, _GRID_SIZE ** 2, 2)
+    grid_ = B.reshape(grid, _GRID_SIZE**2, 2)
 
     for ls in [0.1, 0.5, 1.0, 2.0, 5.0]:
 
@@ -48,7 +49,7 @@ def test_circle_product_kernel():
         k_xx_product = k_xx_single_1 * k_xx_single_2
 
         print(k_xx)
-        print('=========')
+        print("=========")
         print(k_xx_product)
 
         assert np.allclose(B.to_numpy(k_xx), B.to_numpy(k_xx_product))

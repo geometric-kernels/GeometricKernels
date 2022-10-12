@@ -7,7 +7,6 @@ import lab as B
 
 from geometric_kernels.spaces.eigenfunctions import (
     Eigenfunctions,
-    EigenfunctionWithAdditionTheorem,
 )
 from geometric_kernels.lab_extras import take_along_axis
 
@@ -61,6 +60,7 @@ class DiscreteSpectrumSpace(Space):
         :return: [
         """
         pass
+
 
 class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
     """

@@ -139,7 +139,7 @@ class ProductEigenfunctions(Eigenfunctions):
         eigenfunctions : Eigenfunctions
 
         """
-        if dimension_indices == None:
+        if dimension_indices is None:
             self.dimension_indices = []
             i = 0
             inds = B.linspace(0, sum(dimensions) - 1, sum(dimensions)).astype(int)
@@ -168,7 +168,9 @@ class ProductEigenfunctions(Eigenfunctions):
             :,
             self.eigenindicies,
             B.range(self.eigenindicies.shape[1]),
-        ].prod(axis=-1)  # [N, M, S] --> [N, M]
+        ].prod(
+            axis=-1
+        )  # [N, M, S] --> [N, M]
 
     def num_eigenfunctions(self) -> int:
         return self.eigenindicies.shape[0]
@@ -186,7 +188,7 @@ class ProductEigenfunctions(Eigenfunctions):
             ],
             axis=-1,
         )  # [N, M, L, S]
-        print('sum_phis', B.shape(sum_phis))
+        print("sum_phis", B.shape(sum_phis))
 
         # weights [L]
         prod_phis = sum_phis[
@@ -194,14 +196,17 @@ class ProductEigenfunctions(Eigenfunctions):
             :,
             self.eigenindicies,
             B.range(self.eigenindicies.shape[1]),
-        ].prod(axis=-1)  # [N, M, L, S] -> [N, M, L]
+        ].prod(
+            axis=-1
+        )  # [N, M, L, S] -> [N, M, L]
 
-        print('prod_phis', B.shape(prod_phis))
-        print('weights', B.shape(weights))
+        print("prod_phis", B.shape(prod_phis))
+        print("weights", B.shape(weights))
 
-        out = B.sum(B.flatten(weights) * prod_phis, axis=-1)   # [N, M, L] -> [N, M]
+        out = B.sum(B.flatten(weights) * prod_phis, axis=-1)  # [N, M, L] -> [N, M]
 
         return out
+
 
 class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
     def __init__(self, *spaces: DiscreteSpectrumSpace, num_eigen: int = 100):
@@ -240,7 +245,7 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
             *[space.get_eigenvalues(self.num_eigen)[:, 0] for space in self.sub_spaces],
             axis=0,
         )  # [M, S]
-        print('sub_scape_eigvals')
+        print("sub_scape_eigvals")
         print(sub_space_eigenvalues)
 
         self.sub_space_eigenindices = find_lowest_sum_combinations(
@@ -251,7 +256,7 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
             B.range(len(self.sub_spaces)),
             self.sub_space_eigenindices[: self.num_eigen, :],
         ].sum(axis=1)
-        print('eivals')
+        print("eivals")
         print(self._eigenvalues)
 
     @property
@@ -303,7 +308,8 @@ class ProductEigenfunctionWithAdditionTheorem(
         eigenfunctions : Eigenfunctions
 
         """
-        if dimension_indices == None:
+        dimension_indices = None
+        if dimension_indices is None:
             self.dimension_indices = []
             i = 0
             inds = B.linspace(0, sum(dimensions) - 1, sum(dimensions)).astype(int)
@@ -324,7 +330,7 @@ class ProductEigenfunctionWithAdditionTheorem(
         )
         self.additionfunctions = [
             lambda X, X2, **parameters: eigenfunction._addition_theorem(
-                X, X2, ** parameters
+                X, X2, **parameters
             )
             if isinstance(eigenfunction, EigenfunctionWithAdditionTheorem)
             else lambda X, X2, **parameters: eigenfunction(X, **parameters)[
@@ -335,7 +341,7 @@ class ProductEigenfunctionWithAdditionTheorem(
         ]
         self.additiondiagfunctions = [
             lambda X, **parameters: eigenfunction._addition_theorem_diag(
-                X ** parameters
+                X**parameters
             )
             if isinstance(eigenfunction, EigenfunctionWithAdditionTheorem)
             else lambda X, **parameters: eigenfunction(X, **parameters) ** 2
@@ -362,13 +368,13 @@ class ProductEigenfunctionWithAdditionTheorem(
 
         assert self.eigenindicies.shape[-1] == len(self.eigenfunctions)
 
-    def _addition_theorem(self, X, X2):
+    def _addition_theorem(self, X, X2, **parameters):
         Xs = [B.take(X, inds, axis=-1) for inds in self.dimension_indices]
         X2s = [B.take(X2, inds, axis=-1) for inds in self.dimension_indices]
 
         addition_funcs = B.stack(
             *[
-                additonfunction(X, X2, **parameters)
+                additionfunction(X, X2, **parameters)
                 for additionfunction, X, X2 in zip(self.additionfunctions, Xs, X2s)
             ],
             axis=-1,
@@ -385,7 +391,6 @@ class ProductEigenfunctionWithAdditionTheorem(
 
     def _addition_theorem_diag(self, X, **parameters):
         Xs = [B.take(X, inds, axis=-1) for inds in self.dimension_indices]
-        X2s = [B.take(X2, inds, axis=-1) for inds in self.dimension_indices]
 
         addition_funcs = B.stack(
             *[
@@ -422,11 +427,9 @@ class ProductEigenfunctionWithAdditionTheorem(
                 int(
                     np.prod(
                         [
-                            len(self.level_mapping[d][levelindex[j]])
+                            len(self.level_mapping[d][levelindex[i]])  # ??
                             for d in range(self.levelindices.shape[1])
                         ]
                     )
                 )
             )
-
-

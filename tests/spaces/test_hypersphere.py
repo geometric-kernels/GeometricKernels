@@ -69,7 +69,9 @@ def test_weighted_outerproduct_with_addition_theorem(
     """
     inputs, inputs2 = inputs
     weights_per_level = np.random.randn(eigenfunctions.num_levels)
-    chained_weights = chain(weights_per_level, eigenfunctions.num_eigenfunctions_per_level)
+    chained_weights = chain(
+        weights_per_level, eigenfunctions.num_eigenfunctions_per_level
+    )
     weights = B.reshape(weights_per_level, -1, 1)
     actual = B.to_numpy(eigenfunctions.weighted_outerproduct(weights, inputs, inputs2))
 
@@ -88,7 +90,6 @@ def test_weighted_outerproduct_with_addition_theorem_same_input(
     """
     inputs, _ = inputs
     weights_per_level = np.random.randn(eigenfunctions.num_levels)
-    chained_weights = chain(weights_per_level, eigenfunctions.num_eigenfunctions_per_level)
     weights = B.reshape(weights_per_level, -1, 1)
     first = B.to_numpy(eigenfunctions.weighted_outerproduct(weights, inputs, inputs))
     second = B.to_numpy(eigenfunctions.weighted_outerproduct(weights, inputs, None))
@@ -104,7 +105,9 @@ def test_weighted_outerproduct_diag_with_addition_theorem(
     """
     inputs, _ = inputs
     weights_per_level = np.random.randn(eigenfunctions.num_levels)
-    chained_weights = chain(weights_per_level, eigenfunctions.num_eigenfunctions_per_level)
+    chained_weights = chain(
+        weights_per_level, eigenfunctions.num_eigenfunctions_per_level
+    )
     weights = B.reshape(weights_per_level, -1, 1)
     actual = eigenfunctions.weighted_outerproduct_diag(weights, inputs)
 
