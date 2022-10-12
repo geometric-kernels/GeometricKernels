@@ -8,9 +8,10 @@ from typing import List
 import lab as B
 import numpy as np
 
-from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
-from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.lab_extras import from_numpy
+from geometric_kernels.spaces.base import DiscreteSpectrumSpace
+from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
+from geometric_kernels.utils.utils import chain
 
 
 def find_lowest_sum_combinations(array, k):
@@ -160,7 +161,9 @@ class ProductEigenfunctions(Eigenfunctions):
             eigenfunction.dim_of_eigenspaces for eigenfunction in self.eigenfunctions
         ]  # [S, L]
 
-        self._separate_eigenindices = per_level_to_separate(self.eigenindicies, self.nums_per_level)
+        self._separate_eigenindices = per_level_to_separate(
+            self.eigenindicies, self.nums_per_level
+        )
 
         assert self.eigenindicies.shape[-1] == len(self.eigenfunctions)
 
@@ -227,7 +230,7 @@ class ProductEigenfunctions(Eigenfunctions):
         return out
 
     @property
-    def dims_of_eigenspaces(self):
+    def dim_of_eigenspaces(self):
         return total_multiplicities(self.eigenindicies, self.nums_per_level)
 
 
@@ -308,27 +311,7 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
 
         eigenfunctions = self.get_eigenfunctions(num)
         eigenvalues = self._eigenvalues[:num, None]
-        multiplicities = eigenfunctions.dims_of_eigenspaces
-        # total_multiplicities(self.sub_space_eigenindices, eigenfunctions.nums_per_level)
+        multiplicities = eigenfunctions.dim_of_eigenspaces
 
-        repeated_eigenvalues = chain(
-            eigenvalues,
-            multiplicities
-        )
+        repeated_eigenvalues = chain(eigenvalues, multiplicities)
         return B.reshape(repeated_eigenvalues, -1, 1)  # [M, 1]
-        # repeated_eigenindices = []
-    
-        # eigenindices = self.sub_space_eigenindices[:num, :]  # [M, S]
-        # num_sub_spaces = len(self.sub_spaces)
-        # for index in eigenindices:
-        #     multiplicities = self._nums_per_level[index, B.range(num_sub_spaces)]
-        #     total_multiplicity = multiplicities.prod()
-        #     level_indices = [index] * total_multiplicity
-        #     repeated_eigenindices += level_indices
-
-        # repeated_eigenindices = B.stack(*repeated_eigenindices, axis=1)
-
-        # return self.sub_space_eigenvalues[
-        #     B.range(num_sub_spaces),
-        #     repeated_eigenindices,
-        # ].sum(axis=1)

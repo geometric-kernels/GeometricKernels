@@ -34,12 +34,10 @@ def test_circle_product_eigenfunctions():
     Phi_X2 = eigenfunctions(X)
 
     weights = from_numpy(X, np.random.randn(eigenfunctions.num_levels))
-    chained_weights = chain(
-        weights, eigenfunctions.dims_of_eigenspaces
-    )
+    chained_weights = chain(weights, eigenfunctions.dims_of_eigenspaces)
     actual = B.to_numpy(eigenfunctions.weighted_outerproduct(weights, X, X))
 
-    expected = einsum('ni,mi,i->nm', Phi_X, Phi_X2, chained_weights)
+    expected = einsum("ni,mi,i->nm", Phi_X, Phi_X2, chained_weights)
     np.testing.assert_array_almost_equal(actual, expected)
 
 
