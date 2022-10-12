@@ -12,7 +12,7 @@ from geometric_kernels.spaces.eigenfunctions import (
     Eigenfunctions,
     EigenfunctionWithAdditionTheorem,
 )
-from geometric_kernels.utils.utils import Optional
+from geometric_kernels.utils.utils import Optional, chain
 
 
 class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
@@ -167,10 +167,19 @@ class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
 
         :return: [M, 1] array containing the eigenvalues
         """
+        eigenvalues = B.range(num) ** 2  # [num,]
+        return B.reshape(eigenvalues, -1, 1)  # [M, 1]
+
+    def get_repeated_eigenvalues(self, num: int) -> B.Numeric:
+        """First `num` eigenvalues of the Laplace-Beltrami operator,
+        repeated according to their multiplicity.
+
+        :return: [M, 1] array containing the eigenvalues
+        """
+        eigenfunctions = SinCosEigenfunctions(num)
         eigenvalues_per_level = B.range(num) ** 2  # [num,]
-        # eigenvalues = chain(
-        #    eigenvalues_per_level,
-        #   eigenfunctions.num_eigenfunctions_per_level,
-        # )  # [M,]
-        eigenvalues = eigenvalues_per_level
+        eigenvalues = chain(
+            eigenvalues_per_level,
+            eigenfunctions.num_eigenfunctions_per_level,
+        )  # [M,]
         return B.reshape(eigenvalues, -1, 1)  # [M, 1]

@@ -17,6 +17,7 @@ from geometric_kernels.spaces.eigenfunctions import (
     Eigenfunctions,
     EigenfunctionWithAdditionTheorem,
 )
+from geometric_kernels.utils.utils import chain
 
 
 class SphericalHarmonics(EigenfunctionWithAdditionTheorem):
@@ -173,18 +174,32 @@ class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
         :return: [num, 1] array containing the eigenvalues
         """
         eigenfunctions = SphericalHarmonics(self.dim, num)
+        eigenvalues = np.array(
+            [
+                level.eigenvalue()
+                for level in eigenfunctions._spherical_harmonics.harmonic_levels
+            ]
+        )
+        return B.reshape(eigenvalues, -1, 1)  # [num, 1]
+
+    def get_repeated_eigenvalues(self, num: int) -> B.Numeric:
+        """First `num` eigenvalues of the Laplace-Beltrami operator,
+        repeated according to their multiplicity.
+
+        :return: [M, 1] array containing the eigenvalues
+        """
+        eigenfunctions = SphericalHarmonics(self.dim, num)
         eigenvalues_per_level = np.array(
             [
                 level.eigenvalue()
                 for level in eigenfunctions._spherical_harmonics.harmonic_levels
             ]
         )
-        # eigenvalues = chain(
-        #     eigenvalues_per_level,
-        #     eigenfunctions.num_eigenfunctions_per_level,
-        # )  # [num,]
-        eigenvalues = eigenvalues_per_level
-        return B.reshape(eigenvalues, -1, 1)  # [num, 1]
+        eigenvalues = chain(
+            eigenvalues_per_level,
+            eigenfunctions.num_eigenfunctions_per_level,
+        )  # [M,]
+        return B.reshape(eigenvalues, -1, 1)  # [M, 1]
 
     def ehess2rhess(self, x, egrad, ehess, direction):
         """

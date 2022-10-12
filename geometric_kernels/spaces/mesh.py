@@ -73,6 +73,13 @@ class Mesh(DiscreteSpectrumSpace):
         """
         return self.get_eigensystem(num)[1]
 
+    def get_repeated_eigenvalues(self, num: int) -> B.Numeric:
+        """
+        :param num: number of eigenvalues returned
+        :return: eigenvalues [num, 1]
+        """
+        return self.get_eigenvalues(num)
+
     def get_eigenfunctions(self, num: int) -> Eigenfunctions:
         """
         First `num` eigenfunctions of the Laplace-Beltrami operator on the Mesh.

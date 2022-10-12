@@ -80,10 +80,14 @@ class Eigenfunctions(abc.ABC):
     @abc.abstractmethod
     def __call__(self, X: B.Numeric, **parameters) -> B.Numeric:
         """
+        Evaluate the individual eigenfunctions.
+
         :param X: points to evaluate the eigenfunctions in local coordinates, [N, D].
             `N` is the number of points and `D` should match the dimension of the space
             on which the eigenfunctions are defined.
         :param parameters: any additional parameters
+
+        :return: [N, M] where `M` is the number of eigenfunctions.
         """
         raise NotImplementedError
 
@@ -91,6 +95,11 @@ class Eigenfunctions(abc.ABC):
     def num_eigenfunctions(self) -> int:
         """Number of eigenfunctions, M"""
         raise NotImplementedError
+
+    @property
+    def dim_of_eigenspaces(self) -> B.Numeric:
+        """Dimension of eigenspaces. For generic Eigenfunctions, it is an array of ones. For Eigenfunctions with addition theorem, it is the number of eigenfunctions in each level."""
+        return B.ones(self.num_eigenfunctions)
 
 
 class EigenfunctionWithAdditionTheorem(Eigenfunctions):
@@ -143,7 +152,6 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         sum_phi_phi_for_level = self._addition_theorem(X, X2, **parameters)  # [N, N, L]
         # weights = self._filter_weights(weights)
         sum_phi_phi_for_level = B.cast(B.dtype(weights), sum_phi_phi_for_level)
-        print("we", B.shape(weights))
 
         return einsum("id,...nki->...nk", weights, sum_phi_phi_for_level)  # [N, N2]
 
@@ -226,7 +234,6 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         """Number of eigenfunctions per level"""
         raise NotImplementedError
 
-    # @abc.abstractclassmethod
-    # def from_levels(cls, num: int):
-    #    """Construct a instance with num levels worth of eigenfunctions"""
-    #    raise NotImplementedError
+    @property
+    def dim_of_eigenspaces(self) -> B.Numeric:
+        return self.num_eigenfunctions_per_level

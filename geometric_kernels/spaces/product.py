@@ -2,17 +2,15 @@
 Implement product spaces
 """
 
+import itertools
 from typing import List
 
 import lab as B
 import numpy as np
 
-from geometric_kernels.spaces.eigenfunctions import (
-    Eigenfunctions,
-    EigenfunctionWithAdditionTheorem,
-)
-
-from .base import DiscreteSpectrumSpace
+from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
+from geometric_kernels.spaces.base import DiscreteSpectrumSpace
+from geometric_kernels.lab_extras import from_numpy
 
 
 def find_lowest_sum_combinations(array, k):
@@ -71,43 +69,26 @@ def find_lowest_sum_combinations(array, k):
     return index_array
 
 
-def indices_to_levels(index_array, level_mapping_array):
+def total_multiplicities(eigenindices, nums_per_level):
     """
-    Takes and index array [N, D] containing indices and maps these indices to the levels they belong to,
-    defined by the level_mapping_array, of size [D, levels, level_size].
+    Given a collection of eigenindices [M, S],
+    compute the total multiplicities of
+    the corresponding eigenvalues.
+
+    eigidx: [M, S]
+    nums_per_level [S, L]
     """
-    # TODO: add some check on complete levels?
-    N, D = index_array.shape
-    level_array = index_array.copy()
-    for d in range(D):
-        max_index = index_array[:, d].max()
-        for i in range(len(level_mapping_array[d])):
-            for index in level_mapping_array[d][i]:
-                if index <= max_index:
-                    ids = level_array[:, d] == index
-                    level_array[ids, d] = i
+    totals = []
 
-    _, unique_indexes = np.unique(level_array, axis=0, return_index=True)
+    per_level = from_numpy(eigenindices, nums_per_level)
+    num_sub_spaces = np.shape(eigenindices)[1]
+    for index in eigenindices:
+        multiplicities = per_level[B.range(num_sub_spaces), index]
+        total = B.prod(multiplicities)
+        totals.append(total)
 
-    return level_array[np.sort(unique_indexes)]
-
-
-def levels_to_indices(level_array, level_mapping_array):
-    N, D = level_array.shape
-    index_array = np.split(level_array, level_array.shape[0], axis=0)
-    index_array = [i[0] for i in index_array]
-
-    for d in range(D):
-        new_index_array = []
-        for index in index_array:
-            for new_idx in level_mapping_array[d][index[d]]:
-                new_index = index.copy()
-                new_index[d] = new_idx
-                new_index_array.append(new_index)
-
-        index_array = new_index_array
-
-    return np.stack(new_index_array, axis=0)
+        # totals = B.stack(*eigenindices, axis=0)
+    return totals
 
 
 def num_per_level_to_mapping(num_per_level):
@@ -116,6 +97,32 @@ def num_per_level_to_mapping(num_per_level):
     for num in num_per_level:
         mapping.append([i + j for j in range(num)])
         i += num
+    return mapping
+
+
+def per_level_to_separate(eigenindices, nums_per_level):
+    """
+    Given `eigenindices` which map product space's eigenfunction index to
+    the indices of subspaces' eigenlevels,
+    convert them to a mapping of product space's eigenfunction index to
+    the indices of subspaces' individual eigenfunctions via
+    `nums_per_level`, which gives number of eigenfunctions per level for each subspace.
+
+    :return: [M, S]
+        `M` is the total number of eigenfunctions, `S` is the number of subspaces.
+    """
+    separate = [num_per_level_to_mapping(npl) for npl in nums_per_level]
+    # S lists of length L
+
+    total_eigenindices = []
+    for index in eigenindices:
+        separates = [separate[s][level] for s, level in enumerate(index)]
+        # S lists, each with separate indices
+        new_indices = list(itertools.product(*separates))
+        total_eigenindices += new_indices
+
+    out = from_numpy(eigenindices, np.array(total_eigenindices))
+    return out
 
 
 class ProductEigenfunctions(Eigenfunctions):
@@ -135,7 +142,7 @@ class ProductEigenfunctions(Eigenfunctions):
             The dimensions of the spaces being producted together
         eigenindicies : B.Numeric
             An array mapping i'th eigenfunction of the product space to
-            the index of the eigenfunctions of the subspaces
+            the index of the eigenlevels of the subspaces
         eigenfunctions : Eigenfunctions
 
         """
@@ -148,6 +155,12 @@ class ProductEigenfunctions(Eigenfunctions):
                 i += dim
         self.eigenindicies = eigenindicies
         self.eigenfunctions = eigenfunctions
+
+        self.nums_per_level = [
+            eigenfunction.dim_of_eigenspaces for eigenfunction in self.eigenfunctions
+        ]  # [S, L]
+
+        self._separate_eigenindices = per_level_to_separate(self.eigenindicies, self.nums_per_level)
 
         assert self.eigenindicies.shape[-1] == len(self.eigenfunctions)
 
@@ -166,13 +179,23 @@ class ProductEigenfunctions(Eigenfunctions):
 
         return eigenfunctions[
             :,
-            self.eigenindicies,
+            self._separate_eigenindices,
             B.range(self.eigenindicies.shape[1]),
         ].prod(
             axis=-1
         )  # [N, M, S] --> [N, M]
 
     def num_eigenfunctions(self) -> int:
+        """
+        Return the total number of eigenfunctions.
+        """
+        return self._separate_eigenindices.shape[0]
+
+    @property
+    def num_levels(self) -> int:
+        """
+        Return number of "levels".
+        """
         return self.eigenindicies.shape[0]
 
     def weighted_outerproduct(self, weights, X, X2=None, **parameters):
@@ -181,17 +204,15 @@ class ProductEigenfunctions(Eigenfunctions):
         Xs = [B.take(X, inds, axis=-1) for inds in self.dimension_indices]
         Xs2 = [B.take(X2, inds, axis=-1) for inds in self.dimension_indices]
 
-        sum_phis = B.stack(
+        phis = B.stack(
             *[
                 eigenfunction.phi_product(X1, X2, **parameters)
                 for eigenfunction, X1, X2 in zip(self.eigenfunctions, Xs, Xs2)
             ],
             axis=-1,
         )  # [N, M, L, S]
-        print("sum_phis", B.shape(sum_phis))
 
-        # weights [L]
-        prod_phis = sum_phis[
+        prod_phis = phis[
             :,
             :,
             self.eigenindicies,
@@ -200,12 +221,14 @@ class ProductEigenfunctions(Eigenfunctions):
             axis=-1
         )  # [N, M, L, S] -> [N, M, L]
 
-        print("prod_phis", B.shape(prod_phis))
-        print("weights", B.shape(weights))
-
+        # weights [L, 1]
         out = B.sum(B.flatten(weights) * prod_phis, axis=-1)  # [N, M, L] -> [N, M]
 
         return out
+
+    @property
+    def dims_of_eigenspaces(self):
+        return total_multiplicities(self.eigenindicies, self.nums_per_level)
 
 
 class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
@@ -227,7 +250,7 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
         spaces : DiscreteSpecturmSpace
             The spaces to product together
         num_eigen : int, optional
-            number of eigenfunctions to use for this product space, by default 100
+            number of eigenvalues to use for this product space, by default 100
         """
         for space in spaces:
             assert isinstance(space, DiscreteSpectrumSpace)
@@ -245,19 +268,16 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
             *[space.get_eigenvalues(self.num_eigen)[:, 0] for space in self.sub_spaces],
             axis=0,
         )  # [M, S]
-        print("sub_scape_eigvals")
-        print(sub_space_eigenvalues)
 
         self.sub_space_eigenindices = find_lowest_sum_combinations(
             sub_space_eigenvalues, self.num_eigen
         )
+        self.sub_space_eigenvalues = sub_space_eigenvalues
 
         self._eigenvalues = sub_space_eigenvalues[
             B.range(len(self.sub_spaces)),
             self.sub_space_eigenindices[: self.num_eigen, :],
         ].sum(axis=1)
-        print("eivals")
-        print(self._eigenvalues)
 
     @property
     def dimension(self) -> int:
@@ -283,153 +303,32 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
 
         return self._eigenvalues[:num, None]
 
+    def get_repeated_eigenvalues(self, num: int) -> B.Numeric:
+        assert num <= self.num_eigen
 
-class ProductEigenfunctionWithAdditionTheorem(
-    EigenfunctionWithAdditionTheorem, ProductEigenfunctions
-):
-    def __init__(
-        self,
-        dimensions: List[int],
-        eigenindicies: B.Numeric,
-        *eigenfunctions: Eigenfunctions,
-    ):
-        """
-        Wrapper class for handling eigenfunctions on product spaces where an addition
-        theorem is available.
+        eigenfunctions = self.get_eigenfunctions(num)
+        eigenvalues = self._eigenvalues[:num, None]
+        multiplicities = eigenfunctions.dims_of_eigenspaces
+        # total_multiplicities(self.sub_space_eigenindices, eigenfunctions.nums_per_level)
 
-        Parameters
-        ----------
-        dimensions : List[int]
-            The dimensions of the spaces being producted together
-        eigenindicies : B.Numeric
-            An array mapping i'th eigenfunction of the product space to
-            the index of the eigenfunctions of the subspaces, OR the i'th
-            addition level if the eigenfun
-        eigenfunctions : Eigenfunctions
-
-        """
-        dimension_indices = None
-        if dimension_indices is None:
-            self.dimension_indices = []
-            i = 0
-            inds = B.linspace(0, sum(dimensions) - 1, sum(dimensions)).astype(int)
-            for dim in dimensions:
-                self.dimension_indices.append(inds[i : i + dim])
-                i += dim
-        self.eigenindicies = eigenindicies
-        self.level_mapping = [
-            num_per_level_to_mapping(eigenfunction.num_eigenfunctions_per_level)
-            if isinstance(eigenfunction, EigenfunctionWithAdditionTheorem)
-            else [[i] for i in range(eigenindicies.shape[0])]
-            for eigenfunction in eigenfunctions
-        ]
-
-        self.levelindices = indices_to_levels(
-            self.eigenindicies,
-            self.level_mapping,
+        repeated_eigenvalues = chain(
+            eigenvalues,
+            multiplicities
         )
-        self.additionfunctions = [
-            lambda X, X2, **parameters: eigenfunction._addition_theorem(
-                X, X2, **parameters
-            )
-            if isinstance(eigenfunction, EigenfunctionWithAdditionTheorem)
-            else lambda X, X2, **parameters: eigenfunction(X, **parameters)[
-                :, None, ...
-            ]
-            * eigenfunction(X2, **parameters)[None, ...]
-            for eigenfunction in eigenfunctions
-        ]
-        self.additiondiagfunctions = [
-            lambda X, **parameters: eigenfunction._addition_theorem_diag(
-                X**parameters
-            )
-            if isinstance(eigenfunction, EigenfunctionWithAdditionTheorem)
-            else lambda X, **parameters: eigenfunction(X, **parameters) ** 2
-            for eigenfunction in eigenfunctions
-        ]
+        return B.reshape(repeated_eigenvalues, -1, 1)  # [M, 1]
+        # repeated_eigenindices = []
+    
+        # eigenindices = self.sub_space_eigenindices[:num, :]  # [M, S]
+        # num_sub_spaces = len(self.sub_spaces)
+        # for index in eigenindices:
+        #     multiplicities = self._nums_per_level[index, B.range(num_sub_spaces)]
+        #     total_multiplicity = multiplicities.prod()
+        #     level_indices = [index] * total_multiplicity
+        #     repeated_eigenindices += level_indices
 
-        # eigenfunctions are of complete levels only if the level indices map back to the eigenfunctions
-        self.complete_levels = np.sort(
-            levels_to_indices(
-                self.levelindices,
-                self.level_mapping,
-            )
-            == np.sort(self.eigenindicies.shape[0])
-        ).all()
+        # repeated_eigenindices = B.stack(*repeated_eigenindices, axis=1)
 
-        # for consistency between the levels and the eigenindicies for weight filtering.
-        if self.complete_levels:
-            self.eigenindicies = levels_to_indices(
-                self.levelindices,
-                self.level_mapping,
-            )
-
-        self.eigenfunctions = eigenfunctions
-
-        assert self.eigenindicies.shape[-1] == len(self.eigenfunctions)
-
-    def _addition_theorem(self, X, X2, **parameters):
-        Xs = [B.take(X, inds, axis=-1) for inds in self.dimension_indices]
-        X2s = [B.take(X2, inds, axis=-1) for inds in self.dimension_indices]
-
-        addition_funcs = B.stack(
-            *[
-                additionfunction(X, X2, **parameters)
-                for additionfunction, X, X2 in zip(self.additionfunctions, Xs, X2s)
-            ],
-            axis=-1,
-        )
-
-        # TODO: get the right indices, square not vector.
-        return addition_funcs[
-            :,
-            self.levelindices,
-            B.linspace(
-                0, self.levelindices.shape[1] - 1, self.levelindices.shape[1]
-            ).astype(int),
-        ].prod(axis=-1)
-
-    def _addition_theorem_diag(self, X, **parameters):
-        Xs = [B.take(X, inds, axis=-1) for inds in self.dimension_indices]
-
-        addition_funcs = B.stack(
-            *[
-                additionfunction(X, **parameters)
-                for additionfunction, X in zip(self.additiondiagfunctions, Xs)
-            ],
-            axis=-1,
-        )
-
-        return addition_funcs[
-            :,
-            self.levelindices,
-            B.linspace(
-                0, self.levelindices.shape[1] - 1, self.levelindices.shape[1]
-            ).astype(int),
-        ].prod(axis=-1)
-
-    def num_levels(self):
-        assert (
-            self.complete_levels
-        ), "eigenindicies specified do not correspond to a complete set of levels"
-        return self.levelindices.shape[0]
-
-    def num_eigenfunctions_per_level(self):
-        assert (
-            self.complete_levels
-        ), "eigenindicies specified do not correspond to a complete set of levels"
-        num_per_level = []
-
-        for i in range(self.levelindices.shape[0]):
-            levelindex = self.levelindices[i]
-
-            num_per_level.append(
-                int(
-                    np.prod(
-                        [
-                            len(self.level_mapping[d][levelindex[i]])  # ??
-                            for d in range(self.levelindices.shape[1])
-                        ]
-                    )
-                )
-            )
+        # return self.sub_space_eigenvalues[
+        #     B.range(num_sub_spaces),
+        #     repeated_eigenindices,
+        # ].sum(axis=1)

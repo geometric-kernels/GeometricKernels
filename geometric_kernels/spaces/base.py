@@ -52,12 +52,14 @@ class DiscreteSpectrumSpace(Space):
         """
         raise NotImplementedError
 
-    def get_level_eigenvalues(self, num: int) -> B.Numeric:
-        """First `num` unique eigenvalues of the Laplace-Beltrami operator.
+    @abc.abstractmethod
+    def get_repeated_eigenvalues(self, num: int) -> B.Numeric:
+        """First `num` eigenvalues of the Laplace-Beltrami operator,
+        repeated according to their multiplicity.
 
-        :return: [
+        :return: [M, 1] array containing the eigenvalues
         """
-        pass
+        raise NotImplementedError
 
 
 class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
