@@ -36,7 +36,7 @@ def _inputs_fixure(request) -> Tuple[B.Numeric]:
 
 @pytest.mark.parametrize(
     "dim, num, expected_num, expected_num_levels",
-    [(2, 9, 9, 3), (2, 10, 16, 4), (3, 14, 14, 3), (3, 15, 30, 4), (8, 9, 10, 2)],
+    [(2, 3, 9, 3), (2, 4, 16, 4), (3, 3, 14, 3), (3, 4, 30, 4), (8, 2, 10, 2)],
 )
 def test_shape_eigenfunctions(dim, num, expected_num, expected_num_levels):
     sph_harmonics = SphericalHarmonics(dim, num)
@@ -69,12 +69,13 @@ def test_weighted_outerproduct_with_addition_theorem(
     """
     inputs, inputs2 = inputs
     weights_per_level = np.random.randn(eigenfunctions.num_levels)
-    weights = chain(weights_per_level, eigenfunctions.num_eigenfunctions_per_level)
+    chained_weights = chain(weights_per_level, eigenfunctions.num_eigenfunctions_per_level)
+    weights = B.reshape(weights_per_level, -1, 1)
     actual = B.to_numpy(eigenfunctions.weighted_outerproduct(weights, inputs, inputs2))
 
     Phi_X = eigenfunctions(inputs)
     Phi_X2 = eigenfunctions(inputs2)
-    expected = einsum("ni,ki,i->nk", Phi_X, Phi_X2, weights)
+    expected = einsum("ni,ki,i->nk", Phi_X, Phi_X2, chained_weights)
     np.testing.assert_array_almost_equal(actual, expected)
 
 
@@ -87,7 +88,8 @@ def test_weighted_outerproduct_with_addition_theorem_same_input(
     """
     inputs, _ = inputs
     weights_per_level = np.random.randn(eigenfunctions.num_levels)
-    weights = chain(weights_per_level, eigenfunctions.num_eigenfunctions_per_level)
+    chained_weights = chain(weights_per_level, eigenfunctions.num_eigenfunctions_per_level)
+    weights = B.reshape(weights_per_level, -1, 1)
     first = B.to_numpy(eigenfunctions.weighted_outerproduct(weights, inputs, inputs))
     second = B.to_numpy(eigenfunctions.weighted_outerproduct(weights, inputs, None))
     np.testing.assert_array_almost_equal(first, second)
@@ -102,9 +104,10 @@ def test_weighted_outerproduct_diag_with_addition_theorem(
     """
     inputs, _ = inputs
     weights_per_level = np.random.randn(eigenfunctions.num_levels)
-    weights = chain(weights_per_level, eigenfunctions.num_eigenfunctions_per_level)
+    chained_weights = chain(weights_per_level, eigenfunctions.num_eigenfunctions_per_level)
+    weights = B.reshape(weights_per_level, -1, 1)
     actual = eigenfunctions.weighted_outerproduct_diag(weights, inputs)
 
     Phi_X = eigenfunctions(inputs)
-    expected = einsum("ni,i->n", Phi_X**2, weights)
+    expected = einsum("ni,i->n", Phi_X**2, chained_weights)
     np.testing.assert_array_almost_equal(B.to_numpy(actual), B.to_numpy(expected))

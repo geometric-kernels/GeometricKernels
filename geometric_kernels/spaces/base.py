@@ -62,23 +62,6 @@ class DiscreteSpectrumSpace(Space):
         """
         pass
 
-class DiscreteSpectrumSpaceWithAdditionTheorem(DiscreteSpectrumSpace):
-    """In addition to the DiscreteSpecturmSpace properties, there
-    exists an addition theorem for the eigenfunctions of this space
-    such that
-        \sum_{i \in level} eigenfunction_i(x) eigenfunction_i(y) = addition_function_i(x,y)
-    """
-
-    @abc.abstractmethod
-    def get_eigenfunctions_from_levels(
-        self, num: int
-    ) -> EigenfunctionWithAdditionTheorem:
-        """
-        First `num` levels of eigenfunctions of the Laplace-Beltrami operator
-        """
-        raise NotImplementedError
-
-
 class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
     """
     Converts the array of eigenvectors to callable objects,
