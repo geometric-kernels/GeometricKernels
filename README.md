@@ -1,13 +1,13 @@
-**WARNING: this is a development (unstable) version of the package**
-
 # Geometric Kernels
+
 [![Quality checks and Tests](https://github.com/GPflow/GeometricKernels/actions/workflows/quality-checks.yaml/badge.svg)](https://github.com/GPflow/GeometricKernels/actions/workflows/quality-checks.yaml)
-[![Documentation](https://github.com/GPflow/GeometricKernels/actions/workflows/docs.yaml/badge.svg)](https://github.com/GPflow/GeometricKernels/actions/workflows/docs.yaml)
+[![Documentation](https://github.com/GPflow/GeometricKernels/actions/workflows/docs.yaml/badge.svg)](https://gpflow.github.io/GeometricKernels/index.html)
+[![Landing Page](https://img.shields.io/badge/Landing_Page-informational)](https://geometric-kernels.github.io/)
 
 ![Geometric Kernels](https://geometric-kernels.github.io/assets/title-sm.png)
 
-Geometric Kernels is a library that implements kernels including the heat and Matérn class on non-Euclidean spaces as **Riemannian manifolds** or **graphs**.
-This enables Gaussian process models to be built on such spaces, includes features such as efficient sampling.
+Geometric Kernels is a library that implements kernels including the heat and Matérn class on non-Euclidean spaces as **Riemannian manifolds**, **graphs** and **meshes**.
+This enables kernel methods &mdash; in particular Gaussian process models &mdash; to be deployed on such spaces.
 
 
 ##  Installation
@@ -45,7 +45,7 @@ pip install torch gpytorch
 pip install "jax[cpu]"
 ```
 
-### Supported backends with associated GP packaes
+### Supported backends with associated GP packages
 
 Ready|Backend                                      | GP package
 -----|---------------------------------------------|------------------------------------------
@@ -92,7 +92,7 @@ This should output
 
 ## Documentation
 
-The documentation for GeometricKernels is available on a [separate website](TODO).
+The documentation for GeometricKernels is available on a [separate website](https://gpflow.github.io/GeometricKernels/index.html).
 
 ## For development and running the tests
 
