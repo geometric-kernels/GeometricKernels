@@ -4,7 +4,7 @@
 [![Documentation](https://github.com/GPflow/GeometricKernels/actions/workflows/docs.yaml/badge.svg)](https://gpflow.github.io/GeometricKernels/index.html)
 [![Landing Page](https://img.shields.io/badge/Landing_Page-informational)](https://geometric-kernels.github.io/)
 
-![Geometric Kernels](https://geometric-kernels.github.io/assets/title-sm.png)
+[![Geometric Kernels](https://geometric-kernels.github.io/assets/title-sm.png)](https://geometric-kernels.github.io/)
 
 Geometric Kernels is a library that implements kernels including the heat and Matérn class on non-Euclidean spaces as **Riemannian manifolds**, **graphs** and **meshes**.
 This enables kernel methods &mdash; in particular Gaussian process models &mdash; to be deployed on such spaces.
