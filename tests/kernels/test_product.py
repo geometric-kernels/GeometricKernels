@@ -7,7 +7,6 @@ from geometric_kernels.lab_extras.extras import from_numpy
 from geometric_kernels.spaces import Circle, ProductDiscreteSpectrumSpace
 from geometric_kernels.utils.utils import chain
 
-# _TRUNCATION_LEVEL = 11 ** 2
 _TRUNC_LEVEL = 128
 _GRID_SIZE = 3
 
@@ -79,8 +78,4 @@ def test_circle_product_kernel():
 
         k_xx_product = k_xx_single_1 * k_xx_single_2
 
-        print(k_xx)
-        print("=========")
-        print(k_xx_product)
-
-        assert np.allclose(B.to_numpy(k_xx), B.to_numpy(k_xx_product))
+        np.testing.assert_allclose(B.to_numpy(k_xx), B.to_numpy(k_xx_product))

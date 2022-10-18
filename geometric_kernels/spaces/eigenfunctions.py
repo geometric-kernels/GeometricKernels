@@ -154,7 +154,6 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
             X2 = X
 
         sum_phi_phi_for_level = self._addition_theorem(X, X2, **parameters)  # [N, N, L]
-        # weights = self._filter_weights(weights)
         sum_phi_phi_for_level = B.cast(B.dtype(weights), sum_phi_phi_for_level)
 
         return einsum("id,...nki->...nk", weights, sum_phi_phi_for_level)  # [N, N2]
@@ -179,8 +178,6 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         :return: shape [N,]
         """
         addition_theorem_X = self._addition_theorem_diag(X, **parameters)  # [N, L]
-        # weights = self._filter_weights(weights)
-        # weights = from_numpy(addition_theorem_X, weights)
         return einsum("id,ni->n", weights, addition_theorem_X)  # [N,]
 
     def phi_product(self, X1, X2, **parameters):

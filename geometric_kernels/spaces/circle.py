@@ -86,10 +86,6 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         :return: Evaluate the sum of eigenfunctions on each level. Returns
             a value for each level [N, L]
         """
-        # assert (
-        #    self.complete_levels
-        # ), "num_eigenfunctions needs to be odd to include all eigenfunctions within a level."
-
         N = X.shape[0]
         ones = B.ones(B.dtype(X), N, self.num_levels)  # [N, L]
         value = ones * B.cast(
@@ -116,11 +112,6 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
     def num_eigenfunctions_per_level(self) -> B.Numeric:
         """Number of eigenfunctions per level, [N_l]_{l=0}^{L-1}"""
         return [1 if level == 0 else 2 for level in range(self.num_levels)]
-
-    # @classmethod
-    # def from_levels(cls, num):
-    #    num_eigenfunctions = 2 * num - 1
-    #    return cls(num_eigenfunctions)
 
 
 class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):

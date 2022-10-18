@@ -10,25 +10,20 @@ from geometric_kernels.spaces import Space
 
 
 class ProductGeometricKernel(BaseGeometricKernel):
-    """
-    Basic implementation of product kernels.
-    TODO: Support combined RFF/KL expansion methods
-
-    Parameters
-    ----------
-    kernels : BaseGeometricKernel
-        kernels to compute the product for
-    dimension_indices : List[B.Numeric], optional
-        List of indices the correspond to the indices of the input that should be fed to each kernel.
-        If None, assume the each kernel takes kernel.space.dimension inputs, and that the input will
-        be a stack of this size, by default None
-    """
-
     def __init__(
         self,
         *kernels: BaseGeometricKernel,
         dimension_indices: List[B.Numeric] = None,
     ):
+        """
+        Basic implementation of product kernels.
+        TODO: Support combined RFF/KL expansion methods
+
+        :param kernels: kernels to compute the product for
+        :param dimension_indices: List of indices the correspond to the indices of the input that should be fed to each kernel.
+            If None, assume the each kernel takes kernel.space.dimension inputs, and that the input will
+            be a stack of this size, by default None
+        """
         self.kernels = kernels
 
         if dimension_indices is None:
