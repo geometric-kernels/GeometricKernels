@@ -78,4 +78,4 @@ def test_circle_product_kernel():
 
         k_xx_product = k_xx_single_1 * k_xx_single_2
 
-        np.testing.assert_allclose(B.to_numpy(k_xx), B.to_numpy(k_xx_product))
+        np.testing.assert_allclose(B.to_numpy(k_xx), B.to_numpy(k_xx_product), atol=1e-08, rtol=1e-05)
