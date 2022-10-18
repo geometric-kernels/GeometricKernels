@@ -263,20 +263,21 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
         r"""Implementation of products of discrete spectrum spaces.
         Assumes the spaces are compact manifolds and that the eigenfunctions are the
         eigenfunctions of the Laplace-Beltrami operator. On such a space the eigen(values/functions)
-        on the product space associated with the multiindex alpha are given by
-            lambda_alpha = \sum_i lambda_{i, alpha_i}
-            phi_alpha = \prod_i phi_{i, alpha_i}
-        where lambda_{i, j} is the j'th eigenvalue on the i'th manifold in the product
-        and phi_{i, j} is the j'th eigenfunction on the i'th manifold in the product.
+        on the product space associated with the multiindex :math:`\alpha` are given by
+
+        .. math::
+            \lambda_{\alpha} = \sum_i \lambda_{i, \alpha_i}
+
+            \phi_{\alpha} = \prod_i \phi_{i, \alpha_i}
+
+        where :math:`\lambda_{i, j}` is the j'th eigenvalue on the i'th manifold in the product
+        and :math:`\phi_{i, j}` is the j'th eigenfunction on the i'th manifold in the product.
 
         The eigenfunctions of such manifolds can't in genreal be analytically ordered, and
         so they must be precomputed.
 
-        Parameters
-        ----------
-        spaces : DiscreteSpecturmSpace
-            The spaces to product together
-        num_eigen : int, optional
+        :param spaces: The spaces to product together
+        :param num_eigen: (optional)
             number of eigenvalues to use for this product space, by default 100
         """
         for space in spaces:
