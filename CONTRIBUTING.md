@@ -8,6 +8,8 @@
 
 Community is important to us, and we want everyone to feel welcome and be able to contribute to their fullest. Our [code of conduct](CODE_OF_CONDUCT.md) gives an overview of what that means.
 
+Here is the list of original contributors to the project (in alphabetical order): Viacheslav Borovitskiy, Vincent Dutordoir, Michael Hutchinson, Noemie Jaquier,  Peter Mostowsky, Aditya Ravuri, Leonel Rozo, Alexander Terenin.
+
 ### Reporting a bug
 
 Finding and fixing bugs helps us provide robust functionality to all users. You can either submit a bug report or, if you know how to fix the bug yourself, you can submit a bug fix. We gladly welcome either, but a fix is likely to be released sooner, simply because others may not have time to quickly implement a fix themselves. If you're interested in implementing it, but would like help in doing so, you can send [the maintainers](#who-are-we) an email or open an [issue](https://github.com/GPflow/GeometricKernels/issues/new).
