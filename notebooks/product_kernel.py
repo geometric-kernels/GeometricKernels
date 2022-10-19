@@ -1,6 +1,6 @@
 # %%
-%load_ext autoreload
-%autoreload 2
+# %load_ext autoreload
+# %autoreload 2
 # %%
 import lab.numpy as B
 import matplotlib.pyplot as plt
@@ -10,10 +10,10 @@ import numpy as np
 
 from geometric_kernels.spaces import Circle, ProductDiscreteSpectrumSpace
 
-circle = Circle()
+# circle = Circle()
 
 # %%
-product = ProductDiscreteSpectrumSpace(circle, circle, num_eigen=11**2)
+product = ProductDiscreteSpectrumSpace(Circle(), Circle(), num_eigen=11**2)
 eigenfunctons = product.get_eigenfunctions(11**2)
 # %%
 grid = B.linspace(0, 2*B.pi, 20)
@@ -43,8 +43,9 @@ k_xx = kernel.K(params, state, grid_, grid_)
 k_xx = k_xx.reshape(20,20,20,20)
 
 plt.imshow(k_xx[10,10])
+plt.savefig('./product_ooo.png')
 # %%
-kernel_single = MaternKarhunenLoeveKernel(circle, 11)
+kernel_single = MaternKarhunenLoeveKernel(Circle(), 11)
 
 
 params_single, state_single = kernel_single.init_params_and_state()
