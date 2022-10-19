@@ -2,7 +2,7 @@
 
 ### Who are we?
 
-*Maintainers* (in alphabetical order: Viacheslav Borovitskiy, Vincent Dutordoir, Michael Hutchinson, Noemie Jaquier,  Peter Mostowsky, Aditya Ravuri, Leonel Rozo, Alexander Terenin) steer the project, keep the community thriving, and manage contributions.
+*Maintainers* (in alphabetical order: Viacheslav Borovitskiy, Vincent Dutordoir, Peter Mostowsky) steer the project, keep the community thriving, and manage contributions.
 
 *Contributors* (you?) submit issues, make pull requests, answer questions on Slack, and more.
 
@@ -14,7 +14,7 @@ Finding and fixing bugs helps us provide robust functionality to all users. You 
 
 We use GitHub issues for bug reports. You can use the [issue template](https://github.com/GPflow/GeometricKernels/issues/new) to start writing yours. Once you've submitted it, the maintainers will take a look as soon as possible, ideally within the week, and get back to you about how to proceed. If it's a small easy fix, they may implement it then and there. For fixes that are more involved, they will discuss with you about how urgent the fix is, with the aim of providing some timeline of when you can expect to see it.
 
-If you'd like to submit a bug fix, the [pull request templates](https://github.com/GPflow/GeometricKernels/compare) are a good place to start. We recommend you discuss your changes with the community before you begin working on them, so that questions and suggestions can be made early on.
+If you'd like to submit a bug fix, [open a pull request](https://github.com/GPflow/GeometricKernels/compare). We recommend you discuss your changes with the community before you begin working on them (e.g. via issues), so that questions and suggestions can be made early on.
 
 ### Requesting a feature
 
@@ -22,7 +22,7 @@ GeometricKernels is built on features added and improved by the community. You c
 
 We use GitHub issues for feature requests. You can use the [issue template](https://github.com/GPflow/GeometricKernels/issues/new) to start writing yours. Once you've submitted it, the maintainers will take a look as soon as possible, ideally within the week, and get back to you about how to proceed. If it's a small easy feature that is backwards compatible, they may implement it then and there. For features that are more involved, they will discuss with you about a timeline for implementing it. Features that are not backwards compatible are likely to take longer to reach a release. It may become apparent during discussions that a feature doesn't lie within the scope of GeometricKernels, in which case we will discuss alternative options with you, such as adding it as a notebook or an external extension to GeometricKernels.
 
-If you'd like to submit a pull request, the [pull request templates](https://github.com/GPflow/GeometricKernels/compare) are a good place to start. We recommend you discuss your changes with the community before you begin working on them, so that questions and suggestions can be made early on.
+If you'd like to submit a pull request, [open a pull request](https://github.com/GPflow/GeometricKernels/compare). We recommend you discuss your changes with the community before you begin working on them (e.g. via issues), so that questions and suggestions can be made early on.
 
 ### Pull request guidelines
 
@@ -50,7 +50,7 @@ We use [type hints](https://docs.python.org/3/library/typing.html) for documenta
 
 Run the type and format checkers (black, flake8 and mypy) with
 ```bash
-$ make check
+$ make lint
 ```
 
 The formatter (isort and black) can be run with
