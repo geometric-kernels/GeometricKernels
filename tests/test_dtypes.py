@@ -111,7 +111,7 @@ def _kl_spacepoint_fixture(request):
         raise ValueError("Unknown space {}".format(request.param))
 
 
-@pytest.mark.parametrize("dtype", ["float32", "float64"])
+@pytest.mark.parametrize("dtype", ["float64", "float32"])
 @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
 def test_karhunen_loeve_dtype(kl_spacepoint, dtype, backend):
     space, point = kl_spacepoint

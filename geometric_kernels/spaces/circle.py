@@ -3,7 +3,6 @@ Spaces for which there exist analytical expressions for the manifold
 and the eigenvalues and functions. Examples include the `Circle` and the `Hypersphere`.
 The Geomstats package is used for most of the geometric calculations.
 """
-
 import geomstats as gs
 import lab as B
 
@@ -22,15 +21,11 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
     to the Fourier basis, i.e. sin and cosines..
     """
 
-    def __init__(self, num_eigenfunctions: int) -> None:
-        assert (
-            num_eigenfunctions % 2 == 1
-        ), "num_eigenfunctions needs to be odd to include all eigenfunctions within a level."
-        assert num_eigenfunctions >= 1
+    def __init__(self, num_levels: int) -> None:
+        assert num_levels >= 1
 
-        self._num_eigenfunctions = num_eigenfunctions
-        # We know `num_eigenfunctions` is odd, therefore:
-        self._num_levels = num_eigenfunctions // 2 + 1
+        self._num_eigenfunctions = num_levels * 2 - 1
+        self._num_levels = num_levels
 
     def __call__(self, X: B.Numeric, **parameters) -> B.Numeric:
         """
@@ -49,7 +44,7 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
                 values.append(const * B.cos(freq * theta))
                 values.append(const * B.sin(freq * theta))
 
-        return B.concat(*values, axis=1)  # [N, M]
+        return B.concat(*values, axis=1)[:, : self._num_eigenfunctions]  # [N, M]
 
     def _addition_theorem(self, X: B.Numeric, X2: B.Numeric, **parameters) -> B.Numeric:
         r"""
@@ -153,20 +148,29 @@ class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
 
     def get_eigenfunctions(self, num: int) -> Eigenfunctions:
         """
-        :param num: number of eigenfunctions returned.
+        :param num: number of eigenlevels returned.
         """
         return SinCosEigenfunctions(num)
 
     def get_eigenvalues(self, num: int) -> B.Numeric:
         """
-        First `num` eigenvalues of the Laplace-Beltrami operator
+        Eigenvalues of the Laplace-Beltrami operator corresponding to the first `num` levels.
 
-        :return: [num, 1] array containing the eigenvalues
+        :return: [M, 1] array containing the eigenvalues
+        """
+        eigenvalues = B.range(num) ** 2  # [num,]
+        return B.reshape(eigenvalues, -1, 1)  # [M, 1]
+
+    def get_repeated_eigenvalues(self, num: int) -> B.Numeric:
+        """First `num` eigenvalues of the Laplace-Beltrami operator,
+        repeated according to their multiplicity.
+
+        :return: [M, 1] array containing the eigenvalues
         """
         eigenfunctions = SinCosEigenfunctions(num)
-        eigenvalues_per_level = B.range(eigenfunctions.num_levels) ** 2  # [L,]
+        eigenvalues_per_level = B.range(num) ** 2  # [num,]
         eigenvalues = chain(
             eigenvalues_per_level,
             eigenfunctions.num_eigenfunctions_per_level,
-        )  # [num,]
-        return B.reshape(eigenvalues, -1, 1)  # [num, 1]
+        )  # [M,]
+        return B.reshape(eigenvalues, -1, 1)  # [M, 1]

@@ -60,17 +60,38 @@ class Eigenfunctions(abc.ABC):
         :param parameters: any additional parameters
         :return: shape [N,]
         """
-        Phi_X = self.__call__(X, **parameters)  # [N, L]
+        Phi_X = self.__call__(X, **parameters)  # [N, M]
         Kx = B.sum(B.transpose(weights) * Phi_X**2, axis=1)  # [N,]
         return Kx
+
+    def phi_product(self, X1: B.Numeric, X2: B.Numeric, **parameters) -> B.Numeric:
+        r"""
+        Computes :math:`\{\phi_i(x_1) \phi_i(x_2)\}_{i=0}^{L}` where `L` is the number of eigenfuctions.
+
+        :param X1: Inputs where to evaluate the eigenfunctions, shape = [N, D]
+        :param X2: Inputs where to evaluate the eigenfunctions, shape = [M, D]
+        :param parameters: any additional parameters
+        :return: shape [N, M, L].
+        """
+        Phi_X = self.__call__(X1, **parameters)  # [N, L]
+        Phi_X2 = self.__call__(X2, **parameters)  # [M, L]
+        return einsum("nl,ml->nml", Phi_X, Phi_X2)  # [N, M, L]
+
+    def phi_product_diag(self, X: B.Numeric, **parameters):
+        Phi_X = self.__call__(X, **parameters)  # [N, L]
+        return Phi_X**2
 
     @abc.abstractmethod
     def __call__(self, X: B.Numeric, **parameters) -> B.Numeric:
         """
+        Evaluate the individual eigenfunctions.
+
         :param X: points to evaluate the eigenfunctions in local coordinates, [N, D].
             `N` is the number of points and `D` should match the dimension of the space
             on which the eigenfunctions are defined.
         :param parameters: any additional parameters
+
+        :return: [N, M] where `M` is the number of eigenfunctions.
         """
         raise NotImplementedError
 
@@ -78,6 +99,11 @@ class Eigenfunctions(abc.ABC):
     def num_eigenfunctions(self) -> int:
         """Number of eigenfunctions, M"""
         raise NotImplementedError
+
+    @property
+    def dim_of_eigenspaces(self) -> B.Numeric:
+        """Dimension of eigenspaces. For generic Eigenfunctions, it is an array of ones. For Eigenfunctions with addition theorem, it is the number of eigenfunctions in each level."""
+        return B.ones(self.num_eigenfunctions)
 
 
 class EigenfunctionWithAdditionTheorem(Eigenfunctions):
@@ -128,10 +154,9 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
             X2 = X
 
         sum_phi_phi_for_level = self._addition_theorem(X, X2, **parameters)  # [N, N, L]
-        weights = self._filter_weights(weights)
         sum_phi_phi_for_level = B.cast(B.dtype(weights), sum_phi_phi_for_level)
 
-        return einsum("i,...nki->...nk", weights, sum_phi_phi_for_level)  # [N, N2]
+        return einsum("id,...nki->...nk", weights, sum_phi_phi_for_level)  # [N, N2]
 
     def weighted_outerproduct_diag(
         self, weights: B.Numeric, X: B.Numeric, **parameters
@@ -153,9 +178,13 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         :return: shape [N,]
         """
         addition_theorem_X = self._addition_theorem_diag(X, **parameters)  # [N, L]
-        weights = self._filter_weights(weights)
-        # weights = from_numpy(addition_theorem_X, weights)
-        return einsum("i,ni->n", weights, addition_theorem_X)  # [N,]
+        return einsum("id,ni->n", weights, addition_theorem_X)  # [N,]
+
+    def phi_product(self, X1, X2, **parameters):
+        return self._addition_theorem(X1, X2, **parameters)
+
+    def phi_product_diag(self, X, **parameters):
+        return self._addition_theorem_diag(X, **parameters)
 
     def _filter_weights(self, weights: B.Numeric) -> B.Numeric:
         """
@@ -208,3 +237,7 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
     def num_eigenfunctions_per_level(self) -> B.Numeric:
         """Number of eigenfunctions per level"""
         raise NotImplementedError
+
+    @property
+    def dim_of_eigenspaces(self) -> B.Numeric:
+        return self.num_eigenfunctions_per_level

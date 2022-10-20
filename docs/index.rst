@@ -20,10 +20,9 @@
 Overview
 ========
 
-Geometric Kernels is a library that implements natural kernels (Heat, Matérn) on such non-Euclidean spaces as **Riemannian manifolds**, **meshes** or **graphs**.
+Geometric Kernels is a library that implements natural kernels (Heat, Matérn) on such non-Euclidean spaces as **Riemannian manifolds**, **graphs** and **meshes**.
 
 The main projected application is within the Gaussian process framework.
-Some of the features are specifically inspired by it, most notably by the problem of efficient sampling.
 
 Installation and Requirements
 =============================
