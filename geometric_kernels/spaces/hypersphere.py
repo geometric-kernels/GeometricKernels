@@ -26,22 +26,29 @@ class SphericalHarmonics(EigenfunctionWithAdditionTheorem):
     spherical harmonics.
     """
 
-    def __init__(self, dim: int, num_eigenfunctions: int) -> None:
+    def __init__(self, dim: int, num_levels: int) -> None:
         """
         :param dim:
             S^{dim}. Example: dim = 2 is the sphere in R^3. Follows geomstats convention.
 
-        :param num_eigenfunctions:
-            Specifies the minimum degree of the spherical harmonic collection so that
-            there are at least `num_eigenfunctions`.
+        :param num_levels:
+            Specifies the number of levels (degrees) of the spherical harmonics.
         """
         self.dim = dim
-        self._num_levels, self._num_eigenfunctions = self.num_eigenfunctions_to_degree(
-            num_eigenfunctions
-        )
+        self._num_levels = num_levels
+        self._num_eigenfunctions = self.degree_to_num_eigenfunctions(self._num_levels)
         self._spherical_harmonics = _SphericalHarmonics(
             dimension=dim + 1, degrees=self._num_levels
         )
+
+    def degree_to_num_eigenfunctions(self, degree: int) -> int:
+        """
+        Returns the number of eigenfunctions that span the first `degree` degrees.
+        """
+        n = 0
+        for d in range(degree):
+            n += num_harmonics(self.dim + 1, d)
+        return n
 
     def num_eigenfunctions_to_degree(self, num_eigenfunctions: int) -> Tuple[int, int]:
         """
@@ -129,6 +136,14 @@ class SphericalHarmonics(EigenfunctionWithAdditionTheorem):
         """Number of eigenfunctions per level, [N_l]_{l=0}^{L-1}"""
         return [num_harmonics(self.dim + 1, level) for level in range(self.num_levels)]
 
+    @classmethod
+    def from_levels(cls, dimension, num_levels):
+        num_eigenfunctions = 0
+        for i in range(num_levels):
+            num_eigenfunctions += num_harmonics(dimension, i)
+
+        return cls(dimension, num_eigenfunctions)
+
 
 class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
     r"""
@@ -159,6 +174,21 @@ class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
         :return: [num, 1] array containing the eigenvalues
         """
         eigenfunctions = SphericalHarmonics(self.dim, num)
+        eigenvalues = np.array(
+            [
+                level.eigenvalue()
+                for level in eigenfunctions._spherical_harmonics.harmonic_levels
+            ]
+        )
+        return B.reshape(eigenvalues, -1, 1)  # [num, 1]
+
+    def get_repeated_eigenvalues(self, num: int) -> B.Numeric:
+        """First `num` eigenvalues of the Laplace-Beltrami operator,
+        repeated according to their multiplicity.
+
+        :return: [M, 1] array containing the eigenvalues
+        """
+        eigenfunctions = SphericalHarmonics(self.dim, num)
         eigenvalues_per_level = np.array(
             [
                 level.eigenvalue()
@@ -168,8 +198,8 @@ class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
         eigenvalues = chain(
             eigenvalues_per_level,
             eigenfunctions.num_eigenfunctions_per_level,
-        )  # [num,]
-        return B.reshape(eigenvalues, -1, 1)  # [num, 1]
+        )  # [M,]
+        return B.reshape(eigenvalues, -1, 1)  # [M, 1]
 
     def ehess2rhess(self, x, egrad, ehess, direction):
         """

@@ -52,6 +52,15 @@ class DiscreteSpectrumSpace(Space):
         """
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def get_repeated_eigenvalues(self, num: int) -> B.Numeric:
+        """First `num` eigenvalues of the Laplace-Beltrami operator,
+        repeated according to their multiplicity.
+
+        :return: [M, 1] array containing the eigenvalues
+        """
+        raise NotImplementedError
+
 
 class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
     """
