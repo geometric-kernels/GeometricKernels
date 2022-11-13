@@ -87,6 +87,7 @@ class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
         Phi = take_along_axis(self.eigenvectors, indices, axis=0)
         return Phi
 
+    @property
     def num_eigenfunctions(self) -> int:
         """Number of eigenvectors, M"""
         return B.shape(self.eigenvectors)[-1]
