@@ -188,6 +188,7 @@ class ProductEigenfunctions(Eigenfunctions):
             axis=-1
         )  # [N, M, S] --> [N, M]
 
+    @property
     def num_eigenfunctions(self) -> int:
         """
         Return the total number of eigenfunctions.
