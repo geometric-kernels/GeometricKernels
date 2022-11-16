@@ -73,8 +73,8 @@ hypersphere = Hypersphere(dim=2)
 # Generate 3 random points on the sphere.
 xs = np.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
 
-# Initialize kernel, use 100 terms to approximate the infinite series.
-kernel = MaternKarhunenLoeveKernel(hypersphere, 100)
+# Initialize kernel, use 100 levels to approximate the infinite series.
+kernel = MaternKarhunenLoeveKernel(hypersphere, 10)
 params, state = kernel.init_params_and_state()
 params["nu"] = np.array([5/2])
 params["lengthscale"] = np.array([1.])
