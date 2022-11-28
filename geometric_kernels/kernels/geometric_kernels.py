@@ -143,12 +143,19 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         assert "eigenvalues_laplacian" in state
         assert "eigenfunctions" in state
 
-        weights = B.power(self.eigenvalues(params, state), 0.5)  # [M, 1]
+        repeated_eigenvalues = self.space.get_repeated_eigenvalues(self.num_eigenfunctions)
+        spectrum = self._spectrum(
+            repeated_eigenvalues**0.5,
+            nu=params["nu"],
+            lengthscale=params["lengthscale"],
+        )
+
+        weights = B.power(spectrum, 0.5)  # [M, 1]
         Phi = state["eigenfunctions"]
 
         def _map(X: B.Numeric) -> B.Numeric:
-            eigefunctions = Phi.__call__(X, **params)  # [N, M]
-            return B.matmul(eigefunctions, weights)  # [N, 1]
+            eigenfunctions = Phi.__call__(X, **params)  # [N, M]
+            return B.matmul(eigenfunctions, weights)  # [N, 1]
 
         _context = {}  # no context
 

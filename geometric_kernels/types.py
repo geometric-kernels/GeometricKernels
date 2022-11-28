@@ -2,8 +2,8 @@
 Types used across the package.
 """
 
-from typing import Callable
+from typing import Any, Callable
 
 import lab as B
 
-FeatureMap = Callable[[B.Numeric], B.Numeric]
+FeatureMap = Callable[[Any], Any]

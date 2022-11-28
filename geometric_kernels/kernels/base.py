@@ -7,7 +7,7 @@ from typing import Any, Generic, Mapping, Tuple, TypeVar
 import lab as B
 
 from geometric_kernels.spaces import Space
-from geometric_kernels.spaces import FeatureMap
+from geometric_kernels.types import FeatureMap
 
 T = TypeVar("T", bound=Space)
 """

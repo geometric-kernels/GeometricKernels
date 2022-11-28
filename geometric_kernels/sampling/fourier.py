@@ -20,7 +20,7 @@ class FourierSampler(BaseSampler):
 
         num_features = B.shape(features)[-1]
 
-        key, random_weights = B.randn(key, num_features, s)  # [M, S]
+        key, random_weights = B.randn(key, B.dtype(X), num_features, s)  # [M, S]
 
         random_sample = B.matmul(features, random_weights)  # [N, S]
 
