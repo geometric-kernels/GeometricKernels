@@ -173,8 +173,8 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> # Generate 3 random points on the sphere.
    >>> xs = np.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
 
-   >>> # Initialize kernel, use 100 terms to approximate the infinite series.
-   >>> kernel = MaternKarhunenLoeveKernel(hypersphere, 100)
+   >>> # Initialize kernel, use 10 levels to approximate the infinite series.
+   >>> kernel = MaternKarhunenLoeveKernel(hypersphere, 10)
    >>> params, state = kernel.init_params_and_state()
    >>> params["nu"] = np.array([5/2])
    >>> params["lengthscale"] = np.array([1.])
@@ -219,8 +219,8 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> # Generate 3 random points on the sphere.
    >>> xs = np.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
 
-   >>> # Initialize kernel, use 100 terms to approximate the infinite series.
-   >>> kernel = MaternKarhunenLoeveKernel(hypersphere, 100)
+   >>> # Initialize kernel, use 10 levels to approximate the infinite series.
+   >>> kernel = MaternKarhunenLoeveKernel(hypersphere, 10)
    >>> params, state = kernel.init_params_and_state()
    >>> params["nu"] = tf.convert_to_tensor(5/2)
    >>> params["lengthscale"] = tf.convert_to_tensor(1.)
@@ -265,8 +265,8 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> # Generate 3 random points on the sphere.
    >>> xs = np.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
 
-   >>> # Initialize kernel, use 100 terms to approximate the infinite series.
-   >>> kernel = MaternKarhunenLoeveKernel(hypersphere, 100)
+   >>> # Initialize kernel, use 10 terms to approximate the infinite series.
+   >>> kernel = MaternKarhunenLoeveKernel(hypersphere, 10)
    >>> params, state = kernel.init_params_and_state()
    >>> params["nu"] = torch.tensor(5/2)
    >>> params["lengthscale"] = torch.tensor(1.)
@@ -311,8 +311,8 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> # Generate 3 random points on the sphere.
    >>> xs = np.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
 
-   >>> # Initialize kernel, use 100 terms to approximate the infinite series.
-   >>> kernel = MaternKarhunenLoeveKernel(hypersphere, 100)
+   >>> # Initialize kernel, use 10 levels to approximate the infinite series.
+   >>> kernel = MaternKarhunenLoeveKernel(hypersphere, 10)
    >>> params, state = kernel.init_params_and_state()
    >>> params["nu"] = jnp.r_[5/2]
    >>> params["lengthscale"] = jnp.r_[1.]
