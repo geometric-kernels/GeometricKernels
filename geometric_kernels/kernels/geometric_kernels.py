@@ -1,6 +1,7 @@
 """
 Implementation of geometric kernels on several spaces
 """
+from typing import Any, Mapping, Tuple
 
 import lab as B
 import numpy as np
@@ -10,6 +11,7 @@ from geometric_kernels.lab_extras import from_numpy, logspace, trapz
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 from geometric_kernels.spaces.hyperbolic import Hyperbolic
+from geometric_kernels.types import FeatureMap
 from geometric_kernels.utils.utils import Optional
 
 
@@ -136,6 +138,21 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         Phi = state["eigenfunctions"]
 
         return Phi.weighted_outerproduct_diag(weights, X, **params)  # [N,]
+
+    def feature_map(self, params, state, **kwargs) -> Tuple[FeatureMap, Mapping[str, Any]]:
+        assert "eigenvalues_laplacian" in state
+        assert "eigenfunctions" in state
+
+        weights = B.power(self.eigenvalues(params, state), 0.5)  # [M, 1]
+        Phi = state["eigenfunctions"]
+
+        def _map(X: B.Numeric) -> B.Numeric:
+            eigefunctions = Phi.__call__(X, **params)  # [N, M]
+            return B.matmul(eigefunctions, weights)  # [N, 1]
+
+        _context = {}  # no context
+
+        return _map, _context
 
 
 class MaternIntegratedKernel(BaseGeometricKernel):
@@ -266,3 +283,6 @@ class MaternIntegratedKernel(BaseGeometricKernel):
     def K_diag(self, params, state, X: B.Numeric, **kwargs) -> B.Numeric:
         """Compute the kernel via integration of heat kernel"""
         return self.kernel(params, X, diag=True)
+
+    def feature_map(self, params, state, **kwargs):
+        raise NotImplementedError

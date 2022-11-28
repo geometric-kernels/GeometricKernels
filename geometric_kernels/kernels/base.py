@@ -2,11 +2,12 @@
 Base class for geometric kernels
 """
 import abc
-from typing import Generic, TypeVar
+from typing import Any, Generic, Mapping, Tuple, TypeVar
 
 import lab as B
 
 from geometric_kernels.spaces import Space
+from geometric_kernels.spaces import FeatureMap
 
 T = TypeVar("T", bound=Space)
 """
@@ -51,3 +52,11 @@ class BaseGeometricKernel(abc.ABC, Generic[T]):
         Returns covariance between elements in `X`.
         """
         raise NotImplementedError
+
+    @abc.abstractmethod
+    def feature_map(self, params, state, **kwargs) -> Tuple[
+            FeatureMap, Mapping[str, Any]
+    ]:
+        """
+        Returns an (approximate) feature map and some context (e.g. random state used to generate random features).
+        """
