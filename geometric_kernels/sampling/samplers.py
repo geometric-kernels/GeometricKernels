@@ -26,7 +26,6 @@ def sample_path(feature_map, s, X: B.Numeric, key=None) -> Tuple[Any, Any]:
     return key, random_sample
 
 
-
 def sampler(
     feature_map: FeatureMap, s: Optional[int] = 1, **kwargs
 ) -> Callable[[Any], Any]:
