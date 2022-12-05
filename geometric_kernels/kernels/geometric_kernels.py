@@ -1,7 +1,7 @@
 """
 Implementation of geometric kernels on several spaces
 """
-from typing import Any, Mapping, Tuple
+from typing import Any, Dict, Tuple
 
 import lab as B
 import numpy as np
@@ -139,7 +139,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
 
         return Phi.weighted_outerproduct_diag(weights, X, **params)  # [N,]
 
-    def feature_map(self, params, state, **kwargs) -> Tuple[FeatureMap, Mapping[str, Any]]:
+    def feature_map(self, params, state, **kwargs) -> Tuple[FeatureMap, Dict[str, Any]]:
         assert "eigenvalues_laplacian" in state
         assert "eigenfunctions" in state
 

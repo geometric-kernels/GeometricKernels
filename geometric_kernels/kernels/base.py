@@ -2,7 +2,7 @@
 Base class for geometric kernels
 """
 import abc
-from typing import Any, Generic, Mapping, Tuple, TypeVar
+from typing import Any, Dict, Generic, Tuple, TypeVar
 
 import lab as B
 
@@ -55,7 +55,7 @@ class BaseGeometricKernel(abc.ABC, Generic[T]):
 
     @abc.abstractmethod
     def feature_map(self, params, state, **kwargs) -> Tuple[
-            FeatureMap, Mapping[str, Any]
+            FeatureMap, Dict[str, Any]
     ]:
         """
         Returns an (approximate) feature map and some context (e.g. random state used to generate random features).
