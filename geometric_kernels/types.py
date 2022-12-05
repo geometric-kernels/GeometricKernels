@@ -4,6 +4,4 @@ Types used across the package.
 
 from typing import Any, Callable
 
-import lab as B
-
-FeatureMap = Callable[[Any], Any]
+FeatureMap = Callable[[Any], Any]  # alas, B.Numeric is not a type
