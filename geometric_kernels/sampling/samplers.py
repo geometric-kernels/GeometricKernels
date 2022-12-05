@@ -4,12 +4,14 @@ Samplers.
 from functools import partial
 from typing import Any, Callable, Optional, Tuple
 
-from geometric_kernels.types import FeatureMap
-
 import lab as B
 
+from geometric_kernels.types import FeatureMap
 
-def sampler(feature_map: FeatureMap, s: Optional[int] = 1, key: Optional[Any] = None, **kwargs) -> Callable[[Any], Any]:
+
+def sampler(
+    feature_map: FeatureMap, s: Optional[int] = 1, key: Optional[Any] = None, **kwargs
+) -> Callable[[Any], Any]:
     """
     Given a `feature_map`, return a function that computes `s` samples with `key` random state at given points in space.
     """

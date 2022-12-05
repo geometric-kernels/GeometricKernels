@@ -54,9 +54,7 @@ class BaseGeometricKernel(abc.ABC, Generic[T]):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def feature_map(self, params, state, **kwargs) -> Tuple[
-            FeatureMap, Dict[str, Any]
-    ]:
+    def feature_map(self, params, state, **kwargs) -> Tuple[FeatureMap, Dict[str, Any]]:
         """
         Returns an (approximate) feature map and some context (e.g. random state used to generate random features).
         """
