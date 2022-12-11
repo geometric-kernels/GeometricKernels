@@ -56,7 +56,7 @@ Ready|Backend                                      | GP package
  
 ## A basic example
 
-This example shows how to compute a 3x3 kernel matrix for the Matern52 kernel on the standard two-dimensional sphere. It relies on the numpy-based backend. Look up the information on how to use other backends in [the documentation](TODO).
+This example shows how to compute a 3x3 kernel matrix for the Matern52 kernel on the standard two-dimensional sphere. It relies on the numpy-based backend. Look up the information on how to use other backends in [the documentation](https://gpflow.github.io/GeometricKernels/index.html).
 
 ```python
 # Import a backend.
