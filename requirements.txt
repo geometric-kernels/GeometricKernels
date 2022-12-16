@@ -1,6 +1,7 @@
 gpytorch
 torch
 gpflow
+gpjax>=0.5.2
 tensorflow
 tensorflow-probability==0.14.0
 jax

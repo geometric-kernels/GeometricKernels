@@ -9,10 +9,10 @@
 Geometric Kernels is a library that implements kernels including the heat and Matérn class on non-Euclidean spaces as **Riemannian manifolds**, **graphs** and **meshes**.
 This enables kernel methods &mdash; in particular Gaussian process models &mdash; to be deployed on such spaces.
 
-
-##  Installation
+## Installation
 
 0. [Optionally] install and run virtualenv
+
 ```bash
 [sudo] pip install virtualenv
 virtualenv [env_name]
@@ -22,6 +22,7 @@ source [env_name]/bin/activate
 1. [Prerequisite] install [LAB](https://github.com/wesselb/lab) following [these instructions](https://gist.github.com/wesselb/4b44bf87f3789425f96e26c4308d0adc).
 
 2. Install the library in the active environment by running
+
 ```bash
 pip install git+https://github.com/gpflow/geometrickernels.git
 ```
@@ -31,29 +32,32 @@ pip install git+https://github.com/gpflow/geometrickernels.git
 We use [LAB](https://github.com/wesselb/lab) to support multiple backends (e.g., TensorFlow, Jax, PyTorch). However, you are not required to install all of them on your system to use the Geometric Kernel package. Simply install the backend (and (optionally) a GP package) of your choice. For example,
 
 - TensorFlow and GPflow
+
 ```
 pip install tensorflow tensorflow-probability gpflow
 ```
 
 - PyTorch and GPyTorch
+
 ```
 pip install torch gpytorch
 ```
 
 - JAX (the cpu version)
+
 ```
 pip install "jax[cpu]"
 ```
 
 ### Supported backends with associated GP packages
 
-Ready|Backend                                      | GP package
------|---------------------------------------------|------------------------------------------
-✅   |[Tensorflow](https://www.tensorflow.org/)    |[GPflow](https://github.com/GPflow/GPflow)
-✅   |[PyTorch](https://github.com/pytorch/pytorch)|[GPyTorch](https://gpytorch.ai/)
-✅   |[Numpy](https://numpy.org/)                  | -
-✅   |[JAX](https://github.com/google/jax)         | -
- 
+| Ready | Backend                                       | GP package                                             |
+| ----- | --------------------------------------------- | ------------------------------------------------------ |
+| ✅    | [Tensorflow](https://www.tensorflow.org/)     | [GPflow](https://github.com/GPflow/GPflow)             |
+| ✅    | [PyTorch](https://github.com/pytorch/pytorch) | [GPyTorch](https://gpytorch.ai/)                       |
+| ✅    | [JAX](https://github.com/google/jax)          | [GPJax](https://github.com/JaxGaussianProcesses/GPJax) |
+| ✅    | [Numpy](https://numpy.org/)                   | -                                                      |
+
 ## A basic example
 
 This example shows how to compute a 3x3 kernel matrix for the Matern52 kernel on the standard two-dimensional sphere. It relies on the numpy-based backend. Look up the information on how to use other backends in [the documentation](https://gpflow.github.io/GeometricKernels/index.html).
@@ -84,6 +88,7 @@ print(kernel.K(params, state, xs))
 ```
 
 This should output
+
 ```
 [[0.00855354 0.00305004 0.00305004]
  [0.00305004 0.00855354 0.00305004]
@@ -96,17 +101,20 @@ The documentation for GeometricKernels is available on a [separate website](http
 
 ## For development and running the tests
 
-Run these commands from the root directory of the repository. 
+Run these commands from the root directory of the repository.
 
 Install all backends and the dev requirements (Pytest, black, etc.)
+
 ```bash
 pip install -r dev_requirements.txt -r requirements.txt
 ```
 
 Run the tests
+
 ```bash
 make test
 ```
 
 ## The structure of the library
+
 <img alt="class diagram" src="docs/class_diagram.svg">
