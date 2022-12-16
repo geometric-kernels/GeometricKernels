@@ -8,7 +8,7 @@
 
 Community is important to us, and we want everyone to feel welcome and be able to contribute to their fullest. Our [code of conduct](CODE_OF_CONDUCT.md) gives an overview of what that means.
 
-Here is the list of original contributors to the project (in alphabetical order): Viacheslav Borovitskiy, Vincent Dutordoir, Michael Hutchinson, Noemie Jaquier,  Peter Mostowsky, Thomas Pinder, Aditya Ravuri, Alexander Terenin.
+Here is the list of original contributors to the project (in alphabetical order): Viacheslav Borovitskiy, Vincent Dutordoir, Michael Hutchinson, Noemie Jaquier,  Peter Mostowsky, Aditya Ravuri, Alexander Terenin.
 
 ### Reporting a bug
 
