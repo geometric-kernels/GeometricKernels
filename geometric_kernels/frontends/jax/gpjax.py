@@ -44,7 +44,7 @@ class _GeometricComputation(gpjax.kernels.AbstractKernelComputation):
         return matrix
 
 
-class GeometricKernel(gpjax.kernels.AbstractKernel):
+class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
     """A class for wrapping a geometric kernel in a GPJax-compatible format."""
 
     def __init__(
