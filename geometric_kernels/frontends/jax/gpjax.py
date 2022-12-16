@@ -1,4 +1,4 @@
-from gpjax.kernels import AbstractKernel, AbstractKernelComputation
+import gpjax
 import typing as tp
 from ...kernels import BaseGeometricKernel
 from jaxtyping import Float, Array
@@ -7,7 +7,7 @@ import jax
 import jax.random as jr
 
 
-class _GeometricComputation(AbstractKernelComputation):
+class _GeometricComputation(gpjax.kernels.AbstractKernelComputation):
     """
     A class for computing the covariance matrix of a geometric kernel.
     """
@@ -42,7 +42,7 @@ class _GeometricComputation(AbstractKernelComputation):
         return matrix
 
 
-class GeometricKernel(AbstractKernel):
+class GeometricKernel(gpjax.kernels.AbstractKernel):
     """A class for wrapping a geometric kernel in a GPJax-compatible format."""
 
     def __init__(

@@ -43,10 +43,10 @@ pip install tensorflow tensorflow-probability gpflow
 pip install torch gpytorch
 ```
 
-- JAX (the cpu version)
+- JAX (the cpu version) and GPJax
 
 ```
-pip install "jax[cpu]"
+pip install "jax[cpu]" gpjax
 ```
 
 ### Supported backends with associated GP packages
