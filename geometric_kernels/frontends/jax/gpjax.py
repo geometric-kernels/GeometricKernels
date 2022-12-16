@@ -1,10 +1,12 @@
-import gpjax
 import typing as tp
-from ...kernels import BaseGeometricKernel
-from jaxtyping import Float, Array
-import jax.numpy as jnp
+
+import gpjax
 import jax
+import jax.numpy as jnp
 import jax.random as jr
+from jaxtyping import Array, Float
+
+from ...kernels import BaseGeometricKernel
 
 
 class _GeometricComputation(gpjax.kernels.AbstractKernelComputation):
@@ -48,7 +50,7 @@ class GeometricKernel(gpjax.kernels.AbstractKernel):
     def __init__(
         self,
         base_kernel: BaseGeometricKernel,
-        compute_engine: _GeometricComputation = _GeometricComputation,
+        compute_engine=_GeometricComputation,
         active_dims: tp.Optional[tp.List[int]] = None,
         name: tp.Optional[str] = "Geometric Kernel",
     ) -> None:
