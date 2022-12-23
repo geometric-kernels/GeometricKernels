@@ -51,7 +51,7 @@ The kernels are compatible with several backends, namely
 - `NumPy <https://numpy.org/>`_,
 - `TensorFlow <https://www.tensorflow.org/>`_ (can be used together with the GP library `GPflow <https://github.com/GPflow/GPflow>`_),
 - `PyTorch <https://pytorch.org/>`_ (can be used together with the GP library `GPyTorch <https://gpytorch.ai/>`_),
-- `JAX <https://github.com/google/jax/>`_.
+- `JAX <https://github.com/google/jax/>`_. (can be used together with the GP library `GPJax <https://github.com/JaxGaussianProcesses/GPJax>`_)
 
 Any backend, except for ``NumPy``, should be installed.
 
@@ -129,6 +129,12 @@ You can get PyTorch by running
 
 
 To install JAX, follow `these instructions <https://github.com/google/jax#installation>`_.
+
+[Optional] We support the JAX-based Gaussian process library ``GPJax`` which you can install by running
+
+.. code::
+
+   pip install gpjax
 
 .. raw:: html
 
