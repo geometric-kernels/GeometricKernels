@@ -28,7 +28,7 @@ class Space(abc.ABC):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def random(self, key, number: int) -> B.Numberic:
+    def random(self, key, number: int) -> B.Numeric:
         """
         Return randomly sampled points in the space
         """
