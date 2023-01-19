@@ -30,6 +30,9 @@ class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
     def dimension(self) -> int:
         return self.dim
 
+    def random(self, key, number):
+        raise NotImplementedError
+
     def distance(
         self, x1: B.Numeric, x2: B.Numeric, diag: Optional[bool] = False
     ) -> B.Numeric:

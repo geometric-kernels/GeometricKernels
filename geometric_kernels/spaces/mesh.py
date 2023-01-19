@@ -132,3 +132,7 @@ class Mesh(DiscreteSpectrumSpace):
         vertices, faces = pp3d.read_mesh(filename)
         # return Mesh
         return cls(vertices, faces)
+
+    def random(self, key, number):
+        # TDB
+        raise NotImplementedError

@@ -157,7 +157,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
 
         def _map(X: B.Numeric) -> B.Numeric:
             eigenfunctions = Phi.__call__(X, **params)  # [N, M]
-            return B.matmul(eigenfunctions, weights)  # [N, 1]
+            return eigenfunctions * weights.T  # [N, D]
 
         _context: Dict[str, str] = {}  # no context
 

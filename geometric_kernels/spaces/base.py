@@ -27,6 +27,13 @@ class Space(abc.ABC):
         """
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def random(self, key, number: int) -> B.Numberic:
+        """
+        Return randomly sampled points in the space
+        """
+        raise NotImplementedError
+
 
 class DiscreteSpectrumSpace(Space):
     r"""

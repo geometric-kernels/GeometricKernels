@@ -97,3 +97,7 @@ class Graph(DiscreteSpectrumSpace):
         :return: eigenvalues [num, 1]
         """
         return self.get_eigenvalues(num)
+
+    def random(self, key, number):
+        # TDB
+        raise NotImplementedError

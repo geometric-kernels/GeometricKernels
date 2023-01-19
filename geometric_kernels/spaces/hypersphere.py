@@ -217,3 +217,17 @@ class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
             self.to_tangent(ehess, x)
             - self.metric.inner_product(x, normal_gradient, x) * direction
         )
+
+    def random(self, key, number):
+        """
+        Random points on the sphere.
+
+        Always returns [N, D+1] float64 `numpy.ndarray`.
+        """
+        key, random_points = B.random.randn(
+            key, np.float64, number, self.dimension + 1
+        )  # (N, D+1)
+        random_points /= B.sqrt(
+            B.sum(random_points**2, axis=1, squeeze=False)
+        )  # (N, D+1)
+        return key, random_points
