@@ -28,12 +28,14 @@ def deterministic_feature_map(
         lengthscale=params["lengthscale"],
     )
 
-    weights = B.power(spectrum, 0.5)  # [M, 1]
+    weights = B.transpose(B.power(spectrum, 0.5))  # [1, M]
     Phi = state["eigenfunctions"]
 
     def _map(X: B.Numeric) -> B.Numeric:
         eigenfunctions = Phi.__call__(X, **params)  # [N, M]
-        return eigenfunctions * weights.T  # [N, M]
+        return B.cast(B.dtype(X), eigenfunctions) * B.cast(
+            B.dtype(X), weights
+        )  # [N, M]
 
     _context: Dict[str, str] = {}  # no context
 
@@ -64,8 +66,11 @@ def random_phase_feature_map(
     def _map(X: B.Numeric) -> B.Numeric:
         # X [N, D]
         random_phases_b = B.cast(B.dtype(X), from_numpy(X, random_phases))
-        embedding = Phi.phi_product(X, random_phases_b, **params)  # [N, O, L]
-        return B.reshape(embedding * weights.T, B.shape(X)[0], -1)  # [N, O*L]
+        embedding = B.cast(
+            B.dtype(X), Phi.phi_product(X, random_phases_b, **params)
+        )  # [N, O, L]
+        weights_t = B.cast(B.dtype(X), B.transpose(weights))
+        return B.reshape(embedding * weights_t, B.shape(X)[0], -1)  # [N, O*L]
 
     _context: Dict[str, str] = {"key": key}
 
