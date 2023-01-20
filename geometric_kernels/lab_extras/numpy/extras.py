@@ -58,3 +58,26 @@ def degree(a: _Numeric):  # type: ignore
     """
     degrees = a.sum(axis=0)  # type: ignore
     return np.diag(degrees)
+
+
+@dispatch
+def dtype_double(reference: B.NPRandomState):
+    """
+    Return `double` dtype of a backend based on the reference.
+    """
+    return np.float64
+
+@dispatch
+def dtype_double(reference: _Numeric):
+    """
+    Return `double` dtype of a backend based on the reference.
+    """
+    return np.float64
+
+
+@dispatch
+def dtype_integer(reference: B.NPRandomState):
+    """
+    Return `int` dtype of a backend based on the reference.
+    """
+    return int

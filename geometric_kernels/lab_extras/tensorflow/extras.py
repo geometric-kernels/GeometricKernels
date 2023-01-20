@@ -79,3 +79,24 @@ def set_value(a: B.TFNumeric, index: int, value: float):
     """
     a = tf.where(tf.range(len(a)) == index, value, a)
     return a
+
+@dispatch
+def dtype_double(reference: B.TFRandomState):
+    """
+    Return `double` dtype of a backend based on the reference.
+    """
+    return tf.float64
+
+@dispatch
+def dtype_double(reference: B.TFNumeric):
+    """
+    Return `double` dtype of a backend based on the reference.
+    """
+    return tf.float64
+
+@dispatch
+def dtype_integer(reference: B.TFRandomState):
+    """
+    Return `int` dtype of a backend based on the reference.
+    """
+    return tf.int32

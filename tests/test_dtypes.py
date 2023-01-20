@@ -174,6 +174,6 @@ def test_feature_map_dtype(kl_spacepoint, dtype, backend):
     feature_map(point)
 
     # make sure it runs
-    key = B.create_random_state(getattr(np, dtype), seed=1234)
+    key = B.create_random_state(B.dtype(point), seed=1234)
     feature_map, context = random_phase_feature_map(space, kernel, params, state, key)
     feature_map(point)

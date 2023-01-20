@@ -84,3 +84,18 @@ def set_value(a, index: int, value: float):
     Set a[index] = value.
     This operation is not done in place and a new array is returned.
     """
+
+
+@dispatch
+@abstract()
+def dtype_double(reference):
+    """
+    Return `double` dtype of a backend based on the reference.
+    """
+
+@dispatch
+@abstract()
+def dtype_integer(reference):
+    """
+    Return `int` dtype of a backend based on the reference.
+    """
