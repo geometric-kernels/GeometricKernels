@@ -223,7 +223,7 @@ class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
         """
         Random points on the sphere.
 
-        Always returns [N, D+1] float64 `numpy.ndarray`.
+        Always returns [N, D+1] float64 array of the `key`'s backend.
         """
         key, random_points = B.random.randn(
             key, dtype_double(key), number, self.dimension + 1
