@@ -41,7 +41,7 @@ def fixed_feature_map(
 
 
 def random_phase_feature_map(
-    space: Space,
+    space: DiscreteSpectrumSpace,
     kernel: MaternKarhunenLoeveKernel,
     params,
     state,
