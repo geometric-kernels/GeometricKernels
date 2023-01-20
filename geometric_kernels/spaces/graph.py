@@ -7,7 +7,7 @@ from typing import Dict, Tuple
 import lab as B
 import numpy as np
 
-from geometric_kernels.lab_extras import degree, eigenpairs, set_value
+from geometric_kernels.lab_extras import degree, dtype_integer, eigenpairs, set_value
 from geometric_kernels.spaces.base import (
     ConvertEigenvectorsToEigenfunctions,
     DiscreteSpectrumSpace,
@@ -97,3 +97,11 @@ class Graph(DiscreteSpectrumSpace):
         :return: eigenvalues [num, 1]
         """
         return self.get_eigenvalues(num)
+
+    def random(self, key, number):
+        num_vertices = B.shape(self._laplacian)[0]
+        key, random_vertices = B.randint(
+            key, dtype_integer(key), number, 1, lower=0, upper=num_vertices
+        )
+
+        return key, random_vertices

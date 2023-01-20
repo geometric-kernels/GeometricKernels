@@ -71,3 +71,19 @@ def set_value(a: B.JAXNumeric, index: int, value: float):
     """
     a = a.at[index].set(value)
     return a
+
+
+@dispatch
+def dtype_double(reference: B.JAXRandomState):  # type: ignore
+    """
+    Return `double` dtype of a backend based on the reference.
+    """
+    return jnp.float64
+
+
+@dispatch
+def dtype_integer(reference: B.JAXRandomState):  # type: ignore
+    """
+    Return `int` dtype of a backend based on the reference.
+    """
+    return jnp.int32

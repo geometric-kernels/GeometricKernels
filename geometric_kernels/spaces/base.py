@@ -61,6 +61,13 @@ class DiscreteSpectrumSpace(Space):
         """
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def random(self, key, number: int) -> B.Numeric:
+        """
+        Return randomly sampled points in the space
+        """
+        raise NotImplementedError
+
 
 class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
     """

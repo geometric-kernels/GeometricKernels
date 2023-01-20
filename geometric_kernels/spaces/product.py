@@ -312,6 +312,15 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
     def dimension(self) -> int:
         return sum([space.dimension for space in self.sub_spaces])
 
+    def random(self, key, number):
+
+        random_points = []
+        for factor in self.sub_spaces:
+            key, factor_random_points = factor.random(key, number)
+            random_points.append(random_points)
+
+        return key, B.concat(*random_points, axis=1)
+
     def get_eigenfunctions(self, num: int) -> Eigenfunctions:
         assert num <= self.num_eigen
 

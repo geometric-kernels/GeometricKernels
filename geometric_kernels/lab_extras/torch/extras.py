@@ -85,3 +85,19 @@ def set_value(a: B.TorchNumeric, index: int, value: float):
     a = a.clone()
     a[index] = value
     return a
+
+
+@dispatch
+def dtype_double(reference: B.TorchRandomState):  # type: ignore
+    """
+    Return `double` dtype of a backend based on the reference.
+    """
+    return torch.double
+
+
+@dispatch
+def dtype_integer(reference: B.TorchRandomState):  # type: ignore
+    """
+    Return `int` dtype of a backend based on the reference.
+    """
+    return torch.int

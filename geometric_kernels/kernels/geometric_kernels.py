@@ -266,3 +266,6 @@ class MaternIntegratedKernel(BaseGeometricKernel):
     def K_diag(self, params, state, X: B.Numeric, **kwargs) -> B.Numeric:
         """Compute the kernel via integration of heat kernel"""
         return self.kernel(params, X, diag=True)
+
+    def feature_map(self, params, state, **kwargs):
+        raise NotImplementedError

@@ -1,9 +1,14 @@
 import jax.numpy as jnp
+import lab as B
 import numpy as np
 import pytest
 import tensorflow as tf
 import torch
 
+from geometric_kernels.kernels.feature_maps import (
+    deterministic_feature_map,
+    random_phase_feature_map,
+)
 from geometric_kernels.kernels.geometric_kernels import (
     MaternIntegratedKernel,
     MaternKarhunenLoeveKernel,
@@ -147,3 +152,28 @@ def test_integrated_matern_dtype(heat_spacepoint, dtype, backend):
 
     # make sure that it just runs
     kernel.K(params, state, point)
+
+
+@pytest.mark.parametrize("dtype", ["float32", "float64"])
+@pytest.mark.parametrize("backend", ["numpy", "jax", "torch", "tensorflow"])
+def test_feature_map_dtype(kl_spacepoint, dtype, backend):
+    space, point = kl_spacepoint
+    point = to_typed_ndarray(point, dtype)
+    point = to_typed_tensor(point, backend)
+
+    kernel = MaternKarhunenLoeveKernel(space, 3)
+
+    params, state = kernel.init_params_and_state()
+    params["nu"] = to_typed_tensor(to_typed_ndarray(np.r_[0.5], dtype), backend)
+    params["lengthscale"] = to_typed_tensor(
+        to_typed_ndarray(np.r_[0.5], dtype), backend
+    )
+
+    # make sure it runs
+    feature_map, context = deterministic_feature_map(space, kernel, params, state)
+    feature_map(point)
+
+    # make sure it runs
+    key = B.create_random_state(B.dtype(point), seed=1234)
+    feature_map, context = random_phase_feature_map(space, kernel, params, state, key)
+    feature_map(point)

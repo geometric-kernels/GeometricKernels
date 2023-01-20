@@ -12,6 +12,7 @@ import numpy as np
 from spherical_harmonics import SphericalHarmonics as _SphericalHarmonics
 from spherical_harmonics.fundamental_set import num_harmonics
 
+from geometric_kernels.lab_extras import dtype_double
 from geometric_kernels.spaces import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import (
     Eigenfunctions,
@@ -217,3 +218,17 @@ class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
             self.to_tangent(ehess, x)
             - self.metric.inner_product(x, normal_gradient, x) * direction
         )
+
+    def random(self, key, number):
+        """
+        Random points on the sphere.
+
+        Always returns [N, D+1] float64 array of the `key`'s backend.
+        """
+        key, random_points = B.random.randn(
+            key, dtype_double(key), number, self.dimension + 1
+        )  # (N, D+1)
+        random_points /= B.sqrt(
+            B.sum(random_points**2, axis=1, squeeze=False)
+        )  # (N, D+1)
+        return key, random_points

@@ -6,7 +6,7 @@ The Geomstats package is used for most of the geometric calculations.
 import geomstats as gs
 import lab as B
 
-from geometric_kernels.lab_extras import from_numpy
+from geometric_kernels.lab_extras import dtype_double, from_numpy
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import (
     Eigenfunctions,
@@ -174,3 +174,8 @@ class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
             eigenfunctions.num_eigenfunctions_per_level,
         )  # [M,]
         return B.reshape(eigenvalues, -1, 1)  # [M, 1]
+
+    def random(self, key, number):
+        key, random_points = B.random.rand(key, dtype_double(key), number, 1)  # (N, 1)
+        random_points *= 2 * B.pi
+        return key, random_points

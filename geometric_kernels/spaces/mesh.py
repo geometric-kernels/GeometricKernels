@@ -9,6 +9,7 @@ import potpourri3d as pp3d
 import robust_laplacian
 import scipy.sparse.linalg as sla
 
+from geometric_kernels.lab_extras import dtype_integer
 from geometric_kernels.spaces.base import (
     ConvertEigenvectorsToEigenfunctions,
     DiscreteSpectrumSpace,
@@ -132,3 +133,9 @@ class Mesh(DiscreteSpectrumSpace):
         vertices, faces = pp3d.read_mesh(filename)
         # return Mesh
         return cls(vertices, faces)
+
+    def random(self, key, number):
+        key, random_vertices = B.randint(
+            key, dtype_integer(key), number, 1, lower=0, upper=self.num_vertices
+        )
+        return key, random_vertices
