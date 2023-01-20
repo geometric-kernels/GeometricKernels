@@ -1,7 +1,6 @@
 """
 Implementation of geometric kernels on several spaces
 """
-from typing import Any, Dict, Tuple
 
 import lab as B
 import numpy as np
@@ -11,7 +10,6 @@ from geometric_kernels.lab_extras import from_numpy, logspace, trapz
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 from geometric_kernels.spaces.hyperbolic import Hyperbolic
-from geometric_kernels.types import FeatureMap
 from geometric_kernels.utils.utils import Optional
 
 
@@ -138,30 +136,6 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         Phi = state["eigenfunctions"]
 
         return Phi.weighted_outerproduct_diag(weights, X, **params)  # [N,]
-
-    def feature_map(self, params, state, **kwargs) -> Tuple[FeatureMap, Dict[str, Any]]:
-        assert "eigenvalues_laplacian" in state
-        assert "eigenfunctions" in state
-
-        repeated_eigenvalues = self.space.get_repeated_eigenvalues(
-            self.num_eigenfunctions
-        )
-        spectrum = self._spectrum(
-            repeated_eigenvalues**0.5,
-            nu=params["nu"],
-            lengthscale=params["lengthscale"],
-        )
-
-        weights = B.power(spectrum, 0.5)  # [M, 1]
-        Phi = state["eigenfunctions"]
-
-        def _map(X: B.Numeric) -> B.Numeric:
-            eigenfunctions = Phi.__call__(X, **params)  # [N, M]
-            return eigenfunctions * weights.T  # [N, D]
-
-        _context: Dict[str, str] = {}  # no context
-
-        return _map, _context
 
 
 class MaternIntegratedKernel(BaseGeometricKernel):
