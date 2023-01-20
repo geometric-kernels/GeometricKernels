@@ -177,8 +177,6 @@ class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
         return B.reshape(eigenvalues, -1, 1)  # [M, 1]
 
     def random(self, key, number):
-        key, random_points = B.random.randn(key, np.float64, number, 2)  # (N, D+1)
-        random_points /= B.sqrt(
-            B.sum(random_points**2, axis=1, squeeze=False)
-        )  # (N, D+1)
+        key, random_points = B.random.rand(key, np.float64, number, 1)  # (N, 1)
+        random_points *= 2 * B.pi
         return key, random_points
