@@ -26,7 +26,7 @@ def sample_at(feature_map, s, X: B.Numeric, key=None) -> Tuple[Any, Any]:
     return key, random_sample
 
 
-def sample_path(
+def sampler(
     feature_map: FeatureMap, s: Optional[int] = 1, **kwargs
 ) -> Callable[[Any], Any]:
     """
@@ -35,7 +35,7 @@ def sample_path(
     Given a `feature_map`, return a function that computes `s` samples with `key` random state at given points in space.
     """
 
-    sample_f = partial(sample_path, feature_map, s)
-    sample_f.__doc__ == sample_path.__doc__
+    sample_f = partial(sample_at, feature_map, s)
+    sample_f.__doc__ == sample_at.__doc__
 
     return sample_f
