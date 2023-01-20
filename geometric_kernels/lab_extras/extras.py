@@ -93,6 +93,7 @@ def dtype_double(reference):
     Return `double` dtype of a backend based on the reference.
     """
 
+
 @dispatch
 @abstract()
 def dtype_integer(reference):

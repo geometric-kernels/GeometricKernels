@@ -61,14 +61,7 @@ def degree(a: _Numeric):  # type: ignore
 
 
 @dispatch
-def dtype_double(reference: B.NPRandomState):
-    """
-    Return `double` dtype of a backend based on the reference.
-    """
-    return np.float64
-
-@dispatch
-def dtype_double(reference: _Numeric):
+def dtype_double(reference: B.NPRandomState):  # type: ignore
     """
     Return `double` dtype of a backend based on the reference.
     """
@@ -76,7 +69,7 @@ def dtype_double(reference: _Numeric):
 
 
 @dispatch
-def dtype_integer(reference: B.NPRandomState):
+def dtype_integer(reference: B.NPRandomState):  # type: ignore
     """
     Return `int` dtype of a backend based on the reference.
     """

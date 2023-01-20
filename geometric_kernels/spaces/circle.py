@@ -5,9 +5,8 @@ The Geomstats package is used for most of the geometric calculations.
 """
 import geomstats as gs
 import lab as B
-import numpy as np
 
-from geometric_kernels.lab_extras import from_numpy, dtype_double
+from geometric_kernels.lab_extras import dtype_double, from_numpy
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import (
     Eigenfunctions,
