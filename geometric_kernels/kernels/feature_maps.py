@@ -63,8 +63,8 @@ def random_phase_feature_map(
 
     def _map(X: B.Numeric) -> B.Numeric:
         # X [N, D]
-        random_phases_b = B.cast(from_numpy(random_phases, X), B.dtype(X))
-        embedding = Phi.phi_product(X, random_phases_b)  # [N, O, L]
+        random_phases_b = B.cast(B.dtype(X), from_numpy(X, random_phases))
+        embedding = Phi.phi_product(X, random_phases_b, **params)  # [N, O, L]
         return B.reshape(embedding * weights.T, B.shape(X)[0], -1)  # [N, O*L]
 
     _context: Dict[str, str] = {"key": key}
