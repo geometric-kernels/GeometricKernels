@@ -73,4 +73,4 @@ def dtype_integer(reference: B.NPRandomState):  # type: ignore
     """
     Return `int` dtype of a backend based on the reference.
     """
-    return int
+    return np.int64
