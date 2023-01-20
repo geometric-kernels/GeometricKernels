@@ -9,7 +9,7 @@ import lab as B
 from geometric_kernels.types import FeatureMap
 
 
-def sample_path(feature_map, s, X: B.Numeric, key=None) -> Tuple[Any, Any]:
+def sample_at(feature_map, s, X: B.Numeric, key=None) -> Tuple[Any, Any]:
     """
     Given a `feature_map`, compute `s` samples at `X` defined by random state `key`.
     """
@@ -26,11 +26,11 @@ def sample_path(feature_map, s, X: B.Numeric, key=None) -> Tuple[Any, Any]:
     return key, random_sample
 
 
-def sampler(
+def sample_path(
     feature_map: FeatureMap, s: Optional[int] = 1, **kwargs
 ) -> Callable[[Any], Any]:
     """
-    A helper wrapper around `sample_path`.
+    A helper wrapper around `sample_at`.
 
     Given a `feature_map`, return a function that computes `s` samples with `key` random state at given points in space.
     """
