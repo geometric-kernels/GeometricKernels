@@ -134,5 +134,7 @@ class Mesh(DiscreteSpectrumSpace):
         return cls(vertices, faces)
 
     def random(self, key, number):
-        # TDB
-        raise NotImplementedError
+        key, random_vertices = B.randint(
+            key, int, number, 1, lower=0, upper=self.num_vertices
+        )
+        return key, random_vertices

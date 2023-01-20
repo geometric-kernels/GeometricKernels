@@ -99,5 +99,9 @@ class Graph(DiscreteSpectrumSpace):
         return self.get_eigenvalues(num)
 
     def random(self, key, number):
-        # TDB
-        raise NotImplementedError
+        num_vertices = B.shape(self._laplacian)[0]
+        key, random_vertices = B.randint(
+            key, int, number, 1, lower=0, upper=num_vertices
+        )
+
+        return key, random_vertices

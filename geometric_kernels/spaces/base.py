@@ -27,13 +27,6 @@ class Space(abc.ABC):
         """
         raise NotImplementedError
 
-    @abc.abstractmethod
-    def random(self, key, number: int) -> B.Numeric:
-        """
-        Return randomly sampled points in the space
-        """
-        raise NotImplementedError
-
 
 class DiscreteSpectrumSpace(Space):
     r"""
@@ -65,6 +58,13 @@ class DiscreteSpectrumSpace(Space):
         repeated according to their multiplicity.
 
         :return: [M, 1] array containing the eigenvalues
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def random(self, key, number: int) -> B.Numeric:
+        """
+        Return randomly sampled points in the space
         """
         raise NotImplementedError
 
