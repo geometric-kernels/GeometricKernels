@@ -6,6 +6,6 @@ select = C,E,F,W,B,B9
 # W503 Line break occurred before a binary operator
 # W504 line break after binary operator
 # F811 redefinition because of multiple dispatch
-ignore = E203, E501, W503, E226, W503, W504, F811
+ignore = E203, E501, W503, E226, W503, W504, F811, F722
 max-complexity = 10
 exclude = __init__.py,.git,__pycache__,.mypy_cache,.pytest_cache

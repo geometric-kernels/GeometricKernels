@@ -27,7 +27,7 @@ setup(
     name="GeometricKernels",
     version=version,
     author="The GeometricKernels contributors",
-    author_email="vd309@cam.ac.uk",
+    author_email="geometric-kernels@googlegroups.com",
     long_description=long_description,
     long_description_content_type="text/markdown",
     description="A Python Package for Geometric Kernels in TensorFlow, PyTorch and Jax",
