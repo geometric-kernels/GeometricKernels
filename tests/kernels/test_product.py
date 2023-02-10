@@ -53,7 +53,6 @@ def test_circle_product_kernel():
     grid_ = B.reshape(grid, _GRID_SIZE**2, 2)
 
     for ls in [0.1, 0.5, 1.0, 2.0, 5.0]:
-
         kernel = MaternKarhunenLoeveKernel(product, _TRUNC_LEVEL**2)
         kernel_single = MaternKarhunenLoeveKernel(Circle(), _TRUNC_LEVEL)
 
