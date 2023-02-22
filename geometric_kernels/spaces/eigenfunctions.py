@@ -25,7 +25,6 @@ class Eigenfunctions(abc.ABC):
     ) -> B.Numeric:
         r"""
         Computes :math:`\sum_{i=0}^{M-1} w_i \phi_i(x1) \phi_i(x2)`.
-
         :param weights: [M, 1]
         :param X: Inputs where to evaluate the eigenfunctions, shape = [N, D]
             where `N` is the number of inputs and `D` the dimension.
@@ -54,7 +53,6 @@ class Eigenfunctions(abc.ABC):
         Computes :math:`\sum_{i=0}^{M-1} w_i \phi_i(x) \phi_i(x)`. Corresponds to the
         diagonal elements of `weighted_outproduct` but they can be calculated more
         efficiently.
-
         :param weights: [M, 1]
         :param X: Inputs where to evaluate the eigenfunctions, shape = [N, D].
         :param parameters: any additional parameters
@@ -67,7 +65,6 @@ class Eigenfunctions(abc.ABC):
     def phi_product(self, X1: B.Numeric, X2: B.Numeric, **parameters) -> B.Numeric:
         r"""
         Computes :math:`\{\phi_i(x_1) \phi_i(x_2)\}_{i=0}^{L}` where `L` is the number of eigenfuctions.
-
         :param X1: Inputs where to evaluate the eigenfunctions, shape = [N, D]
         :param X2: Inputs where to evaluate the eigenfunctions, shape = [M, D]
         :param parameters: any additional parameters
@@ -85,12 +82,10 @@ class Eigenfunctions(abc.ABC):
     def __call__(self, X: B.Numeric, **parameters) -> B.Numeric:
         """
         Evaluate the individual eigenfunctions.
-
         :param X: points to evaluate the eigenfunctions in local coordinates, [N, D].
             `N` is the number of points and `D` should match the dimension of the space
             on which the eigenfunctions are defined.
         :param parameters: any additional parameters
-
         :return: [N, M] where `M` is the number of eigenfunctions.
         """
         raise NotImplementedError
@@ -109,21 +104,17 @@ class Eigenfunctions(abc.ABC):
 class EigenfunctionWithAdditionTheorem(Eigenfunctions):
     r"""
     Eigenfunctions for which the sum over a level has a simpler expression.
-
     Example 1:
     On the circle S^1 the eigenfunctions are given by :math:`{\sin(\ell \theta), \cos(\ell \theta)}`,
     where we refer to :math:`\ell` as the level. Summing over the eigenfunctions of a level
     as follows :math:`\cos(\ell x) \cos(\ell x') + \sin(\ell x) \sin(\ell x)` can be simplified to
     :math:`cos(\ell (x-x'))` thanks to some trigonometric identity.
-
     Example 2:
     The sphere manifold S^d eigenfunctions, known as the spherical harmonics, also adhere
     to this property. It is known as the addition theorem.  See, for example, Theorem 4.11 (p.60
     Frye and Efthimiou (2012).
-
     In the case the weights over a level in the `weighted_outproduct` are identical
     we can make use of this expression to simplify computations.
-
     We assume there are `L` levels. The sum of the number of eigenfunctions per level should be
     equal the total amount of eigenfunctions.
     """
@@ -137,13 +128,10 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
     ) -> B.Numeric:
         r"""
         Computes :math:`\sum w_i \phi_i(x_1) \phi_i(x_2)`.
-
         :param weights: [L, 1]
-
             .. note:
                The length of `weights` is equal to the number of levels.
                This is **not** the same as the number of eigenfunctions.
-
         :param X: Inputs where to evaluate the eigenfunctions, shape = [N, D].
         :param X2: Inputs where to evaluate the eigenfunctions, shape = [N2, D].
             Default to None, in which X is used for X2.
@@ -165,13 +153,10 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         Computes :math:`\sum_{i=0}^{M-1} w_i \phi_i(x) \phi_i(x)`. Corresponds to the
         diagonal elements of `weighted_outproduct` but they can be calculated more
         efficiently.
-
         Makes use of the fact that eigenfunctions within a level can be summed
         in a computationally more efficient matter.
-
         .. note:
             Only works if the weights within a level are equal.
-
         :param weights: [M, 1]
         :param X: Inputs where to evaluate the eigenfunctions, shape = [N, D].
         :param parameters: any additional parameters
@@ -181,16 +166,17 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         return einsum("id,ni->n", weights, addition_theorem_X)  # [N,]
 
     def phi_product(self, X1, X2, **parameters):
+        """\{\phi_i(X_1)\phi_i(X_2)\}_i"""
         return self._addition_theorem(X1, X2, **parameters)
 
     def phi_product_diag(self, X, **parameters):
+        """\{\phi_i(X)\phi_i(X)\}_i"""
         return self._addition_theorem_diag(X, **parameters)
 
     def _filter_weights(self, weights: B.Numeric) -> B.Numeric:
         """
         Selects the weight for each level.
         Assumes the weights in `weights` within a level are the same.
-
         :param weights: [M,]
         :return: [L,]
         """
@@ -207,7 +193,6 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
     def _addition_theorem(self, X: B.Numeric, X2: B.Numeric, **parameters) -> B.Numeric:
         """
         Returns the sum of eigenfunctions on a level for which we have a simplified expression
-
         :param X: [N, D]
         :param X2: [N2, D]
         :param parameters: any additional parameters
@@ -220,7 +205,6 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
     def _addition_theorem_diag(self, X: B.Numeric, **parameters) -> B.Numeric:
         """
         Returns the sum of eigenfunctions on a level for which we have a simplified expression
-
         :param X: [N, D]
         :param parameters: any additional parameters
         :return: Evaluate the sum of eigenfunctions on each level. Returns
