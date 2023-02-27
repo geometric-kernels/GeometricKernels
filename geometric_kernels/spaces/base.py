@@ -99,6 +99,12 @@ class NoncompactSymmetricSpace(Space):
         """
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def random_phases(self, key, num) -> B.Numeric:
+        r"""
+        Random samples from Haar measure on the isotropy group of the symmetric space.
+        """
+
 
 class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
     """

@@ -6,9 +6,9 @@ from typing import Dict
 import lab as B
 from plum import dispatch
 
-from geometric_kernels.kernels import MaternKarhunenLoeveKernel
+from geometric_kernels.kernels import BaseGeometricKernel, MaternKarhunenLoeveKernel
 from geometric_kernels.lab_extras import from_numpy
-from geometric_kernels.spaces import DiscreteSpectrumSpace
+from geometric_kernels.spaces import DiscreteSpectrumSpace, NoncompactSymmetricSpace
 
 
 @dispatch
@@ -73,5 +73,39 @@ def random_phase_feature_map(
         return B.reshape(embedding * weights_t, B.shape(X)[0], -1)  # [N, O*L]
 
     _context: Dict[str, str] = {"key": key}
+
+    return _map, _context
+
+
+@dispatch
+def random_phase_feature_map(
+    space: NoncompactSymmetricSpace,
+    kernel: BaseGeometricKernel,
+    params,
+    state,
+    key,
+    order=100
+):
+
+    key, random_phases = space.random_phases(key, order)  # [O, D]
+
+    key, random_lambda = spectral_density_sample(key, (order, 1), params, space.dimension)  # [O, 1]
+
+    def _map(X: B.Numeric) -> B.Numeric:
+        # X [N, D]
+        random_phases_b = B.expand_dims(
+            B.cast(B.dtype(X), from_numpy(X, random_phases))
+        )  # [1, O, D]
+        random_lambda_b = B.expand_dims(
+            B.cast(B.dtype(X), from_numpy(X, random_phases))
+        )  # [1, O, 1]
+
+        p = space.power_function(random_lambda_b, X[:, None], random_phases_b)  # [N, O]
+
+        c = space.inv_harish_chandra(random_lambda_b)  # [1, O]
+
+        return p * c  # [N, O]
+
+    _context: Dict[str, B.types.RandomState] = {"key": key}
 
     return _map, _context

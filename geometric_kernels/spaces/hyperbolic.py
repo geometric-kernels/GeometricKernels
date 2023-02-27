@@ -9,10 +9,10 @@ import lab as B
 from opt_einsum import contract as einsum
 
 from geometric_kernels.lab_extras import cosh, from_numpy, logspace, sinh, trapz
-from geometric_kernels.spaces import Space
+from geometric_kernels.spaces import NoncompactSymmetricSpace
 
 
-class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
+class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
     r"""
     Hyperbolic manifold.
 
@@ -81,6 +81,19 @@ class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
         diagonal = from_numpy(vector_a, [-1.0] * p + [1.0] * q)  # (dim+1)
         diagonal = B.cast(B.dtype(vector_a), diagonal)
         return einsum("...i,...i->...", diagonal * vector_a, vector_b)
+
+    def inv_harish_chandra(self, X):
+        raise NotImplementedError("TODO")
+
+    def power_functions(self, lam, g, h):
+        raise NotImplementedError("TODO")
+
+    @property
+    def rho(self):
+        raise NotImplementedError("TODO")
+
+    def random_phases(self, key, num):
+        raise NotImplementedError("TODO")
 
     def heat_kernel(
         self, distance: B.Numeric, t: B.Numeric, num_points: int = 100
