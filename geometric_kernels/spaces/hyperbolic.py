@@ -83,17 +83,52 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
         return einsum("...i,...i->...", diagonal * vector_a, vector_b)
 
     def inv_harish_chandra(self, X):
-        raise NotImplementedError("TODO")
+        if self.dimension % 2 == 0:
+            m = self.dimension // 2
+            js = (B.range(B.dtype(X), 2, m)*2 - 3.0)**2 / 4  # [M]
+        elif self.dimension % 2 == 1:
+            m = self.dimension // 2
+            js = B.range(B.dtype(X), 0, m-1)**2  # [M]
+        log_c = B.sum(2*B.log(X)+B.log(js), axis=1)  # [N, M] --> [N, ]
+        if self.dimension % 2 == 0:
+            log_c += B.log(X) + B.log(B.tanh(3.14 * X))
 
-    def power_functions(self, lam, g, h):
-        raise NotImplementedError("TODO")
+        return B.exp(0.5 * log_c)
+
+    def power_function(self, lam, g, h):
+        r"""
+        Power function :math:`p^{\lambda)(g, h) = \exp(i \lambda + \rho) a(h \cdot g)`.
+
+        Zonal spherical functions are defined as :math:`\pi^{\lambda}(g) = \int_{H} p^{\lambda}(g, h) d\mu_H(h).
+
+        In the hyperbolic case, in Poincare ball coordinates,
+
+        \exp(i \lambda + \rho) a(h \cdot g) = ((1-|g|^2)/|g-h|^2)^{-i\lambda+\rho}
+        `
+        """
+        # lam [N1, .., Nk, 1]
+        # g [N1, ..., Nk, D]
+        # h [N1, ..., Nk, D]
+        # lam <-> lmd, g <-> x, h <-> shift
+        g_poincare = self.convert_to_ball(g)
+        gh_norm = B.sum(B.power(g_poincare-h, 2), axis=-1, squeeze=False)  # [N1, ..., Nk, 1]
+        denominator = B.log(gh_norm)
+        numerator = B.log(B.ones(gh_norm) - B.sum(g_poincare**2, axis=1, squeeze=False))
+        log_out = (numerator - denominator) * (-1j * lam + self.rho)
+        return B.exp(log_out)
+
+    def convert_to_ball(self, point):
+        # point [N1, ..., Nk, D]
+        return point[..., 1:] / (1 + point[..., :1])
 
     @property
     def rho(self):
-        raise NotImplementedError("TODO")
+        return (self.dimension - 1) / 2
 
     def random_phases(self, key, num):
-        raise NotImplementedError("TODO")
+        key, x = B.randn(key, num, self.dimension)
+        x = x / B.sum(x**2, axis=-1, squeeze=False)
+        return key, x
 
     def heat_kernel(
         self, distance: B.Numeric, t: B.Numeric, num_points: int = 100
