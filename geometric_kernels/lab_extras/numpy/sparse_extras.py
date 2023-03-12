@@ -9,7 +9,7 @@ from .extras import _Numeric
 SparseArray defines a lab data type that covers all possible sparse
 scipy arrays, so that multiple dispatch works with such arrays.
 """
-SparseArray = Union(
+SparseArray = Union[
     sp.bsr.bsr_matrix,
     sp.coo.coo_matrix,
     sp.csc.csc_matrix,
@@ -17,8 +17,7 @@ SparseArray = Union(
     sp.dia.dia_matrix,
     sp.dok.dok_matrix,
     sp.lil.lil_matrix,
-    alias="SparseArray",
-)
+]
 
 _SparseArraySign = Signature(SparseArray)
 

@@ -8,7 +8,7 @@ import geomstats as gs
 import lab as B
 from opt_einsum import contract as einsum
 
-from geometric_kernels.lab_extras import cosh, from_numpy, logspace, sinh, trapz
+from geometric_kernels.lab_extras import cosh, from_numpy, logspace, sinh, trapz, dtype_double
 from geometric_kernels.spaces import NoncompactSymmetricSpace
 
 
@@ -106,16 +106,17 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
         \exp(i \lambda + \rho) a(h \cdot g) = ((1-|g|^2)/|g-h|^2)^{-i\lambda+\rho}
         `
         """
-        # lam [N1, .., Nk, 1]
+        # lam [N1, .., Nk]
         # g [N1, ..., Nk, D]
         # h [N1, ..., Nk, D]
         # lam <-> lmd, g <-> x, h <-> shift
         g_poincare = self.convert_to_ball(g)
-        gh_norm = B.sum(B.power(g_poincare-h, 2), axis=-1, squeeze=False)  # [N1, ..., Nk, 1]
+        gh_norm = B.sum(B.power(g_poincare-h, 2), axis=-1)  # [N1, ..., Nk]
         denominator = B.log(gh_norm)
-        numerator = B.log(B.ones(gh_norm) - B.sum(g_poincare**2, axis=1, squeeze=False))
-        log_out = (numerator - denominator) * (-1j * lam + self.rho)
-        return B.exp(log_out)
+        numerator = B.log(B.ones(gh_norm) - B.sum(g_poincare**2, axis=1))
+        log_out = (numerator - denominator) * (-1j * lam + self.rho)  # [N1, ..., Nk]
+        out = B.exp(log_out)
+        return out
 
     def convert_to_ball(self, point):
         # point [N1, ..., Nk, D]
@@ -126,7 +127,7 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
         return (self.dimension - 1) / 2
 
     def random_phases(self, key, num):
-        key, x = B.randn(key, num, self.dimension)
+        key, x = B.randn(key, dtype_double(key), num, self.dimension)
         x = x / B.sum(x**2, axis=-1, squeeze=False)
         return key, x
 

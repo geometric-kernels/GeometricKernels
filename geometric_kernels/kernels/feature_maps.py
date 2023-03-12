@@ -8,6 +8,7 @@ from plum import dispatch
 
 from geometric_kernels.kernels import BaseGeometricKernel, MaternKarhunenLoeveKernel
 from geometric_kernels.lab_extras import from_numpy
+from geometric_kernels.sampling.spectral_density_sample import spectral_density_sample
 from geometric_kernels.spaces import DiscreteSpectrumSpace, NoncompactSymmetricSpace
 
 
@@ -80,7 +81,7 @@ def random_phase_feature_map(
 @dispatch
 def random_phase_feature_map(
     space: NoncompactSymmetricSpace,
-    kernel: BaseGeometricKernel,
+    kernel,
     params,
     state,
     key,
@@ -89,7 +90,8 @@ def random_phase_feature_map(
 
     key, random_phases = space.random_phases(key, order)  # [O, D]
 
-    key, random_lambda = spectral_density_sample(key, (order, 1), params, space.dimension)  # [O, 1]
+    key, random_lambda = spectral_density_sample(
+        key, (order,), params, space.dimension)  # [O, ]
 
     def _map(X: B.Numeric) -> B.Numeric:
         # X [N, D]
@@ -98,9 +100,11 @@ def random_phase_feature_map(
         )  # [1, O, D]
         random_lambda_b = B.expand_dims(
             B.cast(B.dtype(X), from_numpy(X, random_phases))
-        )  # [1, O, 1]
+        )  # [1, O]
 
-        p = space.power_function(random_lambda_b, X[:, None], random_phases_b)  # [N, O]
+        p = B.real(
+            space.power_function(random_lambda_b, X[:, None], random_phases_b)
+        )  # [N, O]
 
         c = space.inv_harish_chandra(random_lambda_b)  # [1, O]
 
