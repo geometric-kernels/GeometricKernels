@@ -9,18 +9,15 @@ from .extras import _Numeric
 SparseArray defines a lab data type that covers all possible sparse
 scipy arrays, so that multiple dispatch works with such arrays.
 """
-SparseArray = Union(
-    sp.bsr.bsr_matrix,
-    sp.coo.coo_matrix,
-    sp.csc.csc_matrix,
-    sp.csr.csr_matrix,
-    sp.dia.dia_matrix,
-    sp.dok.dok_matrix,
-    sp.lil.lil_matrix,
-    alias="SparseArray",
-)
-
-_SparseArraySign = Signature(SparseArray)
+SparseArray = Union[
+    sp.bsr_matrix,
+    sp.coo_matrix,
+    sp.csc_matrix,
+    sp.csr_matrix,
+    sp.dia_matrix,
+    sp.dok_matrix,
+    sp.lil_matrix,
+]
 
 
 @dispatch
@@ -56,19 +53,26 @@ def set_value(a: Union[SparseArray, _Numeric], index: int, value: float):
     return a
 
 
-def sparse_transpose(a):
-    return a.T
+""" Register methods for simple ops for a sparse array. """
 
 
-def sparse_shape(a):
-    return a.shape
+def pinv(a: Union[SparseArray]):
+    i, j = a.nonzero()
+    if not (i == j).all():
+        raise NotImplementedError(
+            "pinv is not supported for non-diagonal sparse arrays."
+        )
+    else:
+        a = sp.csr_matrix(a.copy())
+        a[i, i] = 1 / a[i, i]
+        return a
 
 
-def sparse_any(a):
-    return bool((a == True).sum())  # noqa
+_SparseArray = Signature(SparseArray)
 
+B.T.register(_SparseArray, lambda a: a.T)
+B.shape.register(_SparseArray, lambda a: a.shape)
+B.sqrt.register(_SparseArray, lambda a: a.sqrt())
+B.any.register(_SparseArray, lambda a: bool((a == True).sum()))  # noqa
 
-""" Register methods for the shape, transpose and any of a sparse array. """
-B.T.register(_SparseArraySign, sparse_transpose)
-B.shape.register(_SparseArraySign, sparse_shape)
-B.any.register(_SparseArraySign, sparse_any)
+B.linear_algebra.pinv.register(_SparseArray, pinv)

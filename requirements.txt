@@ -6,5 +6,7 @@ tensorflow
 tensorflow-probability==0.14.0
 jax
 jaxlib
+backends==1.4.32
+plum-dispatch==1.7.4
 sparsegpax @ git+https://github.com/aterenin/SparseGPAX.git
 spherical-harmonics @ git+https://github.com/vdutor/SphericalHarmonics.git
