@@ -6,7 +6,7 @@ from typing import Dict
 import lab as B
 from plum import dispatch
 
-from geometric_kernels.kernels import BaseGeometricKernel, MaternKarhunenLoeveKernel
+from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.lab_extras import from_numpy
 from geometric_kernels.sampling.spectral_density_sample import spectral_density_sample
 from geometric_kernels.spaces import DiscreteSpectrumSpace, NoncompactSymmetricSpace
