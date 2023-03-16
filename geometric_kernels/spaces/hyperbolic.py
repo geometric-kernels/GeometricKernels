@@ -83,15 +83,17 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
         return einsum("...i,...i->...", diagonal * vector_a, vector_b)
 
     def inv_harish_chandra(self, X):
-        if self.dimension % 2 == 0:
+        if self.dimension == 2:
+            js = 1.0
+        elif self.dimension % 2 == 0:
             m = self.dimension // 2
-            js = (B.range(B.dtype(X), 2, m)*2 - 3.0)**2 / 4  # [M]
+            js = (B.range(B.dtype(X), 0, m-1)*2 + 1.0)**2 / 4  # [M]
         elif self.dimension % 2 == 1:
             m = self.dimension // 2
-            js = B.range(B.dtype(X), 0, m-1)**2  # [M]
-        log_c = B.sum(2*B.log(X)+B.log(js), axis=1)  # [N, M] --> [N, ]
+            js = B.range(B.dtype(X), 0, m)**2  # [M]
+        log_c = B.sum(2*B.log(B.abs(X[..., None]))+B.log(js), axis=-1)  # [N, M] --> [N, ]
         if self.dimension % 2 == 0:
-            log_c += B.log(X) + B.log(B.tanh(3.14 * X))
+            log_c += B.log(B.abs(X)) + B.log(B.tanh(3.14 * B.abs(X)))
 
         return B.exp(0.5 * log_c)
 
@@ -110,10 +112,10 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
         # g [N1, ..., Nk, D]
         # h [N1, ..., Nk, D]
         # lam <-> lmd, g <-> x, h <-> shift
-        g_poincare = self.convert_to_ball(g)
+        g_poincare = self.convert_to_ball(g)  # [..., D-1]
         gh_norm = B.sum(B.power(g_poincare-h, 2), axis=-1)  # [N1, ..., Nk]
         denominator = B.log(gh_norm)
-        numerator = B.log(B.ones(gh_norm) - B.sum(g_poincare**2, axis=1))
+        numerator = B.log(1.0 - B.sum(g_poincare**2, axis=-1))
         log_out = (numerator - denominator) * (-1j * lam + self.rho)  # [N1, ..., Nk]
         out = B.exp(log_out)
         return out

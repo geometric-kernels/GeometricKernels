@@ -99,7 +99,7 @@ def random_phase_feature_map(
             B.cast(B.dtype(X), from_numpy(X, random_phases))
         )  # [1, O, D]
         random_lambda_b = B.expand_dims(
-            B.cast(B.dtype(X), from_numpy(X, random_phases))
+            B.cast(B.dtype(X), from_numpy(X, random_lambda))
         )  # [1, O]
 
         p = B.real(
