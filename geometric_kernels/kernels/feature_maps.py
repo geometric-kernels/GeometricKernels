@@ -80,17 +80,13 @@ def random_phase_feature_map(
 
 @dispatch
 def random_phase_feature_map(
-    space: NoncompactSymmetricSpace,
-    params,
-    state,
-    key,
-    order=100
+    space: NoncompactSymmetricSpace, params, state, key, order=100
 ):
-
     key, random_phases = space.random_phases(key, order)  # [O, D]
 
     key, random_lambda = spectral_density_sample(
-        key, (order,), params, space.dimension)  # [O, ]
+        key, (order,), params, space.dimension
+    )  # [O, ]
 
     def _map(X: B.Numeric) -> B.Numeric:
         # X [N, D]
