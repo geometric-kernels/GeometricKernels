@@ -81,7 +81,6 @@ def random_phase_feature_map(
 @dispatch
 def random_phase_feature_map(
     space: NoncompactSymmetricSpace,
-    kernel,
     params,
     state,
     key,
