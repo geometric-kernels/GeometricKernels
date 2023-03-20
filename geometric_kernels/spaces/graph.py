@@ -65,9 +65,11 @@ class Graph(DiscreteSpectrumSpace):
         """
         if num not in self.cache:
             evals, evecs = eigenpairs(self._laplacian, num)
-            evals = set_value(
-                evals, 0, np.finfo(float).eps
-            )  # lowest eigenval should be zero
+
+            eps = np.finfo(float).eps
+            for i, evalue in enumerate(evals):
+                if evalue < eps:
+                    evals = set_value(evals, i, eps)  # lowest eigenvals should be zero
 
             self.cache[num] = (evecs, evals[:, None])
 

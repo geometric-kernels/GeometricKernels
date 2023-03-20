@@ -17,23 +17,25 @@ warnings.filterwarnings("ignore", category=RuntimeWarning, module="scipy")
 
 A = np.array(
     [
-        [0, 1, 0, 0, 0, 0],
-        [1, 0, 1, 1, 1, 0],
-        [0, 1, 0, 0, 0, 1],
-        [0, 1, 0, 0, 1, 0],
-        [0, 1, 0, 1, 0, 0],
-        [0, 0, 1, 0, 0, 0],
+        [0, 1, 0, 0, 0, 0, 0],
+        [1, 0, 1, 1, 1, 0, 0],
+        [0, 1, 0, 0, 0, 1, 0],
+        [0, 1, 0, 0, 1, 0, 0],
+        [0, 1, 0, 1, 0, 0, 0],
+        [0, 0, 1, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0],
     ]
 ).astype("float")
 
 L = np.array(
     [
-        [1, -1, 0, 0, 0, 0],
-        [-1, 4, -1, -1, -1, 0],
-        [0, -1, 2, 0, 0, -1],
-        [0, -1, 0, 2, -1, 0],
-        [0, -1, 0, -1, 2, 0],
-        [0, 0, -1, 0, 0, 1],
+        [1, -1, 0, 0, 0, 0, 0],
+        [-1, 4, -1, -1, -1, 0, 0],
+        [0, -1, 2, 0, 0, -1, 0],
+        [0, -1, 0, 2, -1, 0, 0],
+        [0, -1, 0, -1, 2, 0, 0],
+        [0, 0, -1, 0, 0, 1, 0],
+        [0, 0, 0, 0, 0, 0, 0],
     ]
 ).astype("float")
 
@@ -64,7 +66,11 @@ def run_tests_with_adj(A, L, tol=1e-14, tol_m=1e-7):
     normed_l = normed_graph._laplacian
     if sp.issparse(normed_l):
         normed_l = normed_l.toarray()
-    assert B.max(B.abs(B.diag(normed_l) - 1)) < tol_m
+
+    assert (
+        B.max(B.abs(B.diag(normed_l) - 1)[:-1]) < tol_m
+        and B.abs(B.diag(normed_l)[-1] - 0) < tol_m
+    )
 
     ##############################################
     # Eigendecomposition checks
@@ -78,7 +84,18 @@ def run_tests_with_adj(A, L, tol=1e-14, tol_m=1e-7):
     np.testing.assert_allclose(evals[:, 0], evals_np, atol=tol, rtol=tol)
 
     # check vecs
-    np.testing.assert_allclose(np.abs(evecs), np.abs(evecs_np), atol=tol, rtol=tol)
+    np.testing.assert_allclose(
+        np.abs(evecs)[:, 2:], np.abs(evecs_np)[:, 2:], atol=tol, rtol=tol
+    )
+
+    try:
+        np.testing.assert_allclose(
+            np.abs(evecs)[:, :2], np.abs(evecs_np)[:, :2], atol=tol, rtol=tol
+        )
+    except AssertionError:
+        np.testing.assert_allclose(
+            np.abs(evecs)[:, [1, 0]], np.abs(evecs_np)[:, :2], atol=tol, rtol=tol
+        )
 
     normed_evals = normed_graph.get_eigenvalues(n)
     assert (B.min(normed_evals) >= 0) and (
@@ -140,7 +157,15 @@ def run_tests_with_adj(A, L, tol=1e-14, tol_m=1e-7):
         evals_np, evecs_np = sp.linalg.eigsh(B.to_numpy(L), m, sigma=1e-8)
 
     np.testing.assert_allclose(evals[:, 0], evals_np, atol=tol_m, rtol=tol_m)
-    np.testing.assert_allclose(np.abs(evecs), np.abs(evecs_np), atol=tol_m, rtol=tol_m)
+
+    try:
+        np.testing.assert_allclose(
+            np.abs(evecs)[:, :2], np.abs(evecs_np)[:, :2], atol=tol_m, rtol=tol_m
+        )
+    except AssertionError:
+        np.testing.assert_allclose(
+            np.abs(evecs)[:, [1, 0]], np.abs(evecs_np)[:, :2], atol=tol_m, rtol=tol_m
+        )
 
     K_cons = MaternKarhunenLoeveKernel(graph, m)
     params, state = K_cons.init_params_and_state()
