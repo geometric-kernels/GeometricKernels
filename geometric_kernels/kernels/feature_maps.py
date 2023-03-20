@@ -17,7 +17,7 @@ def deterministic_feature_map(
     space: DiscreteSpectrumSpace,
     kernel: MaternKarhunenLoeveKernel,
 ):
-    def _map(X: B.Numeric, params, state) -> B.Numeric:
+    def _map(X: B.Numeric, params, state, **kwargs) -> B.Numeric:
         assert "eigenvalues_laplacian" in state
         assert "eigenfunctions" in state
 
@@ -48,7 +48,7 @@ def random_phase_feature_map(
     kernel: MaternKarhunenLoeveKernel,
     order=100,
 ):
-    def _map(X: B.Numeric, params, state, key) -> B.Numeric:
+    def _map(X: B.Numeric, params, state, key, **kwargs) -> B.Numeric:
         key, random_phases = space.random(key, order)  # [O, D]
         eigenvalues = state["eigenvalues_laplacian"]
 
@@ -77,7 +77,7 @@ def random_phase_feature_map(
 
 @dispatch
 def random_phase_feature_map(space: NoncompactSymmetricSpace, order=100):
-    def _map(X: B.Numeric, params, state, key) -> B.Numeric:
+    def _map(X: B.Numeric, params, state, key, **kwargs) -> B.Numeric:
         key, random_phases = space.random_phases(key, order)  # [O, D]
 
         key, random_lambda = spectral_density_sample(

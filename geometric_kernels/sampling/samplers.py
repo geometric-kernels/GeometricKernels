@@ -9,13 +9,17 @@ import lab as B
 from geometric_kernels.types import FeatureMap
 
 
-def sample_at(feature_map, s, X: B.Numeric, key=None) -> Tuple[Any, Any]:
+def sample_at(feature_map, s, X: B.Numeric, params, state, key=None) -> Tuple[Any, Any]:
     """
     Given a `feature_map`, compute `s` samples at `X` defined by random state `key`.
     """
-    features = feature_map(X)  # [N, M]
 
     key = key or B.global_random_state(B.dtype(X))
+
+    features, _context = feature_map(X, params, state, key=key)  # [N, M]
+
+    if "key" in _context:
+        key = _context["key"]
 
     num_features = B.shape(features)[-1]
 
