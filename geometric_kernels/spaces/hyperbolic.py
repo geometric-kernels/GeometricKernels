@@ -91,18 +91,22 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
 
     def inv_harish_chandra(self, X):
         if self.dimension == 2:
-            js = 1.0
-        elif self.dimension % 2 == 0:
+            c = B.abs(X) * B.tanh(3.14 * B.abs(X))
+            return B.sqrt(c)
+
+        if self.dimension % 2 == 0:
             m = self.dimension // 2
-            js = (B.range(B.dtype(X), 0, m - 1) * 2 + 1.0) ** 2 / 4  # [M]
+            js = B.range(B.dtype(X), 0, m - 1)
+            addenda = (js * 2 + 1.0) ** 2 / 4  # [M]
         elif self.dimension % 2 == 1:
             m = self.dimension // 2
-            js = B.range(B.dtype(X), 0, m) ** 2  # [M]
+            js = B.range(B.dtype(X), 0, m)
+            addenda = js ** 2  # [M]
         log_c = B.sum(
-            2 * B.log(B.abs(X[..., None])) + B.log(js), axis=-1
+            B.log(X[..., None]**2 + addenda), axis=-1
         )  # [N, M] --> [N, ]
         if self.dimension % 2 == 0:
-            log_c += B.log(B.abs(X)) + B.log(B.tanh(3.14 * B.abs(X)))
+            log_c += B.log(B.abs(X)) + B.log(B.tanh(B.pi * B.abs(X)))
 
         return B.exp(0.5 * log_c)
 
@@ -110,12 +114,10 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
         r"""
         Power function :math:`p^{\lambda)(g, h) = \exp(i \lambda + \rho) a(h \cdot g)`.
 
-        Zonal spherical functions are defined as :math:`\pi^{\lambda}(g) = \int_{H} p^{\lambda}(g, h) d\mu_H(h).
+        Zonal spherical functions are defined as :math:`\pi^{\lambda}(g) = \int_{H} p^{\lambda}(g, h) d\mu_H(h)`.
 
         In the hyperbolic case, in Poincare ball coordinates,
-
-        \exp(i \lambda + \rho) a(h \cdot g) = ((1-|g|^2)/|g-h|^2)^{-i\lambda+\rho}
-        `
+        :math:`\exp(i \lambda + \rho) a(h \cdot g) = ((1 - |g|^2)/|g - h|^2)^{-i |\lambda| + \rho}`
         """
         # lam [N1, .., Nk]
         # g [N1, ..., Nk, D]
@@ -125,11 +127,16 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
         gh_norm = B.sum(B.power(g_poincare - h, 2), axis=-1)  # [N1, ..., Nk]
         denominator = B.log(gh_norm)
         numerator = B.log(1.0 - B.sum(g_poincare**2, axis=-1))
-        log_out = (numerator - denominator) * (-1j * lam + self.rho)  # [N1, ..., Nk]
+        log_out = (numerator - denominator) * (-1j * B.abs(lam) + self.rho)  # [N1, ..., Nk]
         out = B.exp(log_out)
         return out
 
     def convert_to_ball(self, point):
+        """
+        Converts `point` from extrinsic coordinates (i.e, in the ambient :math:`R^{d+1}` space)
+        to Poincare ball coordinates. This corresponds to stereographically projecting the hyperboloid
+        onto the ball.
+        """
         # point [N1, ..., Nk, D]
         return point[..., 1:] / (1 + point[..., :1])
 

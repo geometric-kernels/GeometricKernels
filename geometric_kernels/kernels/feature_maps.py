@@ -8,7 +8,7 @@ from plum import dispatch
 
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.lab_extras import from_numpy
-from geometric_kernels.sampling.spectral_density_sample import spectral_density_sample
+from geometric_kernels.sampling.probability_densities import base_density_sample
 from geometric_kernels.spaces import DiscreteSpectrumSpace, NoncompactSymmetricSpace
 
 
@@ -17,6 +17,9 @@ def deterministic_feature_map(
     space: DiscreteSpectrumSpace,
     kernel: MaternKarhunenLoeveKernel,
 ):
+    r"""
+    Deterministic feature map for compact spaces based on the Laplacian eigendecomposition.
+    """
     def _map(X: B.Numeric, params, state, **kwargs) -> B.Numeric:
         assert "eigenvalues_laplacian" in state
         assert "eigenfunctions" in state
@@ -46,10 +49,13 @@ def deterministic_feature_map(
 def random_phase_feature_map(
     space: DiscreteSpectrumSpace,
     kernel: MaternKarhunenLoeveKernel,
-    order=100,
+    num_random_phases=100,
 ):
+    r"""
+    Random phase feature map for compact spaces based on the Laplacian eigendecomposition.
+    """
     def _map(X: B.Numeric, params, state, key, **kwargs) -> B.Numeric:
-        key, random_phases = space.random(key, order)  # [O, D]
+        key, random_phases = space.random(key, num_random_phases)  # [O, D]
         eigenvalues = state["eigenvalues_laplacian"]
 
         spectrum = kernel._spectrum(
@@ -76,12 +82,15 @@ def random_phase_feature_map(
 
 
 @dispatch
-def random_phase_feature_map(space: NoncompactSymmetricSpace, order=100):
+def random_phase_feature_map(space: NoncompactSymmetricSpace, num_random_phases=100):
+    r"""
+    Random phase feature map for noncompact symmetric space based on naive algorithm.
+    """
     def _map(X: B.Numeric, params, state, key, **kwargs) -> B.Numeric:
-        key, random_phases = space.random_phases(key, order)  # [O, D]
+        key, random_phases = space.random_phases(key, num_random_phases)  # [O, D]
 
-        key, random_lambda = spectral_density_sample(
-            key, (order,), params, space.dimension
+        key, random_lambda = base_density_sample(
+            key, (num_random_phases,), params, space.dimension
         )  # [O, ]
 
         # X [N, D]
