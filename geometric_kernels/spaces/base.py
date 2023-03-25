@@ -70,8 +70,8 @@ class DiscreteSpectrumSpace(Space):
 
 
 class NoncompactSymmetricSpace(Space):
-    """4
-    Non-compact symmetric Space.
+    """
+    Non-compact symmetric space.
 
     Examples include the `Hyperbolic` space and `SPD` space.
     """

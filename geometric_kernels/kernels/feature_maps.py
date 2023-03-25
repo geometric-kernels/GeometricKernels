@@ -20,6 +20,7 @@ def deterministic_feature_map(
     r"""
     Deterministic feature map for compact spaces based on the Laplacian eigendecomposition.
     """
+
     def _map(X: B.Numeric, params, state, **kwargs) -> B.Numeric:
         assert "eigenvalues_laplacian" in state
         assert "eigenfunctions" in state
@@ -54,6 +55,7 @@ def random_phase_feature_map(
     r"""
     Random phase feature map for compact spaces based on the Laplacian eigendecomposition.
     """
+
     def _map(X: B.Numeric, params, state, key, **kwargs) -> B.Numeric:
         key, random_phases = space.random(key, num_random_phases)  # [O, D]
         eigenvalues = state["eigenvalues_laplacian"]
@@ -86,6 +88,7 @@ def random_phase_feature_map(space: NoncompactSymmetricSpace, num_random_phases=
     r"""
     Random phase feature map for noncompact symmetric space based on naive algorithm.
     """
+
     def _map(X: B.Numeric, params, state, key, **kwargs) -> B.Numeric:
         key, random_phases = space.random_phases(key, num_random_phases)  # [O, D]
 

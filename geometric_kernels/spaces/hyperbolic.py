@@ -101,10 +101,8 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
         elif self.dimension % 2 == 1:
             m = self.dimension // 2
             js = B.range(B.dtype(X), 0, m)
-            addenda = js ** 2  # [M]
-        log_c = B.sum(
-            B.log(X[..., None]**2 + addenda), axis=-1
-        )  # [N, M] --> [N, ]
+            addenda = js**2  # [M]
+        log_c = B.sum(B.log(X[..., None] ** 2 + addenda), axis=-1)  # [N, M] --> [N, ]
         if self.dimension % 2 == 0:
             log_c += B.log(B.abs(X)) + B.log(B.tanh(B.pi * B.abs(X)))
 
@@ -127,7 +125,9 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
         gh_norm = B.sum(B.power(g_poincare - h, 2), axis=-1)  # [N1, ..., Nk]
         denominator = B.log(gh_norm)
         numerator = B.log(1.0 - B.sum(g_poincare**2, axis=-1))
-        log_out = (numerator - denominator) * (-1j * B.abs(lam) + self.rho)  # [N1, ..., Nk]
+        log_out = (numerator - denominator) * (
+            -1j * B.abs(lam) + self.rho
+        )  # [N1, ..., Nk]
         out = B.exp(log_out)
         return out
 
