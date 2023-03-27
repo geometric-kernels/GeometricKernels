@@ -91,13 +91,13 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
 
     def inv_harish_chandra(self, X):
         if self.dimension == 2:
-            c = B.abs(X) * B.tanh(3.14 * B.abs(X))
+            c = B.abs(X) * B.tanh(B.pi * B.abs(X))
             return B.sqrt(c)
 
         if self.dimension % 2 == 0:
             m = self.dimension // 2
             js = B.range(B.dtype(X), 0, m - 1)
-            addenda = (js * 2 + 1.0) ** 2 / 4  # [M]
+            addenda = ((js * 2 + 1.0) ** 2) / 4  # [M]
         elif self.dimension % 2 == 1:
             m = self.dimension // 2
             js = B.range(B.dtype(X), 0, m)
@@ -145,8 +145,10 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
         return (self.dimension - 1) / 2
 
     def random_phases(self, key, num):
-        key, x = B.randn(key, dtype_double(key), num, self.dimension)
-        x = x / B.sum(x**2, axis=-1, squeeze=False)
+        if not isinstance(num, tuple):
+            num = (num, )
+        key, x = B.randn(key, dtype_double(key), *num, self.dimension)
+        x = x / B.sqrt(B.sum(x**2, axis=-1, squeeze=False))
         return key, x
 
     def heat_kernel(
