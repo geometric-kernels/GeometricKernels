@@ -50,7 +50,7 @@ def deterministic_feature_map(
 def random_phase_feature_map(
     space: DiscreteSpectrumSpace,
     kernel: MaternKarhunenLoeveKernel,
-    num_random_phases=100,
+    num_random_phases=3000,
 ):
     r"""
     Random phase feature map for compact spaces based on the Laplacian eigendecomposition.
@@ -84,7 +84,7 @@ def random_phase_feature_map(
 
 
 @dispatch
-def random_phase_feature_map(space: NoncompactSymmetricSpace, num_random_phases=100):
+def random_phase_feature_map(space: NoncompactSymmetricSpace, num_random_phases=3000):
     r"""
     Random phase feature map for noncompact symmetric space based on naive algorithm.
     """
@@ -104,13 +104,14 @@ def random_phase_feature_map(space: NoncompactSymmetricSpace, num_random_phases=
             B.cast(B.dtype(X), from_numpy(X, random_lambda))
         )  # [1, O]
 
-        p = B.real(
-            space.power_function(random_lambda_b, X[:, None], random_phases_b)
-        )  # [N, O]
-
+        p = space.power_function(random_lambda_b, X[:, None], random_phases_b)  # [N, O]
         c = space.inv_harish_chandra(random_lambda_b)  # [1, O]
 
+        out = B.concat(B.real(p) * c, B.imag(p) * c, axis=-1)  # [N, 2*O]
+        normalizer = B.sqrt(B.sum(out**2, axis=-1, squeeze=False))
+        out = out / normalizer
+
         _context: Dict[str, B.types.RandomState] = {"key": key}
-        return p * c, _context  # [N, O]
+        return out, _context
 
     return _map

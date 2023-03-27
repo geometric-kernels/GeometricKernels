@@ -118,10 +118,10 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
         :math:`\exp(i \lambda + \rho) a(h \cdot g) = ((1 - |g|^2)/|g - h|^2)^{-i |\lambda| + \rho}`
         """
         # lam [N1, .., Nk]
-        # g [N1, ..., Nk, D]
+        # g [N1, ..., Nk, D+1]
         # h [N1, ..., Nk, D]
         # lam <-> lmd, g <-> x, h <-> shift
-        g_poincare = self.convert_to_ball(g)  # [..., D-1]
+        g_poincare = self.convert_to_ball(g)  # [..., D]
         gh_norm = B.sum(B.power(g_poincare - h, 2), axis=-1)  # [N1, ..., Nk]
         denominator = B.log(gh_norm)
         numerator = B.log(1.0 - B.sum(g_poincare**2, axis=-1))
