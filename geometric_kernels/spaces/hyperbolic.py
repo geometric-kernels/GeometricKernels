@@ -146,7 +146,7 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
 
     def random_phases(self, key, num):
         if not isinstance(num, tuple):
-            num = (num, )
+            num = (num,)
         key, x = B.randn(key, dtype_double(key), *num, self.dimension)
         x = x / B.sqrt(B.sum(x**2, axis=-1, squeeze=False))
         return key, x

@@ -101,6 +101,7 @@ def dtype_integer(reference):
     Return `int` dtype of a backend based on the reference.
     """
 
+
 @dispatch
 @abstract()
 def get_random_state(key):

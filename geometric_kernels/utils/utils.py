@@ -6,8 +6,9 @@ from typing import List, Type
 
 import einops
 import lab as B
-from geometric_kernels.lab_extras import get_random_state, restore_random_state
 from plum import Union
+
+from geometric_kernels.lab_extras import get_random_state, restore_random_state
 
 
 class OptionalMeta(type):
@@ -77,11 +78,11 @@ def make_deterministic(f, key):
     f_argspec = inspect.getfullargspec(f)
     f_varnames = f_argspec.args
     key_argtype = None
-    if 'key' in f_varnames:
-        key_argtype = 'pos'
-        key_position = f_varnames.index('key')
-    elif 'key' in f_argspec.kwonlyargs:
-        key_argtype = 'kwonly'
+    if "key" in f_varnames:
+        key_argtype = "pos"
+        key_position = f_varnames.index("key")
+    elif "key" in f_argspec.kwonlyargs:
+        key_argtype = "kwonly"
 
     if key_argtype is None:
         return f  # already deterministic
@@ -91,10 +92,13 @@ def make_deterministic(f, key):
     def deterministic_f(*args, **kwargs):
         restored_key = restore_random_state(key, saved_random_state)
         restored_key.set_state(saved_random_state)
-        if key_argtype == 'kwonly':
-            kwargs['key'] = restored_key
+        if key_argtype == "kwonly":
+            kwargs["key"] = restored_key
             new_args = args
-        else:
+        elif key_argtype == "pos":
             new_args = args[:key_position] + (restored_key,) + args[key_position:]
+        else:
+            raise ValueError("Unknown key_argtype %s" % key_argtype)
         return f(*new_args, **kwargs)
+
     return deterministic_f

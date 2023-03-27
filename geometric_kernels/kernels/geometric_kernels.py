@@ -11,7 +11,7 @@ from geometric_kernels.lab_extras import from_numpy, logspace, trapz
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace, Space
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 from geometric_kernels.spaces.hyperbolic import Hyperbolic
-from geometric_kernels.utils.utils import make_deterministic, Optional
+from geometric_kernels.utils.utils import Optional, make_deterministic
 
 
 class MaternKarhunenLoeveKernel(BaseGeometricKernel):

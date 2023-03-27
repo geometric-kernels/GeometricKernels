@@ -1,6 +1,5 @@
 from typing import List
 
-import jax
 import jax.numpy as jnp
 import lab as B
 from lab import dispatch

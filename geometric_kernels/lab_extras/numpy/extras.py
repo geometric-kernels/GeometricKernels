@@ -75,6 +75,7 @@ def dtype_integer(reference: B.NPRandomState):  # type: ignore
     """
     return np.int64
 
+
 @dispatch
 def get_random_state(key: B.NPRandomState):
     """
