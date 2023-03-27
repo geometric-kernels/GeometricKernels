@@ -1,5 +1,6 @@
 from typing import List
 
+import jax
 import jax.numpy as jnp
 import lab as B
 from lab import dispatch
@@ -87,3 +88,36 @@ def dtype_integer(reference: B.JAXRandomState):  # type: ignore
     Return `int` dtype of a backend based on the reference.
     """
     return jnp.int32
+
+
+@dispatch
+def get_random_state(key: B.JAXRandomState):
+    """
+    Return the random state of a random generator.
+
+    Parameters
+    ----------
+    key : B.JAXRandomState
+        The key used to generate the random state.
+
+    Returns
+    -------
+    Any
+        The random state of the random generator.
+    """
+    return key
+
+
+@dispatch
+def set_random_state(key: B.JAXRandomState, state):
+    """
+    Set the random state of a random generator.
+
+    Parameters
+    ----------
+    key : B.JAXRandomState
+        The random generator.
+    state : Any
+        The new random state of the random generator.
+    """
+    pass

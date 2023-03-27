@@ -11,7 +11,7 @@ from geometric_kernels.lab_extras import from_numpy, logspace, trapz
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace, Space
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 from geometric_kernels.spaces.hyperbolic import Hyperbolic
-from geometric_kernels.utils.utils import Optional
+from geometric_kernels.utils.utils import make_deterministic, Optional
 
 
 class MaternKarhunenLoeveKernel(BaseGeometricKernel):
@@ -157,9 +157,9 @@ class MaternFeatureMapKernel(BaseGeometricKernel):
     a smoothness parameter `nu` and a lengthscale parameter `lengthscale`.
     """
 
-    def __init__(self, space: Space, feature_map):
+    def __init__(self, space: Space, feature_map, key):
         super().__init__(space)
-        self.feature_map = feature_map
+        self.feature_map = make_deterministic(feature_map, key)
 
     def init_params_and_state(self):
         params = dict(nu=np.array(0.5), lengthscale=np.array(1.0))
@@ -167,9 +167,9 @@ class MaternFeatureMapKernel(BaseGeometricKernel):
         return params, state
 
     def K(self, params, state, X, X2=None, **kwargs):
-        features_X = self.feature_map(X, params, state, **kwargs)  # [N, O]
+        features_X, _ = self.feature_map(X, params, state, **kwargs)  # [N, O]
         if X2 is not None:
-            features_X2 = self.feature_map(X2, params, state, **kwargs)  # [M, O]
+            features_X2, _ = self.feature_map(X2, params, state, **kwargs)  # [M, O]
         else:
             features_X2 = features_X
 

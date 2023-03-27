@@ -13,11 +13,11 @@ def student_t_sample(key, size, deg_freedom, dtype=None):
     Sample from the Student-t distribution with `deg_freedom` degrees of freedom,
     using `key` random state, returning sample of the shape `size`.
 
-    Studen-t random variable with `nu` degrees of freedom can be represented as
+    Student-t random variable with `nu` degrees of freedom can be represented as
     :math:`T=\frac{Z}{\sqrt{V/\nu}}`, where `Z` is the standard normal r.v. and
     `V` is :math:`\chi^2(\nu)` r.v. The :math:`\chi^2(\nu)` distribution is the
     same as `\Gamma(\nu / 2, 2)` distribution, and therefore
-    :math:`V/\nu \sim \Gamma(\nu / 2, 2 * \nu)`
+    :math:`V/\nu \sim \Gamma(\nu / 2, 2 / \nu)`
 
     We use these properties to sample the student-t random variable.
 
@@ -38,7 +38,7 @@ def student_t_sample(key, size, deg_freedom, dtype=None):
     )
 
     u = z / B.sqrt(g)
-    return u
+    return key, u
 
 
 def base_density_sample(key, size, params, dim):
@@ -69,6 +69,6 @@ def base_density_sample(key, size, params, dim):
     elif nu > 0:
         # sample from the student-t with 2\nu + dim - 1 degrees of freedom
         deg_freedom = 2 * nu + dim - 1
-        u = student_t_sample(key, size, deg_freedom)
+        key, u = student_t_sample(key, size, deg_freedom)
 
     return key, u / L

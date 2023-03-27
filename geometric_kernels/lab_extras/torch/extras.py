@@ -101,3 +101,43 @@ def dtype_integer(reference: B.TorchRandomState):  # type: ignore
     Return `int` dtype of a backend based on the reference.
     """
     return torch.int
+
+
+@dispatch
+def get_random_state(key: B.TorchRandomState):
+    """
+    Return the random state of a random generator.
+
+    Parameters
+    ----------
+    key : B.TorchRandomState
+        The key used to generate the random state.
+
+    Returns
+    -------
+    Any
+        The random state of the random generator.
+    """
+    return key.get_state()
+
+
+@dispatch
+def restore_random_state(key: B.TorchRandomState, state):
+    """
+    Set the random state of a random generator.
+
+    Parameters
+    ----------
+    key : B.TorchRandomState
+        The random generator.
+    state : Any
+        The new random state of the random generator.
+
+    Returns
+    -------
+    Any
+       The new random generator with state `state`.
+    """
+    gen = torch.Generator()
+    gen.set_state(state)
+    return gen
