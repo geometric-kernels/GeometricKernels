@@ -6,8 +6,8 @@ import tensorflow as tf
 import torch
 
 from geometric_kernels.kernels.feature_maps import (
-    deterministic_feature_map,
-    random_phase_feature_map,
+    deterministic_feature_map_compact,
+    random_phase_feature_map_compact,
 )
 from geometric_kernels.kernels.geometric_kernels import (
     MaternIntegratedKernel,
@@ -170,10 +170,10 @@ def test_feature_map_dtype(kl_spacepoint, dtype, backend):
     )
 
     # make sure it runs
-    feature_map = deterministic_feature_map(space, kernel)
+    feature_map = deterministic_feature_map_compact(space, kernel)
     feature_map(point, params, state)
 
     # make sure it runs
     key = B.create_random_state(B.dtype(point), seed=1234)
-    feature_map = random_phase_feature_map(space, kernel)
+    feature_map = random_phase_feature_map_compact(space, kernel)
     feature_map(point, params, state, key)
