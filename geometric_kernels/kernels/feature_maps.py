@@ -4,7 +4,6 @@ Feature maps
 from typing import Dict
 
 import lab as B
-from plum import dispatch
 
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.lab_extras import from_numpy
@@ -12,8 +11,7 @@ from geometric_kernels.sampling.probability_densities import base_density_sample
 from geometric_kernels.spaces import DiscreteSpectrumSpace, NoncompactSymmetricSpace
 
 
-@dispatch
-def deterministic_feature_map(
+def deterministic_feature_map_compact(
     space: DiscreteSpectrumSpace,
     kernel: MaternKarhunenLoeveKernel,
 ):
@@ -46,8 +44,7 @@ def deterministic_feature_map(
     return _map
 
 
-@dispatch
-def random_phase_feature_map(
+def random_phase_feature_map_compact(
     space: DiscreteSpectrumSpace,
     kernel: MaternKarhunenLoeveKernel,
     num_random_phases=3000,
@@ -83,8 +80,9 @@ def random_phase_feature_map(
     return _map
 
 
-@dispatch
-def random_phase_feature_map(space: NoncompactSymmetricSpace, num_random_phases=3000):
+def random_phase_feature_map_noncompact(
+    space: NoncompactSymmetricSpace, num_random_phases=3000
+):
     r"""
     Random phase feature map for noncompact symmetric space based on naive algorithm.
     """
