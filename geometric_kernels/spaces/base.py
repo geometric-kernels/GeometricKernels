@@ -69,6 +69,43 @@ class DiscreteSpectrumSpace(Space):
         raise NotImplementedError
 
 
+class NoncompactSymmetricSpace(Space):
+    """
+    Non-compact symmetric space.
+
+    Examples include the `Hyperbolic` space and `SPD` space.
+    """
+
+    @abc.abstractmethod
+    def inv_harish_chandra(self, X: B.Numeric) -> B.Numeric:
+        """
+        (Multiplicative) inverse of the Harish-Chandra function.
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def power_function(self, lam, g, h) -> B.Numeric:
+        r"""
+        Power function :math:`p^{\lambda)(g, h) = \exp(i \lambda + \rho) a(h \cdot g)`.
+
+        Zonal spherical functions are defined as :math:`\pi^{\lambda}(g) = \int_{H} p^{\lambda}(g, h) d\mu_H(h)`
+        """
+        raise NotImplementedError
+
+    @abc.abstractproperty
+    def rho(self):
+        r"""
+        `rho` vector.
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def random_phases(self, key, num) -> B.Numeric:
+        r"""
+        Random samples from Haar measure on the isotropy group of the symmetric space.
+        """
+
+
 class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
     """
     Converts the array of eigenvectors to callable objects,

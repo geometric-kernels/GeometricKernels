@@ -95,3 +95,42 @@ def dtype_integer(reference: B.TFRandomState):  # type: ignore
     Return `int` dtype of a backend based on the reference.
     """
     return tf.int32
+
+
+@dispatch
+def get_random_state(key: B.TFRandomState):
+    """
+    Return the random state of a random generator.
+
+    Parameters
+    ----------
+    key : B.TFRandomState
+        The key used to generate the random state.
+
+    Returns
+    -------
+    Any
+        The random state of the random generator.
+    """
+    return key.state
+
+
+@dispatch
+def restore_random_state(key: B.TFRandomState, state):
+    """
+    Set the random state of a random generator.
+
+    Parameters
+    ----------
+    key : B.TFRandomState
+        The random generator.
+    state : Any
+        The new random state of the random generator.
+
+    Returns
+    -------
+    Any
+       The new random generator with state `state`.
+    """
+    gen = tf.random.Generator(state=state)
+    return gen

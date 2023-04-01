@@ -74,3 +74,38 @@ def dtype_integer(reference: B.NPRandomState):  # type: ignore
     Return `int` dtype of a backend based on the reference.
     """
     return np.int64
+
+
+@dispatch
+def get_random_state(key: B.NPRandomState):
+    """
+    Return the random state of a random generator.
+
+    Parameters
+    ----------
+    key : Any
+        The key used to generate the random state.
+
+    Returns
+    -------
+    Any
+        The random state of the random generator.
+    """
+    return key.get_state()
+
+
+@dispatch
+def restore_random_state(key: B.NPRandomState, state):
+    """
+    Set the random state of a random generator.
+
+    Parameters
+    ----------
+    key : B.NPRandomState
+        The random generator.
+    state : Any
+        The new random state of the random generator.
+    """
+    gen = np.random.RandomState()
+    gen.set_state(state)
+    return gen

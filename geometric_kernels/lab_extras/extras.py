@@ -100,3 +100,41 @@ def dtype_integer(reference):
     """
     Return `int` dtype of a backend based on the reference.
     """
+
+
+@dispatch
+@abstract()
+def get_random_state(key):
+    """
+    Return the random state of a random generator.
+
+    Parameters
+    ----------
+    key : Any
+        The random generator.
+
+    Returns
+    -------
+    Any
+        The random state of the random generator.
+    """
+
+
+@dispatch
+@abstract()
+def restore_random_state(key, state):
+    """
+    Set the random state of a random generator.
+
+    Parameters
+    ----------
+    key : Any
+        The random generator.
+    state : Any
+        The new random state of the random generator.
+
+    Returns
+    -------
+    Any
+       The new random generator with state `state`.
+    """

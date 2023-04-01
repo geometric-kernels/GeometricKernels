@@ -8,70 +8,110 @@ from plum import dispatch
 
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.lab_extras import from_numpy
-from geometric_kernels.spaces import DiscreteSpectrumSpace
+from geometric_kernels.sampling.probability_densities import base_density_sample
+from geometric_kernels.spaces import DiscreteSpectrumSpace, NoncompactSymmetricSpace
 
 
 @dispatch
 def deterministic_feature_map(
     space: DiscreteSpectrumSpace,
     kernel: MaternKarhunenLoeveKernel,
-    params,
-    state,
 ):
-    assert "eigenvalues_laplacian" in state
-    assert "eigenfunctions" in state
+    r"""
+    Deterministic feature map for compact spaces based on the Laplacian eigendecomposition.
+    """
 
-    repeated_eigenvalues = space.get_repeated_eigenvalues(kernel.num_eigenfunctions)
-    spectrum = kernel._spectrum(
-        repeated_eigenvalues**0.5,
-        nu=params["nu"],
-        lengthscale=params["lengthscale"],
-    )
+    def _map(X: B.Numeric, params, state, **kwargs) -> B.Numeric:
+        assert "eigenvalues_laplacian" in state
+        assert "eigenfunctions" in state
 
-    weights = B.transpose(B.power(spectrum, 0.5))  # [1, M]
-    Phi = state["eigenfunctions"]
+        repeated_eigenvalues = space.get_repeated_eigenvalues(kernel.num_eigenfunctions)
+        spectrum = kernel._spectrum(
+            repeated_eigenvalues**0.5,
+            nu=params["nu"],
+            lengthscale=params["lengthscale"],
+        )
 
-    def _map(X: B.Numeric) -> B.Numeric:
+        weights = B.transpose(B.power(spectrum, 0.5))  # [1, M]
+        Phi = state["eigenfunctions"]
+
         eigenfunctions = Phi.__call__(X, **params)  # [N, M]
-        return B.cast(B.dtype(X), eigenfunctions) * B.cast(
+
+        _context: Dict[str, str] = {}  # no context
+        features = B.cast(B.dtype(X), eigenfunctions) * B.cast(
             B.dtype(X), weights
         )  # [N, M]
+        return features, _context
 
-    _context: Dict[str, str] = {}  # no context
-
-    return _map, _context
+    return _map
 
 
 @dispatch
 def random_phase_feature_map(
     space: DiscreteSpectrumSpace,
     kernel: MaternKarhunenLoeveKernel,
-    params,
-    state,
-    key,
-    order=100,
+    num_random_phases=3000,
 ):
-    key, random_phases = space.random(key, order)  # [O, D]
-    eigenvalues = state["eigenvalues_laplacian"]
+    r"""
+    Random phase feature map for compact spaces based on the Laplacian eigendecomposition.
+    """
 
-    spectrum = kernel._spectrum(
-        eigenvalues**0.5,
-        nu=params["nu"],
-        lengthscale=params["lengthscale"],
-    )
+    def _map(X: B.Numeric, params, state, key, **kwargs) -> B.Numeric:
+        key, random_phases = space.random(key, num_random_phases)  # [O, D]
+        eigenvalues = state["eigenvalues_laplacian"]
 
-    weights = B.power(spectrum, 0.5)  # [L, 1]
-    Phi = state["eigenfunctions"]
+        spectrum = kernel._spectrum(
+            eigenvalues**0.5,
+            nu=params["nu"],
+            lengthscale=params["lengthscale"],
+        )
 
-    def _map(X: B.Numeric) -> B.Numeric:
+        weights = B.power(spectrum, 0.5)  # [L, 1]
+        Phi = state["eigenfunctions"]
+
         # X [N, D]
         random_phases_b = B.cast(B.dtype(X), from_numpy(X, random_phases))
         embedding = B.cast(
             B.dtype(X), Phi.phi_product(X, random_phases_b, **params)
         )  # [N, O, L]
         weights_t = B.cast(B.dtype(X), B.transpose(weights))
-        return B.reshape(embedding * weights_t, B.shape(X)[0], -1)  # [N, O*L]
 
-    _context: Dict[str, str] = {"key": key}
+        features = B.reshape(embedding * weights_t, B.shape(X)[0], -1)  # [N, O*L]
+        _context: Dict[str, str] = {"key": key}
+        return features, _context
 
-    return _map, _context
+    return _map
+
+
+@dispatch
+def random_phase_feature_map(space: NoncompactSymmetricSpace, num_random_phases=3000):
+    r"""
+    Random phase feature map for noncompact symmetric space based on naive algorithm.
+    """
+
+    def _map(X: B.Numeric, params, state, key, **kwargs) -> B.Numeric:
+        key, random_phases = space.random_phases(key, num_random_phases)  # [O, D]
+
+        key, random_lambda = base_density_sample(
+            key, (num_random_phases,), params, space.dimension
+        )  # [O, ]
+
+        # X [N, D]
+        random_phases_b = B.expand_dims(
+            B.cast(B.dtype(X), from_numpy(X, random_phases))
+        )  # [1, O, D]
+        random_lambda_b = B.expand_dims(
+            B.cast(B.dtype(X), from_numpy(X, random_lambda))
+        )  # [1, O]
+
+        p = space.power_function(random_lambda_b, X[:, None], random_phases_b)  # [N, O]
+        c = space.inv_harish_chandra(random_lambda_b)  # [1, O]
+
+        out = B.concat(B.real(p) * c, B.imag(p) * c, axis=-1)  # [N, 2*O]
+        normalizer = B.sqrt(B.sum(out**2, axis=-1, squeeze=False))
+        out = out / normalizer
+
+        _context: Dict[str, B.types.RandomState] = {"key": key}
+        return out, _context
+
+    return _map

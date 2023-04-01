@@ -4,13 +4,14 @@ Implementation of geometric kernels on several spaces
 
 import lab as B
 import numpy as np
+from opt_einsum import contract as einsum
 
 from geometric_kernels.kernels import BaseGeometricKernel
 from geometric_kernels.lab_extras import from_numpy, logspace, trapz
-from geometric_kernels.spaces.base import DiscreteSpectrumSpace
+from geometric_kernels.spaces.base import DiscreteSpectrumSpace, Space
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 from geometric_kernels.spaces.hyperbolic import Hyperbolic
-from geometric_kernels.utils.utils import Optional
+from geometric_kernels.utils.utils import Optional, make_deterministic
 
 
 class MaternKarhunenLoeveKernel(BaseGeometricKernel):
@@ -136,6 +137,48 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         Phi = state["eigenfunctions"]
 
         return Phi.weighted_outerproduct_diag(weights, X, **params)  # [N,]
+
+
+class MaternFeatureMapKernel(BaseGeometricKernel):
+    r"""
+    This class computes a (Matérn) kernel based on a feature map.
+
+    For every kernel `k` on a space `X`, there is a map :math:`\phi` from the space `X`
+    to some (possibly infinite-dimensional) space :math:`\mathcal{H}` such that:
+
+    .. math :: k(x, y) = \langle \phi(x), \phi(y) \rangle_{\mathcal{H}}
+
+    where :math:`\langle \cdot , \rangle_{\mathcal{H}}` means inner product.
+
+    One can approximate the kernel using a finite-dimensional approximation to
+    :math:`\phi` which we call a `feature map`.
+
+    What makes this kernel specifically Matérn is that it has
+    a smoothness parameter `nu` and a lengthscale parameter `lengthscale`.
+    """
+
+    def __init__(self, space: Space, feature_map, key):
+        super().__init__(space)
+        self.feature_map = make_deterministic(feature_map, key)
+
+    def init_params_and_state(self):
+        params = dict(nu=np.array(0.5), lengthscale=np.array(1.0))
+        state = dict()
+        return params, state
+
+    def K(self, params, state, X, X2=None, **kwargs):
+        features_X, _ = self.feature_map(X, params, state, **kwargs)  # [N, O]
+        if X2 is not None:
+            features_X2, _ = self.feature_map(X2, params, state, **kwargs)  # [M, O]
+        else:
+            features_X2 = features_X
+
+        feature_product = einsum("no,mo->nm", features_X, features_X2)
+        return feature_product
+
+    def K_diag(self, params, state, X, **kwargs):
+        features_X = self.feature_map(X, params, state, **kwargs)  # [N, O]
+        return B.sum(features_X**2, axis=-1)  # [N, ]
 
 
 class MaternIntegratedKernel(BaseGeometricKernel):
