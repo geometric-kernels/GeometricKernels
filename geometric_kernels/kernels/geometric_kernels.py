@@ -177,7 +177,7 @@ class MaternFeatureMapKernel(BaseGeometricKernel):
         return feature_product
 
     def K_diag(self, params, state, X, **kwargs):
-        features_X = self.feature_map(X, params, state, **kwargs)  # [N, O]
+        features_X, _ = self.feature_map(X, params, state, **kwargs)  # [N, O]
         return B.sum(features_X**2, axis=-1)  # [N, ]
 
 

@@ -9,8 +9,9 @@ from plum import dispatch
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.lab_extras import from_numpy
 from geometric_kernels.sampling.probability_densities import base_density_sample
-from geometric_kernels.spaces import DiscreteSpectrumSpace, NoncompactSymmetricSpace
-
+from geometric_kernels.sampling.probability_densities import hyperbolic_density_sample
+from geometric_kernels.spaces import DiscreteSpectrumSpace
+from geometric_kernels.spaces import NoncompactSymmetricSpace, Hyperbolic
 
 @dispatch
 def deterministic_feature_map(
@@ -108,6 +109,38 @@ def random_phase_feature_map(space: NoncompactSymmetricSpace, num_random_phases=
         c = space.inv_harish_chandra(random_lambda_b)  # [1, O]
 
         out = B.concat(B.real(p) * c, B.imag(p) * c, axis=-1)  # [N, 2*O]
+        normalizer = B.sqrt(B.sum(out**2, axis=-1, squeeze=False))
+        out = out / normalizer
+
+        _context: Dict[str, B.types.RandomState] = {"key": key}
+        return out, _context
+
+    return _map
+
+@dispatch
+def random_phase_feature_map_rs(space: Hyperbolic, num_random_phases=3000):
+    r"""
+    Random phase feature map for noncompact symmetric space based on naive algorithm.
+    """
+
+    def _map(X: B.Numeric, params, state, key, **kwargs) -> B.Numeric:
+        key, random_phases = space.random_phases(key, num_random_phases)  # [O, D]
+
+        key, random_lambda = hyperbolic_density_sample(
+            key, (num_random_phases,), params, space.dimension
+        )  # [O, ]
+
+        # X [N, D]
+        random_phases_b = B.expand_dims(
+            B.cast(B.dtype(X), from_numpy(X, random_phases))
+        )  # [1, O, D]
+        random_lambda_b = B.expand_dims(
+            B.cast(B.dtype(X), from_numpy(X, random_lambda))
+        )  # [1, O]
+
+        p = space.power_function(random_lambda_b, X[:, None], random_phases_b)  # [N, O]
+
+        out = B.concat(B.real(p), B.imag(p), axis=-1)  # [N, 2*O]
         normalizer = B.sqrt(B.sum(out**2, axis=-1, squeeze=False))
         out = out / normalizer
 
