@@ -3,7 +3,33 @@ from typing import Union
 
 import sys
 
-from lie_stationary_kernels.spaces.so import SOEigenfunction
+from lie_stationary_kernels.spaces.so import SOEigenfunctions
+
+import importlib.resources as pkg_resources
+
+from geometric_kernels import resources
+
+# set to True to recalculate all characters, set to False to add to the already existing without recalculating
+recalculate = False
+
+storage_file_name = 'precomputed_characters.json'
+
+# the number of representations to be calculated for each group
+order = 20
+
+groups = [
+    ('SO', 3, SOEigenfunctions),
+    ('SO', 4, SOEigenfunctions),
+    ('SO', 5, SOEigenfunctions),
+    ('SO', 6, SOEigenfunctions),
+    ('SO', 7, SOEigenfunctions),
+    ('SO', 8, SOEigenfunctions),
+    # (SU, 2, SUCharacter),
+    # (SU, 3, SUCharacter),
+    # (SU, 4, SUCharacter),
+    # (SU, 5, SUCharacter),
+    # (SU, 6, SUCharacter),
+]
 
 
 class CompactJSONEncoder(json.JSONEncoder):
@@ -72,28 +98,6 @@ class CompactJSONEncoder(json.JSONEncoder):
 #  Below are the settings and the script for calculating the character parameters and writing them in a JSON file.  #
 #                                                                                                                   #
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-# set to True to recalculate all characters, set to False to add to the already existing without recalculating
-recalculate = False
-
-storage_file_name = 'precomputed_characters.json'
-
-groups = [
-    ('SO', 3, SOEigenfunction),
-    ('SO', 4, SOEigenfunction),
-    ('SO', 5, SOEigenfunction),
-    ('SO', 6, SOEigenfunction),
-    ('SO', 7, SOEigenfunction),
-    ('SO', 8, SOEigenfunction),
-    # (SU, 2, SUCharacter),
-    # (SU, 3, SUCharacter),
-    # (SU, 4, SUCharacter),
-    # (SU, 5, SUCharacter),
-    # (SU, 6, SUCharacter),
-]
-
-# the number of representations to be calculated for each group
-order = 20
 
 characters = {}
 if not recalculate:

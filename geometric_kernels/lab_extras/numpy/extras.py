@@ -33,6 +33,14 @@ def trapz(y: _Numeric, x: _Numeric, dx: _Numeric = 1.0, axis: int = -1):  # type
 
 
 @dispatch
+def qr(a: _Numeric):
+    """
+    Compute QR factorization of a matrix.
+    """
+    return np.linalg.qr(a)
+
+
+@dispatch
 def norm(x: _Numeric, ord: Optional[Any] = None, axis: Optional[int] = None):  # type: ignore
     """
     Matrix or vector norm.

@@ -10,119 +10,16 @@ from opt_einsum import contract as einsum
 from pathlib import Path
 from sympy.matrices.determinant import _det as sp_det
 from functools import reduce
-from geometric_kernels.lab_extras import dtype_double, from_numpy
+from geometric_kernels.lab_extras import dtype_double, from_numpy, qr, take_along_axis
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import EigenfunctionWithAdditionTheorem, Eigenfunctions
+from geometric_kernels.utils.utils import fixed_length_partitions, partition_dominance_cone, partition_dominance_or_subpartition_cone
 
+from geometric_kernels.spaces.lie_groups import LieGroup, LieGroupAddtitionTheorem, LieGroupCharacter
+from geomstats.geometry.special_orthogonal import SpecialOrthogonal
 
-from geometric_kernels.spaces.lie_spaces import LieGroup, LieGroupAddtitionTheorem, LieGroupCharacter
-import geomstats as gs
-
-
-
-def fixed_length_partitions(n, L):
-    """
-    https://www.ics.uci.edu/~eppstein/PADS/IntegerPartitions.py
-    Integer partitions of n into L parts, in colex order.
-    The algorithm follows Knuth v4 fasc3 p38 in rough outline;
-    Knuth credits it
-     to Hindenburg, 1779.
-    """
-
-    # guard against special cases
-    if L == 0:
-        if n == 0:
-            yield []
-        return
-    if L == 1:
-        if n > 0:
-            yield [n]
-        return
-    if n < L:
-        return
-
-    partition = [n - L + 1] + (L - 1) * [1]
-    while True:
-        yield partition.copy()
-        if partition[0] - 1 > partition[1]:
-            partition[0] -= 1
-            partition[1] += 1
-            continue
-        j = 2
-        s = partition[0] + partition[1] - 1
-        while j < L and partition[j] >= partition[0] - 1:
-            s += partition[j]
-            j += 1
-        if j >= L:
-            return
-        partition[j] = x = partition[j] + 1
-        j -= 1
-        while j > 0:
-            partition[j] = x
-            s -= x
-            j -= 1
-        partition[0] = s
-
-
-def partition_dominance_cone(partition):
-    '''
-    Calculates partitions dominated by a given one
-    and having the same number of parts (including zero parts of the original)
-    '''
-    cone = {partition}
-    new_partitions = {0}
-    prev_partitions = cone
-    while new_partitions:
-        new_partitions = set()
-        for partition in prev_partitions:
-            for i in range(len(partition) - 1):
-                if partition[i] > partition[i + 1]:
-                    for j in range(i + 1, len(partition)):
-                        if partition[i] > partition[j] + 1 and partition[j] < partition[j - 1]:
-                            new_partition = list(partition)
-                            new_partition[i] -= 1
-                            new_partition[j] += 1
-                            new_partition = tuple(new_partition)
-                            if new_partition not in cone:
-                                new_partitions.add(new_partition)
-        cone.update(new_partitions)
-        prev_partitions = new_partitions
-    return cone
-
-
-def partition_dominance_or_subpartition_cone(partition):
-    '''
-        Calculates subpartitions and partitions dominated by a given one
-        and having the same number of parts (including zero parts of the original)
-        '''
-    cone = {partition}
-    new_partitions = {0}
-    prev_partitions = cone
-    while new_partitions:
-        new_partitions = set()
-        for partition in prev_partitions:
-            for i in range(len(partition) - 1):
-                if partition[i] > partition[i + 1]:
-                    new_partition = list(partition)
-                    new_partition[i] -= 1
-                    new_partition = tuple(new_partition)
-                    if new_partition not in cone:
-                        new_partitions.add(new_partition)
-                    for j in range(i + 1, len(partition)):
-                        if partition[i] > partition[j] + 1 and partition[j] < partition[j - 1]:
-                            new_partition = list(partition)
-                            new_partition[i] -= 1
-                            new_partition[j] += 1
-                            new_partition = tuple(new_partition)
-                            if new_partition not in cone:
-                                new_partitions.add(new_partition)
-        cone.update(new_partitions)
-        prev_partitions = new_partitions
-    return cone
-
-
-class SOEigenfunction(LieGroupAddtitionTheorem):
-    def __init__(self, num_levels, n, init_eigenfunctions=True):
+class SOEigenfunctions(LieGroupAddtitionTheorem):
+    def __init__(self, n, num_levels,  init_eigenfunctions=True):
         self.n = n
         self.dim = n * (n-1) // 2
         self.rank = n // 2
@@ -133,20 +30,19 @@ class SOEigenfunction(LieGroupAddtitionTheorem):
             self.rho = np.arange(self.rank - 1, -1, -1) + 0.5
 
         self._num_levels = num_levels
-        self._signatures = self.generate_signatures(self._num_levels) # both have the length num_levels
-        self._eigenvalues = np.array([self.compute_eigenvalue(signature) for signature in self._signatures])
-        self._dimensions = np.array([self.compute_dimension(signature) for signature in self._signatures])
+        self._signatures = self._generate_signatures(self._num_levels)
+        self._eigenvalues = np.array([self._compute_eigenvalue(signature) for signature in self._signatures])
+        self._dimensions = np.array([self._compute_dimension(signature) for signature in self._signatures])
+
         if init_eigenfunctions:
             self._characters = [SOCharacter(n, signature) for signature in self._signatures]
 
-
-
-    def _generate_signatures(self):
-        """Generate the signatures of irreducible representations
-                Representations of SO(dim) can be enumerated by partitions of size dim, called signatures.
-                :param int order: number of eigenfunctions that will be returned
-                :return signatures: signatures of representations likely having the smallest LB eigenvalues
-                """
+    def _generate_signatures(self, num_levels):
+        """
+        Generate the signatures of irreducible representations
+        Representations of SO(dim) can be enumerated by partitions of size dim, called signatures.
+        :return signatures: list of signatures of representations likely having the smallest LB eigenvalues
+        """
         signatures = []
         if self.n == 3:
             signature_sum = 200
@@ -160,9 +56,13 @@ class SOEigenfunction(LieGroupAddtitionTheorem):
                     if self.n % 2 == 0 and signature[-1] != 0:
                         signature[-1] = -signature[-1]
                         signatures.append(tuple(signature))
+
+        dimensions = [self._compute_eigenvalue(signature) for signature in signatures]
+        min_ind = np.argpartition(dimensions, num_levels)[:num_levels]
+        signatures = [signatures[i] for i in min_ind]
         return signatures
 
-    def compute_dimension(self, signature):
+    def _compute_dimension(self, signature):
         if self.n % 2 == 1:
             qs = [pk + self.rank - k - 1 / 2 for k, pk in enumerate(signature)]
             rep_dim = reduce(operator.mul, (2 * qs[k] / math.factorial(2 * k + 1) for k in range(0, self.rank))) \
@@ -179,7 +79,7 @@ class SOEigenfunction(LieGroupAddtitionTheorem):
     def _compute_eigenvalue(self, signature):
         np_sgn = np.array(signature)
         rho = self.rho
-        eigenvalue = (np.linalg.norm(rho + np_sgn) ** 2 - np.linalg.norm(rho) ** 2)  # / killing_form_coeff
+        eigenvalue = (np.linalg.norm(rho + np_sgn) ** 2 - np.linalg.norm(rho) ** 2)
         return eigenvalue.item()
 
     def _torus_representative(self, X):
@@ -188,25 +88,26 @@ class SOEigenfunction(LieGroupAddtitionTheorem):
             if self.n == 3:
                 # In SO(3) the torus representative is determined by the non-trivial pair of eigenvalues,
                 # which can be calculated from the trace
-                trace = einsum('...ii->...', X)
+                trace = B.expand_dims(B.trace(X), axis=-1)
                 real = (trace - 1) / 2
-                imag = B.sqrt(B.max(1 - B.square(real), B.zeros_like(real)))
-                return B.view_as_complex(B.cat((real.unsqueeze(-1), imag.unsqueeze(-1)), -1)).unsqueeze(-1)
+                zeros = real * 0
+                imag = B.sqrt(B.maximum(1 - real*real, zeros))
+                return real + 1j*imag
             elif self.n % 2 == 1:
                 # In SO(2n+1) the torus representative is determined by the (unordered) non-trivial eigenvalues
-                eigvals = B.linalg.eigvals(X)
-                sorted_ind = B.sort(B.view_as_real(eigvals), dim=-2).indices[..., 0]
-                eigvals = B.gather(eigvals, dim=-1, index=sorted_ind)
+                eigvals = B.eig(X, False)
+                sorted_ind = B.argsort(B.real(eigvals), axis=-1)
+                eigvals = take_along_axis(eigvals, sorted_ind, -1)
                 gamma = eigvals[..., 0:-1:2]
                 return gamma
             else:
                 # In SO(2n) each unordered set of eigenvalues determines two conjugacy classes
-                eigvals, eigvecs = B.linalg.eig(X)
-                sorted_ind = B.sort(B.view_as_real(eigvals), dim=-2).indices[..., 0]
-                eigvals = B.gather(eigvals, dim=-1, index=sorted_ind)
-                eigvecs = B.gather(eigvecs, dim=-1, index=sorted_ind.unsqueeze(-2).broadcast_to(eigvecs.shape))
+                eigvals, eigvecs = B.eig(X)
+                sorted_ind = B.argsort(B.real(eigvals), axis=-1)
+                eigvals = take_along_axis(eigvals, sorted_ind, -1)
+                eigvecs = take_along_axis(eigvecs, B.broadcast_to(B.expand_dims(sorted_ind, axis=-2), *eigvecs.shape), -1)
                 # c is a matrix transforming x into its canonical form (with 2x2 blocks)
-                c = B.zeros_like(eigvecs)
+                c = 0*eigvecs
                 c[..., ::2] = eigvecs[..., ::2] + eigvecs[..., 1::2]
                 c[..., 1::2] = (eigvecs[..., ::2] - eigvecs[..., 1::2])
                 # eigenvectors calculated by LAPACK are either real or purely imaginary, make everything real
@@ -214,7 +115,7 @@ class SOEigenfunction(LieGroupAddtitionTheorem):
                 c = c.real + c.imag
                 # normalize s.t. det(c)≈±1, probably unnecessary
                 c /= math.sqrt(2)
-                B.pow(eigvals[..., 0], B.det(c).sgn(), out=eigvals[..., 0])
+                eigvals[..., 0] = B.power(eigvals[..., 0], B.sign(B.det(c)))
                 gamma = eigvals[..., ::2]
                 return gamma
 
@@ -280,16 +181,15 @@ class SOEigenfunction(LieGroupAddtitionTheorem):
         monoms = [list(map(int, monom)) for monom in p.monoms()]
         return coeffs, monoms
 
-    def _inverse(self, X: B.Numeric) -> B.Numeric:
-        return B.inverse(X)
+    def inverse(self, X: B.Numeric) -> B.Numeric:
+        return B.transpose(X)
 
     def num_levels(self) -> int:
             """Number of levels, L"""
             return self._num_levels
 
     def num_eigenfunctions_per_level(self) -> int:
-        """Number of eigenfunctions per level
-        Is it right?"""
+        """Number of eigenfunctions per level"""
         return self._dimensions
 
 
@@ -300,69 +200,109 @@ class SOCharacter(LieGroupCharacter):
         self.coeffs, self.monoms = self._load()
 
     def _load(self):
-        group_name = '{SO}({})'.format(self.n)
+        group_name = 'SO({})'.format(self.n)
         file_path = Path(__file__).with_name('precomputed_characters.json')
         with file_path.open('r') as file:
             character_formulas = json.load(file)
             try:
                 cs, ms = character_formulas[group_name][str(self.signature)]
-                self.coeffs, self.monoms = (np.array(data) for data in (cs, ms))
+                coeffs, monoms = (np.array(data) for data in (cs, ms))
+                return coeffs, monoms
             except KeyError as e:
                 raise KeyError('Unable to retrieve character parameters for signature {} of {}, '
-                               'perhaps it is not precomputed.'.format(e.args[0], group_name)) from None
+                               'perhaps it is not precomputed.'
+                               'Run compute_characters.py with changed parameters.'.format(e.args[0], group_name)) from None
 
     def __call__(self, gammas):
-        gammas = B.cat((gammas, gammas.conj()), dim=-1)
-        char_val = B.zeros(B.dtype(gammas), gammas.shape[:-1])
+        gammas = B.concat(gammas, gammas.conj(), axis=-1)
+        char_val = B.zeros(B.dtype(gammas), *gammas.shape[:-1])
         for coeff, monom in zip(self.coeffs, self.monoms):
-            char_val += coeff * B.prod(gammas ** from_numpy(gammas, monom), dim=-1)
+            char_val += coeff * B.prod(gammas ** from_numpy(gammas, monom), axis=-1)
         return char_val
 
 
-class SOGroup(LieGroup, gs.geometry.special_orthogonal):
+class SOGroup(LieGroup): #, SpecialOrthogonal):
     r"""
     The d-dimensional hypersphere embedded in the (d+1)-dimensional Euclidean space.
     """
     def __init__(self, n):
         self.n = n
         self.dim = n * (n-1) // 2
+        LieGroup.__init__(self)
+
+
+    @property
+    def dimension(self) -> int:
+        return self.dim
+
+    def inverse(self, X: B.Numeric) -> B.Numeric:
+        return B.transpose(X)
+
+    def get_eigenfunctions(self, num: int) -> Eigenfunctions:
+        """
+        :param num: number of eigenfunctions returned.
+        """
+        return SOEigenfunctions(self.n, num)
+
+    def get_eigenvalues(self, num: int) -> B.Numeric:
+        """
+        First `num` eigenvalues of the Laplace-Beltrami operator
+
+        :return: [num, 1] array containing the eigenvalues
+        """
+        eigenfunctions = SOEigenfunctions(self.n, num)
+        eigenvalues = np.array(
+            [eigenvalue for eigenvalue in eigenfunctions._eigenvalues]
+        )
+        return B.reshape(eigenvalues, -1, 1)  # [num, 1]
+
+    def get_repeated_eigenvalues(self, num: int) -> B.Numeric:
+        """Eigenvalues of first 'num' levels of the Laplace-Beltrami operator,
+        repeated according to their multiplicity.
+
+        :return: [M, 1] array containing the eigenvalues
+        """
+        eigenfunctions = SOEigenfunctions(self.n, num)
+        eigenvalues = np.array(
+            itertools.chain([
+                [eigenfunction] * dim
+                for eigenfunction, dim in zip(eigenfunctions._eigenvalues, eigenfunctions._dimensions)
+            ])
+        )
+        return B.reshape(eigenvalues, -1, 1)  # [M, 1]
 
     def random(self, key, number):
         if self.n == 2:
             # SO(2) = S^1
-            thetas = 2 * math.pi * B.random.randn(key, dtype_double(key), number, 1)
+            key, thetas = B.random.randn(key, dtype_double(key), number, 1)
+            thetas = 2 * math.pi * thetas
             c = B.cos(thetas)
             s = B.sin(thetas)
             r1 = B.hstack((c, s)).unsqueeze(-2)
             r2 = B.hstack((-s, c)).unsqueeze(-2)
             q = B.cat((r1, r2), dim=-2)
-            return q
+            return key, q
         elif self.n == 3:
             # explicit parametrization via the double cover SU(2) = S^3
-            sphere_point = B.random.randn(key, dtype_double(key), number, 4)
-            sphere_point /= B.linalg.vector_norm(sphere_point, dim=-1, keepdim=True)
-            x, y, z, w = (sphere_point[..., i].unsqueeze(-1) for i in range(4))
-            xx = x ** 2
-            yy = y ** 2
-            zz = z ** 2
-            xy = x * y
-            xz = x * z
-            xw = x * w
-            yz = y * z
-            yw = y * w
-            zw = z * w
-            del sphere_point, x, y, z, w
-            r1 = B.hstack((1-2*(yy+zz), 2*(xy-zw), 2*(xz+yw))).unsqueeze(-1)
-            r2 = B.hstack((2*(xy+zw), 1-2*(xx+zz), 2*(yz-xw))).unsqueeze(-1)
-            r3 = B.hstack((2*(xz-yw), 2*(yz+xw), 1-2*(xx+yy))).unsqueeze(-1)
-            del xx, yy, zz, xy, xz, xw, yz, yw, zw
-            q = B.cat((r1, r2, r3), -1)
-            return q
+            key, sphere_point = B.random.randn(key, dtype_double(key), number, 4)
+            sphere_point /= B.reshape(B.sqrt(einsum('ij,ij->i', sphere_point, sphere_point)), -1, 1)
+
+            x, y, z, w = (B.reshape(sphere_point[..., i], -1, 1) for i in range(4))
+            xx, yy, zz = x ** 2, y ** 2, z ** 2
+            xy, xz, xw, yz, yw, zw = x * y, x * z, x * w, y * z, y * w, z * w
+
+            r1 = B.stack(1-2*(yy+zz), 2*(xy-zw), 2*(xz+yw), axis=1)
+            r2 = B.stack(2*(xy+zw), 1-2*(xx+zz), 2*(yz-xw), axis=1)
+            r3 = B.stack(2*(xz-yw), 2*(yz+xw), 1-2*(xx+yy), axis=1)
+
+            q = B.concat(r1, r2, r3, axis=-1)
+            return key, q
         else:
-            h = B.random.randn(key, dtype_double(key), number, self.n, self.n)
-            q, r = B.linalg.qr(h)
-            r_diag_sign = B.sign(B.diagonal(r, dim1=-2, dim2=-1))
+            # qr decomposition is not in the lab package, so numpy is used.
+            key, h = B.random.randn(key, dtype_double(key), number, self.n, self.n)
+            q, r = qr(h)
+            r_diag_sign = B.sign(einsum('...ii->...i', r))
             q *= r_diag_sign[:, None]
             q_det_sign = B.sign(B.det(q))
             q[:, :, 0] *= q_det_sign[:, None]
-            return q
+            return key, q

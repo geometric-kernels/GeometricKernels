@@ -33,6 +33,13 @@ def trapz(y: B.JAXNumeric, x: _Numeric, dx: _Numeric = 1.0, axis: int = -1):  # 
     """
     return jnp.trapz(y, x, dx, axis)
 
+@dispatch
+def qr(a: B.JAXNumeric):
+    """
+    Compute QR factorization of a matrix.
+    """
+    return jnp.linalg.qr(a)
+
 
 @dispatch
 def logspace(start: B.JAXNumeric, stop: _Numeric, num: int = 50):  # type: ignore

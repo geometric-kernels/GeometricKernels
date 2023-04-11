@@ -34,6 +34,14 @@ def trapz(y: _Numeric, x: _Numeric, dx=None, axis=-1):  # type: ignore
 
 
 @dispatch
+def qr(a: B.TFNumeric):
+    """
+    Compute QR factorization of a matrix.
+    """
+    return tf.linalg.qr(a)
+
+
+@dispatch
 def norm(x: _Numeric, ord: Optional[Any] = None, axis: Optional[int] = None):  # type: ignore
     """
     Matrix or vector norm.

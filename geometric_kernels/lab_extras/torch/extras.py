@@ -39,6 +39,14 @@ def trapz(y: B.TorchNumeric, x: _Numeric, dx: _Numeric = 1.0, axis: int = -1):  
 
 
 @dispatch
+def qr(a: B.TorchNumeric):
+    """
+    Compute QR factorization of a matrix.
+    """
+    return torch.linalg.qr(a)
+
+
+@dispatch
 def norm(x: _Numeric, ord: Optional[Any] = None, axis: Optional[int] = None):  # type: ignore
     """
     Matrix or vector norm.
