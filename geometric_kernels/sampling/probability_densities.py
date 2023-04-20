@@ -107,19 +107,25 @@ def prop16(key, alpha, lengthscale):
     :param alpha: unnormalized coefficients of the mixture.
     :param lengthscale: length scale (kappa).
 
-    TODO: labify.
     TODO: maybe rename this or integrate into the rejection sampler function.
     TODO: reparameterization trick.
     """
-    assert(len(alpha.shape) == 1)
+    # assert(len(alpha.shape) == 1)
+    assert B.rank(alpha) == 1
     m = len(alpha)-1
     assert(m >= 0)
-    js = np.arange(0, m+1)
-    beta = np.power(2, (1-js)/2)/gamma_function((js+1)/2)*lengthscale
-    cs_unnorm = alpha/beta
-    cs = cs_unnorm/np.sum(cs_unnorm)
-    ind = np.random.choice(np.arange(0, m+1), 1, p=cs)[0]
-    return key, np.sqrt(np.random.chisquare(ind+1))/lengthscale
+    dtype = B.dtype(lengthscale)
+    js = B.range(dtype, 0, m+1)
+    # Gamma((js+1)/2) should be positive real
+    beta = 2**((1-js)/2) / B.exp(B.loggamma((js+1)/2)) * lengthscale
+    # beta = np.power(2, (1-js)/2)/gamma_function((js+1)/2)*lengthscale
+    cs_unnorm = alpha / beta
+    cs = cs_unnorm / B.sum(cs_unnorm)
+    # ind = np.random.choice(np.arange(0, m+1), 1, p=cs)[0]
+    key, ind = B.choice(key, js, 1, p=cs)
+    key, s = B.randgamma(key, dtype, 1, alpha=(ind+1)/2, scale=2*B.ones(dtypes, 1))
+    s = B.sqrt(s) / lengthscale
+    return key, s
 
 def prop17(key, alpha, lengthscale, nu, dim):
     r"""
@@ -134,58 +140,40 @@ def prop17(key, alpha, lengthscale, nu, dim):
     :param nu: smoothness parameter of Matern kernels.
     :param dim: dimension of the hyperbolic space.
 
-    TODO: labify.
     TODO: maybe rename this or integrate into the rejection sampler function.
     TODO: reparameterization trick.
     """
-    assert(len(alpha.shape) == 1)
-    m = len(alpha)-1
+    # assert(len(alpha.shape) == 1)
+    assert B.rank(alpha) == 1
+    # m = len(alpha)-1
+    m = B.shape(alpha)[0] - 1
     assert(m >= 0)
-    js = np.arange(0, m+1)
-    gamma = 2*nu/lengthscale**2+((dim-1)/2)**2
-    beta = 2.0/beta_function((js+1)/2, nu+(dim-js-1)/2)
-    beta = beta*np.power(gamma, nu+(dim-js-1)/2)
-    cs_unnorm = alpha/beta
-    cs = cs_unnorm/np.sum(cs_unnorm)
-    ind = np.random.choice(np.arange(0, m+1), 1, p=cs)[0]
-    return key, np.sqrt(gamma*betaprime.rvs((ind+1)/2, nu+(dim-ind-1)/2))
+    # js = np.arange(0, m+1)
+    dtype = B.dtype(lengthscale)
+    js = B.range(dtype, 0, m+1)
+    gamma = 2 * nu/ lengthscale ** 2 + ((dim-1) / 2) ** 2
 
-#def hyperbolic_heat_density_sample(key, size, dim, lengthscale, dtype=None):
-#    r"""
-#    Sample from the spectral density of the heat kernel with length scale
-#    `lengthscale` on hyperbolic space of dimension `dim`, using `key` random
-#    state, returning sample of the shape `size`.
-#
-#    :param key: either `np.random.RandomState`, `tf.random.Generator`,
-#                `torch.Generator` or `jax.tensor` (representing random state).
-#    :param size: shape of the returned sample.
-#    :param dim: dimension of the hyperbolic space.
-#    :param lengthscale: length scale of the kernel.
-#    :param dtype: dtype of the returned tensor.
-#
-#    TODO: labify.
-#    """
-#    dtype = dtype or dtype_double(key)
-#
-#    alpha = alphas(dim)
-#    samples = []
-#    while len(samples) < prod(size):
-#        key, proposal = prop16(key, alpha, lengthscale)
-#        if ((dim % 2) == 1) or np.random.binomial(1, np.tanh(np.pi*proposal)):
-#            samples.append((-1)**(np.random.binomial(1, 0.5))*proposal)
-#    samples = np.array(samples).reshape(size)
-#    return key, B.cast(dtype, samples)
+    # B(x, y) = Gamma(x) Gamma(y) / Gamma(x+y)
+    beta = B.exp(
+        B.loggamma((js+1)/2) +
+        B.loggamma(nu+(dim-js-1)/2) -
+        B.loggamma(nu + dim / 2))
+    beta = 2.0 / beta
+    # beta = 2.0/beta_function((js+1)/2, nu+(dim-js-1)/2)
+    # beta = beta*np.power(gamma, nu+(dim-js-1)/2)
+    beta = beta * B.power(gamma, nu + (dim - js - 1) / 2)
+    cs_unnorm = alpha / beta
+    cs = cs_unnorm / B.sum(cs_unnorm)
+    # ind = np.random.choice(np.arange(0, m+1), 1, p=cs)[0]
+    key, ind = B.choice(key, js, 1, p=cs)
+    key, p = B.randbeta(key, dtype, 1, alpha=(ind+1)/2, beta=nu+(dim-ind-1)/2)
+    p = p / (1 - p)  # beta prime
+    s = B.sqrt(gamma * p)
+    return key, s
+
 
 def hyperbolic_density_sample(key, size, params, dim):
     r"""
-    The Matern kernel's spectral density is of the form
-    :math:`c(\lambda) p_{\nu,\kappa}(\lambda)`,
-    where :math:`\nu` is the smoothness parameter, :math:`\kappa`
-    is the lengthscale and :math:`p_{\nu,\kappa}` is the Student-t
-    or Normal density, depending on the smoothness.
-
-    We call it "base density" and this function returns a sample from it.
-
     :param key: either `np.random.RandomState`, `tf.random.Generator`,
                 `torch.Generator` or `jax.tensor` (representing random state).
     :param size: shape of the returned sample.
@@ -200,10 +188,11 @@ def hyperbolic_density_sample(key, size, params, dim):
 
     alpha = alphas(dim)
 
-    if nu==np.inf:
-        base_sampler = lambda key: prop16(key, alpha, L)
-    else:
-        base_sampler = lambda key: prop17(key, alpha, L, nu, dim)
+    def base_sampler(key):
+        if nu==np.inf:
+            return prop16(key, alpha, L)
+        else:
+            return prop17(key, alpha, L, nu, dim)
 
     samples = []
     while len(samples) < prod(size):
