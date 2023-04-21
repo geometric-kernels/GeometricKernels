@@ -2,7 +2,8 @@
 Sampling from the Gaussian and Student-t probability densities,
 backend-agnostic.
 """
-from math import prod
+import operator
+from functools import reduce
 
 import lab as B
 import numpy as np
@@ -192,7 +193,7 @@ def hyperbolic_density_sample(key, size, params, dim):
             return sample_mixture_matern(key, alpha, L, nu, dim)
 
     samples = []
-    while len(samples) < prod(size):
+    while len(samples) < reduce(operator.mul, size, 1):
         key, proposal = base_sampler(key)
 
         # accept with probability tanh(pi*proposal)
@@ -203,5 +204,5 @@ def hyperbolic_density_sample(key, size, params, dim):
         sign = B.sign(sign_z - 0.5)  # +1 or -1 with probability 0.5
         if ((dim % 2) == 1) or acceptance:
             samples.append(sign * proposal)
-    samples = np.array(samples).reshape(size)
+    samples = B.reshape(B.concat(*samples), *size)
     return key, B.cast(dtype_double(key), samples)
