@@ -91,7 +91,6 @@ def make_deterministic(f, key):
 
     def deterministic_f(*args, **kwargs):
         restored_key = restore_random_state(key, saved_random_state)
-        restored_key.set_state(saved_random_state)
         if key_argtype == "kwonly":
             kwargs["key"] = restored_key
             new_args = args

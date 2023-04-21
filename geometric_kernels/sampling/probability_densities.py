@@ -78,6 +78,7 @@ def base_density_sample(key, size, params, dim):
 
     return key, u / L
 
+
 def alphas(n):
     r"""
     Compute alphas for Prop. 16 & 17 for the hyperbolic space of dimension `n`.
@@ -87,7 +88,7 @@ def alphas(n):
     TODO: labify.
     TODO: precompute these, rather than computing in runtime.
     """
-    assert(n >= 2)
+    assert n >= 2
     x, j = symbols('x, j')
     if (n % 2) == 0:
         m = n//2
@@ -96,6 +97,7 @@ def alphas(n):
         m = (n-1)//2
         prod = Product(x**2+j**2, (j, 0, m-1)).doit()
     return np.array(Poly(prod, x).all_coeffs()).astype(np.float64)[::-1]
+
 
 def prop16(key, alpha, lengthscale):
     r"""
@@ -113,7 +115,7 @@ def prop16(key, alpha, lengthscale):
     # assert(len(alpha.shape) == 1)
     assert B.rank(alpha) == 1
     m = len(alpha)-1
-    assert(m >= 0)
+    assert m >= 0
     dtype = B.dtype(lengthscale)
     js = B.range(dtype, 0, m+1)
     # Gamma((js+1)/2) should be positive real
@@ -123,9 +125,10 @@ def prop16(key, alpha, lengthscale):
     cs = cs_unnorm / B.sum(cs_unnorm)
     # ind = np.random.choice(np.arange(0, m+1), 1, p=cs)[0]
     key, ind = B.choice(key, js, 1, p=cs)
-    key, s = B.randgamma(key, dtype, 1, alpha=(ind+1)/2, scale=2*B.ones(dtypes, 1))
+    key, s = B.randgamma(key, dtype, 1, alpha=(ind+1)/2, scale=2*B.ones(dtype, 1))
     s = B.sqrt(s) / lengthscale
     return key, s
+
 
 def prop17(key, alpha, lengthscale, nu, dim):
     r"""
@@ -147,11 +150,11 @@ def prop17(key, alpha, lengthscale, nu, dim):
     assert B.rank(alpha) == 1
     # m = len(alpha)-1
     m = B.shape(alpha)[0] - 1
-    assert(m >= 0)
+    assert m >= 0
     # js = np.arange(0, m+1)
     dtype = B.dtype(lengthscale)
     js = B.range(dtype, 0, m+1)
-    gamma = 2 * nu/ lengthscale ** 2 + ((dim-1) / 2) ** 2
+    gamma = 2 * nu / lengthscale ** 2 + ((dim-1) / 2) ** 2
 
     # B(x, y) = Gamma(x) Gamma(y) / Gamma(x+y)
     beta = B.exp(
@@ -189,7 +192,7 @@ def hyperbolic_density_sample(key, size, params, dim):
     alpha = alphas(dim)
 
     def base_sampler(key):
-        if nu==np.inf:
+        if nu == np.inf:
             return prop16(key, alpha, L)
         else:
             return prop17(key, alpha, L, nu, dim)
@@ -197,7 +200,11 @@ def hyperbolic_density_sample(key, size, params, dim):
     samples = []
     while len(samples) < prod(size):
         key, proposal = base_sampler(key)
-        if ((dim % 2) == 1) or np.random.binomial(1, np.tanh(np.pi*proposal)):
-            samples.append((-1)**(np.random.binomial(1, 0.5))*proposal)
+        key, u = B.rand(key, dtype_double(key), 1)
+        acceptance = B.all(u < B.tanh(B.pi * proposal))
+        key, sign_u = B.rand(key, dtype_double(key), 1)
+        sign = B.sign(sign_u - 0.5)
+        if ((dim % 2) == 1) or acceptance:
+            samples.append(sign*proposal)
     samples = np.array(samples).reshape(size)
     return key, B.cast(dtype_double(key), samples)
