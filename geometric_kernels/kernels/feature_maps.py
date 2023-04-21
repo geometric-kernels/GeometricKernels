@@ -8,10 +8,16 @@ from plum import dispatch
 
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.lab_extras import from_numpy
-from geometric_kernels.sampling.probability_densities import base_density_sample
-from geometric_kernels.sampling.probability_densities import hyperbolic_density_sample
-from geometric_kernels.spaces import DiscreteSpectrumSpace
-from geometric_kernels.spaces import NoncompactSymmetricSpace, Hyperbolic
+from geometric_kernels.sampling.probability_densities import (
+    base_density_sample,
+    hyperbolic_density_sample,
+)
+from geometric_kernels.spaces import (
+    DiscreteSpectrumSpace,
+    Hyperbolic,
+    NoncompactSymmetricSpace,
+)
+
 
 @dispatch
 def deterministic_feature_map(
@@ -116,6 +122,7 @@ def random_phase_feature_map(space: NoncompactSymmetricSpace, num_random_phases=
         return out, _context
 
     return _map
+
 
 @dispatch
 def random_phase_feature_map_rs(space: Hyperbolic, num_random_phases=3000):

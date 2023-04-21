@@ -2,15 +2,13 @@
 Sampling from the Gaussian and Student-t probability densities,
 backend-agnostic.
 """
+from math import prod
+
 import lab as B
 import numpy as np
+from sympy import Poly, Product, symbols
 
 from geometric_kernels.lab_extras import dtype_double
-
-from sympy import symbols, expand, Product, Poly
-from scipy.special import gamma as gamma_function
-from scipy.special import beta as beta_function
-from math import prod
 
 
 def student_t_sample(key, size, deg_freedom, dtype=None):
@@ -85,17 +83,16 @@ def alphas(n):
 
     :param n: dimension of the hyperbolic space, n >= 2.
 
-    TODO: labify.
     TODO: precompute these, rather than computing in runtime.
     """
     assert n >= 2
-    x, j = symbols('x, j')
+    x, j = symbols("x, j")
     if (n % 2) == 0:
-        m = n//2
-        prod = x*Product(x**2+(2*j-3)**2/4, (j, 2, m)).doit()
+        m = n // 2
+        prod = x * Product(x**2 + (2 * j - 3) ** 2 / 4, (j, 2, m)).doit()
     else:
-        m = (n-1)//2
-        prod = Product(x**2+j**2, (j, 0, m-1)).doit()
+        m = (n - 1) // 2
+        prod = Product(x**2 + j**2, (j, 0, m - 1)).doit()
     return np.array(Poly(prod, x).all_coeffs()).astype(np.float64)[::-1]
 
 
@@ -112,20 +109,20 @@ def prop16(key, alpha, lengthscale):
     TODO: maybe rename this or integrate into the rejection sampler function.
     TODO: reparameterization trick.
     """
-    # assert(len(alpha.shape) == 1)
     assert B.rank(alpha) == 1
-    m = len(alpha)-1
+    m = B.shape(alpha)[0] - 1
     assert m >= 0
     dtype = B.dtype(lengthscale)
-    js = B.range(dtype, 0, m+1)
-    # Gamma((js+1)/2) should be positive real
-    beta = 2**((1-js)/2) / B.exp(B.loggamma((js+1)/2)) * lengthscale
-    # beta = np.power(2, (1-js)/2)/gamma_function((js+1)/2)*lengthscale
+    js = B.range(dtype, 0, m + 1)
+
+    # Gamma((js+1)/2) should be positive real, so G = exp(log(abs(G)))
+    beta = 2 ** ((1 - js) / 2) / B.exp(B.loggamma((js + 1) / 2)) * lengthscale
     cs_unnorm = alpha / beta
     cs = cs_unnorm / B.sum(cs_unnorm)
-    # ind = np.random.choice(np.arange(0, m+1), 1, p=cs)[0]
     key, ind = B.choice(key, js, 1, p=cs)
-    key, s = B.randgamma(key, dtype, 1, alpha=(ind+1)/2, scale=2*B.ones(dtype, 1))
+
+    # Gamma(2nu, 2) distribution is the same as chi2(nu) distribution
+    key, s = B.randgamma(key, dtype, 1, alpha=(ind + 1) / 2, scale=2)
     s = B.sqrt(s) / lengthscale
     return key, s
 
@@ -146,31 +143,30 @@ def prop17(key, alpha, lengthscale, nu, dim):
     TODO: maybe rename this or integrate into the rejection sampler function.
     TODO: reparameterization trick.
     """
-    # assert(len(alpha.shape) == 1)
     assert B.rank(alpha) == 1
-    # m = len(alpha)-1
     m = B.shape(alpha)[0] - 1
     assert m >= 0
-    # js = np.arange(0, m+1)
     dtype = B.dtype(lengthscale)
-    js = B.range(dtype, 0, m+1)
-    gamma = 2 * nu / lengthscale ** 2 + ((dim-1) / 2) ** 2
+    js = B.range(dtype, 0, m + 1)
+    gamma = 2 * nu / lengthscale**2 + ((dim - 1) / 2) ** 2
 
     # B(x, y) = Gamma(x) Gamma(y) / Gamma(x+y)
     beta = B.exp(
-        B.loggamma((js+1)/2) +
-        B.loggamma(nu+(dim-js-1)/2) -
-        B.loggamma(nu + dim / 2))
+        B.loggamma((js + 1) / 2)
+        + B.loggamma(nu + (dim - js - 1) / 2)
+        - B.loggamma(nu + dim / 2)
+    )
     beta = 2.0 / beta
-    # beta = 2.0/beta_function((js+1)/2, nu+(dim-js-1)/2)
-    # beta = beta*np.power(gamma, nu+(dim-js-1)/2)
     beta = beta * B.power(gamma, nu + (dim - js - 1) / 2)
+
     cs_unnorm = alpha / beta
     cs = cs_unnorm / B.sum(cs_unnorm)
-    # ind = np.random.choice(np.arange(0, m+1), 1, p=cs)[0]
+
     key, ind = B.choice(key, js, 1, p=cs)
-    key, p = B.randbeta(key, dtype, 1, alpha=(ind+1)/2, beta=nu+(dim-ind-1)/2)
-    p = p / (1 - p)  # beta prime
+    key, p = B.randbeta(
+        key, dtype, 1, alpha=(ind + 1) / 2, beta=nu + (dim - ind - 1) / 2
+    )
+    p = p / (1 - p)  # beta prime distribution
     s = B.sqrt(gamma * p)
     return key, s
 
@@ -200,11 +196,14 @@ def hyperbolic_density_sample(key, size, params, dim):
     samples = []
     while len(samples) < prod(size):
         key, proposal = base_sampler(key)
+
+        # accept with probability tanh(pi*proposal)
         key, u = B.rand(key, dtype_double(key), 1)
         acceptance = B.all(u < B.tanh(B.pi * proposal))
-        key, sign_u = B.rand(key, dtype_double(key), 1)
-        sign = B.sign(sign_u - 0.5)
+
+        key, sign_z = B.rand(key, dtype_double(key), 1)
+        sign = B.sign(sign_z - 0.5)  # +1 or -1 with probability 0.5
         if ((dim % 2) == 1) or acceptance:
-            samples.append(sign*proposal)
+            samples.append(sign * proposal)
     samples = np.array(samples).reshape(size)
     return key, B.cast(dtype_double(key), samples)
