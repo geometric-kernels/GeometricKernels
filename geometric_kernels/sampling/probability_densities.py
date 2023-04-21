@@ -96,7 +96,7 @@ def alphas(n):
     return np.array(Poly(prod, x).all_coeffs()).astype(np.float64)[::-1]
 
 
-def prop16(key, alpha, lengthscale):
+def sample_mixture_heat(key, alpha, lengthscale):
     r"""
     Sample from the mixture distribution from Prop. 16 for specific alphas
     `alpha` and length scale (kappa) `lengthscale` using `key` random state.
@@ -106,7 +106,6 @@ def prop16(key, alpha, lengthscale):
     :param alpha: unnormalized coefficients of the mixture.
     :param lengthscale: length scale (kappa).
 
-    TODO: maybe rename this or integrate into the rejection sampler function.
     TODO: reparameterization trick.
     """
     assert B.rank(alpha) == 1
@@ -127,7 +126,7 @@ def prop16(key, alpha, lengthscale):
     return key, s
 
 
-def prop17(key, alpha, lengthscale, nu, dim):
+def sample_mixture_matern(key, alpha, lengthscale, nu, dim):
     r"""
     Sample from the mixture distribution from Prop. 17 for specific alphas
     `alpha`, length scale (kappa) `lengthscale`, smoothness `nu` and dimnesion
@@ -140,7 +139,6 @@ def prop17(key, alpha, lengthscale, nu, dim):
     :param nu: smoothness parameter of Matern kernels.
     :param dim: dimension of the hyperbolic space.
 
-    TODO: maybe rename this or integrate into the rejection sampler function.
     TODO: reparameterization trick.
     """
     assert B.rank(alpha) == 1
@@ -189,9 +187,9 @@ def hyperbolic_density_sample(key, size, params, dim):
 
     def base_sampler(key):
         if nu == np.inf:
-            return prop16(key, alpha, L)
+            return sample_mixture_heat(key, alpha, L)
         else:
-            return prop17(key, alpha, L, nu, dim)
+            return sample_mixture_matern(key, alpha, L, nu, dim)
 
     samples = []
     while len(samples) < prod(size):
