@@ -127,9 +127,10 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
         gh_norm = B.sum(B.power(g_poincare - h, 2), axis=-1)  # [N1, ..., Nk]
         denominator = B.log(gh_norm)
         numerator = B.log(1.0 - B.sum(g_poincare**2, axis=-1))
-        exponent = create_complex(self.rho, -1*B.abs(lam))
-        log_out = B.cast(dtype_complex(lam),
-            (numerator - denominator)) * exponent  # [N1, ..., Nk]
+        exponent = create_complex(self.rho, -1 * B.abs(lam))
+        log_out = (
+            B.cast(dtype_complex(lam), (numerator - denominator)) * exponent
+        )  # [N1, ..., Nk]
         out = B.exp(log_out)
         return out
 

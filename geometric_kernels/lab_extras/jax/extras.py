@@ -134,7 +134,7 @@ def create_complex(real: _Numeric, imag: B.JAXNumeric):
     Returns:
     - complex_num: complex, a complex number with the given real and imaginary parts.
     """
-    complex_num = real + 1j*imag
+    complex_num = real + 1j * imag
     return complex_num
 
 

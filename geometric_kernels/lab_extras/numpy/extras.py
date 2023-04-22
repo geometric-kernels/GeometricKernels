@@ -123,7 +123,6 @@ def create_complex(real: _Numeric, imag: _Numeric):
     Returns:
     - complex_num: complex, a complex number with the given real and imaginary parts.
     """
-    print('real, imag', real, imag)
     complex_num = real + 1j * imag
     return complex_num
 

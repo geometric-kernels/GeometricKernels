@@ -180,16 +180,28 @@ def test_feature_map_dtype(kl_spacepoint, dtype, backend):
     feature_map(point, params, state, key)
 
 
+@pytest.fixture(params=["naive", "rs"])
+def feature_map_on_noncompact(request, noncompact_spacepoint):
+    space = noncompact_spacepoint[0]
+    if request.param == "naive":
+        feature_map = random_phase_feature_map(space, 10)
+    elif request.param == "rs":
+        feature_map = random_phase_feature_map_rs(space, 10)
+    else:
+        raise ValueError(f"Unknown feature map {request.param}")
+    return noncompact_spacepoint + (feature_map,)
+
+
 @pytest.mark.parametrize("dtype", ["float32", "float64"])
 @pytest.mark.parametrize("backend", ["numpy", "jax", "torch", "tensorflow"])
-def test_feature_map_noncompact_dtype(noncompact_spacepoint, dtype, backend):
-    space, point = noncompact_spacepoint
+@pytest.mark.parametrize("nu", [0.5, np.inf])
+def test_feature_map_noncompact_dtype(feature_map_on_noncompact, dtype, backend, nu):
+    space, point, feature_map = feature_map_on_noncompact
     point = to_typed_ndarray(point, dtype)
     point = to_typed_tensor(point, backend)
 
-    feature_map = random_phase_feature_map_rs(space, 10)
     params = {}
-    params["nu"] = to_typed_tensor(to_typed_ndarray(np.r_[0.5], dtype), backend)
+    params["nu"] = to_typed_tensor(to_typed_ndarray(np.r_[nu], dtype), backend)
     params["lengthscale"] = to_typed_tensor(
         to_typed_ndarray(np.r_[0.5], dtype), backend
     )
@@ -197,18 +209,4 @@ def test_feature_map_noncompact_dtype(noncompact_spacepoint, dtype, backend):
 
     # make sure it runs
     key = B.create_random_state(B.dtype(point), seed=1234)
-    feature_map(point, params, state, key)
-
-    # make sure it runs
-    params["nu"] = to_typed_tensor(to_typed_ndarray(np.r_[np.inf], dtype), backend)
-    feature_map(point, params, state, key)
-
-    feature_map = random_phase_feature_map(space, 10)
-
-    # make sure it runs
-    key = B.create_random_state(B.dtype(point), seed=1234)
-    feature_map(point, params, state, key)
-
-    # make sure it runs
-    params["nu"] = to_typed_tensor(to_typed_ndarray(np.r_[np.inf], dtype), backend)
     feature_map(point, params, state, key)
