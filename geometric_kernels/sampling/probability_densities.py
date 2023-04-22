@@ -69,11 +69,11 @@ def base_density_sample(key, size, params, dim):
 
     if nu == np.inf:
         # sample from Gaussian
-        key, u = B.randn(key, dtype_double(key), *size)
+        key, u = B.randn(key, B.dtype(L), *size)
     elif nu > 0:
         # sample from the student-t with 2\nu + dim - 1 degrees of freedom
         deg_freedom = 2 * nu + dim - 1
-        key, u = student_t_sample(key, size, deg_freedom)
+        key, u = student_t_sample(key, size, deg_freedom, B.dtype(L))
 
     return key, u / L
 
@@ -197,12 +197,12 @@ def hyperbolic_density_sample(key, size, params, dim):
         key, proposal = base_sampler(key)
 
         # accept with probability tanh(pi*proposal)
-        key, u = B.rand(key, dtype_double(key), 1)
+        key, u = B.rand(key, B.dtype(L), 1)
         acceptance = B.all(u < B.tanh(B.pi * proposal))
 
-        key, sign_z = B.rand(key, dtype_double(key), 1)
+        key, sign_z = B.rand(key, B.dtype(L), 1)
         sign = B.sign(sign_z - 0.5)  # +1 or -1 with probability 0.5
         if ((dim % 2) == 1) or acceptance:
             samples.append(sign * proposal)
     samples = B.reshape(B.concat(*samples), *size)
-    return key, B.cast(dtype_double(key), samples)
+    return key, B.cast(B.dtype(L), samples)

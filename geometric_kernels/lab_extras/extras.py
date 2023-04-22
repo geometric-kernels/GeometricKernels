@@ -138,3 +138,24 @@ def restore_random_state(key, state):
     Any
        The new random generator with state `state`.
     """
+
+@dispatch
+@abstract()
+def create_complex(real: B.Numeric, imag: B.Numeric):
+    """
+    Returns a complex number with the given real and imaginary parts.
+
+    Args:
+    - real: float, real part of the complex number.
+    - imag: float, imaginary part of the complex number.
+
+    Returns:
+    - complex_num: complex, a complex number with the given real and imaginary parts.
+    """
+
+@dispatch
+@abstract()
+def dtype_complex(reference: B.Numeric):
+    """
+    Return `complex` dtype of a backend based on the reference.
+    """

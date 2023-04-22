@@ -109,3 +109,31 @@ def restore_random_state(key: B.NPRandomState, state):
     gen = np.random.RandomState()
     gen.set_state(state)
     return gen
+
+
+@dispatch
+def create_complex(real: _Numeric, imag: _Numeric):
+    """
+    Returns a complex number with the given real and imaginary parts.
+
+    Args:
+    - real: float, real part of the complex number.
+    - imag: float, imaginary part of the complex number.
+
+    Returns:
+    - complex_num: complex, a complex number with the given real and imaginary parts.
+    """
+    print('real, imag', real, imag)
+    complex_num = real + 1j * imag
+    return complex_num
+
+
+@dispatch
+def dtype_complex(reference: B.NPNumeric):
+    """
+    Return `complex` dtype of a backend based on the reference.
+    """
+    if reference.dtype == np.float32:
+        return np.complex64
+    else:
+        return np.complex128

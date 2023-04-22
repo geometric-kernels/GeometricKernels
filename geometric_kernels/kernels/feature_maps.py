@@ -127,7 +127,8 @@ def random_phase_feature_map(space: NoncompactSymmetricSpace, num_random_phases=
 @dispatch
 def random_phase_feature_map_rs(space: Hyperbolic, num_random_phases=3000):
     r"""
-    Random phase feature map for noncompact symmetric space based on naive algorithm.
+    Random phase feature map for noncompact symmetric space based on the
+    rejection sampling algorithm.
     """
 
     def _map(X: B.Numeric, params, state, key, **kwargs) -> B.Numeric:

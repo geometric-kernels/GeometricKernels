@@ -112,7 +112,7 @@ def get_random_state(key: B.TFRandomState):
     Any
         The random state of the random generator.
     """
-    return key.state
+    return key.state, key.algorithm
 
 
 @dispatch
@@ -132,5 +132,32 @@ def restore_random_state(key: B.TFRandomState, state):
     Any
        The new random generator with state `state`.
     """
-    gen = tf.random.Generator(state=state)
+    gen = tf.random.Generator.from_state(state=state[0], alg=state[1])
     return gen
+
+
+@dispatch
+def create_complex(real: _Numeric, imag: B.TFNumeric):
+    """
+    Returns a complex number with the given real and imaginary parts using tensorflow.
+
+    Args:
+    - real: float, real part of the complex number.
+    - imag: float, imaginary part of the complex number.
+
+    Returns:
+    - complex_num: complex, a complex number with the given real and imaginary parts.
+    """
+    complex_num = tf.complex(B.cast(B.dtype(imag), from_numpy(imag, real)), imag)
+    return complex_num
+
+
+@dispatch
+def dtype_complex(reference: B.TFNumeric):
+    """
+    Return `complex` dtype of a backend based on the reference.
+    """
+    if B.dtype(reference) == tf.float32:
+        return tf.complex64
+    else:
+        return tf.complex128
