@@ -30,22 +30,22 @@ def default_feature_map(space: NoncompactSymmetricSpace, *, num, kernel):
 
 @dispatch
 def default_num(space: Mesh):
-    return min(MaternGeometricKernel._MAX_NUM_EIGENFUNCTIONS, space.num_vertices)
+    return min(MaternGeometricKernel._DEFAULT_NUM_EIGENFUNCTIONS, space.num_vertices)
 
 
 @dispatch
 def default_num(space: Graph):
-    return min(MaternGeometricKernel._MAX_NUM_EIGENFUNCTIONS, space.num_vertices)
+    return min(MaternGeometricKernel._DEFAULT_NUM_EIGENFUNCTIONS, space.num_vertices)
 
 
 @dispatch
 def default_num(space: DiscreteSpectrumSpace):
-    return MaternGeometricKernel._MAX_NUM_LEVELS
+    return MaternGeometricKernel._DEFAULT_NUM_LEVELS
 
 
 @dispatch
 def default_num(space: NoncompactSymmetricSpace):
-    return MaternGeometricKernel._MAX_NUM_RANDOM_PHASES
+    return MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
 
 
 class MaternGeometricKernel:
@@ -56,9 +56,9 @@ class MaternGeometricKernel:
     on the provided Space, and the associated feature map.
     """
 
-    _MAX_NUM_EIGENFUNCTIONS = 1000
-    _MAX_NUM_LEVELS = 10
-    _MAX_NUM_RANDOM_PHASES = 3000
+    _DEFAULT_NUM_EIGENFUNCTIONS = 1000
+    _DEFAULT_NUM_LEVELS = 10
+    _DEFAULT_NUM_RANDOM_PHASES = 3000
 
     def __new__(cls, space: Space, num=None, **kwargs):
         r"""
@@ -68,14 +68,13 @@ class MaternGeometricKernel:
         :param num: if provided, controls the "order of approximation"
             of the kernel. For the discrete spectrum spaces, this means
             the number of unique eigenvalues that go into the truncated
-            series that define the kernel. For the noncompact symmetric
+            series that defines the kernel. For the noncompact symmetric
             spaces, this is the number of random phases to construct the
             kernel.
         :param **kwargs: any additional keyword arguments to be passed to
             the kernel (like `key`).
         """
 
-        # good ole isinstance
         if isinstance(space, DiscreteSpectrumSpace):
             num = num or default_num(space)
             kernel = MaternKarhunenLoeveKernel(space, num)
