@@ -81,7 +81,7 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
         """
         return self.base_kernel.K(params, self.state, x, y)
 
-    def _initialise_params(self, key: jr.KeyArray = None) -> tp.Dict:
+    def init_params(self, key: jr.KeyArray = None) -> tp.Dict:
         """Initialise the parameters of the kernel.
 
         Args:
