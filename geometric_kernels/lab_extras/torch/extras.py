@@ -168,3 +168,11 @@ def dtype_complex(reference: B.TorchNumeric):
         return torch.cfloat
     else:
         return torch.cdouble
+
+
+@dispatch
+def cumsum(x: B.TorchNumeric, axis=None):
+    """
+    Return cumulative sum (optionally along axis)
+    """
+    return torch.cumsum(x, dim=axis)

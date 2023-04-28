@@ -161,3 +161,11 @@ def dtype_complex(reference: B.Numeric):
     """
     Return `complex` dtype of a backend based on the reference.
     """
+
+
+@dispatch
+@abstract()
+def cumsum(a: B.Numeric, axis=None):
+    """
+    Return cumulative sum (optionally along axis)
+    """

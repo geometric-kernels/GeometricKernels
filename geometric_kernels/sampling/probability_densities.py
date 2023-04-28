@@ -9,7 +9,7 @@ import lab as B
 import numpy as np
 from sympy import Poly, Product, symbols
 
-from geometric_kernels.lab_extras import dtype_double
+from geometric_kernels.lab_extras import cumsum, dtype_double, dtype_integer
 
 
 def student_t_sample(key, size, deg_freedom, dtype=None):
@@ -78,6 +78,18 @@ def base_density_sample(key, size, params, dim):
     return key, u / L
 
 
+def randcat_fix(key, dtype, size, p):
+    """
+    Sample from the categorical variable with probabilities `p`.
+    """
+    p = p / B.sum(p, axis=-1, squeeze=False)
+    # Perform sampling routine.
+    cdf = cumsum(p, axis=-1)
+    key, u = B.rand(key, dtype, size, *B.shape(p)[:-1])
+    inds = B.argmax(B.cast(dtype_integer(key), u[..., None] < cdf[None]), axis=-1)
+    return key, B.cast(dtype, inds)
+
+
 def alphas(n):
     r"""
     Compute alphas for Prop. 16 & 17 for the hyperbolic space of dimension `n`.
@@ -119,9 +131,9 @@ def sample_mixture_heat(key, alpha, lengthscale):
     beta = 2 ** ((1 - js) / 2) / B.exp(B.loggamma((js + 1) / 2)) * lengthscale
     cs_unnorm = alpha / beta
     cs = cs_unnorm / B.sum(cs_unnorm)
-    key, ind = B.choice(key, js, 1, p=cs)
+    key, ind = randcat_fix(key, dtype, 1, cs)
 
-    # Gamma(2nu, 2) distribution is the same as chi2(nu) distribution
+    # Gamma(nu/2, 2) distribution is the same as chi2(nu) distribution
     key, s = B.randgamma(key, dtype, 1, alpha=(ind + 1) / 2, scale=2)
     s = B.sqrt(s) / lengthscale
     return key, s

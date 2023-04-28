@@ -136,3 +136,11 @@ def dtype_complex(reference: B.NPNumeric):
         return np.complex64
     else:
         return np.complex128
+
+
+@dispatch
+def cumsum(a: _Numeric, axis=None):
+    """
+    Return cumulative sum (optionally along axis)
+    """
+    return np.cumsum(a, axis=axis)

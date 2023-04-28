@@ -161,3 +161,11 @@ def dtype_complex(reference: B.TFNumeric):
         return tf.complex64
     else:
         return tf.complex128
+
+
+@dispatch
+def cumsum(x: B.TFNumeric, axis=None):
+    """
+    Return cumulative sum (optionally along axis)
+    """
+    return tf.math.cumsum(x, axis=axis)

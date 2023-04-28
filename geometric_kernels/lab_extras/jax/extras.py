@@ -147,3 +147,11 @@ def dtype_complex(reference: B.JAXNumeric):
         return jnp.complex64
     else:
         return jnp.complex128
+
+
+@dispatch
+def cumsum(x: B.JAXNumeric, axis=None):
+    """
+    Return cumulative sum (optionally along axis)
+    """
+    return jnp.cumsum(x, axis=axis)
