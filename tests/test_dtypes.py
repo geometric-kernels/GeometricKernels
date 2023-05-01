@@ -6,9 +6,11 @@ import tensorflow as tf
 import torch
 
 from geometric_kernels.kernels.feature_maps import (
-    deterministic_feature_map,
-    random_phase_feature_map,
-    random_phase_feature_map_rs,
+    deterministic_feature_map_compact,
+    random_phase_feature_map_compact,
+    random_phase_feature_map_noncompact,    
+    rejection_sampling_feature_map_hyperbolic,
+
 )
 from geometric_kernels.kernels.geometric_kernels import (
     MaternIntegratedKernel,
@@ -171,12 +173,12 @@ def test_feature_map_dtype(kl_spacepoint, dtype, backend):
     )
 
     # make sure it runs
-    feature_map = deterministic_feature_map(space, kernel)
+    feature_map = deterministic_feature_map_compact(space, kernel)
     feature_map(point, params, state)
 
     # make sure it runs
     key = B.create_random_state(B.dtype(point), seed=1234)
-    feature_map = random_phase_feature_map(space, kernel)
+    feature_map = random_phase_feature_map_compact(space, kernel)
     feature_map(point, params, state, key)
 
 
@@ -184,9 +186,9 @@ def test_feature_map_dtype(kl_spacepoint, dtype, backend):
 def feature_map_on_noncompact(request, noncompact_spacepoint):
     space = noncompact_spacepoint[0]
     if request.param == "naive":
-        feature_map = random_phase_feature_map(space, 10)
+        feature_map = random_phase_feature_map_noncompact(space, 10)
     elif request.param == "rs":
-        feature_map = random_phase_feature_map_rs(space, 10)
+        feature_map = rejection_sampling_feature_map_hyperbolic(space, 10)
     else:
         raise ValueError(f"Unknown feature map {request.param}")
     return noncompact_spacepoint + (feature_map,)

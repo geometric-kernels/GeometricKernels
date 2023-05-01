@@ -173,7 +173,7 @@ def sample_mixture_matern(key, alpha, lengthscale, nu, dim):
     cs_unnorm = alpha / beta
     cs = cs_unnorm / B.sum(cs_unnorm)
 
-    key, ind = B.choice(key, js, 1, p=cs)
+    key, ind = randcat_fix(key, dtype, 1, cs)    
     key, p = B.randbeta(
         key, dtype, 1, alpha=(ind + 1) / 2, beta=nu + (dim - ind - 1) / 2
     )

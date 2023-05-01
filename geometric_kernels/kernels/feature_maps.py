@@ -4,7 +4,6 @@ Feature maps
 from typing import Dict
 
 import lab as B
-from plum import dispatch
 
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.lab_extras import from_numpy
@@ -19,16 +18,36 @@ from geometric_kernels.spaces import (
 )
 
 
-@dispatch
-def deterministic_feature_map(
+def deterministic_feature_map_compact(
     space: DiscreteSpectrumSpace,
     kernel: MaternKarhunenLoeveKernel,
 ):
     r"""
     Deterministic feature map for compact spaces based on the Laplacian eigendecomposition.
+
+    :return: Callable
+        Signature: (X, params, state, **kwargs)
+        :param X: [N, D] points in the space to evaluate the map on.
+        :param params: parameters of the kernel (lengthscale and smoothness).
+        :param state: state of the kernel.
+        :param **kwargs: unused.
+
+        :return: `Tuple(features, context)` where `features` is [N, O] features,
+                 and `context` is empty (no context).
     """
 
     def _map(X: B.Numeric, params, state, **kwargs) -> B.Numeric:
+        """
+        Feature map of the Matern kernel defined on DiscreteSpectrumSpace.
+
+        :param X: points in the space to evaluate the map on.
+        :param params: parameters of the kernel (lengthscale and smoothness).
+        :param state: state of the kernel.
+        :param **kwargs: unused.
+
+        :return: `Tuple(features, context)` where `features` is [N, O] features,
+                 and `context` is empty (no context).
+        """
         assert "eigenvalues_laplacian" in state
         assert "eigenfunctions" in state
 
@@ -53,17 +72,56 @@ def deterministic_feature_map(
     return _map
 
 
-@dispatch
-def random_phase_feature_map(
+def random_phase_feature_map_compact(
     space: DiscreteSpectrumSpace,
     kernel: MaternKarhunenLoeveKernel,
     num_random_phases=3000,
 ):
     r"""
     Random phase feature map for compact spaces based on the Laplacian eigendecomposition.
+
+    :param space: Space.
+    :param kernel: kernel.
+
+    :return: Callable
+        Signature: (X, params, state, key, **kwargs)
+        :param X: [N, D] points in the space to evaluate the map on.
+        :param params: parameters of the kernel (lengthscale and smoothness).
+        :param state: state of the kernel.
+        :param key: random state, either `np.random.RandomState`, `tf.random.Generator`,
+                    `torch.Generator` or `jax.tensor` (representing random state).
+
+                     Note that for any backend other than `jax`, passing the same `key`
+                     twice does not garantee that the feature map will be the same each time.
+                     This is because these backends' random state has... a state.
+                     One either has to recreate/restore the state each time or
+                     make use of `geometric_kernels.utils.make_deterministic`.
+        :param **kwargs: unused.
+
+        :return: `Tuple(features, context)` where `features` is [N, O] features,
+                 and `context` is `{'key': <new key>}`. `<new key>` is the new key
+                 for jax, and the same random state (generator) for all other backends.
     """
 
     def _map(X: B.Numeric, params, state, key, **kwargs) -> B.Numeric:
+        """
+        :param X: [N, D] points in the space to evaluate the map on.
+        :param params: parameters of the kernel (lengthscale and smoothness).
+        :param state: state of the kernel.
+        :param key: random state, either `np.random.RandomState`, `tf.random.Generator`,
+                    `torch.Generator` or `jax.tensor` (representing random state).
+
+                     Note that for any backend other than `jax`, passing the same `key`
+                     twice does not garantee that the feature map will be the same each time.
+                     This is because these backends' random state has... a state.
+                     One either has to recreate/restore the state each time or
+                     make use of `geometric_kernels.utils.make_deterministic`.
+        :param **kwargs: unused.
+
+        :return: `Tuple(features, context)` where `features` is [N, O] features,
+                 and `context` is `{'key': <new key>}`. `<new key>` is the new key
+                 for jax, and the same random state (generator) for all other backends.
+        """
         key, random_phases = space.random(key, num_random_phases)  # [O, D]
         eigenvalues = state["eigenvalues_laplacian"]
 
@@ -90,13 +148,54 @@ def random_phase_feature_map(
     return _map
 
 
-@dispatch
-def random_phase_feature_map(space: NoncompactSymmetricSpace, num_random_phases=3000):
+def random_phase_feature_map_noncompact(
+    space: NoncompactSymmetricSpace, num_random_phases=3000
+):
     r"""
     Random phase feature map for noncompact symmetric space based on naive algorithm.
+
+    :param space: Space.
+    :param num_random_phases: number of random phases to use.
+
+    :return: Callable
+            Signature: (X, params, state, key, **kwargs)
+            :param X: [N, D] points in the space to evaluate the map on.
+            :param params: parameters of the feature map (lengthscale and smoothness).
+            :param state: unused.
+            :param key: random state, either `np.random.RandomState`, `tf.random.Generator`,
+                        `torch.Generator` or `jax.tensor` (representing random state).
+
+                         Note that for any backend other than `jax`, passing the same `key`
+                         twice does not garantee that the feature map will be the same each time.
+                         This is because these backends' random state has... a state.
+                         One either has to recreate/restore the state each time or
+                         make use of `geometric_kernels.utils.make_deterministic`.
+            :param **kwargs: unused.
+
+            :return: `Tuple(features, context)` where `features` is [N, O] features,
+                     and `context` is `{'key': <new key>}`. `<new key>` is the new key
+                     for jax, and the same random state (generator) for all other backends.
     """
 
     def _map(X: B.Numeric, params, state, key, **kwargs) -> B.Numeric:
+        """
+        :param X: [N, D] points in the space to evaluate the map on.
+        :param params: parameters of the feature map (lengthscale and smoothness).
+        :param state: unused.
+        :param key: random state, either `np.random.RandomState`, `tf.random.Generator`,
+                    `torch.Generator` or `jax.tensor` (representing random state).
+
+                     Note that for any backend other than `jax`, passing the same `key`
+                     twice does not garantee that the feature map will be the same each time.
+                     This is because these backends' random state has... a state.
+                     One either has to recreate/restore the state each time or
+                     make use of `geometric_kernels.utils.make_deterministic`.
+        :param **kwargs: unused.
+
+        :return: `Tuple(features, context)` where `features` is [N, O] features,
+                 and `context` is `{'key': <new key>}`. `<new key>` is the new key
+                 for jax, and the same random state (generator) for all other backends.
+        """
         key, random_phases = space.random_phases(key, num_random_phases)  # [O, D]
 
         key, random_lambda = base_density_sample(
@@ -124,11 +223,33 @@ def random_phase_feature_map(space: NoncompactSymmetricSpace, num_random_phases=
     return _map
 
 
-@dispatch
-def random_phase_feature_map_rs(space: Hyperbolic, num_random_phases=3000):
+def rejection_sampling_feature_map_hyperbolic(space: Hyperbolic, num_random_phases=3000):
     r"""
-    Random phase feature map for noncompact symmetric space based on the
+    Random phase feature map for the Hyperbolic space based on the
     rejection sampling algorithm.
+
+    :param space: Hyperbolic space.
+    :param num_random_phases: number of random phases to use.
+
+    :return: Callable
+            Signature: (X, params, state, key, **kwargs)
+            :param X: [N, D] points in the space to evaluate the map on.
+            :param params: parameters of the feature map (lengthscale and smoothness).
+            :param state: unused.
+            :param key: random state, either `np.random.RandomState`, `tf.random.Generator`,
+                        `torch.Generator` or `jax.tensor` (representing random state).
+
+                         Note that for any backend other than `jax`, passing the same `key`
+                         twice does not garantee that the feature map will be the same each time.
+                         This is because these backends' random state has... a state.
+                         One either has to recreate/restore the state each time or
+                         make use of `geometric_kernels.utils.make_deterministic`.
+            :param **kwargs: unused.
+
+            :return: `Tuple(features, context)` where `features` is [N, O] features,
+                     and `context` is `{'key': <new key>}`. `<new key>` is the new key
+                     for jax, and the same random state (generator) for all other backends.
+    
     """
 
     def _map(X: B.Numeric, params, state, key, **kwargs) -> B.Numeric:

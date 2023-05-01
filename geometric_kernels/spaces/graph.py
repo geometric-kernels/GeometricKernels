@@ -43,6 +43,10 @@ class Graph(DiscreteSpectrumSpace):
     def dimension(self) -> int:
         return 0  # this is needed for the kernel math to work out
 
+    @property
+    def num_vertices(self) -> int:
+        return self._laplacian.shape[0]
+
     def set_laplacian(self, adjacency):
         self._laplacian = degree(adjacency) - adjacency
 
