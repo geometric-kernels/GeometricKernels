@@ -127,7 +127,7 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
         gh_norm = B.sum(B.power(g_poincare - h, 2), axis=-1)  # [N1, ..., Nk]
         denominator = B.log(gh_norm)
         numerator = B.log(1.0 - B.sum(g_poincare**2, axis=-1))
-        exponent = create_complex(self.rho, -1 * B.abs(lam))
+        exponent = create_complex(self.rho[0], -1 * B.abs(lam))  # rho is 1-d
         log_out = (
             B.cast(dtype_complex(lam), (numerator - denominator)) * exponent
         )  # [N1, ..., Nk]
@@ -145,7 +145,7 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
 
     @property
     def rho(self):
-        return (self.dimension - 1) / 2
+        return B.ones(1) * (self.dimension - 1) / 2
 
     def random_phases(self, key, num):
         if not isinstance(num, tuple):

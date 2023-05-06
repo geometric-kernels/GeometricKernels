@@ -45,7 +45,7 @@ def student_t_sample(key, size, deg_freedom, dtype=None):
     return key, u
 
 
-def base_density_sample(key, size, params, dim):
+def base_density_sample(key, size, params, dim, rho):
     r"""
     The Matern kernel's spectral density is of the form
     :math:`p_{\nu,\kappa}(\lambda)`,
@@ -60,6 +60,7 @@ def base_density_sample(key, size, params, dim):
     :param size: shape of the returned sample.
     :param params: params of the kernel.
     :param dim: dimensionality of the space the kernel is defined on.
+    :param rho: `rho` vector of the space.
     """
     assert "nu" in params
     assert "lengthscale" in params
@@ -70,12 +71,15 @@ def base_density_sample(key, size, params, dim):
     if nu == np.inf:
         # sample from Gaussian
         key, u = B.randn(key, B.dtype(L), *size)
+        scale = L
     elif nu > 0:
-        # sample from the student-t with 2\nu + dim - 1 degrees of freedom
-        deg_freedom = 2 * nu + dim - 1
+        # sample from the student-t with 2\nu + dim(space) - dim(rho)  degrees of freedom
+        deg_freedom = 2 * nu + dim - B.rank(rho)
         key, u = student_t_sample(key, size, deg_freedom, B.dtype(L))
+        scale = L / B.sqrt(nu / deg_freedom + B.sum(rho**2) * L**2 / (2 * deg_freedom))
 
-    return key, u / L
+    scale = B.cast(B.dtype(u), scale)
+    return key, u / scale
 
 
 def randcat_fix(key, dtype, size, p):
