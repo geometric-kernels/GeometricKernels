@@ -199,8 +199,12 @@ def random_phase_feature_map_noncompact(
         key, random_phases = space.random_phases(key, num_random_phases)  # [O, D]
 
         key, random_lambda = base_density_sample(
-            key, (num_random_phases,), params, space.dimension
-        )  # [O, ]
+            key,
+            (num_random_phases, B.rank(space.rho)),
+            params,
+            space.dimension,
+            space.rho,
+        )  # [O, P]
 
         # X [N, D]
         random_phases_b = B.expand_dims(
@@ -208,7 +212,7 @@ def random_phase_feature_map_noncompact(
         )  # [1, O, D]
         random_lambda_b = B.expand_dims(
             B.cast(B.dtype(X), from_numpy(X, random_lambda))
-        )  # [1, O]
+        )  # [1, O, P]
 
         p = space.power_function(random_lambda_b, X[:, None], random_phases_b)  # [N, O]
         c = space.inv_harish_chandra(random_lambda_b)  # [1, O]
@@ -257,7 +261,7 @@ def rejection_sampling_feature_map_hyperbolic(
         key, random_phases = space.random_phases(key, num_random_phases)  # [O, D]
 
         key, random_lambda = hyperbolic_density_sample(
-            key, (num_random_phases,), params, space.dimension
+            key, (num_random_phases, B.rank(space.rho)), params, space.dimension
         )  # [O, ]
 
         # X [N, D]

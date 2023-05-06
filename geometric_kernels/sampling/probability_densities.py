@@ -76,7 +76,9 @@ def base_density_sample(key, size, params, dim, rho):
         # sample from the student-t with 2\nu + dim(space) - dim(rho)  degrees of freedom
         deg_freedom = 2 * nu + dim - B.rank(rho)
         key, u = student_t_sample(key, size, deg_freedom, B.dtype(L))
-        scale = L / B.sqrt(nu / deg_freedom + B.sum(rho**2) * L**2 / (2 * deg_freedom))
+        scale = L / B.sqrt(
+            nu / deg_freedom + B.sum(rho**2) * L**2 / (2 * deg_freedom)
+        )
 
     scale = B.cast(B.dtype(u), scale)
     return key, u / scale

@@ -118,11 +118,12 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
 
         In the hyperbolic case, in Poincare ball coordinates,
         :math:`\exp(i \lambda + \rho) a(h \cdot g) = ((1 - |g|^2)/|g - h|^2)^{-i |\lambda| + \rho}`
+
+        :param lam: [N1, ..., Nk, 1] eigenvalues.
+        :param g: [N1, ..., Nk, D+1] points on the hyperbolic space.
+        :param h: [N1, ..., Nk, D] phases (points on the unit sphere).
         """
-        # lam [N1, .., Nk]
-        # g [N1, ..., Nk, D+1]
-        # h [N1, ..., Nk, D]
-        # lam <-> lmd, g <-> x, h <-> shift
+        lam = B.squeeze(lam, -1)
         g_poincare = self.convert_to_ball(g)  # [..., D]
         gh_norm = B.sum(B.power(g_poincare - h, 2), axis=-1)  # [N1, ..., Nk]
         denominator = B.log(gh_norm)
