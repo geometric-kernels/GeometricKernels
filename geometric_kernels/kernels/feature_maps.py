@@ -223,7 +223,9 @@ def random_phase_feature_map_noncompact(
     return _map
 
 
-def rejection_sampling_feature_map_hyperbolic(space: Hyperbolic, num_random_phases=3000):
+def rejection_sampling_feature_map_hyperbolic(
+    space: Hyperbolic, num_random_phases=3000
+):
     r"""
     Random phase feature map for the Hyperbolic space based on the
     rejection sampling algorithm.
@@ -249,7 +251,6 @@ def rejection_sampling_feature_map_hyperbolic(space: Hyperbolic, num_random_phas
             :return: `Tuple(features, context)` where `features` is [N, O] features,
                      and `context` is `{'key': <new key>}`. `<new key>` is the new key
                      for jax, and the same random state (generator) for all other backends.
-    
     """
 
     def _map(X: B.Numeric, params, state, key, **kwargs) -> B.Numeric:

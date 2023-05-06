@@ -8,9 +8,8 @@ import torch
 from geometric_kernels.kernels.feature_maps import (
     deterministic_feature_map_compact,
     random_phase_feature_map_compact,
-    random_phase_feature_map_noncompact,    
+    random_phase_feature_map_noncompact,
     rejection_sampling_feature_map_hyperbolic,
-
 )
 from geometric_kernels.kernels.geometric_kernels import (
     MaternIntegratedKernel,
