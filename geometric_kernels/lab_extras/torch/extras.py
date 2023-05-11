@@ -26,7 +26,7 @@ def from_numpy(
     Converts the array `b` to a tensor of the same backend as `a`
     """
     if not torch.is_tensor(b):
-        b = torch.tensor(b)
+        b = torch.tensor(b.copy())
     return b
 
 

@@ -290,7 +290,7 @@ class MaternIntegratedKernel(BaseGeometricKernel):
         # Integral over heat kernel to obtain the Matérn kernel values
         kernel = trapz(integral_vals, t_vals_integrator, axis=-1)
 
-        zero = B.cast(B.dtype(distance), from_numpy(distance, 0.0))
+        zero = B.cast(B.dtype(distance), from_numpy(distance, np.array(0.0)))
 
         integral_vals_normalizing_cst = self.link_function(params, zero, t_vals)
         t_vals_integrator = B.cast(B.dtype(integral_vals_normalizing_cst), t_vals)

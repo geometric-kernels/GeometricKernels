@@ -9,7 +9,7 @@ import lab as B
 import numpy as np
 from sympy import Poly, Product, symbols
 
-from geometric_kernels.lab_extras import cumsum, dtype_double, dtype_integer
+from geometric_kernels.lab_extras import cumsum, dtype_double, dtype_integer, from_numpy
 
 
 def student_t_sample(key, size, deg_freedom, dtype=None):
@@ -135,6 +135,7 @@ def sample_mixture_heat(key, alpha, lengthscale):
 
     # Gamma((js+1)/2) should be positive real, so G = exp(log(abs(G)))
     beta = 2 ** ((1 - js) / 2) / B.exp(B.loggamma((js + 1) / 2)) * lengthscale
+    alpha = from_numpy(beta, alpha)
     cs_unnorm = alpha / beta
     cs = cs_unnorm / B.sum(cs_unnorm)
     key, ind = randcat_fix(key, dtype, 1, cs)
@@ -176,6 +177,7 @@ def sample_mixture_matern(key, alpha, lengthscale, nu, dim):
     beta = 2.0 / beta
     beta = beta * B.power(gamma, nu + (dim - js - 1) / 2)
 
+    alpha = from_numpy(beta, alpha)
     cs_unnorm = alpha / beta
     cs = cs_unnorm / B.sum(cs_unnorm)
 
