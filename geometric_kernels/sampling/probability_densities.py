@@ -135,7 +135,8 @@ def sample_mixture_heat(key, alpha, lengthscale):
 
     # Gamma((js+1)/2) should be positive real, so G = exp(log(abs(G)))
     beta = 2 ** ((1 - js) / 2) / B.exp(B.loggamma((js + 1) / 2)) * lengthscale
-    alpha = from_numpy(beta, alpha)
+
+    alpha = B.cast(dtype, from_numpy(beta, alpha))
     cs_unnorm = alpha / beta
     cs = cs_unnorm / B.sum(cs_unnorm)
     key, ind = randcat_fix(key, dtype, 1, cs)
@@ -177,7 +178,7 @@ def sample_mixture_matern(key, alpha, lengthscale, nu, dim):
     beta = 2.0 / beta
     beta = beta * B.power(gamma, nu + (dim - js - 1) / 2)
 
-    alpha = from_numpy(beta, alpha)
+    alpha = B.cast(dtype, from_numpy(beta, alpha))
     cs_unnorm = alpha / beta
     cs = cs_unnorm / B.sum(cs_unnorm)
 
