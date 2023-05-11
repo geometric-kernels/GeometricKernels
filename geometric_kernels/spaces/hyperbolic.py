@@ -92,6 +92,7 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
         return einsum("...i,...i->...", diagonal * vector_a, vector_b)
 
     def inv_harish_chandra(self, X):
+        X = B.squeeze(X, -1)
         if self.dimension == 2:
             c = B.abs(X) * B.tanh(B.pi * B.abs(X))
             return B.sqrt(c)
