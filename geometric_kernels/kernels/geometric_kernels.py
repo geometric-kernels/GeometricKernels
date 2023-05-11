@@ -173,7 +173,7 @@ class MaternFeatureMapKernel(BaseGeometricKernel):
         else:
             features_X2 = features_X
 
-        feature_product = einsum("no,mo->nm", features_X, features_X2)
+        feature_product = einsum("...no,...mo->...nm", features_X, features_X2)
         return feature_product
 
     def K_diag(self, params, state, X, **kwargs):
