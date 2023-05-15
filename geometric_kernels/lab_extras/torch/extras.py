@@ -26,7 +26,7 @@ def from_numpy(
     Converts the array `b` to a tensor of the same backend as `a`
     """
     if not torch.is_tensor(b):
-        b = torch.tensor(b)
+        b = torch.tensor(b.copy())
     return b
 
 
@@ -141,3 +141,38 @@ def restore_random_state(key: B.TorchRandomState, state):
     gen = torch.Generator()
     gen.set_state(state)
     return gen
+
+
+@dispatch
+def create_complex(real: _Numeric, imag: B.TorchNumeric):
+    """
+    Returns a complex number with the given real and imaginary parts using pytorch.
+
+    Args:
+    - real: float, real part of the complex number.
+    - imag: float, imaginary part of the complex number.
+
+    Returns:
+    - complex_num: complex, a complex number with the given real and imaginary parts.
+    """
+    complex_num = real + 1j * imag
+    return complex_num
+
+
+@dispatch
+def dtype_complex(reference: B.TorchNumeric):
+    """
+    Return `complex` dtype of a backend based on the reference.
+    """
+    if B.dtype(reference) == torch.float:
+        return torch.cfloat
+    else:
+        return torch.cdouble
+
+
+@dispatch
+def cumsum(x: B.TorchNumeric, axis=None):
+    """
+    Return cumulative sum (optionally along axis)
+    """
+    return torch.cumsum(x, dim=axis)

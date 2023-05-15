@@ -120,3 +120,38 @@ def set_random_state(key: B.JAXRandomState, state):
         The new random state of the random generator.
     """
     pass
+
+
+@dispatch
+def create_complex(real: _Numeric, imag: B.JAXNumeric):
+    """
+    Returns a complex number with the given real and imaginary parts using jax.
+
+    Args:
+    - real: float, real part of the complex number.
+    - imag: float, imaginary part of the complex number.
+
+    Returns:
+    - complex_num: complex, a complex number with the given real and imaginary parts.
+    """
+    complex_num = real + 1j * imag
+    return complex_num
+
+
+@dispatch
+def dtype_complex(reference: B.JAXNumeric):
+    """
+    Return `complex` dtype of a backend based on the reference.
+    """
+    if B.dtype(reference) == jnp.float32:
+        return jnp.complex64
+    else:
+        return jnp.complex128
+
+
+@dispatch
+def cumsum(x: B.JAXNumeric, axis=None):
+    """
+    Return cumulative sum (optionally along axis)
+    """
+    return jnp.cumsum(x, axis=axis)
