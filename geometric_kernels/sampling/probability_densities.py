@@ -244,7 +244,7 @@ def spd_density_sample(key, size, params, degree, rho):
         if nu == np.inf:
             eigv = eigv / L
         else:
-            eigv = eigv / B.sqrt(2*nu/L**2 + B.sum(rho**2))
+            eigv = eigv / B.sqrt(2 * nu / L**2 + B.sum(rho**2))
 
         key, chi2_sample = B.randgamma(key, B.dtype(L), 1, alpha=nu, scale=2)
         chi_sample = B.sqrt(chi2_sample)

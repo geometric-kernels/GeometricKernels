@@ -325,7 +325,7 @@ def rejection_sampling_feature_map_spd(
         #     key, (num_random_phases, B.rank(space.rho)), params, space.dimension
         # )  # [O, ]
         key, random_lambda = spd_density_sample(
-            key, (num_random_phases, ), params, space.degree
+            key, (num_random_phases,), params, space.degree
         )  # [O, D]
 
         # X [N, D, D]
@@ -347,4 +347,3 @@ def rejection_sampling_feature_map_spd(
         return out, _context
 
     return _map
-

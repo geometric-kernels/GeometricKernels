@@ -5,18 +5,20 @@ Space of Symmetric Positive-Definite Matrices.
 import geomstats as gs
 import lab as B
 
-from geometric_kernels.lab_extras import create_complex, dtype_double, slogdet, qr
+from geometric_kernels.lab_extras import create_complex, dtype_double, qr, slogdet
 from geometric_kernels.spaces import NoncompactSymmetricSpace
 from geometric_kernels.utils.utils import ordered_pairwise_differences
 
 
-class SymmetricPositiveDefiniteMatrices(NoncompactSymmetricSpace, gs.geometry.spd_matrices.SPDMatrices):
+class SymmetricPositiveDefiniteMatrices(
+    NoncompactSymmetricSpace, gs.geometry.spd_matrices.SPDMatrices
+):
     r"""
     Manifold of symmetric positive-definite matrices.
     """
 
-    def __init__(super, n):
-        dim = n * (n+1) / 2
+    def __init__(self, n):
+        dim = n * (n + 1) / 2
         super().__init__(dim=dim)
         self.n = n
 
@@ -34,7 +36,7 @@ class SymmetricPositiveDefiniteMatrices(NoncompactSymmetricSpace, gs.geometry.sp
 
     def random_phases(self, key, num):
         if not isinstance(num, tuple):
-            num = (num, )
+            num = (num,)
         x = B.randn(key, dtype_double(key), *num, self.degree, self.degree)
         Q, R = qr(x)
         r_diag_sign = B.sign(B.diag_extract(R))  # [B, N]
