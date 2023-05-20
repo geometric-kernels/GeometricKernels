@@ -169,3 +169,11 @@ def cumsum(a: B.Numeric, axis=None):
     """
     Return cumulative sum (optionally along axis)
     """
+
+
+@dispatch
+@abstract()
+def qr(x: B.Numeric):
+    """
+    Return a QR decomposition of a matrix x.
+    """

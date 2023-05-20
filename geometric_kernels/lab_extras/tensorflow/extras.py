@@ -169,3 +169,12 @@ def cumsum(x: B.TFNumeric, axis=None):
     Return cumulative sum (optionally along axis)
     """
     return tf.math.cumsum(x, axis=axis)
+
+
+@dispatch
+def qr(x: B.TFNumeric):
+    """
+    Return a QR decomposition of a matrix x.
+    """
+    Q, R = tf.linalg.qr(x)
+    return Q, R

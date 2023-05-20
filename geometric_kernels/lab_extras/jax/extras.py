@@ -155,3 +155,12 @@ def cumsum(x: B.JAXNumeric, axis=None):
     Return cumulative sum (optionally along axis)
     """
     return jnp.cumsum(x, axis=axis)
+
+
+@dispatch
+def qr(x: B.JAXNumeric):
+    """
+    Return a QR decomposition of a matrix x.
+    """
+    Q, R = jnp.linalg.qr(x)
+    return Q, R

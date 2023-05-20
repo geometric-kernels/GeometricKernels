@@ -144,3 +144,12 @@ def cumsum(a: _Numeric, axis=None):
     Return cumulative sum (optionally along axis)
     """
     return np.cumsum(a, axis=axis)
+
+
+@dispatch
+def qr(x: _Numeric):
+    """
+    Return a QR decomposition of a matrix x.
+    """
+    Q, R = np.linalg.qr(x)
+    return Q, R
