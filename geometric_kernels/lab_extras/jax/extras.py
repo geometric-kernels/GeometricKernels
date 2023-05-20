@@ -174,3 +174,10 @@ def slogdet(x: B.JAXNumeric):
     sign, logdet = jnp.linalg.slogdet(x)
     return sign, logdet
 
+
+@dispatch
+def eigvalsh(x: B.JAXNumeric):
+    """
+    Compute the eigenvalues of a Hermitian or real symmetric matrix x.
+    """
+    return jnp.linalg.eigvalsh(x)

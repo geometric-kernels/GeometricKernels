@@ -185,3 +185,11 @@ def slogdet(x: B.Numeric):
     """
     Return the sign and log-determinant of a matrix x.
     """
+
+
+@dispatch
+@abstract()
+def eigvalsh(x: B.Numeric):
+    """
+Compute the eigenvalues of a Hermitian or real symmetric matrix x.
+    """

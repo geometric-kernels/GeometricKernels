@@ -10,6 +10,7 @@ from geometric_kernels.kernels.feature_maps import (
     random_phase_feature_map_compact,
     random_phase_feature_map_noncompact,
     rejection_sampling_feature_map_hyperbolic,
+    rejection_sampling_feature_map_spd,
 )
 from geometric_kernels.kernels.geometric_kernels import (
     MaternIntegratedKernel,
@@ -19,6 +20,7 @@ from geometric_kernels.spaces.circle import Circle
 from geometric_kernels.spaces.hyperbolic import Hyperbolic
 from geometric_kernels.spaces.hypersphere import Hypersphere
 from geometric_kernels.spaces.mesh import Mesh
+from geometric_kernels.spaces.spd import SymmetricPositiveDefiniteMatrices
 
 
 def to_typed_ndarray(value, dtype):
@@ -98,10 +100,20 @@ def hyperbolic_point():
     return hyperboloid, point
 
 
-@pytest.fixture(name="noncompact_spacepoint", params=["hyperbolic"])
+def spd_point():
+    spd = SymmetricPositiveDefiniteMatrices(2)
+
+    point = spd.random_point(1).reshape(1, 2, 2)
+
+    return spd, point
+
+
+@pytest.fixture(name="noncompact_spacepoint", params=["hyperbolic", "spd"])
 def _noncompact_spacepoint(request):
     if request.param == "hyperbolic":
         return hyperbolic_point()
+    elif request.param == "spd":
+        return spd_point()
     else:
         raise ValueError("Unknown space {}".format(request.param))
 
@@ -141,6 +153,10 @@ def test_karhunen_loeve_dtype(kl_spacepoint, dtype, backend):
 @pytest.mark.parametrize("backend", ["numpy", "jax", "torch", "tensorflow"])
 def test_integrated_matern_dtype(noncompact_spacepoint, dtype, backend):
     space, point = noncompact_spacepoint
+
+    if not isinstance(space, Hyperbolic):
+        return
+
     point = to_typed_ndarray(point, dtype)
     point = to_typed_tensor(point, backend)
 
@@ -186,8 +202,10 @@ def feature_map_on_noncompact(request, noncompact_spacepoint):
     space = noncompact_spacepoint[0]
     if request.param == "naive":
         feature_map = random_phase_feature_map_noncompact(space, 10)
-    elif request.param == "rs":
+    elif request.param == "rs" and isinstance(space, Hyperbolic):
         feature_map = rejection_sampling_feature_map_hyperbolic(space, 10)
+    elif request.param == "rs" and isinstance(space, SymmetricPositiveDefiniteMatrices):
+        feature_map = rejection_sampling_feature_map_spd(space, 10)
     else:
         raise ValueError(f"Unknown feature map {request.param}")
     return noncompact_spacepoint + (feature_map,)

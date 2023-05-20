@@ -193,3 +193,11 @@ def slogdet(x: B.TorchNumeric):
     """
     sign, logdet = torch.slogdet(x)
     return sign, logdet
+
+
+@dispatch
+def eigvalsh(x: B.TorchNumeric):
+    """
+    Compute the eigenvalues of a Hermitian or real symmetric matrix x.
+    """
+    return torch.linalg.eigvalsh(x)

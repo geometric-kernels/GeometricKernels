@@ -160,5 +160,13 @@ def slogdet(x: _Numeric):
     """
     Return the sign and log-determinant of a matrix x.
     """
-    sign, logdet = slogdet(x)
+    sign, logdet = np.linalg.slogdet(x)
     return sign, logdet
+
+
+@dispatch
+def eigvalsh(x: _Numeric):
+    """
+    Compute the eigenvalues of a Hermitian or real symmetric matrix x.
+    """
+    return np.linalg.eigvalsh(x)

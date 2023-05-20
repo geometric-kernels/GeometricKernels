@@ -187,3 +187,11 @@ def slogdet(x: B.TFNumeric):
     """
     sign, logdet = tf.linalg.slogdet(x)
     return sign, logdet
+
+
+@dispatch
+def eigvalsh(x: B.TFNumeric):
+    """
+    Compute the eigenvalues of a Hermitian or real symmetric matrix x.
+    """
+    return tf.linalg.eigvalsh(x)
