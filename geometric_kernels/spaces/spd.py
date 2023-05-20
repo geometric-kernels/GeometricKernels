@@ -63,7 +63,8 @@ class SymmetricPositiveDefiniteMatrices(NoncompactSymmetricSpace, gs.geometry.sp
         :param h: [N1, ..., Nk, D, D] phases (orhogonal matrices).
         """
 
-        Q, R = qr(g)
+        gh = B.matmul(g, h)
+        Q, R = qr(gh)
         u = B.diag_extract(R)  # [..., D]
         exponent = create_complex(self.rho, lam)  # [..., D]
         logpower = u * exponent  # [..., D]
