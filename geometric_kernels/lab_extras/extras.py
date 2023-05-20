@@ -177,3 +177,11 @@ def qr(x: B.Numeric):
     """
     Return a QR decomposition of a matrix x.
     """
+
+
+@dispatch
+@abstract()
+def slogdet(x: B.Numeric):
+    """
+    Return the sign and log-determinant of a matrix x.
+    """

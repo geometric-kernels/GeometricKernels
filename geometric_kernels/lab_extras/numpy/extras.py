@@ -153,3 +153,12 @@ def qr(x: _Numeric):
     """
     Q, R = np.linalg.qr(x)
     return Q, R
+
+
+@dispatch
+def slogdet(x: _Numeric):
+    """
+    Return the sign and log-determinant of a matrix x.
+    """
+    sign, logdet = slogdet(x)
+    return sign, logdet

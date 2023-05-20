@@ -178,3 +178,12 @@ def qr(x: B.TFNumeric):
     """
     Q, R = tf.linalg.qr(x)
     return Q, R
+
+
+@dispatch
+def slogdet(x: B.TFNumeric):
+    """
+    Return the sign and log-determinant of a matrix x.
+    """
+    sign, logdet = tf.linalg.slogdet(x)
+    return sign, logdet

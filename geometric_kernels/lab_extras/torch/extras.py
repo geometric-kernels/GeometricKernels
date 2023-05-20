@@ -185,3 +185,11 @@ def qr(x: B.TorchNumeric):
     """
     Q, R = torch.qr(x)
     return Q, R
+
+@dispatch
+def slogdet(x: B.TorchNumeric):
+    """
+    Return the sign and log-determinant of a matrix x.
+    """
+    sign, logdet = torch.slogdet(x)
+    return sign, logdet

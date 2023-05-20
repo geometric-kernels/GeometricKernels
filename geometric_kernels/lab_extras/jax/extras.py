@@ -164,3 +164,13 @@ def qr(x: B.JAXNumeric):
     """
     Q, R = jnp.linalg.qr(x)
     return Q, R
+
+
+@dispatch
+def slogdet(x: B.JAXNumeric):
+    """
+    Return the sign and log-determinant of a matrix x.
+    """
+    sign, logdet = jnp.linalg.slogdet(x)
+    return sign, logdet
+
