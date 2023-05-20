@@ -7,6 +7,7 @@ import lab as B
 
 from geometric_kernels.lab_extras import create_complex, dtype_double, slogdet, qr
 from geometric_kernels.spaces import NoncompactSymmetricSpace
+from geometric_kernels.utils.utils import ordered_pairwise_differences
 
 
 class SymmetricPositiveDefiniteMatrices(NoncompactSymmetricSpace, gs.geometry.spd_matrices.SPDMatrices):
@@ -46,12 +47,7 @@ class SymmetricPositiveDefiniteMatrices(NoncompactSymmetricSpace, gs.geometry.sp
         """
         X shape [B, D]
         """
-        diffX = B.expand_dims(X, -2) - B.expand_dims(X, -1)  # [B, D, D]
-        # diffX[i, j] = X[j] - X[i]
-        # lower triangle is i > j
-        # so, lower triangle is X[k] - X[l] with k < l
-
-        diffX = B.tril_to_vec(diffX, offset=-1)  # don't take the diagonal
+        diffX = ordered_pairwise_differences(X)
         diffX = B.pi * B.abs(diffX)
         logprod = B.sum(B.log(diffX) + B.log(B.tanh(diffX)), axis=-1)  # [B, ]
         return B.exp(0.5 * logprod)

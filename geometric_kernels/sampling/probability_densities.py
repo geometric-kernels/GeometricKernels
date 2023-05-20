@@ -10,6 +10,7 @@ import numpy as np
 from sympy import Poly, Product, symbols
 
 from geometric_kernels.lab_extras import cumsum, dtype_double, dtype_integer, from_numpy
+from geometric_kernels.utils.utils import ordered_pairwise_differences
 
 
 def student_t_sample(key, size, deg_freedom, dtype=None):
@@ -227,3 +228,37 @@ def hyperbolic_density_sample(key, size, params, dim):
             samples.append(sign * proposal)
     samples = B.reshape(B.concat(*samples), *size)
     return key, B.cast(B.dtype(L), samples)
+
+
+def spd_density_sample(key, size, params, degree, rho):
+    nu = params["nu"]
+    L = params["lengthscale"]
+
+    samples = []
+    while len(samples) < reduce(operator.mul, size, 1):
+        X = B.randn(key, B.dtype(L), degree, degree)
+        M = (X + X.T) / B.sqrt(2)
+
+        eigv = B.eig(M, compute_eigvecs=False)  # [D]
+
+        if nu == np.inf:
+            eigv = eigv / L
+        else:
+            eigv = eigv / B.sqrt(2*nu/L**2 + B.sum(rho**2))
+
+        key, chi2_sample = B.randgamma(key, B.dtype(L), 1, alpha=nu, scale=2)
+        chi_sample = B.sqrt(chi2_sample)
+
+        proposal = eigv / chi_sample  # [D]
+        diffp = ordered_pairwise_differences(proposal)
+        diffp = B.pi * B.abs(diffp)
+        logprod = B.sum(B.log(B.tanh(diffp)), axis=-1)
+        prod = B.exp(logprod)
+
+        # accept with probability `prod`
+        key, u = B.rand(key, B.dtype(L), 1)
+        acceptance = B.all(u < prod)
+        if acceptance:
+            samples.append(proposal)
+
+    samples = B.reshape(B.concat(*samples), *size, degree)
