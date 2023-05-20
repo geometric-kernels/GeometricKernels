@@ -112,6 +112,7 @@ class NoncompactSymmetricSpace(Space):
         Ususally 1 for vectors and 2 for matrices.
         """
 
+
 class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
     """
     Converts the array of eigenvectors to callable objects,

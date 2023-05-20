@@ -9,7 +9,13 @@ import lab as B
 import numpy as np
 from sympy import Poly, Product, symbols
 
-from geometric_kernels.lab_extras import cumsum, dtype_double, dtype_integer, eigvalsh, from_numpy
+from geometric_kernels.lab_extras import (
+    cumsum,
+    dtype_double,
+    dtype_integer,
+    eigvalsh,
+    from_numpy,
+)
 from geometric_kernels.utils.utils import ordered_pairwise_differences
 
 

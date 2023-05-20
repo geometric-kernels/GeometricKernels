@@ -5,7 +5,14 @@ Space of Symmetric Positive-Definite Matrices.
 import geomstats as gs
 import lab as B
 
-from geometric_kernels.lab_extras import create_complex, dtype_double, dtype_complex, from_numpy, qr, slogdet, set_value
+from geometric_kernels.lab_extras import (
+    create_complex,
+    dtype_complex,
+    dtype_double,
+    from_numpy,
+    qr,
+    slogdet,
+)
 from geometric_kernels.spaces import NoncompactSymmetricSpace
 from geometric_kernels.utils.utils import ordered_pairwise_differences
 

@@ -191,5 +191,5 @@ def slogdet(x: B.Numeric):
 @abstract()
 def eigvalsh(x: B.Numeric):
     """
-Compute the eigenvalues of a Hermitian or real symmetric matrix x.
+    Compute the eigenvalues of a Hermitian or real symmetric matrix x.
     """

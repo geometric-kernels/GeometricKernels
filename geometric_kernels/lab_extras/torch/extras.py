@@ -186,6 +186,7 @@ def qr(x: B.TorchNumeric):
     Q, R = torch.qr(x)
     return Q, R
 
+
 @dispatch
 def slogdet(x: B.TorchNumeric):
     """

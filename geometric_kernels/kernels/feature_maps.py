@@ -215,7 +215,7 @@ def random_phase_feature_map_noncompact(
         random_lambda_b = B.expand_dims(
             B.cast(B.dtype(X), from_numpy(X, random_lambda))
         )  # [1, O, P]
-        X_b = B.expand_dims(X, axis=-1-space.num_axes)  # [N, 1, <axes>]
+        X_b = B.expand_dims(X, axis=-1 - space.num_axes)  # [N, 1, <axes>]
 
         p = space.power_function(random_lambda_b, X_b, random_phases_b)  # [N, O]
         c = space.inv_harish_chandra(random_lambda_b)  # [1, O]
