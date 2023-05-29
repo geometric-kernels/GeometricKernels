@@ -1,3 +1,5 @@
+import sys
+
 import jax.numpy as jnp
 import lab as B
 import numpy as np
@@ -211,6 +213,10 @@ def feature_map_on_noncompact(request, noncompact_spacepoint):
     return noncompact_spacepoint + (feature_map,)
 
 
+@pytest.mark.skipif(
+    sys.version_info <= (3, 7),
+    reason="requires newer numpy version, unavailable in Python<=3.7",
+)
 @pytest.mark.parametrize("dtype", ["float32", "float64"])
 @pytest.mark.parametrize("backend", ["numpy", "jax", "torch", "tensorflow"])
 @pytest.mark.parametrize("nu", [0.5, np.inf])
