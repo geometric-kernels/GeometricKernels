@@ -64,7 +64,9 @@ class SymmetricPositiveDefiniteMatrices(
         """
         diffX = ordered_pairwise_differences(X)
         diffX = B.abs(diffX)
-        logprod = B.sum(B.log(B.pi * diffX) + B.log(B.tanh(B.pi * diffX)), axis=-1)  # [B, ]
+        logprod = B.sum(
+            B.log(B.pi * diffX) + B.log(B.tanh(B.pi * diffX)), axis=-1
+        )  # [B, ]
         return B.exp(0.5 * logprod)
 
     def power_function(self, lam, g, h):
