@@ -202,7 +202,7 @@ def random_phase_feature_map_noncompact(
 
         key, random_lambda = base_density_sample(
             key,
-            (num_random_phases, B.rank(space.rho)),
+            (num_random_phases, B.shape(space.rho)[0]),  # [O, D]
             params,
             space.dimension,
             space.rho,

@@ -38,7 +38,7 @@ class SymmetricPositiveDefiniteMatrices(
 
     @property
     def rho(self):
-        return (B.range(self.degree) + 1) / 2 - (self.degree + 1) / 4
+        return (B.range(self.degree) + 1) - (self.degree + 1) / 2
 
     @property
     def num_axes(self):
@@ -63,8 +63,8 @@ class SymmetricPositiveDefiniteMatrices(
         X shape [B, D]
         """
         diffX = ordered_pairwise_differences(X)
-        diffX = B.pi * B.abs(diffX)
-        logprod = B.sum(B.log(diffX) + B.log(B.tanh(diffX)), axis=-1)  # [B, ]
+        diffX = B.abs(diffX)
+        logprod = B.sum(B.log(B.pi * diffX) + B.log(B.tanh(B.pi * diffX)), axis=-1)  # [B, ]
         return B.exp(0.5 * logprod)
 
     def power_function(self, lam, g, h):
@@ -73,11 +73,14 @@ class SymmetricPositiveDefiniteMatrices(
         :param g: [N1, ..., Nk, D, D] matrices.
         :param h: [N1, ..., Nk, D, D] phases (orhogonal matrices).
         """
+        g = B.cholesky(g)
         gh = B.matmul(g, h)
         Q, R = qr(gh)
-        u = B.cast(dtype_complex(R), B.diag_extract(R))  # [..., D]
+
+        u = B.abs(B.diag_extract(R))
+        logu = B.cast(dtype_complex(R), B.log(u))
         exponent = create_complex(from_numpy(lam, self.rho), lam)  # [..., D]
-        logpower = u * exponent  # [..., D]
+        logpower = logu * exponent  # [..., D]
         logproduct = B.sum(logpower, axis=-1)  # [...,]
         logproduct = B.cast(dtype_complex(lam), logproduct)
         return B.exp(logproduct)

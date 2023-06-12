@@ -169,4 +169,4 @@ def eigvalsh(x: _Numeric):
     """
     Compute the eigenvalues of a Hermitian or real symmetric matrix x.
     """
-    return np.linalg.eigvalsh(x)
+    return np.linalg.eigvalsh(x, UPLO='U')

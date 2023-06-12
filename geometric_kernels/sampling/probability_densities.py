@@ -243,7 +243,7 @@ def spd_density_sample(key, size, params, degree, rho):
     samples = []
     while len(samples) < reduce(operator.mul, size, 1):
         key, X = B.randn(key, B.dtype(L), degree, degree)
-        M = (X + B.transpose(X)) / B.sqrt(2)
+        M = (X + B.transpose(X)) / 2
 
         eigv = eigvalsh(M)  # [D]
 
@@ -252,6 +252,7 @@ def spd_density_sample(key, size, params, degree, rho):
         else:
             eigv = eigv / B.sqrt(2 * nu / L**2 + B.sum(rho**2))
 
+            # Gamma(nu, 2) distribution is the same as chi2(2nu) distribution
             key, chi2_sample = B.randgamma(key, B.dtype(L), 1, alpha=nu, scale=2)
             chi_sample = B.sqrt(chi2_sample)
 
@@ -260,7 +261,7 @@ def spd_density_sample(key, size, params, degree, rho):
         diffp = ordered_pairwise_differences(proposal)
         diffp = B.pi * B.abs(diffp)
         logprod = B.sum(B.log(B.tanh(diffp)), axis=-1)
-        prod = B.exp(logprod)
+        prod = B.exp(0.5 * logprod)
         assert B.all(prod > 0)
 
         # accept with probability `prod`
