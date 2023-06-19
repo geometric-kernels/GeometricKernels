@@ -43,7 +43,7 @@ def qr(a: B.TorchNumeric):
     """
     Compute QR factorization of a matrix.
     """
-    return torch.linalg.qr(a)
+    return torch.linalg.qr(a, mode='complete')
 
 
 @dispatch

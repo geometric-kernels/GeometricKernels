@@ -38,7 +38,7 @@ def qr(a: B.TFNumeric):
     """
     Compute QR factorization of a matrix.
     """
-    return tf.linalg.qr(a)
+    return tf.linalg.qr(a, full_matrices=True)
 
 
 @dispatch

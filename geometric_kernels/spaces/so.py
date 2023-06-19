@@ -85,6 +85,7 @@ class SOEigenfunctions(LieGroupAddtitionTheorem):
     def _torus_representative(self, X):
             """The function maps Lie Group Element X to T -- a maximal torus of the Lie group
             [n1,n2,\ldots, nk,X, X] ---> [n1,n2,\ldots,nk,X, X]"""
+            gamma = None
             if self.n == 3:
                 # In SO(3) the torus representative is determined by the non-trivial pair of eigenvalues,
                 # which can be calculated from the trace
@@ -92,14 +93,13 @@ class SOEigenfunctions(LieGroupAddtitionTheorem):
                 real = (trace - 1) / 2
                 zeros = real * 0
                 imag = B.sqrt(B.maximum(1 - real*real, zeros))
-                return real + 1j*imag
+                gamma = real + 1j*imag
             elif self.n % 2 == 1:
                 # In SO(2n+1) the torus representative is determined by the (unordered) non-trivial eigenvalues
                 eigvals = B.eig(X, False)
                 sorted_ind = B.argsort(B.real(eigvals), axis=-1)
                 eigvals = take_along_axis(eigvals, sorted_ind, -1)
                 gamma = eigvals[..., 0:-1:2]
-                return gamma
             else:
                 # In SO(2n) each unordered set of eigenvalues determines two conjugacy classes
                 eigvals, eigvecs = B.eig(X)
@@ -117,7 +117,8 @@ class SOEigenfunctions(LieGroupAddtitionTheorem):
                 c /= math.sqrt(2)
                 eigvals[..., 0] = B.power(eigvals[..., 0], B.sign(B.det(c)))
                 gamma = eigvals[..., ::2]
-                return gamma
+            gamma = B.concat(gamma, gamma.conj(), axis=-1)
+            return gamma
 
     def _compute_character_formula(self, signature):
         n = self.n
@@ -214,7 +215,6 @@ class SOCharacter(LieGroupCharacter):
                                'Run compute_characters.py with changed parameters.'.format(e.args[0], group_name)) from None
 
     def __call__(self, gammas):
-        gammas = B.concat(gammas, gammas.conj(), axis=-1)
         char_val = B.zeros(B.dtype(gammas), *gammas.shape[:-1])
         for coeff, monom in zip(self.coeffs, self.monoms):
             char_val += coeff * B.prod(gammas ** from_numpy(gammas, monom), axis=-1)
@@ -228,6 +228,7 @@ class SOGroup(LieGroup): #, SpecialOrthogonal):
     def __init__(self, n):
         self.n = n
         self.dim = n * (n-1) // 2
+        self.rank = n // 2
         LieGroup.__init__(self)
 
 
@@ -278,9 +279,9 @@ class SOGroup(LieGroup): #, SpecialOrthogonal):
             thetas = 2 * math.pi * thetas
             c = B.cos(thetas)
             s = B.sin(thetas)
-            r1 = B.hstack((c, s)).unsqueeze(-2)
-            r2 = B.hstack((-s, c)).unsqueeze(-2)
-            q = B.cat((r1, r2), dim=-2)
+            r1 = B.stack(c, s, axis=-1)
+            r2 = B.stack(-s, c, axis=-1)
+            q = B.concat(r1, r2, axis=-2)
             return key, q
         elif self.n == 3:
             # explicit parametrization via the double cover SU(2) = S^3
