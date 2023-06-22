@@ -38,7 +38,7 @@ def student_t_sample(key, size, deg_freedom, dtype=None):
     :param deg_freedom: degrees of freedom of the student-t distribution.
     :param dtype: dtype of the returned tensor.
     """
-    assert B.shape(deg_freedom) == (1, ), "deg_freedom must be a 1-vector."
+    assert B.shape(deg_freedom) == (1,), "deg_freedom must be a 1-vector."
     dtype = dtype or dtype_double(key)
     key, z = B.randn(key, dtype, *size)
 
