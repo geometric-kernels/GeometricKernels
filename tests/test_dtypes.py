@@ -214,7 +214,7 @@ def feature_map_on_noncompact(request, noncompact_spacepoint):
 
 
 @pytest.mark.skipif(
-    sys.version_info <= (3, 7),
+    sys.version_info < (3, 8),
     reason="requires newer numpy version, unavailable in Python<=3.7",
 )
 @pytest.mark.parametrize("dtype", ["float32", "float64"])
