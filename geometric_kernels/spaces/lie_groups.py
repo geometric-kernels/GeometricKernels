@@ -36,7 +36,7 @@ class LieGroupAddtitionTheorem(EigenfunctionWithAdditionTheorem):
         X_ = B.tile(X[..., None, :, :], 1, X2_inv.shape[0], 1, 1)  # (a, b, n, n)
         X2_inv_ = B.tile(X2_inv[None, ..., :, :], X.shape[0], 1, 1, 1)  # (a, b, n, n)
 
-        diff = B.matmul(X_, X2_inv_).reshape(X.shape[0], X2_inv.shape[0], X.shape[-1], X.shape[-1] )  # [a,b, n, n]
+        diff = B.matmul(X_, X2_inv_).reshape(X.shape[0], X2_inv.shape[0], X.shape[-1], X.shape[-1] )  # (a, b, n, n)
         return diff
 
     def _addition_theorem(self, X: B.Numeric, X2: B.Numeric, **parameters) -> B.Numeric:

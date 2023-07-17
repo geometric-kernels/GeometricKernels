@@ -16,6 +16,7 @@ class CompactHomogeneousSpaceEigenfunctions(EigenfunctionWithAdditionTheorem):
     def __init__(self, M, num_levels, H_samples):
         self.M = M
         self.dim = M.G.dim - M.H.dim
+        self.G_n = M.G.n
         self.H_samples = H_samples
         self.H_samples = self.M.embed_stabilizer(H_samples)
         self.average_order = B.shape(H_samples)[0]
@@ -49,12 +50,14 @@ class CompactHomogeneousSpaceEigenfunctions(EigenfunctionWithAdditionTheorem):
 
     def _addition_theorem(self, X: B.Numeric, X2: B.Numeric, **parameters) -> B.Numeric:
         diff = self._difference(X, X2)
+        diff = diff.reshape(X.shape[0] * X2.shape[0], self.G_n, self.G_n)
         diff_h = self.G_difference(diff, self.H_samples)
         torus_repr_diff = self.G_torus_representative(diff_h)
         values = [
-            degree * chi(torus_repr_diff)[..., None]  # [N1, N2, 1]
+            (degree * chi(torus_repr_diff)[..., None]).reshape(X.shape[0], X2.shape[0], 1)  # [N1, N2, 1]
             for chi, degree in zip(self._characters, self._dimensions)
         ]
+
         return B.concat(*values, axis=-1)  # [N, N2, L]
 
     def _addition_theorem_diag(self, X: B.Numeric, **parameters) -> B.Numeric:

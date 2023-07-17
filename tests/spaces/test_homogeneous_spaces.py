@@ -21,7 +21,9 @@ np.set_printoptions(3)
     # {'group': SOGroup, 'n': 6, 'order': 10, 'dtype': np.double},
     # {'group': SOGroup, 'n': 7, 'order': 10, 'dtype': np.double},
     # {'group': SOGroup, 'n': 8, 'order': 10, 'dtype': np.double},
-    {'manifold': Stiefel, 'n': 5, 'm': 2, 'order': 20, 'average_order': 10000, 'dtype': np.double},
+    {'manifold': Stiefel, 'n': 5, 'm': 2, 'order': 20, 'average_order': 1000, 'dtype': np.double},
+    {'manifold': Stiefel, 'n': 5, 'm': 3, 'order': 20, 'average_order': 1000, 'dtype': np.double},
+    {'manifold': Stiefel, 'n': 6, 'm': 3, 'order': 20, 'average_order': 1000, 'dtype': np.double},
     # {'group': SUGroup, 'n': 3, 'order': 20, 'dtype': np.cdouble},
     # {'group': SUGroup, 'n': 4, 'order': 20, 'dtype': np.cdouble},
     # {'group': SUGroup, 'n': 5, 'order': 20, 'dtype': np.cdouble},
@@ -35,13 +37,13 @@ class TestCompactLieGroups(unittest.TestCase):
 
         self.key, self.manifold = self.manifold(n=self.n, m=self.m, key=self.key, average_order=self.average_order)
         self.eigenfunctions = self.manifold.get_eigenfunctions(self.order)
-        self.lengthscale, self.nu = 2.0, 5.0
+        self.lengthscale, self.nu = 0.5, 5.0
 
         self.kernel = MaternKarhunenLoeveKernel(self.manifold, self.order)
         self.param = dict(lengthscale=np.array(1), nu=np.array(1.5))
         _, self.state = self.kernel.init_params_and_state()
 
-        self.feature_order = 10000
+        self.feature_order = 1000
         self.feature_map, self.key = random_phase_feature_map(self.manifold, self.kernel, self.param, self.state, self.key,
                                                               order=self.feature_order)
         self.key = self.key["key"]
