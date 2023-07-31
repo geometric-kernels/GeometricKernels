@@ -12,7 +12,7 @@ from geometric_kernels.spaces.lie_groups import LieGroup, LieGroupAddtitionTheor
 import abc
 
 
-class CompactHomogeneousSpaceEigenfunctions(EigenfunctionWithAdditionTheorem):
+class CompactHomogeneousSpaceAddtitionTheorem(EigenfunctionWithAdditionTheorem):
     def __init__(self, M, num_levels, H_samples):
         self.M = M
         self.dim = M.G.dim - M.H.dim
@@ -24,12 +24,13 @@ class CompactHomogeneousSpaceEigenfunctions(EigenfunctionWithAdditionTheorem):
 
         self._signatures = G_eigenfunctions._signatures.copy()
         self._eigenvalues = np.copy(G_eigenfunctions._eigenvalues)
-        self._dimensions = np.array([self._compute_dimension(signature) for signature in self._signatures])
+        self._dimensions = np.copy(G_eigenfunctions._dimensions) # np.array([self._compute_dimension(signature) for signature in self._signatures])
         self._characters = [AveragedLieGroupCharacter(self.average_order, character) for character in
                             G_eigenfunctions._characters]
         self.G_torus_representative = G_eigenfunctions._torus_representative
         self.G_difference = G_eigenfunctions._difference
-    def _compute_dimensions(self, signature):
+
+    def _compute_dimension(self, signature):
         raise NotImplementedError
 
     def _torus_representative(self, X):
@@ -126,9 +127,6 @@ class CompactHomogeneousSpace(DiscreteSpectrumSpace):
         self.H_samples = H_samples
         self.dim = self.G.dim - self.H.dim
         self.average_order = average_order
-
-    def compute_inv_dimension(self, signature):
-        raise NotImplementedError
 
     def project_to_manifold(self, g):
         raise NotImplementedError

@@ -1,7 +1,7 @@
 import lab as B
 import numpy as np
 from geometric_kernels.lab_extras import dtype_double, from_numpy, qr, take_along_axis
-from geometric_kernels.spaces.homogeneous_spaces import CompactHomogeneousSpace, CompactHomogeneousSpaceEigenfunctions
+from geometric_kernels.spaces.homogeneous_spaces import CompactHomogeneousSpace, CompactHomogeneousSpaceAddtitionTheorem
 from geometric_kernels.spaces.so import SOGroup
 from opt_einsum import contract as einsum
 
@@ -17,8 +17,15 @@ def hook_content_formula(lmd, n):
 
     return numer/denom
 
-class StiefelEigenfunctions(CompactHomogeneousSpaceEigenfunctions):
-    def _compute_dimension(self, signature):
+
+class StiefelEigenfunctions(CompactHomogeneousSpaceAddtitionTheorem):
+    def _compute_projected_character_value_at_e(self, signature):
+        """
+        Value of character on class of identity element is equal to the dimension of invariant space
+        In case of Stiefel manifold it could be computed using hook content formula
+        :param signature:
+        :return: int
+        """
         m_ = min(self.M.m, self.M.n-self.M.m)
         if m_ < self.M.G.rank and signature[m_] > 0:
             return 0
@@ -63,9 +70,9 @@ class Stiefel(CompactHomogeneousSpace):
 
     def embed_stabilizer(self, h):
         zeros = B.zeros(B.dtype(h), *h.shape[:-2], self.m, self.n-self.m)
-        zerosT = B.transpose(zeros)
+        zeros_t = B.transpose(zeros)
         eye = B.tile(B.eye(B.dtype(h), self.m, self.m).reshape(*([1]*(len(h.shape)-2)), self.m, self.m), *h.shape[:-2], 1, 1)
-        l, r = B.concat(eye, zerosT, axis=-2), B.concat(zeros, h, axis=-2)
+        l, r = B.concat(eye, zeros_t, axis=-2), B.concat(zeros, h, axis=-2)
         res = B.concat(l, r, axis=-1)
         return res
 
@@ -73,7 +80,7 @@ class Stiefel(CompactHomogeneousSpace):
     def dimension(self) -> int:
         return self.dim
 
-    def get_eigenfunctions(self, num: int) -> CompactHomogeneousSpaceEigenfunctions:
+    def get_eigenfunctions(self, num: int) -> CompactHomogeneousSpaceAddtitionTheorem:
         """
         :param num: number of eigenfunctions returned.
         """
