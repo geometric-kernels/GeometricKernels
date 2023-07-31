@@ -1,20 +1,14 @@
+import abc
 import lab as B
-import json
-from pathlib import Path
-import more_itertools
-import sympy
-from sympy.matrices.determinant import _det as sp_det
 import numpy as np
-from geometric_kernels.lab_extras import dtype_double, from_numpy
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import EigenfunctionWithAdditionTheorem, Eigenfunctions
-import abc
 
 
 class LieGroupAddtitionTheorem(EigenfunctionWithAdditionTheorem):
     def __init__(self, num_levels):
         self._num_levels = num_levels
-        self._signatures, self._eigenvalues, self._dimensions = self._generate_signatures(self._num_levels) # both have the length num_levels
+        self._signatures, self._eigenvalues, self._dimensions = self._generate_signatures(self._num_levels)
         self._num_eigenfunctions = self.degree_to_num_eigenfunctions(self._num_levels)
         self._characters = [LieGroupCharacter(signature) for signature in self._signatures]
 
@@ -86,6 +80,7 @@ class LieGroupAddtitionTheorem(EigenfunctionWithAdditionTheorem):
         res = B.stack(res, axis=1)
         return res
 
+
 class LieGroupCharacter(abc.ABC):
     def __call__(self, gammas):
         raise NotImplementedError
@@ -94,7 +89,6 @@ class LieGroupCharacter(abc.ABC):
 class LieGroup(DiscreteSpectrumSpace):
     r"""
     A class for Lie groups represented as matrices,
-
     """
 
     @property
@@ -115,7 +109,6 @@ class LieGroup(DiscreteSpectrumSpace):
         eigenfunctions = LieGroupAddtitionTheorem(self.n, num)
         eigenvalues = np.array(eigenfunctions._eigenvalues)
         return B.reshape(eigenvalues, -1, 1)  # [num, 1]
-
 
     def random(self, number):
         raise NotImplementedError

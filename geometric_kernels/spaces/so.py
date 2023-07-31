@@ -8,15 +8,12 @@ import lab as B
 import numpy as np
 from opt_einsum import contract as einsum
 from pathlib import Path
-from sympy.matrices.determinant import _det as sp_det
 from functools import reduce
+from sympy.matrices.determinant import _det as sp_det
 from geometric_kernels.lab_extras import dtype_double, from_numpy, qr, take_along_axis
-from geometric_kernels.spaces.base import DiscreteSpectrumSpace
-from geometric_kernels.spaces.eigenfunctions import EigenfunctionWithAdditionTheorem, Eigenfunctions
-from geometric_kernels.utils.utils import fixed_length_partitions, partition_dominance_cone, partition_dominance_or_subpartition_cone
-
+from geometric_kernels.utils.utils import fixed_length_partitions, partition_dominance_or_subpartition_cone
 from geometric_kernels.spaces.lie_groups import LieGroup, LieGroupAddtitionTheorem, LieGroupCharacter
-from geomstats.geometry.special_orthogonal import SpecialOrthogonal
+
 
 class SOEigenfunctions(LieGroupAddtitionTheorem):
     def __init__(self, n, num_levels,  init_eigenfunctions=True):
@@ -40,14 +37,21 @@ class SOEigenfunctions(LieGroupAddtitionTheorem):
     def _generate_signatures(self, num_levels):
         """
         Generate the signatures of irreducible representations
-        Representations of SO(dim) can be enumerated by partitions of size dim, called signatures.
+        Representations of SO(dim) can be enumerated by partitions of size rank, called signatures.
         :return signatures: list of signatures of representations likely having the smallest LB eigenvalues
         """
         signatures = []
+        # largest LB eigenvalues correspond to partitions of smallest integers
+        # IF p >> k the number of partitions of p into k parts is O(p^k)
         if self.n == 3:
+            # in this case rank=1, so all partitions are trivial
+            # and LB eigenvalue of signature corresponding to p is p
+            # 200 is more than enough, since the contribution of such term
+            # even in Matern(0.5) case is less than 200^{-2}
             signature_sum = 200
         else:
-            signature_sum = 30
+            # Roughly speaking this is a bruteforce search through 50^{self.rank} smallest eigenvalues
+            signature_sum = 50
         for signature_sum in range(0, signature_sum):
             for i in range(0, self.rank + 1):
                 for signature in fixed_length_partitions(signature_sum, i):
@@ -83,9 +87,13 @@ class SOEigenfunctions(LieGroupAddtitionTheorem):
         return eigenvalue.item()
 
     def _torus_representative(self, X):
-            """The function maps Lie Group Element X to T -- a maximal torus of the Lie group
-            [n1,n2,\ldots, nk,X, X] ---> [n1,n2,\ldots,nk,X, X]"""
+            """
+            The function maps Lie Group Element X to T -- a maximal torus of the Lie group
+            [n1,n2,\ldots, nk,X, X] ---> [n1,n2,\ldots,nk,X, X]
+            """
+
             gamma = None
+
             if self.n == 3:
                 # In SO(3) the torus representative is determined by the non-trivial pair of eigenvalues,
                 # which can be calculated from the trace
@@ -221,7 +229,7 @@ class SOCharacter(LieGroupCharacter):
         return char_val
 
 
-class SOGroup(LieGroup): #, SpecialOrthogonal):
+class SOGroup(LieGroup):
     r"""
     The d-dimensional hypersphere embedded in the (d+1)-dimensional Euclidean space.
     """
@@ -239,7 +247,7 @@ class SOGroup(LieGroup): #, SpecialOrthogonal):
     def inverse(self, X: B.Numeric) -> B.Numeric:
         return B.transpose(X)
 
-    def get_eigenfunctions(self, num: int) -> Eigenfunctions:
+    def get_eigenfunctions(self, num: int) -> SOEigenfunctions:
         """
         :param num: number of eigenfunctions returned.
         """

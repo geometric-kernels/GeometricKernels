@@ -12,7 +12,7 @@ from geometric_kernels import resources
 # set to True to recalculate all characters, set to False to add to the already existing without recalculating
 recalculate = False
 
-storage_file_name = 'precomputed_characters.json'
+storage_file_name = '../spaces/precomputed_characters.json'
 
 # the number of representations to be calculated for each group
 order = 20
@@ -24,11 +24,6 @@ groups = [
     ('SO', 6, SOEigenfunctions),
     ('SO', 7, SOEigenfunctions),
     ('SO', 8, SOEigenfunctions),
-    # (SU, 2, SUCharacter),
-    # (SU, 3, SUCharacter),
-    # (SU, 4, SUCharacter),
-    # (SU, 5, SUCharacter),
-    # (SU, 6, SUCharacter),
 ]
 
 
