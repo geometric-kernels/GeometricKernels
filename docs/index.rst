@@ -351,5 +351,7 @@ You can find more examples in our `example notebooks <https://github.com/GPflow/
    :titlesonly:
    :hidden:
 
+   Examples <examples/index>
    API reference <autoapi/geometric_kernels/index>
    GitHub <https://github.com/GPflow/GeometricKernels>
+

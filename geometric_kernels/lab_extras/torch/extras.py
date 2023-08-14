@@ -20,13 +20,13 @@ def take_along_axis(a: Union[_Numeric, B.Numeric], index: _Numeric, axis: int = 
 
 @dispatch
 def from_numpy(
-    _: B.TorchNumeric, b: Union[List, B.Number, B.NPNumeric, B.TorchNumeric]
+    a: B.TorchNumeric, b: Union[List, B.Number, B.NPNumeric, B.TorchNumeric]
 ):  # type: ignore
     """
     Converts the array `b` to a tensor of the same backend as `a`
     """
     if not torch.is_tensor(b):
-        b = torch.tensor(b.copy())
+        b = torch.tensor(b.copy()).to(a.device)  # type: ignore
     return b
 
 

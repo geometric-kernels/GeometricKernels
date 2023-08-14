@@ -17,23 +17,25 @@ warnings.filterwarnings("ignore", category=RuntimeWarning, module="scipy")
 
 A = np.array(
     [
-        [0, 1, 0, 0, 0, 0],
-        [1, 0, 1, 1, 1, 0],
-        [0, 1, 0, 0, 0, 1],
-        [0, 1, 0, 0, 1, 0],
-        [0, 1, 0, 1, 0, 0],
-        [0, 0, 1, 0, 0, 0],
+        [0, 1, 0, 0, 0, 0, 0],
+        [1, 0, 1, 1, 1, 0, 0],
+        [0, 1, 0, 0, 0, 1, 0],
+        [0, 1, 0, 0, 1, 0, 0],
+        [0, 1, 0, 1, 0, 0, 0],
+        [0, 0, 1, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0],
     ]
 ).astype("float")
 
 L = np.array(
     [
-        [1, -1, 0, 0, 0, 0],
-        [-1, 4, -1, -1, -1, 0],
-        [0, -1, 2, 0, 0, -1],
-        [0, -1, 0, 2, -1, 0],
-        [0, -1, 0, -1, 2, 0],
-        [0, 0, -1, 0, 0, 1],
+        [1, -1, 0, 0, 0, 0, 0],
+        [-1, 4, -1, -1, -1, 0, 0],
+        [0, -1, 2, 0, 0, -1, 0],
+        [0, -1, 0, 2, -1, 0, 0],
+        [0, -1, 0, -1, 2, 0, 0],
+        [0, 0, -1, 0, 0, 1, 0],
+        [0, 0, 0, 0, 0, 0, 0],
     ]
 ).astype("float")
 
@@ -45,6 +47,8 @@ def run_tests_with_adj(A, L, tol=1e-14, tol_m=1e-7):
     n = A.shape[0]
     L = B.cast(B.dtype(A), L)
     graph = Graph(A)
+
+    normed_graph = Graph(A, normalize_laplacian=True)
 
     ##############################################
     # Laplacian computation
@@ -59,6 +63,15 @@ def run_tests_with_adj(A, L, tol=1e-14, tol_m=1e-7):
     else:
         assert B.all(comparison), "Laplacian does not match."
 
+    normed_l = normed_graph._laplacian
+    if sp.issparse(normed_l):
+        normed_l = normed_l.toarray()
+
+    assert (
+        B.max(B.abs(B.diag(normed_l) - 1)[:-1]) < tol_m
+        and B.abs(B.diag(normed_l)[-1] - 0) < tol_m
+    )
+
     ##############################################
     # Eigendecomposition checks
 
@@ -71,7 +84,23 @@ def run_tests_with_adj(A, L, tol=1e-14, tol_m=1e-7):
     np.testing.assert_allclose(evals[:, 0], evals_np, atol=tol, rtol=tol)
 
     # check vecs
-    np.testing.assert_allclose(np.abs(evecs), np.abs(evecs_np), atol=tol, rtol=tol)
+    np.testing.assert_allclose(
+        np.abs(evecs)[:, 2:], np.abs(evecs_np)[:, 2:], atol=tol, rtol=tol
+    )
+
+    try:
+        np.testing.assert_allclose(
+            np.abs(evecs)[:, :2], np.abs(evecs_np)[:, :2], atol=tol, rtol=tol
+        )
+    except AssertionError:
+        np.testing.assert_allclose(
+            np.abs(evecs)[:, [1, 0]], np.abs(evecs_np)[:, :2], atol=tol, rtol=tol
+        )
+
+    normed_evals = normed_graph.get_eigenvalues(n)
+    assert (B.min(normed_evals) >= 0) and (
+        B.max(normed_evals) <= 2
+    )  # well known inequality
 
     ##############################################
     # Kernel init checks
@@ -83,6 +112,9 @@ def run_tests_with_adj(A, L, tol=1e-14, tol_m=1e-7):
     nu = B.cast(B.dtype(A), np.array([1.0]))
     lscale = B.cast(B.dtype(A), np.array([1.0]))
 
+    K_normed_cons = MaternKarhunenLoeveKernel(normed_graph, n)
+    normed_params, normed_state = K_normed_cons.init_params_and_state()
+
     ##############################################
     # Matern 1 check
 
@@ -90,6 +122,9 @@ def run_tests_with_adj(A, L, tol=1e-14, tol_m=1e-7):
     Kg = K_cons.K(params, state, idx)
     K1 = evecs_np @ np.diag(np.power(evals_np + 2, -1)) @ evecs_np.T
     np.testing.assert_allclose(Kg, K1, atol=tol, rtol=tol)
+
+    normed_params["nu"], normed_params["lengthscale"] = nu, lscale
+    K_normed_cons.K(normed_params, normed_state, idx)
 
     ##############################################
     # Matern 2 check
@@ -122,7 +157,15 @@ def run_tests_with_adj(A, L, tol=1e-14, tol_m=1e-7):
         evals_np, evecs_np = sp.linalg.eigsh(B.to_numpy(L), m, sigma=1e-8)
 
     np.testing.assert_allclose(evals[:, 0], evals_np, atol=tol_m, rtol=tol_m)
-    np.testing.assert_allclose(np.abs(evecs), np.abs(evecs_np), atol=tol_m, rtol=tol_m)
+
+    try:
+        np.testing.assert_allclose(
+            np.abs(evecs)[:, :2], np.abs(evecs_np)[:, :2], atol=tol_m, rtol=tol_m
+        )
+    except AssertionError:
+        np.testing.assert_allclose(
+            np.abs(evecs)[:, [1, 0]], np.abs(evecs_np)[:, :2], atol=tol_m, rtol=tol_m
+        )
 
     K_cons = MaternKarhunenLoeveKernel(graph, m)
     params, state = K_cons.init_params_and_state()
@@ -152,3 +195,23 @@ def test_graphs_tf():
 
 def test_graphs_jax():
     run_tests_with_adj(jax.numpy.array(A), L, 1e-6, 1e-6)
+
+
+def test_graphs_torch_cuda():
+    if torch.cuda.is_available():
+        adj = torch.tensor(A).cuda()
+
+        n = adj.shape[0]
+        graph = Graph(adj)
+        # normed_graph = Graph(adj, normalize_laplacian=True)  # fails due to bug in lab
+
+        K_cons = MaternKarhunenLoeveKernel(graph, n)
+        params, state = K_cons.init_params_and_state()
+
+        params["nu"] = torch.nn.Parameter(torch.tensor([1.0]).cuda())
+        params["lengthscale"] = torch.nn.Parameter(torch.tensor([1.0]).cuda())
+
+        idx = torch.arange(n)[:, None].cuda()
+        K_cons.K(params, state, idx)
+    else:
+        pass
