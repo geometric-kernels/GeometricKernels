@@ -58,7 +58,7 @@ def run_tests_with_adj(A, L, tol=1e-14, tol_m=1e-7):
     if sp.issparse(comparison):
         comparison = comparison.toarray()
 
-    if type(comparison) == np.matrix:  # bug with lab?
+    if isinstance(comparison, np.matrix):  # bug with lab?
         assert comparison.all(), "Laplacian does not match."
     else:
         assert B.all(comparison), "Laplacian does not match."
