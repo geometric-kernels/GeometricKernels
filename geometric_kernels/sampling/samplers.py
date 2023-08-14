@@ -14,7 +14,8 @@ def sample_at(feature_map, s, X: B.Numeric, params, state, key=None) -> Tuple[An
     Given a `feature_map`, compute `s` samples at `X` defined by random state `key`.
     """
 
-    key = key or B.global_random_state(B.dtype(X))
+    if key is None:
+        key = B.global_random_state(B.dtype(X))
 
     features, _context = feature_map(X, params, state, key=key)  # [N, M]
 
