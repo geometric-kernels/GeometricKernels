@@ -24,7 +24,7 @@ def sample_at(feature_map, s, X: B.Numeric, params, state, key=None) -> Tuple[An
 
     num_features = B.shape(features)[-1]
 
-    key, random_weights = B.randn(key, B.dtype(features), num_features, s)  # [M, S]
+    key, random_weights = B.randn(key, B.dtype_double(key), num_features, s)  # [M, S]
 
     random_sample = B.matmul(features, random_weights)  # [N, S]
 
