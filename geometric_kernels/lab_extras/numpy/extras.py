@@ -69,6 +69,19 @@ def dtype_double(reference: B.NPRandomState):  # type: ignore
 
 
 @dispatch
+def float_like(reference: B.NPNumeric):
+    """
+    Return the type of the reference if it is a floating point type.
+    Otherwise return `double` dtype of a backend based on the reference.
+    """
+    reference_dtype = np.dtype(reference)
+    if np.issubdtype(reference_dtype, np.floating):
+        return reference_dtype
+    else:
+        return np.float64
+
+
+@dispatch
 def dtype_integer(reference: B.NPRandomState):  # type: ignore
     """
     Return `int` dtype of a backend based on the reference.
@@ -144,3 +157,13 @@ def cumsum(a: _Numeric, axis=None):
     Return cumulative sum (optionally along axis)
     """
     return np.cumsum(a, axis=axis)
+
+
+@dispatch
+def reciprocal_no_nan(x: B.NPNumeric):
+    """
+    Return element-wise reciprocal (1/x). Whenever x = 0 puts 1/x = 0.
+    """
+    x_is_zero = np.equal(x, 0.)
+    safe_x = np.where(x_is_zero, 1., x)
+    return np.where(x_is_zero, 0., np.reciprocal(safe_x))
