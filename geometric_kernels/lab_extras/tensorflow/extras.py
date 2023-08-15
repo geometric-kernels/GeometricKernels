@@ -95,7 +95,7 @@ def float_like(reference: B.TFNumeric):
     Return the type of the reference if it is a floating point type.
     Otherwise return `double` dtype of a backend based on the reference.
     """
-    reference_dtype = tf.dtype(reference)
+    reference_dtype = reference.dtype
     if reference_dtype.is_floating:
         return reference_dtype
     else:

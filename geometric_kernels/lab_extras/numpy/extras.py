@@ -74,7 +74,7 @@ def float_like(reference: B.NPNumeric):
     Return the type of the reference if it is a floating point type.
     Otherwise return `double` dtype of a backend based on the reference.
     """
-    reference_dtype = np.dtype(reference)
+    reference_dtype = reference.dtype
     if np.issubdtype(reference_dtype, np.floating):
         return reference_dtype
     else:

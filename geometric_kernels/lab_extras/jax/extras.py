@@ -87,7 +87,7 @@ def float_like(reference: B.JAXNumeric):
     Return the type of the reference if it is a floating point type.
     Otherwise return `double` dtype of a backend based on the reference.
     """
-    reference_dtype = jnp.dtype(reference)
+    reference_dtype = reference.dtype
     if jnp.issubdtype(reference_dtype, jnp.floating):
         return reference_dtype
     else:
