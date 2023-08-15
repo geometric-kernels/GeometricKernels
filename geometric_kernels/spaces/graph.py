@@ -8,7 +8,11 @@ import lab as B
 import numpy as np
 
 from geometric_kernels.lab_extras import (
-    degree, dtype_integer, eigenpairs, set_value, reciprocal_no_nan
+    degree,
+    dtype_integer,
+    eigenpairs,
+    set_value,
+    reciprocal_no_nan,
 )
 from geometric_kernels.spaces.base import (
     ConvertEigenvectorsToEigenfunctions,
