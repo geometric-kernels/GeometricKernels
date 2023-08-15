@@ -11,8 +11,8 @@ from geometric_kernels.lab_extras import (
     degree,
     dtype_integer,
     eigenpairs,
-    set_value,
     reciprocal_no_nan,
+    set_value,
 )
 from geometric_kernels.spaces.base import (
     ConvertEigenvectorsToEigenfunctions,

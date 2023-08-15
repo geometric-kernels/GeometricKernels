@@ -6,7 +6,7 @@ from typing import Dict
 import lab as B
 
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
-from geometric_kernels.lab_extras import from_numpy, float_like
+from geometric_kernels.lab_extras import float_like, from_numpy
 from geometric_kernels.sampling.probability_densities import (
     base_density_sample,
     hyperbolic_density_sample,
