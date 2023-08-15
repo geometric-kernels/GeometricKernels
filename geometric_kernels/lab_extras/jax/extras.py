@@ -175,6 +175,6 @@ def reciprocal_no_nan(x: B.JAXNumeric):
     """
     Return element-wise reciprocal (1/x). Whenever x = 0 puts 1/x = 0.
     """
-    x_is_zero = jnp.equal(x, 0.)
-    safe_x = jnp.where(x_is_zero, 1., x)
-    return jnp.where(x_is_zero, 0., jnp.reciprocal(safe_x))
+    x_is_zero = jnp.equal(x, 0.0)
+    safe_x = jnp.where(x_is_zero, 1.0, x)
+    return jnp.where(x_is_zero, 0.0, jnp.reciprocal(safe_x))

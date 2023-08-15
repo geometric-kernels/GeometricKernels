@@ -195,5 +195,5 @@ def reciprocal_no_nan(x: B.TorchNumeric):
     """
     Return element-wise reciprocal (1/x). Whenever x = 0 puts 1/x = 0.
     """
-    safe_x = torch.where(x == 0., 1., x)
-    return torch.where(x == 0, 0., torch.reciprocal(safe_x))
+    safe_x = torch.where(x == 0.0, 1.0, x)
+    return torch.where(x == 0.0, 0.0, torch.reciprocal(safe_x))
