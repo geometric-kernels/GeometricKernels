@@ -102,7 +102,7 @@ def float_like(reference: B.TorchNumeric):
     Otherwise return `double` dtype of a backend based on the reference.
     """
     if torch.is_floating_point(reference):
-        return torch.dtype(reference)
+        return B.dtype(reference)
     else:
         return torch.float64
 

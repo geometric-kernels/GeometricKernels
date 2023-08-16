@@ -89,7 +89,7 @@ def float_like(reference: B.JAXNumeric):
     """
     reference_dtype = reference.dtype
     if jnp.issubdtype(reference_dtype, jnp.floating):
-        return reference_dtype
+        return B.dtype(reference)
     else:
         return jnp.float64
 

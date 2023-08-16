@@ -4,6 +4,7 @@ import lab as B
 from lab import dispatch
 from lab.util import abstract
 from plum import Union
+from scipy.sparse import spmatrix
 
 
 @dispatch
@@ -182,7 +183,7 @@ def cumsum(a: B.Numeric, axis=None):
 
 @dispatch
 @abstract()
-def reciprocal_no_nan(x: B.Numeric):
+def reciprocal_no_nan(x: Union[B.Numeric, spmatrix]):
     """
     Return element-wise reciprocal (1/x). Whenever x = 0 puts 1/x = 0.
     """
