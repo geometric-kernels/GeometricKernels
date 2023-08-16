@@ -169,6 +169,7 @@ def reciprocal_no_nan(x: B.NPNumeric):
     safe_x = np.where(x_is_zero, 1.0, x)
     return np.where(x_is_zero, 0.0, np.reciprocal(safe_x))
 
+
 @dispatch
 def reciprocal_no_nan(x: spmatrix):
     """
