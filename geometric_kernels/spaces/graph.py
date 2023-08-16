@@ -7,7 +7,13 @@ from typing import Dict, Tuple
 import lab as B
 import numpy as np
 
-from geometric_kernels.lab_extras import degree, dtype_integer, eigenpairs, set_value
+from geometric_kernels.lab_extras import (
+    degree,
+    dtype_integer,
+    eigenpairs,
+    reciprocal_no_nan,
+    set_value,
+)
 from geometric_kernels.spaces.base import (
     ConvertEigenvectorsToEigenfunctions,
     DiscreteSpectrumSpace,
@@ -53,7 +59,7 @@ class Graph(DiscreteSpectrumSpace):
         degree_matrix = degree(adjacency)
         self._laplacian = degree_matrix - adjacency
         if normalize_laplacian:
-            degree_inv_sqrt = B.linear_algebra.pinv(B.sqrt(degree_matrix))
+            degree_inv_sqrt = reciprocal_no_nan(B.sqrt(degree_matrix))
             self._laplacian = degree_inv_sqrt @ self._laplacian @ degree_inv_sqrt
 
     def get_eigensystem(self, num):

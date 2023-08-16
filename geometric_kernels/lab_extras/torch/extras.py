@@ -96,6 +96,18 @@ def dtype_double(reference: B.TorchRandomState):  # type: ignore
 
 
 @dispatch
+def float_like(reference: B.TorchNumeric):
+    """
+    Return the type of the reference if it is a floating point type.
+    Otherwise return `double` dtype of a backend based on the reference.
+    """
+    if torch.is_floating_point(reference):
+        return B.dtype(reference)
+    else:
+        return torch.float64
+
+
+@dispatch
 def dtype_integer(reference: B.TorchRandomState):  # type: ignore
     """
     Return `int` dtype of a backend based on the reference.
@@ -176,3 +188,12 @@ def cumsum(x: B.TorchNumeric, axis=None):
     Return cumulative sum (optionally along axis)
     """
     return torch.cumsum(x, dim=axis)
+
+
+@dispatch
+def reciprocal_no_nan(x: B.TorchNumeric):
+    """
+    Return element-wise reciprocal (1/x). Whenever x = 0 puts 1/x = 0.
+    """
+    safe_x = torch.where(x == 0.0, 1.0, x)
+    return torch.where(x == 0.0, 0.0, torch.reciprocal(safe_x))

@@ -4,6 +4,7 @@ import lab as B
 from lab import dispatch
 from lab.util import abstract
 from plum import Union
+from scipy.sparse import spmatrix
 
 
 @dispatch
@@ -96,6 +97,15 @@ def dtype_double(reference):
 
 @dispatch
 @abstract()
+def float_like(reference: B.Numeric):
+    """
+    Return the type of the reference if it is a floating point type.
+    Otherwise return `double` dtype of a backend based on the reference.
+    """
+
+
+@dispatch
+@abstract()
 def dtype_integer(reference):
     """
     Return `int` dtype of a backend based on the reference.
@@ -168,4 +178,12 @@ def dtype_complex(reference: B.Numeric):
 def cumsum(a: B.Numeric, axis=None):
     """
     Return cumulative sum (optionally along axis)
+    """
+
+
+@dispatch
+@abstract()
+def reciprocal_no_nan(x: Union[B.Numeric, spmatrix]):
+    """
+    Return element-wise reciprocal (1/x). Whenever x = 0 puts 1/x = 0.
     """
