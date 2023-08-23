@@ -3,7 +3,7 @@ torch
 gpflow
 gpjax>=0.5.2
 tensorflow
-tensorflow-probability==0.14.0
+tensorflow-probability==0.20.1
 jax
 jaxlib
 backends==1.4.32

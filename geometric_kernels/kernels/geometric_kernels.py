@@ -61,7 +61,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
 
         :return: tuple(params, state)
         """
-        params = dict(lengthscale=np.array(1.0), nu=np.array(0.5))
+        params = dict(lengthscale=np.array(1.0), nu=np.array(np.inf))
 
         eigenvalues_laplacian = self.space.get_eigenvalues(self.num_eigenfunctions)
         eigenfunctions = self.space.get_eigenfunctions(self.num_eigenfunctions)
@@ -164,7 +164,7 @@ class MaternFeatureMapKernel(BaseGeometricKernel):
         self.feature_map = make_deterministic(feature_map, key)
 
     def init_params_and_state(self):
-        params = dict(nu=np.array(0.5), lengthscale=np.array(1.0))
+        params = dict(nu=np.array(np.inf), lengthscale=np.array(1.0))
         state = dict()
         return params, state
 
@@ -220,7 +220,7 @@ class MaternIntegratedKernel(BaseGeometricKernel):
 
         :return: tuple(params, state)
         """
-        params = dict(lengthscale=1.0, nu=0.5)
+        params = dict(lengthscale=1.0, nu=np.inf)
         state = dict()
 
         return params, state
