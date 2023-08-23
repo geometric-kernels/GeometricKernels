@@ -109,11 +109,13 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         assert "eigenvalues_laplacian" in state
 
         eigenvalues_laplacian = state["eigenvalues_laplacian"]  # [M, 1]
-        return self._spectrum(
+        spectral_values = self._spectrum(
             eigenvalues_laplacian**0.5,
             nu=params["nu"],
             lengthscale=params["lengthscale"],
         )
+        normalizer = B.sum(spectral_values)
+        return spectral_values / normalizer
 
     def K(
         self, params, state, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs  # type: ignore
