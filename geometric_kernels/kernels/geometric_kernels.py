@@ -39,6 +39,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         self,
         space: DiscreteSpectrumSpace,
         num_eigenfunctions: int,
+        normalize: bool = True,
     ):
         r"""
         :param space: Space providing the eigenvalues and eigenfunctions of
@@ -48,9 +49,11 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             `np.inf` which corresponds to the Squared Exponential kernel.
         :param num_eigenfunctions: number of eigenvalues and functions to include
             in the summation.
+        :param normalize: whether to normalize to have unit average variance.
         """
         super().__init__(space)
         self.num_eigenfunctions = num_eigenfunctions  # in code referred to as `M`.
+        self.normalize = normalize
 
     def init_params_and_state(self):
         """
@@ -114,8 +117,10 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             nu=params["nu"],
             lengthscale=params["lengthscale"],
         )
-        normalizer = B.sum(spectral_values)
-        return spectral_values / normalizer
+        if self.normalize:
+            normalizer = B.sum(spectral_values)
+            return spectral_values / normalizer
+        return spectral_values
 
     def K(
         self, params, state, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs  # type: ignore

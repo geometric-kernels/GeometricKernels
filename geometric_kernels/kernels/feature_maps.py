@@ -149,13 +149,14 @@ def random_phase_feature_map_compact(
 
 
 def random_phase_feature_map_noncompact(
-    space: NoncompactSymmetricSpace, num_random_phases=3000
+    space: NoncompactSymmetricSpace, num_random_phases=3000, normalize=True
 ):
     r"""
     Random phase feature map for noncompact symmetric space based on naive algorithm.
 
     :param space: Space.
     :param num_random_phases: number of random phases to use.
+    :param normalize: whether to normalize to have unit variance
 
     :return: Callable
             Signature: (X, params, state, key, **kwargs)
@@ -219,8 +220,9 @@ def random_phase_feature_map_noncompact(
         c = space.inv_harish_chandra(random_lambda_b)  # [1, O]
 
         out = B.concat(B.real(p) * c, B.imag(p) * c, axis=-1)  # [N, 2*O]
-        normalizer = B.sqrt(B.sum(out**2, axis=-1, squeeze=False))
-        out = out / normalizer
+        if normalize:
+            normalizer = B.sqrt(B.sum(out**2, axis=-1, squeeze=False))
+            out = out / normalizer
 
         _context: Dict[str, B.types.RandomState] = {"key": key}
         return out, _context
@@ -229,7 +231,9 @@ def random_phase_feature_map_noncompact(
 
 
 def rejection_sampling_feature_map_hyperbolic(
-    space: Hyperbolic, num_random_phases=3000
+    space: Hyperbolic,
+    num_random_phases=3000,
+    normalize=True,
 ):
     r"""
     Random phase feature map for the Hyperbolic space based on the
@@ -237,6 +241,7 @@ def rejection_sampling_feature_map_hyperbolic(
 
     :param space: Hyperbolic space.
     :param num_random_phases: number of random phases to use.
+    :param normalize: whether to normalize to have unit variance.
 
     :return: Callable
             Signature: (X, params, state, key, **kwargs)
@@ -277,8 +282,9 @@ def rejection_sampling_feature_map_hyperbolic(
         p = space.power_function(random_lambda_b, X_b, random_phases_b)  # [N, O]
 
         out = B.concat(B.real(p), B.imag(p), axis=-1)  # [N, 2*O]
-        normalizer = B.sqrt(B.sum(out**2, axis=-1, squeeze=False))
-        out = out / normalizer
+        if normalize:
+            normalizer = B.sqrt(B.sum(out**2, axis=-1, squeeze=False))
+            out = out / normalizer
 
         _context: Dict[str, B.types.RandomState] = {"key": key}
         return out, _context
