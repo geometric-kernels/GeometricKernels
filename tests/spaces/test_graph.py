@@ -105,14 +105,14 @@ def run_tests_with_adj(A, L, tol=1e-14, tol_m=1e-7):
     ##############################################
     # Kernel init checks
 
-    K_cons = MaternKarhunenLoeveKernel(graph, n)
+    K_cons = MaternKarhunenLoeveKernel(graph, n, normalize=False)
     params, state = K_cons.init_params_and_state()
     idx = B.cast(B.dtype(A), np.arange(n)[:, None])
 
     nu = B.cast(B.dtype(A), np.array([1.0]))
     lscale = B.cast(B.dtype(A), np.array([1.0]))
 
-    K_normed_cons = MaternKarhunenLoeveKernel(normed_graph, n)
+    K_normed_cons = MaternKarhunenLoeveKernel(normed_graph, n, normalize=False)
     normed_params, normed_state = K_normed_cons.init_params_and_state()
 
     ##############################################
@@ -167,7 +167,7 @@ def run_tests_with_adj(A, L, tol=1e-14, tol_m=1e-7):
             np.abs(evecs)[:, [1, 0]], np.abs(evecs_np)[:, :2], atol=tol_m, rtol=tol_m
         )
 
-    K_cons = MaternKarhunenLoeveKernel(graph, m)
+    K_cons = MaternKarhunenLoeveKernel(graph, m, normalize=False)
     params, state = K_cons.init_params_and_state()
 
     nu = B.cast(B.dtype(A), np.array([np.inf]))
@@ -205,7 +205,7 @@ def test_graphs_torch_cuda():
         graph = Graph(adj)
         # normed_graph = Graph(adj, normalize_laplacian=True)  # fails due to bug in lab
 
-        K_cons = MaternKarhunenLoeveKernel(graph, n)
+        K_cons = MaternKarhunenLoeveKernel(graph, n, normalize=False)
         params, state = K_cons.init_params_and_state()
 
         params["nu"] = torch.nn.Parameter(torch.tensor([1.0]).cuda())
