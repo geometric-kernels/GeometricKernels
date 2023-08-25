@@ -51,8 +51,10 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         """
         super().__init__(space)
         self.num_eigenfunctions = num_eigenfunctions  # in code referred to as `M`.
-        self.eigenvalues_laplacian = self.space.get_eigenvalues(self.num_eigenfunctions)
-        self.eigenfunctions = self.space.get_eigenfunctions(self.num_eigenfunctions)
+        self._eigenvalues_laplacian = self.space.get_eigenvalues(
+            self.num_eigenfunctions
+        )
+        self._eigenfunctions = self.space.get_eigenfunctions(self.num_eigenfunctions)
 
     def init_params_and_state(self):
         """
@@ -90,8 +92,14 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         """
         Eigenfunctions of the kernel, may depend on parameters.
         """
-        eigenfunctions = self.space.get_eigenfunctions(self.num_eigenfunctions)
-        return eigenfunctions
+        return self._eigenfunctions
+
+    @property
+    def eigenvalues_laplacian(self) -> B.Numeric:
+        """
+        Eigenvalues of the Laplacian.
+        """
+        return self._eigenvalues_laplacian
 
     def eigenvalues(self, params, state) -> B.Numeric:
         """
@@ -102,7 +110,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         assert "lengthscale" in params
         assert "nu" in params
 
-        eigenvalues_laplacian = self.eigenvalues_laplacian  # [M, 1]
+        eigenvalues_laplacian = self._eigenvalues_laplacian  # [M, 1]
         return self._spectrum(
             eigenvalues_laplacian**0.5,
             nu=params["nu"],
@@ -116,13 +124,13 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         weights = B.cast(
             B.dtype(params["nu"]), self.eigenvalues(params, state)
         )  # [M, 1]
-        Phi = self.eigenfunctions
+        Phi = self.eigenfunctions()
 
         return Phi.weighted_outerproduct(weights, X, X2, **params)  # [N, N2]
 
     def K_diag(self, params, state, X: B.Numeric, **kwargs) -> B.Numeric:
         weights = self.eigenvalues(params, state)  # [M, 1]
-        Phi = self.eigenfunctions
+        Phi = self.eigenfunctions()
 
         return Phi.weighted_outerproduct_diag(weights, X, **params)  # [N,]
 
