@@ -191,6 +191,32 @@ def cumsum(x: B.TorchNumeric, axis=None):
 
 
 @dispatch
+def qr(x: B.TorchNumeric):
+    """
+    Return a QR decomposition of a matrix x.
+    """
+    Q, R = torch.qr(x)
+    return Q, R
+
+
+@dispatch
+def slogdet(x: B.TorchNumeric):
+    """
+    Return the sign and log-determinant of a matrix x.
+    """
+    sign, logdet = torch.slogdet(x)
+    return sign, logdet
+
+
+@dispatch
+def eigvalsh(x: B.TorchNumeric):
+    """
+    Compute the eigenvalues of a Hermitian or real symmetric matrix x.
+    """
+    return torch.linalg.eigvalsh(x)
+
+
+@dispatch
 def reciprocal_no_nan(x: B.TorchNumeric):
     """
     Return element-wise reciprocal (1/x). Whenever x = 0 puts 1/x = 0.

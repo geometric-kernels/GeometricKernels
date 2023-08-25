@@ -10,11 +10,13 @@ from geometric_kernels.lab_extras import float_like, from_numpy
 from geometric_kernels.sampling.probability_densities import (
     base_density_sample,
     hyperbolic_density_sample,
+    spd_density_sample,
 )
 from geometric_kernels.spaces import (
     DiscreteSpectrumSpace,
     Hyperbolic,
     NoncompactSymmetricSpace,
+    SymmetricPositiveDefiniteMatrices,
 )
 
 
@@ -196,24 +198,24 @@ def random_phase_feature_map_noncompact(
                  and `context` is `{'key': <new key>}`. `<new key>` is the new key
                  for jax, and the same random state (generator) for all other backends.
         """
-        key, random_phases = space.random_phases(key, num_random_phases)  # [O, D]
+        key, random_phases = space.random_phases(key, num_random_phases)  # [O, <axes>]
 
         key, random_lambda = base_density_sample(
             key,
-            (num_random_phases, B.rank(space.rho)),
+            (num_random_phases, B.shape(space.rho)[0]),  # [O, D]
             params,
             space.dimension,
             space.rho,
         )  # [O, P]
 
-        # X [N, D]
+        # X [N, <axes>]
         random_phases_b = B.expand_dims(
             B.cast(float_like(X), from_numpy(X, random_phases))
-        )  # [1, O, D]
+        )  # [1, O, <axes>]
         random_lambda_b = B.expand_dims(
             B.cast(float_like(X), from_numpy(X, random_lambda))
         )  # [1, O, P]
-        X_b = B.expand_dims(X, axis=-2)  # [N, 1, D]
+        X_b = B.expand_dims(X, axis=-1 - space.num_axes)  # [N, 1, <axes>]
 
         p = space.power_function(random_lambda_b, X_b, random_phases_b)  # [N, O]
         c = space.inv_harish_chandra(random_lambda_b)  # [1, O]
@@ -263,7 +265,7 @@ def rejection_sampling_feature_map_hyperbolic(
 
         key, random_lambda = hyperbolic_density_sample(
             key, (num_random_phases, B.rank(space.rho)), params, space.dimension
-        )  # [O, ]
+        )  # [O, 1]
 
         # X [N, D]
         random_phases_b = B.expand_dims(
@@ -271,8 +273,66 @@ def rejection_sampling_feature_map_hyperbolic(
         )  # [1, O, D]
         random_lambda_b = B.expand_dims(
             B.cast(float_like(X), from_numpy(X, random_lambda))
-        )  # [1, O]
+        )  # [1, O, 1]
         X_b = B.expand_dims(X, axis=-2)  # [N, 1, D]
+
+        p = space.power_function(random_lambda_b, X_b, random_phases_b)  # [N, O]
+
+        out = B.concat(B.real(p), B.imag(p), axis=-1)  # [N, 2*O]
+        normalizer = B.sqrt(B.sum(out**2, axis=-1, squeeze=False))
+        out = out / normalizer
+
+        _context: Dict[str, B.types.RandomState] = {"key": key}
+        return out, _context
+
+    return _map
+
+
+def rejection_sampling_feature_map_spd(
+    space: SymmetricPositiveDefiniteMatrices, num_random_phases=3000
+):
+    r"""
+    Random phase feature map for the SPD space based on the
+    rejection sampling algorithm.
+
+    :param space: SymmetricPositiveDefiniteMatrices space.
+    :param num_random_phases: number of random phases to use.
+
+    :return: Callable
+            Signature: (X, params, state, key, **kwargs)
+            :param X: [N, D, D] points in the space to evaluate the map on.
+            :param params: parameters of the feature map (lengthscale and smoothness).
+            :param state: unused.
+            :param key: random state, either `np.random.RandomState`, `tf.random.Generator`,
+                        `torch.Generator` or `jax.tensor` (representing random state).
+
+                         Note that for any backend other than `jax`, passing the same `key`
+                         twice does not garantee that the feature map will be the same each time.
+                         This is because these backends' random state has... a state.
+                         One either has to recreate/restore the state each time or
+                         make use of `geometric_kernels.utils.make_deterministic`.
+            :param **kwargs: unused.
+
+            :return: `Tuple(features, context)` where `features` is [N, O] features,
+                     and `context` is `{'key': <new key>}`. `<new key>` is the new key
+                     for jax, and the same random state (generator) for all other backends.
+    """
+
+    def _map(X: B.Numeric, params, state, key, **kwargs) -> B.Numeric:
+        key, random_phases = space.random_phases(key, num_random_phases)  # [O, D, D]
+
+        key, random_lambda = spd_density_sample(
+            key, (num_random_phases,), params, space.degree, space.rho
+        )  # [O, D]
+
+        # X [N, D, D]
+        random_phases_b = B.expand_dims(
+            B.cast(B.dtype(X), from_numpy(X, random_phases))
+        )  # [1, O, D, D]
+        random_lambda_b = B.expand_dims(
+            B.cast(B.dtype(X), from_numpy(X, random_lambda))
+        )  # [1, O, D]
+        X_b = B.expand_dims(X, axis=-3)  # [N, 1, D, D]
 
         p = space.power_function(random_lambda_b, X_b, random_phases_b)  # [N, O]
 

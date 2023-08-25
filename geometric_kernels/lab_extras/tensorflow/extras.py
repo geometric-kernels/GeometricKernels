@@ -185,6 +185,32 @@ def cumsum(x: B.TFNumeric, axis=None):
 
 
 @dispatch
+def qr(x: B.TFNumeric):
+    """
+    Return a QR decomposition of a matrix x.
+    """
+    Q, R = tf.linalg.qr(x)
+    return Q, R
+
+
+@dispatch
+def slogdet(x: B.TFNumeric):
+    """
+    Return the sign and log-determinant of a matrix x.
+    """
+    sign, logdet = tf.linalg.slogdet(x)
+    return sign, logdet
+
+
+@dispatch
+def eigvalsh(x: B.TFNumeric):
+    """
+    Compute the eigenvalues of a Hermitian or real symmetric matrix x.
+    """
+    return tf.linalg.eigvalsh(x)
+
+
+@dispatch
 def reciprocal_no_nan(x: B.TFNumeric):
     """
     Return element-wise reciprocal (1/x). Whenever x = 0 puts 1/x = 0.

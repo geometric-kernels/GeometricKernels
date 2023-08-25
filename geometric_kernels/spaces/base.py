@@ -105,6 +105,13 @@ class NoncompactSymmetricSpace(Space):
         Random samples from Haar measure on the isotropy group of the symmetric space.
         """
 
+    @abc.abstractproperty
+    def num_axes(self):
+        """
+        Number of axes in an array representing a point in the space.
+        Ususally 1 for vectors and 2 for matrices.
+        """
+
 
 class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
     """

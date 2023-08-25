@@ -183,6 +183,30 @@ def cumsum(a: B.Numeric, axis=None):
 
 @dispatch
 @abstract()
+def qr(x: B.Numeric):
+    """
+    Return a QR decomposition of a matrix x.
+    """
+
+
+@dispatch
+@abstract()
+def slogdet(x: B.Numeric):
+    """
+    Return the sign and log-determinant of a matrix x.
+    """
+
+
+@dispatch
+@abstract()
+def eigvalsh(x: B.Numeric):
+    """
+    Compute the eigenvalues of a Hermitian or real symmetric matrix x.
+    """
+
+
+@dispatch
+@abstract()
 def reciprocal_no_nan(x: Union[B.Numeric, spmatrix]):
     """
     Return element-wise reciprocal (1/x). Whenever x = 0 puts 1/x = 0.

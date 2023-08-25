@@ -149,6 +149,10 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
     def rho(self):
         return B.ones(1) * (self.dimension - 1) / 2
 
+    @property
+    def num_axes(self):
+        return 1
+
     def random_phases(self, key, num):
         if not isinstance(num, tuple):
             num = (num,)
