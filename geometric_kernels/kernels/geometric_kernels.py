@@ -94,7 +94,6 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         """
         return self._eigenfunctions
 
-    @property
     def eigenvalues_laplacian(self) -> B.Numeric:
         """
         Eigenvalues of the Laplacian.
