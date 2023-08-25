@@ -51,6 +51,8 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         """
         super().__init__(space)
         self.num_eigenfunctions = num_eigenfunctions  # in code referred to as `M`.
+        self.eigenvalues_laplacian = self.space.get_eigenvalues(self.num_eigenfunctions)
+        self.eigenfunctions = self.space.get_eigenfunctions(self.num_eigenfunctions)
 
     def init_params_and_state(self):
         """
@@ -62,13 +64,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         :return: tuple(params, state)
         """
         params = dict(lengthscale=np.array(1.0), nu=np.array(np.inf))
-
-        eigenvalues_laplacian = self.space.get_eigenvalues(self.num_eigenfunctions)
-        eigenfunctions = self.space.get_eigenfunctions(self.num_eigenfunctions)
-
-        state = dict(
-            eigenvalues_laplacian=eigenvalues_laplacian, eigenfunctions=eigenfunctions
-        )
+        state = dict()
 
         return params, state
 
@@ -106,9 +102,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         assert "lengthscale" in params
         assert "nu" in params
 
-        assert "eigenvalues_laplacian" in state
-
-        eigenvalues_laplacian = state["eigenvalues_laplacian"]  # [M, 1]
+        eigenvalues_laplacian = self.eigenvalues_laplacian  # [M, 1]
         return self._spectrum(
             eigenvalues_laplacian**0.5,
             nu=params["nu"],
@@ -119,22 +113,16 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         self, params, state, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs  # type: ignore
     ) -> B.Numeric:
         """Compute the mesh kernel via Laplace eigendecomposition"""
-        assert "eigenfunctions" in state
-        assert "eigenvalues_laplacian" in state
-
         weights = B.cast(
             B.dtype(params["nu"]), self.eigenvalues(params, state)
         )  # [M, 1]
-        Phi = state["eigenfunctions"]
+        Phi = self.eigenfunctions
 
         return Phi.weighted_outerproduct(weights, X, X2, **params)  # [N, N2]
 
     def K_diag(self, params, state, X: B.Numeric, **kwargs) -> B.Numeric:
-        assert "eigenvalues_laplacian" in state
-        assert "eigenfunctions" in state
-
         weights = self.eigenvalues(params, state)  # [M, 1]
-        Phi = state["eigenfunctions"]
+        Phi = self.eigenfunctions
 
         return Phi.weighted_outerproduct_diag(weights, X, **params)  # [N,]
 
