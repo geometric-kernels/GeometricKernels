@@ -90,6 +90,19 @@ def dtype_double(reference: B.TFRandomState):  # type: ignore
 
 
 @dispatch
+def float_like(reference: B.TFNumeric):
+    """
+    Return the type of the reference if it is a floating point type.
+    Otherwise return `double` dtype of a backend based on the reference.
+    """
+    reference_dtype = reference.dtype
+    if reference_dtype.is_floating:
+        return reference_dtype
+    else:
+        return tf.float64
+
+
+@dispatch
 def dtype_integer(reference: B.TFRandomState):  # type: ignore
     """
     Return `int` dtype of a backend based on the reference.
@@ -195,3 +208,11 @@ def eigvalsh(x: B.TFNumeric):
     Compute the eigenvalues of a Hermitian or real symmetric matrix x.
     """
     return tf.linalg.eigvalsh(x)
+
+
+@dispatch
+def reciprocal_no_nan(x: B.TFNumeric):
+    """
+    Return element-wise reciprocal (1/x). Whenever x = 0 puts 1/x = 0.
+    """
+    return tf.math.reciprocal_no_nan(x)

@@ -82,6 +82,19 @@ def dtype_double(reference: B.JAXRandomState):  # type: ignore
 
 
 @dispatch
+def float_like(reference: B.JAXNumeric):
+    """
+    Return the type of the reference if it is a floating point type.
+    Otherwise return `double` dtype of a backend based on the reference.
+    """
+    reference_dtype = reference.dtype
+    if jnp.issubdtype(reference_dtype, jnp.floating):
+        return B.dtype(reference)
+    else:
+        return jnp.float64
+
+
+@dispatch
 def dtype_integer(reference: B.JAXRandomState):  # type: ignore
     """
     Return `int` dtype of a backend based on the reference.
@@ -181,3 +194,13 @@ def eigvalsh(x: B.JAXNumeric):
     Compute the eigenvalues of a Hermitian or real symmetric matrix x.
     """
     return jnp.linalg.eigvalsh(x)
+
+
+@dispatch
+def reciprocal_no_nan(x: B.JAXNumeric):
+    """
+    Return element-wise reciprocal (1/x). Whenever x = 0 puts 1/x = 0.
+    """
+    x_is_zero = jnp.equal(x, 0.0)
+    safe_x = jnp.where(x_is_zero, 1.0, x)
+    return jnp.where(x_is_zero, 0.0, jnp.reciprocal(safe_x))

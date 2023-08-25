@@ -4,6 +4,7 @@ import lab as B
 from lab import dispatch
 from lab.util import abstract
 from plum import Union
+from scipy.sparse import spmatrix
 
 
 @dispatch
@@ -91,6 +92,15 @@ def set_value(a, index: int, value: float):
 def dtype_double(reference):
     """
     Return `double` dtype of a backend based on the reference.
+    """
+
+
+@dispatch
+@abstract()
+def float_like(reference: B.Numeric):
+    """
+    Return the type of the reference if it is a floating point type.
+    Otherwise return `double` dtype of a backend based on the reference.
     """
 
 
@@ -192,4 +202,12 @@ def slogdet(x: B.Numeric):
 def eigvalsh(x: B.Numeric):
     """
     Compute the eigenvalues of a Hermitian or real symmetric matrix x.
+    """
+
+
+@dispatch
+@abstract()    
+def reciprocal_no_nan(x: Union[B.Numeric, spmatrix]):
+    """
+    Return element-wise reciprocal (1/x). Whenever x = 0 puts 1/x = 0.
     """

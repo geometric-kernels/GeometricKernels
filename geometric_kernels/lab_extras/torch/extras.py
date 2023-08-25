@@ -20,13 +20,13 @@ def take_along_axis(a: Union[_Numeric, B.Numeric], index: _Numeric, axis: int = 
 
 @dispatch
 def from_numpy(
-    _: B.TorchNumeric, b: Union[List, B.Number, B.NPNumeric, B.TorchNumeric]
+    a: B.TorchNumeric, b: Union[List, B.Number, B.NPNumeric, B.TorchNumeric]
 ):  # type: ignore
     """
     Converts the array `b` to a tensor of the same backend as `a`
     """
     if not torch.is_tensor(b):
-        b = torch.tensor(b.copy())
+        b = torch.tensor(b.copy()).to(a.device)  # type: ignore
     return b
 
 
@@ -93,6 +93,18 @@ def dtype_double(reference: B.TorchRandomState):  # type: ignore
     Return `double` dtype of a backend based on the reference.
     """
     return torch.double
+
+
+@dispatch
+def float_like(reference: B.TorchNumeric):
+    """
+    Return the type of the reference if it is a floating point type.
+    Otherwise return `double` dtype of a backend based on the reference.
+    """
+    if torch.is_floating_point(reference):
+        return B.dtype(reference)
+    else:
+        return torch.float64
 
 
 @dispatch
@@ -202,3 +214,12 @@ def eigvalsh(x: B.TorchNumeric):
     Compute the eigenvalues of a Hermitian or real symmetric matrix x.
     """
     return torch.linalg.eigvalsh(x)
+
+
+@dispatch
+def reciprocal_no_nan(x: B.TorchNumeric):
+    """
+    Return element-wise reciprocal (1/x). Whenever x = 0 puts 1/x = 0.
+    """
+    safe_x = torch.where(x == 0.0, 1.0, x)
+    return torch.where(x == 0.0, 0.0, torch.reciprocal(safe_x))

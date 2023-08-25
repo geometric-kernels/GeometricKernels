@@ -6,7 +6,7 @@ from typing import Dict
 import lab as B
 
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
-from geometric_kernels.lab_extras import from_numpy
+from geometric_kernels.lab_extras import float_like, from_numpy
 from geometric_kernels.sampling.probability_densities import (
     base_density_sample,
     hyperbolic_density_sample,
@@ -66,8 +66,8 @@ def deterministic_feature_map_compact(
         eigenfunctions = Phi.__call__(X, **params)  # [N, M]
 
         _context: Dict[str, str] = {}  # no context
-        features = B.cast(B.dtype(X), eigenfunctions) * B.cast(
-            B.dtype(X), weights
+        features = B.cast(float_like(X), eigenfunctions) * B.cast(
+            float_like(X), weights
         )  # [N, M]
         return features, _context
 
@@ -137,11 +137,11 @@ def random_phase_feature_map_compact(
         Phi = state["eigenfunctions"]
 
         # X [N, D]
-        random_phases_b = B.cast(B.dtype(X), from_numpy(X, random_phases))
+        random_phases_b = B.cast(float_like(X), from_numpy(X, random_phases))
         embedding = B.cast(
-            B.dtype(X), Phi.phi_product(X, random_phases_b, **params)
+            float_like(X), Phi.phi_product(X, random_phases_b, **params)
         )  # [N, O, L]
-        weights_t = B.cast(B.dtype(X), B.transpose(weights))
+        weights_t = B.cast(float_like(X), B.transpose(weights))
 
         features = B.reshape(embedding * weights_t, B.shape(X)[0], -1)  # [N, O*L]
         _context: Dict[str, str] = {"key": key}
@@ -210,10 +210,10 @@ def random_phase_feature_map_noncompact(
 
         # X [N, <axes>]
         random_phases_b = B.expand_dims(
-            B.cast(B.dtype(X), from_numpy(X, random_phases))
+            B.cast(float_like(X), from_numpy(X, random_phases))
         )  # [1, O, <axes>]
         random_lambda_b = B.expand_dims(
-            B.cast(B.dtype(X), from_numpy(X, random_lambda))
+            B.cast(float_like(X), from_numpy(X, random_lambda))
         )  # [1, O, P]
         X_b = B.expand_dims(X, axis=-1 - space.num_axes)  # [N, 1, <axes>]
 
@@ -269,10 +269,10 @@ def rejection_sampling_feature_map_hyperbolic(
 
         # X [N, D]
         random_phases_b = B.expand_dims(
-            B.cast(B.dtype(X), from_numpy(X, random_phases))
+            B.cast(float_like(X), from_numpy(X, random_phases))
         )  # [1, O, D]
         random_lambda_b = B.expand_dims(
-            B.cast(B.dtype(X), from_numpy(X, random_lambda))
+            B.cast(float_like(X), from_numpy(X, random_lambda))
         )  # [1, O, 1]
         X_b = B.expand_dims(X, axis=-2)  # [N, 1, D]
 

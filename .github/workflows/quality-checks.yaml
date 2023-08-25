@@ -14,14 +14,18 @@
 
 name: QualityChecks
 
-on: [push]
+on:
+  push:
+  pull_request:
+    branches:
+      - main
 
 jobs:
   check-and-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9]
+        python-version: ["3.8", "3.9"]
       fail-fast: false
 
     name: Python-${{ matrix.python-version }}

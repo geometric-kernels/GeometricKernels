@@ -3,8 +3,10 @@ torch
 gpflow
 gpjax>=0.5.2
 tensorflow
-tensorflow-probability==0.14.0
+tensorflow-probability==0.20.1
 jax
 jaxlib
+backends==1.4.32
+plum-dispatch==1.7.4
 sparsegpax @ git+https://github.com/aterenin/SparseGPAX.git
 spherical-harmonics @ git+https://github.com/stoprightthere/SphericalHarmonics.git@peter/cast_to_x_dtype

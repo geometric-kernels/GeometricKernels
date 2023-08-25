@@ -4,6 +4,7 @@ import lab as B
 import numpy as np
 from lab import dispatch
 from plum import Union
+from scipy.sparse import spmatrix
 
 _Numeric = Union[B.Number, B.NPNumeric]
 
@@ -66,6 +67,19 @@ def dtype_double(reference: B.NPRandomState):  # type: ignore
     Return `double` dtype of a backend based on the reference.
     """
     return np.float64
+
+
+@dispatch
+def float_like(reference: B.NPNumeric):
+    """
+    Return the type of the reference if it is a floating point type.
+    Otherwise return `double` dtype of a backend based on the reference.
+    """
+    reference_dtype = reference.dtype
+    if np.issubdtype(reference_dtype, np.floating):
+        return reference_dtype
+    else:
+        return np.float64
 
 
 @dispatch
@@ -170,3 +184,21 @@ def eigvalsh(x: _Numeric):
     Compute the eigenvalues of a Hermitian or real symmetric matrix x.
     """
     return np.linalg.eigvalsh(x, UPLO="U")
+
+
+@dispatch
+def reciprocal_no_nan(x: B.NPNumeric):
+    """
+    Return element-wise reciprocal (1/x). Whenever x = 0 puts 1/x = 0.
+    """
+    x_is_zero = np.equal(x, 0.0)
+    safe_x = np.where(x_is_zero, 1.0, x)
+    return np.where(x_is_zero, 0.0, np.reciprocal(safe_x))
+
+
+@dispatch
+def reciprocal_no_nan(x: spmatrix):
+    """
+    Return element-wise reciprocal (1/x). Whenever x = 0 puts 1/x = 0.
+    """
+    return x._with_data(reciprocal_no_nan(x._deduped_data().copy()), copy=True)
