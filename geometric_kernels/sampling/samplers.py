@@ -10,7 +10,7 @@ from geometric_kernels.lab_extras import float_like
 from geometric_kernels.types import FeatureMap
 
 
-def sample_at(feature_map, s, X: B.Numeric, params, state, key=None) -> Tuple[Any, Any]:
+def sample_at(feature_map, s, X: B.Numeric, params, key=None) -> Tuple[Any, Any]:
     """
     Given a `feature_map`, compute `s` samples at `X` defined by random state `key`.
     """
@@ -18,7 +18,7 @@ def sample_at(feature_map, s, X: B.Numeric, params, state, key=None) -> Tuple[An
     if key is None:
         key = B.global_random_state(B.dtype(X))
 
-    features, _context = feature_map(X, params, state, key=key)  # [N, M]
+    features, _context = feature_map(X, params, key=key)  # [N, M]
 
     if "key" in _context:
         key = _context["key"]

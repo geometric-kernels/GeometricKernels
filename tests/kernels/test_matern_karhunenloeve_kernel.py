@@ -19,9 +19,8 @@ def fixture_mesh_kernel() -> MaternKarhunenLoeveKernel:
 
 def test_eigenvalues(kernel: MaternKarhunenLoeveKernel):
     params = dict(lengthscale=np.r_[0.81], nu=_NU)
-    _, state = kernel.init_params_and_state()
 
-    assert kernel.eigenvalues(params, state).shape == (_TRUNCATION_LEVEL, 1)
+    assert kernel.eigenvalues(params).shape == (_TRUNCATION_LEVEL, 1)
 
 
 def test_eigenfunctions(kernel: MaternKarhunenLoeveKernel):
@@ -33,7 +32,7 @@ def test_eigenfunctions(kernel: MaternKarhunenLoeveKernel):
 
 
 def test_K_shapes(kernel: MaternKarhunenLoeveKernel):
-    params, state = kernel.init_params_and_state()
+    params = kernel.init_params()
     params["nu"] = _NU
     params["lengthscale"] = np.r_[0.99]
 
@@ -41,11 +40,11 @@ def test_K_shapes(kernel: MaternKarhunenLoeveKernel):
     X = np.random.randint(low=0, high=kernel.space.num_vertices, size=(N1, 1))
     X2 = np.random.randint(low=0, high=kernel.space.num_vertices, size=(N2, 1))
 
-    K = kernel.K(params, state, X, None)
+    K = kernel.K(params, X, None)
     assert K.shape == (N1, N1)
 
-    K = kernel.K(params, state, X, X2)
+    K = kernel.K(params, X, X2)
     assert K.shape == (N1, N2)
 
-    K = kernel.K_diag(params, state, X)
+    K = kernel.K_diag(params, X)
     assert K.shape == (N1,)

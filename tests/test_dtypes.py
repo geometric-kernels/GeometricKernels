@@ -127,14 +127,14 @@ def test_karhunen_loeve_dtype(kl_spacepoint, dtype, backend):
 
     kernel = MaternKarhunenLoeveKernel(space, 3)
 
-    params, state = kernel.init_params_and_state()
+    params = kernel.init_params()
     params["nu"] = to_typed_tensor(to_typed_ndarray(np.r_[0.5], dtype), backend)
     params["lengthscale"] = to_typed_tensor(
         to_typed_ndarray(np.r_[0.5], dtype), backend
     )
 
     # make sure that it just runs
-    kernel.K(params, state, point)
+    kernel.K(params, point)
 
 
 @pytest.mark.parametrize("dtype", ["float32", "float64"])
@@ -146,14 +146,14 @@ def test_integrated_matern_dtype(noncompact_spacepoint, dtype, backend):
 
     kernel = MaternIntegratedKernel(space, 30)
 
-    params, state = kernel.init_params_and_state()
+    params = kernel.init_params()
     params["nu"] = to_typed_tensor(to_typed_ndarray(np.r_[0.5], dtype), backend)
     params["lengthscale"] = to_typed_tensor(
         to_typed_ndarray(np.r_[0.5], dtype), backend
     )
 
     # make sure that it just runs
-    kernel.K(params, state, point)
+    kernel.K(params, point)
 
 
 @pytest.mark.parametrize("dtype", ["float32", "float64"])
@@ -165,7 +165,7 @@ def test_feature_map_dtype(kl_spacepoint, dtype, backend):
 
     kernel = MaternKarhunenLoeveKernel(space, 3)
 
-    params, state = kernel.init_params_and_state()
+    params = kernel.init_params()
     params["nu"] = to_typed_tensor(to_typed_ndarray(np.r_[0.5], dtype), backend)
     params["lengthscale"] = to_typed_tensor(
         to_typed_ndarray(np.r_[0.5], dtype), backend
@@ -173,12 +173,12 @@ def test_feature_map_dtype(kl_spacepoint, dtype, backend):
 
     # make sure it runs
     feature_map = deterministic_feature_map_compact(space, kernel)
-    feature_map(point, params, state)
+    feature_map(point, params)
 
     # make sure it runs
     key = B.create_random_state(B.dtype(point), seed=1234)
     feature_map = random_phase_feature_map_compact(space, kernel)
-    feature_map(point, params, state, key)
+    feature_map(point, params, key)
 
 
 @pytest.fixture(params=["naive", "rs"])
@@ -206,8 +206,7 @@ def test_feature_map_noncompact_dtype(feature_map_on_noncompact, dtype, backend,
     params["lengthscale"] = to_typed_tensor(
         to_typed_ndarray(np.r_[0.5], dtype), backend
     )
-    state = {}
 
     # make sure it runs
     key = B.create_random_state(B.dtype(point), seed=1234)
-    feature_map(point, params, state, key)
+    feature_map(point, params, key)

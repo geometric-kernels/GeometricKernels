@@ -26,23 +26,21 @@ def deterministic_feature_map_compact(
     Deterministic feature map for compact spaces based on the Laplacian eigendecomposition.
 
     :return: Callable
-        Signature: (X, params, state, **kwargs)
+        Signature: (X, params,  **kwargs)
         :param X: [N, D] points in the space to evaluate the map on.
         :param params: parameters of the kernel (lengthscale and smoothness).
-        :param state: state of the kernel.
         :param **kwargs: unused.
 
         :return: `Tuple(features, context)` where `features` is [N, O] features,
                  and `context` is empty (no context).
     """
 
-    def _map(X: B.Numeric, params, state, **kwargs) -> B.Numeric:
+    def _map(X: B.Numeric, params, **kwargs) -> B.Numeric:
         """
         Feature map of the Matern kernel defined on DiscreteSpectrumSpace.
 
         :param X: points in the space to evaluate the map on.
         :param params: parameters of the kernel (lengthscale and smoothness).
-        :param state: state of the kernel.
         :param **kwargs: unused.
 
         :return: `Tuple(features, context)` where `features` is [N, O] features,
@@ -79,10 +77,9 @@ def random_phase_feature_map_compact(
     :param kernel: kernel.
 
     :return: Callable
-        Signature: (X, params, state, key, **kwargs)
+        Signature: (X, params, key, **kwargs)
         :param X: [N, D] points in the space to evaluate the map on.
         :param params: parameters of the kernel (lengthscale and smoothness).
-        :param state: state of the kernel.
         :param key: random state, either `np.random.RandomState`, `tf.random.Generator`,
                     `torch.Generator` or `jax.tensor` (representing random state).
 
@@ -98,11 +95,10 @@ def random_phase_feature_map_compact(
                  for jax, and the same random state (generator) for all other backends.
     """
 
-    def _map(X: B.Numeric, params, state, key, **kwargs) -> B.Numeric:
+    def _map(X: B.Numeric, params, key, **kwargs) -> B.Numeric:
         """
         :param X: [N, D] points in the space to evaluate the map on.
         :param params: parameters of the kernel (lengthscale and smoothness).
-        :param state: state of the kernel.
         :param key: random state, either `np.random.RandomState`, `tf.random.Generator`,
                     `torch.Generator` or `jax.tensor` (representing random state).
 
@@ -154,10 +150,9 @@ def random_phase_feature_map_noncompact(
     :param num_random_phases: number of random phases to use.
 
     :return: Callable
-            Signature: (X, params, state, key, **kwargs)
+            Signature: (X, params, key, **kwargs)
             :param X: [N, D] points in the space to evaluate the map on.
             :param params: parameters of the feature map (lengthscale and smoothness).
-            :param state: unused.
             :param key: random state, either `np.random.RandomState`, `tf.random.Generator`,
                         `torch.Generator` or `jax.tensor` (representing random state).
 
@@ -173,11 +168,10 @@ def random_phase_feature_map_noncompact(
                      for jax, and the same random state (generator) for all other backends.
     """
 
-    def _map(X: B.Numeric, params, state, key, **kwargs) -> B.Numeric:
+    def _map(X: B.Numeric, params, key, **kwargs) -> B.Numeric:
         """
         :param X: [N, D] points in the space to evaluate the map on.
         :param params: parameters of the feature map (lengthscale and smoothness).
-        :param state: unused.
         :param key: random state, either `np.random.RandomState`, `tf.random.Generator`,
                     `torch.Generator` or `jax.tensor` (representing random state).
 
@@ -235,10 +229,9 @@ def rejection_sampling_feature_map_hyperbolic(
     :param num_random_phases: number of random phases to use.
 
     :return: Callable
-            Signature: (X, params, state, key, **kwargs)
+            Signature: (X, params, key, **kwargs)
             :param X: [N, D] points in the space to evaluate the map on.
             :param params: parameters of the feature map (lengthscale and smoothness).
-            :param state: unused.
             :param key: random state, either `np.random.RandomState`, `tf.random.Generator`,
                         `torch.Generator` or `jax.tensor` (representing random state).
 
@@ -254,7 +247,7 @@ def rejection_sampling_feature_map_hyperbolic(
                      for jax, and the same random state (generator) for all other backends.
     """
 
-    def _map(X: B.Numeric, params, state, key, **kwargs) -> B.Numeric:
+    def _map(X: B.Numeric, params, key, **kwargs) -> B.Numeric:
         key, random_phases = space.random_phases(key, num_random_phases)  # [O, D]
 
         key, random_lambda = hyperbolic_density_sample(

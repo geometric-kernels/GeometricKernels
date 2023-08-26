@@ -22,7 +22,7 @@ def test_K_shapes(spacepoints):
     # hyperboloid = Hyperbolic(dim=2)
     hyperboloid, base, point = spacepoints
     kernel = MaternIntegratedKernel(hyperboloid, _NUM_POINTS)
-    params, state = kernel.init_params_and_state()
+    params = kernel.init_params()
     params["nu"] = _NU
     params["lengthscale"] = 0.5
 
@@ -34,29 +34,29 @@ def test_K_shapes(spacepoints):
     x2 = x1[-1, None]  # (1, dim+1)
     x3 = np.vstack((x2, x2))  # (2, dim+1)
 
-    K = kernel.K(params, state, x1, None)
+    K = kernel.K(params, x1, None)
     assert K.shape == (N, N)
 
-    K = kernel.K(params, state, x1, x2)
+    K = kernel.K(params, x1, x2)
     assert K.shape == (N, 1)
 
-    K = kernel.K(params, state, x1, x3)
+    K = kernel.K(params, x1, x3)
     assert K.shape == (N, 2)
 
-    K = kernel.K(params, state, x2)
+    K = kernel.K(params, x2)
     assert K.shape == (1, 1)
 
-    K = kernel.K_diag(params, state, x1)
+    K = kernel.K_diag(params, x1)
     assert K.shape == (N,)
 
-    K = kernel.K_diag(params, state, x2)
+    K = kernel.K_diag(params, x2)
     assert K.shape == (1,)
 
 
 def plot_hyperbolic_matern():
     hyperboloid = Hyperbolic(dim=2)
     kernel = MaternIntegratedKernel(hyperboloid, _NUM_POINTS)
-    params, state = kernel.init_params_and_state()
+    params = kernel.init_params()
     params["nu"] = _NU
     params["lengthscale"] = 0.5
 
@@ -69,7 +69,7 @@ def plot_hyperbolic_matern():
     # base point to compute the kernel from
     base_point = hyperboloid.from_coordinates(np.r_[0, 0], "intrinsic")
 
-    kernel_vals = kernel.K(params, state, base_point, points)
+    kernel_vals = kernel.K(params, base_point, points)
 
     # vizualize
     plt.figure(figsize=(5, 5))
@@ -102,11 +102,11 @@ def plot_distance_vs_kernel_hyperbolic():
     heat_kernel_vals_normalized = heat_kernel_vals / heat_kernel_vals[-1]
 
     matern_kernel = MaternIntegratedKernel(hyperboloid, _NUM_POINTS)
-    params, state = matern_kernel.init_params_and_state()
+    params = matern_kernel.init_params()
     params["nu"] = _NU
     params["lengthscale"] = lengthscale
 
-    matern_kernel_vals = matern_kernel.K(params, state, x1, x2)
+    matern_kernel_vals = matern_kernel.K(params, x1, x2)
 
     # Plot kernel value in function of the distance
     plt.figure(figsize=(12, 6))
