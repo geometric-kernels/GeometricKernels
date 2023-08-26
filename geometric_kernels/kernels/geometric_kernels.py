@@ -88,12 +88,14 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         else:
             raise NotImplementedError
 
+    @property
     def eigenfunctions(self) -> Eigenfunctions:
         """
         Eigenfunctions of the kernel, may depend on parameters.
         """
         return self._eigenfunctions
 
+    @property
     def eigenvalues_laplacian(self) -> B.Numeric:
         """
         Eigenvalues of the Laplacian.
@@ -109,9 +111,8 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         assert "lengthscale" in params
         assert "nu" in params
 
-        eigenvalues_laplacian = self._eigenvalues_laplacian  # [M, 1]
         return self._spectrum(
-            eigenvalues_laplacian**0.5,
+            self.eigenvalues_laplacian**0.5,
             nu=params["nu"],
             lengthscale=params["lengthscale"],
         )
@@ -123,13 +124,13 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         weights = B.cast(
             B.dtype(params["nu"]), self.eigenvalues(params, state)
         )  # [M, 1]
-        Phi = self.eigenfunctions()
+        Phi = self.eigenfunctions
 
         return Phi.weighted_outerproduct(weights, X, X2, **params)  # [N, N2]
 
     def K_diag(self, params, state, X: B.Numeric, **kwargs) -> B.Numeric:
         weights = self.eigenvalues(params, state)  # [M, 1]
-        Phi = self.eigenfunctions()
+        Phi = self.eigenfunctions
 
         return Phi.weighted_outerproduct_diag(weights, X, **params)  # [N,]
 

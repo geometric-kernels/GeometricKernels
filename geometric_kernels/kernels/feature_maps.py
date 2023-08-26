@@ -56,9 +56,7 @@ def deterministic_feature_map_compact(
         )
 
         weights = B.transpose(B.power(spectrum, 0.5))  # [1, M]
-        Phi = kernel.eigenfunctions()
-
-        eigenfunctions = Phi.__call__(X, **params)  # [N, M]
+        eigenfunctions = kernel.eigenfunctions(X, **params)  # [N, M]
 
         _context: Dict[str, str] = {}  # no context
         features = B.cast(float_like(X), eigenfunctions) * B.cast(
@@ -120,7 +118,7 @@ def random_phase_feature_map_compact(
                  for jax, and the same random state (generator) for all other backends.
         """
         key, random_phases = space.random(key, num_random_phases)  # [O, D]
-        eigenvalues = kernel.eigenvalues_laplacian()
+        eigenvalues = kernel.eigenvalues_laplacian
 
         spectrum = kernel._spectrum(
             eigenvalues**0.5,
@@ -129,13 +127,14 @@ def random_phase_feature_map_compact(
         )
 
         weights = B.power(spectrum, 0.5)  # [L, 1]
-        Phi = kernel.eigenfunctions()
 
-        # X [N, D]
         random_phases_b = B.cast(float_like(X), from_numpy(X, random_phases))
-        embedding = B.cast(
-            float_like(X), Phi.phi_product(X, random_phases_b, **params)
+
+        phi_product = kernel.eigenfunctions.phi_product(
+            X, random_phases_b, **params
         )  # [N, O, L]
+
+        embedding = B.cast(float_like(X), phi_product)  # [N, O, L]
         weights_t = B.cast(float_like(X), B.transpose(weights))
 
         features = B.reshape(embedding * weights_t, B.shape(X)[0], -1)  # [N, O*L]
