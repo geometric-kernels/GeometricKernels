@@ -255,6 +255,10 @@ class ProductEigenfunctions(Eigenfunctions):
         return out
 
     @property
+    def num_eigenfunctions_per_level(self):
+        return total_multiplicities(self.eigenindicies, self.nums_per_level)
+
+    @property
     def dim_of_eigenspaces(self):
         return total_multiplicities(self.eigenindicies, self.nums_per_level)
 

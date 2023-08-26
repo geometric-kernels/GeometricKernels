@@ -76,6 +76,8 @@ class Graph(DiscreteSpectrumSpace):
         if num not in self.cache:
             evals, evecs = eigenpairs(self._laplacian, num)
 
+            evecs *= np.sqrt(self.num_vertices)
+
             eps = np.finfo(float).eps
             for i, evalue in enumerate(evals):
                 if evalue < eps:

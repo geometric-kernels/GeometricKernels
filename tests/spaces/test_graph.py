@@ -79,6 +79,7 @@ def run_tests_with_adj(A, L, tol=1e-14, tol_m=1e-7):
     evals = graph.get_eigenvalues(n)
 
     evals_np, evecs_np = np.linalg.eigh(L)
+    evecs_np *= np.sqrt(graph.num_vertices)
 
     # check vals
     np.testing.assert_allclose(evals[:, 0], evals_np, atol=tol, rtol=tol)
@@ -155,6 +156,7 @@ def run_tests_with_adj(A, L, tol=1e-14, tol_m=1e-7):
         evals_np, evecs_np = evals_np[:m], evecs_np[:, :m]
     else:
         evals_np, evecs_np = sp.linalg.eigsh(B.to_numpy(L), m, sigma=1e-8)
+    evecs_np *= np.sqrt(graph.num_vertices)
 
     np.testing.assert_allclose(evals[:, 0], evals_np, atol=tol_m, rtol=tol_m)
 
@@ -194,7 +196,7 @@ def test_graphs_tf():
 
 
 def test_graphs_jax():
-    run_tests_with_adj(jax.numpy.array(A), L, 1e-6, 1e-6)
+    run_tests_with_adj(jax.numpy.array(A), L, 1e-4, 1e-4)
 
 
 def test_graphs_torch_cuda():

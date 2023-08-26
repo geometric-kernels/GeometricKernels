@@ -118,7 +118,16 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             lengthscale=params["lengthscale"],
         )
         if self.normalize:
-            normalizer = B.sum(spectral_values)
+            normalizer = B.sum(
+                spectral_values
+                * B.cast(
+                    B.dtype(spectral_values),
+                    from_numpy(
+                        spectral_values,
+                        state["eigenfunctions"].num_eigenfunctions_per_level,
+                    )[:, None],
+                )
+            )
             return spectral_values / normalizer
         return spectral_values
 
