@@ -52,5 +52,7 @@ def test_normalization_matern_kl_kernel(space_name):
     params = {"nu": np.r_[2.5], "lengthscale": np.r_[1.0]}
 
     kxx = kernel.K_diag(params, state, points)
+    np.testing.assert_allclose(np.mean(kxx), 1.0)
 
+    kxx = np.diag(kernel.K(params, state, points))
     np.testing.assert_allclose(np.mean(kxx), 1.0)
