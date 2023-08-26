@@ -295,7 +295,9 @@ def rejection_sampling_feature_map_hyperbolic(
 
 
 def rejection_sampling_feature_map_spd(
-    space: SymmetricPositiveDefiniteMatrices, num_random_phases=3000
+    space: SymmetricPositiveDefiniteMatrices,
+    num_random_phases: int = 3000,
+    normalize: bool = True,
 ):
     r"""
     Random phase feature map for the SPD space based on the
@@ -343,8 +345,9 @@ def rejection_sampling_feature_map_spd(
         p = space.power_function(random_lambda_b, X_b, random_phases_b)  # [N, O]
 
         out = B.concat(B.real(p), B.imag(p), axis=-1)  # [N, 2*O]
-        normalizer = B.sqrt(B.sum(out**2, axis=-1, squeeze=False))
-        out = out / normalizer
+        if normalize:
+            normalizer = B.sqrt(B.sum(out**2, axis=-1, squeeze=False))
+            out = out / normalizer
 
         _context: Dict[str, B.types.RandomState] = {"key": key}
         return out, _context
