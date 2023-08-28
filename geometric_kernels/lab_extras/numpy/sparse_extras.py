@@ -70,9 +70,9 @@ def pinv(a: Union[SparseArray]):
 
 _SparseArray = Signature(SparseArray)
 
-B.T.register(_SparseArray, lambda a: a.T)
-B.shape.register(_SparseArray, lambda a: a.shape)
-B.sqrt.register(_SparseArray, lambda a: a.sqrt())
-B.any.register(_SparseArray, lambda a: bool((a == True).sum()))  # noqa
+B.T.register(lambda a: a.T, _SparseArray)
+B.shape.register(lambda a: a.shape, _SparseArray)
+B.sqrt.register(lambda a: a.sqrt(), _SparseArray)
+B.any.register(lambda a: bool((a == True).sum()), _SparseArray)  # noqa
 
-B.linear_algebra.pinv.register(_SparseArray, pinv)
+B.linear_algebra.pinv.register(pinv, _SparseArray)
