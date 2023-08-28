@@ -3,11 +3,14 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from geometric_kernels.kernels import MaternKarhunenLoeveKernel
+from geometric_kernels.kernels import MaternFeatureMapKernel, MaternKarhunenLoeveKernel
+from geometric_kernels.kernels.feature_maps import random_phase_feature_map_noncompact
 from geometric_kernels.spaces.circle import Circle
 from geometric_kernels.spaces.graph import Graph
+from geometric_kernels.spaces.hyperbolic import Hyperbolic
 from geometric_kernels.spaces.hypersphere import Hypersphere
 from geometric_kernels.spaces.mesh import Mesh
+from geometric_kernels.spaces.spd import SymmetricPositiveDefiniteMatrices
 
 
 @pytest.mark.parametrize("space_name", ["circle", "hypersphere", "mesh", "graph"])
@@ -17,11 +20,9 @@ def test_normalization_matern_kl_kernel(space_name):
     num_eigenfns = 10
 
     if space_name == "circle":
-        # return
         space = Circle()
         key, points = space.random(key, num_points)
     elif space_name == "hypersphere":
-        # return
         space = Hypersphere(2)
         key, points = space.random(key, num_points)
     elif space_name == "mesh":
@@ -45,7 +46,7 @@ def test_normalization_matern_kl_kernel(space_name):
         points = np.arange(space.num_vertices).reshape(-1, 1)
 
     else:
-        return
+        raise ValueError(f"Unknown space {space}")
 
     kernel = MaternKarhunenLoeveKernel(space, num_eigenfns, normalize=True)
     params, state = kernel.init_params_and_state()
@@ -56,3 +57,32 @@ def test_normalization_matern_kl_kernel(space_name):
 
     kxx = np.diag(kernel.K(params, state, points))
     np.testing.assert_allclose(np.mean(kxx), 1.0)
+
+
+@pytest.mark.parametrize("space_name", ["hyperbolic", "spd"])
+def test_normalization_feature_map_kernel(space_name):
+    key = np.random.RandomState(1234)
+    num_points = 300
+    num_features = 10
+
+    if space_name == "hyperbolic":
+        space = Hyperbolic(dim=2)
+        points = space.random_point(num_points)
+    elif space_name == "spd":
+        space = SymmetricPositiveDefiniteMatrices(n=2)
+        points = space.random_point(num_points)
+    else:
+        raise ValueError(f"Unknown space {space}")
+
+    params = dict(nu=np.r_[2.5], lengthscale=np.r_[1.0])
+    state = dict()
+
+    feature_map = random_phase_feature_map_noncompact(space, num_features)
+
+    kernel = MaternFeatureMapKernel(space, feature_map, key)
+
+    kxx = kernel.K_diag(params, state, points)
+    np.testing.assert_allclose(kxx, 1.0)
+
+    kxx = np.diag(kernel.K(params, state, points))
+    np.testing.assert_allclose(kxx, 1.0)
