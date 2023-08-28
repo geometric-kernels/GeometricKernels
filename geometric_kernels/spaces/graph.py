@@ -80,7 +80,7 @@ class Graph(DiscreteSpectrumSpace):
 
             eps = np.finfo(float).eps
             for i, evalue in enumerate(evals):
-                if evalue < eps:
+                if np.abs(evalue) < eps:
                     evals = set_value(evals, i, eps)  # lowest eigenvals should be zero
 
             self.cache[num] = (evecs, evals[:, None])

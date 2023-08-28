@@ -57,6 +57,9 @@ class Mesh(DiscreteSpectrumSpace):
             evals, evecs = sla.eigsh(L, num, M, sigma=1e-8)
             evecs, _ = np.linalg.qr(evecs)
             evecs *= np.sqrt(self.num_vertices)
+            evals = np.clip(
+                evals, a_min=0.0, a_max=None
+            )  # prevent small negative values
             self.cache[num] = (evecs, evals.reshape(-1, 1))
 
         return self.cache[num]
