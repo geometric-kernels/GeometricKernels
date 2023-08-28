@@ -25,7 +25,7 @@ A = np.array(
         [0, 0, 1, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
     ]
-).astype("float")
+).astype(np.float64)
 
 L = np.array(
     [
@@ -37,7 +37,7 @@ L = np.array(
         [0, 0, -1, 0, 0, 1, 0],
         [0, 0, 0, 0, 0, 0, 0],
     ]
-).astype("float")
+).astype(np.float64)
 
 
 def run_tests_with_adj(A, L, tol=1e-14, tol_m=1e-7):
