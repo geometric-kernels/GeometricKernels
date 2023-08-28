@@ -8,7 +8,6 @@ from geometric_kernels.kernels import MaternFeatureMapKernel, MaternKarhunenLoev
 from geometric_kernels.kernels.feature_maps import (
     deterministic_feature_map_compact,
     random_phase_feature_map_noncompact,
-    random_phase_feature_map_spd,
 )
 from geometric_kernels.spaces import (
     DiscreteSpectrumSpace,
@@ -16,23 +15,17 @@ from geometric_kernels.spaces import (
     Mesh,
     NoncompactSymmetricSpace,
     Space,
-    SymmetricPositiveDefiniteMatrices,
 )
 
 
 @dispatch
-def default_feature_map(space: DiscreteSpectrumSpace, *, num, kernel):
+def default_feature_map(space: DiscreteSpectrumSpace, *, num, kernel, normalize):
     return deterministic_feature_map_compact(space, kernel)
 
 
 @dispatch
-def default_feature_map(space: NoncompactSymmetricSpace, *, num, kernel):
-    return random_phase_feature_map_noncompact(space, num)
-
-
-@dispatch
-def default_feature_map(space: SymmetricPositiveDefiniteMatrices, *, num, kernel):
-    return random_phase_feature_map_spd(space, num)
+def default_feature_map(space: NoncompactSymmetricSpace, *, num, kernel, normalize):
+    return random_phase_feature_map_noncompact(space, num, normalize)
 
 
 @dispatch
@@ -67,7 +60,7 @@ class MaternGeometricKernel:
     _DEFAULT_NUM_LEVELS = 64
     _DEFAULT_NUM_RANDOM_PHASES = 3000
 
-    def __new__(cls, space: Space, num=None, **kwargs):
+    def __new__(cls, space: Space, num=None, normalize=True, **kwargs):
         r"""
         Construct a kernel and a feature map on `space`.
 
@@ -78,19 +71,26 @@ class MaternGeometricKernel:
             series that defines the kernel. For the noncompact symmetric
             spaces, this is the number of random phases to construct the
             kernel.
+        :param normalize: normalize kernel variance. The exact normalization
+            technique varies from space to space.
         :param **kwargs: any additional keyword arguments to be passed to
             the kernel (like `key`).
         """
 
         if isinstance(space, DiscreteSpectrumSpace):
             num = num or default_num(space)
-            kernel = MaternKarhunenLoeveKernel(space, num)
+            kernel = MaternKarhunenLoeveKernel(space, num, normalize=normalize)
             feature_map = default_feature_map(space, kernel=kernel, num=num)
 
         elif isinstance(space, NoncompactSymmetricSpace):
             num = num or default_num(space)
             key = kwargs.get("key", B.create_random_state())
-            feature_map = default_feature_map(space, kernel=kernel, num=num)
+            feature_map = default_feature_map(
+                space,
+                kernel=kernel,
+                num=num,
+                normalize=normalize,
+            )
             kernel = MaternFeatureMapKernel(space, feature_map, key)
         else:
             raise NotImplementedError
