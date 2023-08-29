@@ -316,7 +316,7 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
         random_points = []
         for factor in self.sub_spaces:
             key, factor_random_points = factor.random(key, number)
-            random_points.append(random_points)
+            random_points.append(factor_random_points)
 
         return key, B.concat(*random_points, axis=1)
 
