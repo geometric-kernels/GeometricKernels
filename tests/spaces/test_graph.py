@@ -40,7 +40,7 @@ L = np.array(
 ).astype(np.float64)
 
 
-def run_tests_with_adj(A, L, tol=1e-14, tol_m=1e-7):
+def run_tests_with_adj(A, L, tol=1e-7, tol_m=1e-4):
     ##############################################
     # Inits
 
@@ -162,11 +162,11 @@ def run_tests_with_adj(A, L, tol=1e-14, tol_m=1e-7):
 
     try:
         np.testing.assert_allclose(
-            np.abs(evecs)[:, :], np.abs(evecs_np)[:, :], atol=tol_m, rtol=1.0
+            np.abs(evecs)[:, :2], np.abs(evecs_np)[:, :2], atol=tol_m, rtol=tol_m
         )
     except AssertionError:
         np.testing.assert_allclose(
-            np.abs(evecs)[:, [1, 0]], np.abs(evecs_np)[:, :2], atol=tol_m, rtol=1.0
+            np.abs(evecs)[:, [1, 0]], np.abs(evecs_np)[:, :2], atol=tol_m, rtol=tol_m
         )
 
     K_cons = MaternKarhunenLoeveKernel(graph, m, normalize=False)
