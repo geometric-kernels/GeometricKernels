@@ -39,14 +39,14 @@ class DiscreteSpectrumSpace(Space):
     @abc.abstractmethod
     def get_eigenfunctions(self, num: int) -> Eigenfunctions:
         """
-        First `num` eigenfunctions of the Laplace-Beltrami operator
+        Eigenfunctions of the first `num` levels of the Laplace-Beltrami operator.
         """
         raise NotImplementedError
 
     @abc.abstractmethod
     def get_eigenvalues(self, num: int) -> B.Numeric:
         """
-        First `num` eigenvalues of the Laplace-Beltrami operator
+        First `num` eigenvalues of the Laplace-Beltrami operator.
 
         :return: [num, 1] array containing the eigenvalues
         """

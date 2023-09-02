@@ -165,7 +165,7 @@ def test_equivalence_kernel(nu, decimal, inputs):
     inputs, inputs2 = inputs
     # Spectral kernel
     circle = Circle()
-    kernel = MaternKarhunenLoeveKernel(circle, num_eigenfunctions=101)
+    kernel = MaternKarhunenLoeveKernel(circle, num_levels=101)
     params, state = kernel.init_params_and_state()
     params["nu"] = from_numpy(inputs, np.r_[nu])
     params["lengthscale"] = from_numpy(inputs, np.r_[1.0])

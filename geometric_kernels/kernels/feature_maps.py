@@ -53,7 +53,7 @@ def deterministic_feature_map_compact(
         assert "eigenvalues_laplacian" in state
         assert "eigenfunctions" in state
 
-        repeated_eigenvalues = space.get_repeated_eigenvalues(kernel.num_eigenfunctions)
+        repeated_eigenvalues = space.get_repeated_eigenvalues(kernel.num_levels)
         spectrum = kernel._spectrum(
             repeated_eigenvalues**0.5,
             nu=params["nu"],

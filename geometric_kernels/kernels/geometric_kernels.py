@@ -15,16 +15,21 @@ from geometric_kernels.utils.utils import Optional, make_deterministic
 
 
 class MaternKarhunenLoeveKernel(BaseGeometricKernel):
-    r"""
-    This class approximates a kernel by the finite feature decomposition using
+    r"""This class approximates a kernel by the finite feature decomposition using
     its Laplace-Beltrami eigenfunctions and eigenvalues [1, 2].
 
-    .. math:: k(x, x') = \sum_{i=0}^{M-1} S(\sqrt\lambda_i) \phi_i(x) \phi_i(x'),
+    .. math:: k(x, x') = \sum_{i=0}^{M-1} S(\sqrt\lambda_i) \sum_{j=0}^{K_i} \phi_{ij}(x) \phi_{ij}(x'),
 
-    where :math:`\lambda_i` and :math:`\phi_i(\cdot)` are the eigenvalues and
+    where :math:`\lambda_i` and :math:`\phi_{ij}(\cdot)` are the eigenvalues and
     eigenfunctions of the Laplace-Beltrami operator and :math:`S(\cdot)` the
     spectrum of the stationary kernel. The eigenvalues and eigenfunctions belong
-    to the `SpaceWithEigenDecomposition` instance.
+    to the `DiscreteSpectrumSpace` instance.
+
+    We refer to sets of :math:`\{\phi_{ij}\}_{j=0}^{K_i}` as
+    "levels". In many practical spaces, like the sphere, we can employ
+    _addition theorems_ to efficiently compute the sums over levels
+    :math:`\sum_{j=0}^{K_i} \phi_{ij}(x) \phi_{ij}(x')`. A level may
+    consist of one eigenfunction.
 
     References:
 
@@ -33,12 +38,13 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
 
     [2] Arno Solin, and Simo Särkkä, Hilbert Space Methods for Reduced-Rank
         Gaussian Process Regression
+
     """
 
     def __init__(
         self,
         space: DiscreteSpectrumSpace,
-        num_eigenfunctions: int,
+        num_levels: int,
     ):
         r"""
         :param space: Space providing the eigenvalues and eigenfunctions of
@@ -46,11 +52,11 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         :param nu: Determines continuity of the Mat\'ern kernel. Typical values
             include 1/2 (i.e., the Exponential kernel), 3/2, 5/2 and +\infty
             `np.inf` which corresponds to the Squared Exponential kernel.
-        :param num_eigenfunctions: number of eigenvalues and functions to include
+        :param num_levels: number of eigenvalues and levels to include
             in the summation.
         """
         super().__init__(space)
-        self.num_eigenfunctions = num_eigenfunctions  # in code referred to as `M`.
+        self.num_levels = num_levels  # in code referred to as `M`.
 
     def init_params_and_state(self):
         """
@@ -63,8 +69,8 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         """
         params = dict(lengthscale=np.array(1.0), nu=np.array(np.inf))
 
-        eigenvalues_laplacian = self.space.get_eigenvalues(self.num_eigenfunctions)
-        eigenfunctions = self.space.get_eigenfunctions(self.num_eigenfunctions)
+        eigenvalues_laplacian = self.space.get_eigenvalues(self.num_levels)
+        eigenfunctions = self.space.get_eigenfunctions(self.num_levels)
 
         state = dict(
             eigenvalues_laplacian=eigenvalues_laplacian, eigenfunctions=eigenfunctions
@@ -94,7 +100,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         """
         Eigenfunctions of the kernel, may depend on parameters.
         """
-        eigenfunctions = self.space.get_eigenfunctions(self.num_eigenfunctions)
+        eigenfunctions = self.space.get_eigenfunctions(self.num_levels)
         return eigenfunctions
 
     def eigenvalues(self, params, state) -> B.Numeric:
