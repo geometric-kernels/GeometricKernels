@@ -260,7 +260,7 @@ class ProductEigenfunctions(Eigenfunctions):
 
 
 class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
-    def __init__(self, *spaces: DiscreteSpectrumSpace, num_eigen: int = 100):
+    def __init__(self, *spaces: DiscreteSpectrumSpace, num_eigenvalues: int = 32):
         r"""Implementation of products of discrete spectrum spaces.
         Assumes the spaces are compact manifolds and that the eigenfunctions are the
         eigenfunctions of the Laplace-Beltrami operator. On such a space the eigen(values/functions)
@@ -274,18 +274,18 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
         where :math:`\lambda_{i, j}` is the j'th eigenvalue on the i'th manifold in the product
         and :math:`\phi_{i, j}` is the j'th eigenfunction on the i'th manifold in the product.
 
-        The eigenfunctions of such manifolds can't in genreal be analytically ordered, and
+        The eigenfunctions of such manifolds can't in general be analytically ordered, and
         so they must be precomputed.
 
         :param spaces: The spaces to product together
-        :param num_eigen: (optional)
-            number of eigenvalues to use for this product space, by default 100
+        :param num_eigenvalues: (optional)
+            number of eigenvalues to use for this product space.
         """
         for space in spaces:
             assert isinstance(space, DiscreteSpectrumSpace)
 
         self.sub_spaces = spaces
-        self.num_eigen = num_eigen
+        self.num_eigen = num_eigenvalues
 
         # perform an breadth-first search for the smallest eigenvalues,
         # assuming that the eigenvalues come sorted,the next biggest eigenvalue
