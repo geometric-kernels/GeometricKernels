@@ -68,7 +68,7 @@ class ProductGeometricKernel(BaseGeometricKernel):
                 ],
                 axis=-1,
             ),
-            axis=-1
+            axis=-1,
         )
 
     def K_diag(self, params, state, X):
@@ -82,5 +82,5 @@ class ProductGeometricKernel(BaseGeometricKernel):
                 ],
                 axis=-1,
             ),
-            axis=-1
+            axis=-1,
         )
