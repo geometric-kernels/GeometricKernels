@@ -8,11 +8,13 @@ from geometric_kernels.kernels import MaternFeatureMapKernel, MaternKarhunenLoev
 from geometric_kernels.kernels.feature_maps import (
     deterministic_feature_map_compact,
     random_phase_feature_map_noncompact,
-    random_phase_feature_map_spd,
+    rejection_sampling_feature_map_hyperbolic,
+    rejection_sampling_feature_map_spd,
 )
 from geometric_kernels.spaces import (
     DiscreteSpectrumSpace,
     Graph,
+    Hyperbolic,
     Mesh,
     NoncompactSymmetricSpace,
     Space,
@@ -31,8 +33,13 @@ def default_feature_map(space: NoncompactSymmetricSpace, *, num, kernel):
 
 
 @dispatch
+def default_feature_map(space: Hyperbolic, *, num, kernel):
+    return rejection_sampling_feature_map_hyperbolic(space, num)
+
+
+@dispatch
 def default_feature_map(space: SymmetricPositiveDefiniteMatrices, *, num, kernel):
-    return random_phase_feature_map_spd(space, num)
+    return rejection_sampling_feature_map_spd(space, num)
 
 
 @dispatch
@@ -64,7 +71,7 @@ class MaternGeometricKernel:
     """
 
     _DEFAULT_NUM_EIGENFUNCTIONS = 1000
-    _DEFAULT_NUM_LEVELS = 64
+    _DEFAULT_NUM_LEVELS = 35
     _DEFAULT_NUM_RANDOM_PHASES = 3000
 
     def __new__(cls, space: Space, num=None, **kwargs):
