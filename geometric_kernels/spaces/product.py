@@ -277,12 +277,12 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
         The eigenfunctions of such manifolds can't in genreal be analytically ordered, and
         so they must be precomputed.
 
-        :param spaces: The spaces to product together
+        :param spaces: The spaces to product together (each must inherit from DiscreteSpectrumSpace)
         :param num_eigen: (optional)
             number of eigenvalues to use for this product space, by default 100
         """
         for space in spaces:
-            assert isinstance(space, DiscreteSpectrumSpace)
+            assert isinstance(space, DiscreteSpectrumSpace, 'one of the spaces is not an instance of DiscreteSpectrumSpace')
 
         self.sub_spaces = spaces
         self.num_eigen = num_eigen
