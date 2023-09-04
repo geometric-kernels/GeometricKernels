@@ -38,6 +38,11 @@ def default_feature_map(space: Hyperbolic, *, num, kernel):
 
 
 @dispatch
+def default_feature_map(space: Hyperbolic, *, num, kernel):
+    return rejection_sampling_feature_map_hyperbolic(space, num)
+
+
+@dispatch
 def default_feature_map(space: SymmetricPositiveDefiniteMatrices, *, num, kernel):
     return rejection_sampling_feature_map_spd(space, num)
 
