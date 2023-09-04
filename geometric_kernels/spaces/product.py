@@ -282,7 +282,9 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
             number of eigenvalues to use for this product space, by default 100
         """
         for space in spaces:
-            assert isinstance(space, DiscreteSpectrumSpace, 'one of the spaces is not an instance of DiscreteSpectrumSpace')
+            assert isinstance(
+                space, DiscreteSpectrumSpace
+            ), "one of the spaces is not an instance of DiscreteSpectrumSpace"
 
         self.sub_spaces = spaces
         self.num_eigen = num_eigen
