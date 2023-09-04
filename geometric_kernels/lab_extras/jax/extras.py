@@ -171,6 +171,32 @@ def cumsum(x: B.JAXNumeric, axis=None):
 
 
 @dispatch
+def qr(x: B.JAXNumeric):
+    """
+    Return a QR decomposition of a matrix x.
+    """
+    Q, R = jnp.linalg.qr(x)
+    return Q, R
+
+
+@dispatch
+def slogdet(x: B.JAXNumeric):
+    """
+    Return the sign and log-determinant of a matrix x.
+    """
+    sign, logdet = jnp.linalg.slogdet(x)
+    return sign, logdet
+
+
+@dispatch
+def eigvalsh(x: B.JAXNumeric):
+    """
+    Compute the eigenvalues of a Hermitian or real symmetric matrix x.
+    """
+    return jnp.linalg.eigvalsh(x)
+
+
+@dispatch
 def reciprocal_no_nan(x: B.JAXNumeric):
     """
     Return element-wise reciprocal (1/x). Whenever x = 0 puts 1/x = 0.

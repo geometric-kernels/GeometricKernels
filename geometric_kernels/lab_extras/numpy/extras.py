@@ -161,6 +161,32 @@ def cumsum(a: _Numeric, axis=None):
 
 
 @dispatch
+def qr(x: _Numeric):
+    """
+    Return a QR decomposition of a matrix x.
+    """
+    Q, R = np.linalg.qr(x)
+    return Q, R
+
+
+@dispatch
+def slogdet(x: _Numeric):
+    """
+    Return the sign and log-determinant of a matrix x.
+    """
+    sign, logdet = np.linalg.slogdet(x)
+    return sign, logdet
+
+
+@dispatch
+def eigvalsh(x: _Numeric):
+    """
+    Compute the eigenvalues of a Hermitian or real symmetric matrix x.
+    """
+    return np.linalg.eigvalsh(x, UPLO="U")
+
+
+@dispatch
 def reciprocal_no_nan(x: B.NPNumeric):
     """
     Return element-wise reciprocal (1/x). Whenever x = 0 puts 1/x = 0.

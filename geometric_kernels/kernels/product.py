@@ -60,21 +60,27 @@ class ProductGeometricKernel(BaseGeometricKernel):
         Xs = [B.take(X, inds, axis=-1) for inds in self.dimension_indices]
         X2s = [B.take(X2, inds, axis=-1) for inds in self.dimension_indices]
 
-        return B.stack(
-            *[
-                kernel.K(p, s, X, X2)
-                for kernel, X, X2, p, s in zip(self.kernels, Xs, X2s, params, state)
-            ],
+        return B.prod(
+            B.stack(
+                *[
+                    kernel.K(p, s, X, X2)
+                    for kernel, X, X2, p, s in zip(self.kernels, Xs, X2s, params, state)
+                ],
+                axis=-1,
+            ),
             axis=-1,
-        ).prod(dim=-1)
+        )
 
     def K_diag(self, params, state, X):
         Xs = [B.take(X, inds, axis=-1) for inds in self.dimension_indices]
 
-        return B.stack(
-            *[
-                kernel.K_diag(p, s, X)
-                for kernel, X, p, s in zip(self.kernels, Xs, params, state)
-            ],
+        return B.prod(
+            B.stack(
+                *[
+                    kernel.K_diag(p, s, X)
+                    for kernel, X, p, s in zip(self.kernels, Xs, params, state)
+                ],
+                axis=-1,
+            ),
             axis=-1,
-        ).prod(dim=-1)
+        )

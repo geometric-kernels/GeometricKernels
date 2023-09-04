@@ -8,6 +8,7 @@ from geometric_kernels.kernels import MaternFeatureMapKernel, MaternKarhunenLoev
 from geometric_kernels.kernels.feature_maps import (
     deterministic_feature_map_compact,
     random_phase_feature_map_noncompact,
+    random_phase_feature_map_spd,
 )
 from geometric_kernels.spaces import (
     DiscreteSpectrumSpace,
@@ -15,6 +16,7 @@ from geometric_kernels.spaces import (
     Mesh,
     NoncompactSymmetricSpace,
     Space,
+    SymmetricPositiveDefiniteMatrices,
 )
 
 
@@ -26,6 +28,11 @@ def default_feature_map(space: DiscreteSpectrumSpace, *, num, kernel):
 @dispatch
 def default_feature_map(space: NoncompactSymmetricSpace, *, num, kernel):
     return random_phase_feature_map_noncompact(space, num)
+
+
+@dispatch
+def default_feature_map(space: SymmetricPositiveDefiniteMatrices, *, num, kernel):
+    return random_phase_feature_map_spd(space, num)
 
 
 @dispatch
