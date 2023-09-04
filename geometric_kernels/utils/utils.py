@@ -101,3 +101,24 @@ def make_deterministic(f, key):
         return f(*new_args, **kwargs)
 
     return deterministic_f
+
+
+def ordered_pairwise_differences(X):
+    """
+    Compute the ordered pairwise differences between elements of a vector.
+
+    Args:
+        X: A tensor of shape [B, D], where B is the batch size and D is the dimension.
+
+    Returns:
+        diffX: A vector of shape [B, C], where C = D*(D-1)//2, with the ordered pairwise differences
+            between elements of X. That is, diffX contains differences X[...,i]-X[...,j] where i < j.
+    """
+    diffX = B.expand_dims(X, -2) - B.expand_dims(X, -1)  # [B, D, D]
+    # diffX[i, j] = X[j] - X[i]
+    # lower triangle is i > j
+    # so, lower triangle is X[k] - X[l] with k < l
+
+    diffX = B.tril_to_vec(diffX, offset=-1)  # don't take the diagonal
+
+    return diffX
