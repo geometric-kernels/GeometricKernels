@@ -8,4 +8,5 @@ from geometric_kernels.kernels.geometric_kernels import (
     MaternIntegratedKernel,
     MaternKarhunenLoeveKernel,
 )
+from geometric_kernels.kernels.matern_kernel import MaternGeometricKernel
 from geometric_kernels.kernels.product import ProductGeometricKernel
