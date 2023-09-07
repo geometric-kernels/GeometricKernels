@@ -4,12 +4,15 @@ A wrapper around different kernels and feature maps that dispatches on space.
 import lab as B
 from plum import dispatch
 
-from geometric_kernels.kernels import MaternFeatureMapKernel, MaternKarhunenLoeveKernel
 from geometric_kernels.kernels.feature_maps import (
     deterministic_feature_map_compact,
     random_phase_feature_map_noncompact,
     rejection_sampling_feature_map_hyperbolic,
     rejection_sampling_feature_map_spd,
+)
+from geometric_kernels.kernels.geometric_kernels import (
+    MaternFeatureMapKernel,
+    MaternKarhunenLoeveKernel,
 )
 from geometric_kernels.spaces import (
     DiscreteSpectrumSpace,

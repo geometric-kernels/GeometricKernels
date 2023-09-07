@@ -6,7 +6,7 @@ import lab as B
 import numpy as np
 from opt_einsum import contract as einsum
 
-from geometric_kernels.kernels import BaseGeometricKernel
+from geometric_kernels.kernels.base import BaseGeometricKernel
 from geometric_kernels.lab_extras import from_numpy, logspace, trapz
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace, Space
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions

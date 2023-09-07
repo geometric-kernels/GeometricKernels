@@ -5,7 +5,7 @@ from typing import List, Mapping, Tuple
 
 import lab as B
 
-from geometric_kernels.kernels import BaseGeometricKernel
+from geometric_kernels.kernels.base import BaseGeometricKernel
 from geometric_kernels.spaces import Space
 
 
