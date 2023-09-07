@@ -99,7 +99,7 @@ class MaternGeometricKernel:
         :param return_feature_map: if `True`, return a feature map (needed
             e.g. for efficient sampling from Gaussian processes) along with
             the kernel. Default is `False`.
-        :param **kwargs: any additional keyword arguments to be passed to
+        :param kwargs: any additional keyword arguments to be passed to
             the kernel (like `key`).
         """
 

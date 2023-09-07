@@ -107,15 +107,9 @@ def get_random_state(key: B.JAXRandomState):
     """
     Return the random state of a random generator.
 
-    Parameters
-    ----------
-    key : B.JAXRandomState
-        The key used to generate the random state.
+    :param key: the random generator of type `B.JAXRandomState`.
 
-    Returns
-    -------
-    Any
-        The random state of the random generator.
+    :return: the random state of the random generator.
     """
     return key
 
@@ -125,12 +119,10 @@ def restore_random_state(key: B.JAXRandomState, state):
     """
     Set the random state of a random generator.
 
-    Parameters
-    ----------
-    key : B.JAXRandomState
-        The random generator.
-    state : Any
-        The new random state of the random generator.
+    :param key: the random generator of type `B.JAXRandomState`.
+    :param state: the new random state of the random generator.
+
+    :return: the new random generator with state `state`.
     """
     return state
 
