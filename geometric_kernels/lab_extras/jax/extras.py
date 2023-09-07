@@ -121,7 +121,7 @@ def get_random_state(key: B.JAXRandomState):
 
 
 @dispatch
-def set_random_state(key: B.JAXRandomState, state):
+def restore_random_state(key: B.JAXRandomState, state):
     """
     Set the random state of a random generator.
 
@@ -132,7 +132,7 @@ def set_random_state(key: B.JAXRandomState, state):
     state : Any
         The new random state of the random generator.
     """
-    pass
+    return state
 
 
 @dispatch

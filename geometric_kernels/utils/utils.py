@@ -58,22 +58,6 @@ def make_deterministic(f, key):
     Notes
     -----
     This function assumes that the input function has a 'key' argument or keyword-only argument that is used to generate random numbers. Otherwise, the function is returned as is.
-
-    Examples
-    --------
-    >>> import jax.numpy as jnp
-    >>> from jax import random
-
-    >>> def f(x, y, key=random.PRNGKey(0)):
-            return jnp.dot(x, y) + random.normal(key=key)
-
-    >>> f_deterministic = make_deterministic(f, random.PRNGKey(42))
-    >>> x = jnp.array([1., 2., 3.])
-    >>> y = jnp.array([4., 5., 6.])
-    >>> f(x, y)
-    DeviceArray(10.832865, dtype=float32)
-    >>> f_deterministic(x, y)
-    DeviceArray(10.832865, dtype=float32)
     """
     f_argspec = inspect.getfullargspec(f)
     f_varnames = f_argspec.args
