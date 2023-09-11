@@ -82,7 +82,14 @@ class MaternGeometricKernel:
     _DEFAULT_NUM_LEVELS = 35
     _DEFAULT_NUM_RANDOM_PHASES = 3000
 
-    def __new__(cls, space: Space, num=None, return_feature_map=False, **kwargs):
+    def __new__(
+        cls,
+        space: Space,
+        num=None,
+        normalize=True,
+        return_feature_map=False,
+        **kwargs,
+    ):
         r"""
         Construct a kernel and (if `return_feature_map` is `True`) a
         feature map on `space`.
@@ -96,6 +103,8 @@ class MaternGeometricKernel:
             the `Graph` or for the `Mesh`). For the noncompact symmetric
             spaces, this is the number of random phases to construct the
             kernel.
+        :param normalize: normalize kernel variance. The exact normalization
+            technique varies from space to space.
         :param return_feature_map: if `True`, return a feature map (needed
             e.g. for efficient sampling from Gaussian processes) along with
             the kernel. Default is `False`.
@@ -105,14 +114,20 @@ class MaternGeometricKernel:
 
         if isinstance(space, DiscreteSpectrumSpace):
             num = num or default_num(space)
-            kernel = MaternKarhunenLoeveKernel(space, num)
+            kernel = MaternKarhunenLoeveKernel(space, num, normalize=normalize)
             feature_map = default_feature_map(space, kernel=kernel, num=num)
 
         elif isinstance(space, NoncompactSymmetricSpace):
             num = num or default_num(space)
             key = kwargs.get("key", B.create_random_state())
-            feature_map = default_feature_map(space, kernel=kernel, num=num)
-            kernel = MaternFeatureMapKernel(space, feature_map, key)
+            feature_map = default_feature_map(
+                space,
+                kernel=kernel,
+                num=num,
+            )
+            kernel = MaternFeatureMapKernel(
+                space, feature_map, key, normalize=normalize
+            )
         else:
             raise NotImplementedError
 

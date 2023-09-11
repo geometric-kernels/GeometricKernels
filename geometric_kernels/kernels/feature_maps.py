@@ -34,18 +34,20 @@ def deterministic_feature_map_compact(
         :param state: state of the kernel.
         :param kwargs: unused.
 
-        :return: `Tuple(features, context)` where `features` is [N, O] features,
+        :return: `Tuple(feature_map, context)` where `feature_map` is Callable,
                  and `context` is empty (no context).
     """
 
-    def _map(X: B.Numeric, params, state, **kwargs) -> B.Numeric:
+    def _map(X: B.Numeric, params, state, normalize=None, **kwargs) -> B.Numeric:
         """
         Feature map of the Matern kernel defined on DiscreteSpectrumSpace.
 
         :param X: points in the space to evaluate the map on.
         :param params: parameters of the kernel (lengthscale and smoothness).
         :param state: state of the kernel.
-        :param kwargs: unused.
+        :param normalize: normalize to have unit average variance.
+        :param normalize: normalize to have unit average variance.
+        :param **kwargs: unused.
 
         :return: `Tuple(features, context)` where `features` is [N, O] features,
                  and `context` is empty (no context).
@@ -59,6 +61,10 @@ def deterministic_feature_map_compact(
             nu=params["nu"],
             lengthscale=params["lengthscale"],
         )
+        normalize = normalize or (normalize is None and kernel.normalize)
+        if normalize:
+            normalizer = B.sum(spectrum)
+            spectrum = spectrum / normalizer
 
         weights = B.transpose(B.power(spectrum, 0.5))  # [1, M]
         Phi = state["eigenfunctions"]
@@ -101,15 +107,15 @@ def random_phase_feature_map_compact(
                      This is because these backends' random state has... a state.
                      One either has to recreate/restore the state each time or
                      make use of `geometric_kernels.utils.make_deterministic`.
-
-        :param kwargs: unused.
+        :param normalize: normalize to have unit average variance.
+        :param **kwargs: unused.
 
         :return: `Tuple(features, context)` where `features` is [N, O] features,
                  and `context` is `{'key': <new key>}`. `<new key>` is the new key
                  for jax, and the same random state (generator) for all other backends.
     """
 
-    def _map(X: B.Numeric, params, state, key, **kwargs) -> B.Numeric:
+    def _map(X: B.Numeric, params, state, key, normalize=None, **kwargs) -> B.Numeric:
         """
         :param X: [N, D] points in the space to evaluate the map on.
         :param params: parameters of the kernel (lengthscale and smoothness).
@@ -122,7 +128,8 @@ def random_phase_feature_map_compact(
                      This is because these backends' random state has... a state.
                      One either has to recreate/restore the state each time or
                      make use of `geometric_kernels.utils.make_deterministic`.
-        :param kwargs: unused.
+        :param normalize: normalize to have unit average variance.
+        :param **kwargs: unused.
 
         :return: `Tuple(features, context)` where `features` is [N, O] features,
                  and `context` is `{'key': <new key>}`. `<new key>` is the new key
@@ -148,6 +155,11 @@ def random_phase_feature_map_compact(
         weights_t = B.cast(float_like(X), B.transpose(weights))
 
         features = B.reshape(embedding * weights_t, B.shape(X)[0], -1)  # [N, O*L]
+        normalize = normalize or (normalize is None and kernel.normalize)
+        if normalize:
+            normalizer = B.sqrt(B.sum(features**2, axis=-1, squeeze=False))
+            features = features / normalizer
+
         _context: Dict[str, str] = {"key": key}
         return features, _context
 
@@ -162,6 +174,7 @@ def random_phase_feature_map_noncompact(
 
     :param space: Space.
     :param num_random_phases: number of random phases to use.
+    :param normalize: whether to normalize to have unit variance
 
     :return: Callable
             Signature: ``(X, params, state, key, **kwargs)``
@@ -180,15 +193,15 @@ def random_phase_feature_map_noncompact(
                          This is because these backends' random state has... a state.
                          One either has to recreate/restore the state each time or
                          make use of `geometric_kernels.utils.make_deterministic`.
-
-            :param kwargs: unused.
+            :param normalize: normalize to have unit average variance.
+            :param **kwargs: unused.
 
             :return: `Tuple(features, context)` where `features` is [N, O] features,
                      and `context` is `{'key': <new key>}`. `<new key>` is the new key
                      for jax, and the same random state (generator) for all other backends.
     """
 
-    def _map(X: B.Numeric, params, state, key, **kwargs) -> B.Numeric:
+    def _map(X: B.Numeric, params, state, key, normalize=True, **kwargs) -> B.Numeric:
         """
         :param X: [N, D] points in the space to evaluate the map on.
         :param params: parameters of the feature map (lengthscale and smoothness).
@@ -230,8 +243,9 @@ def random_phase_feature_map_noncompact(
         c = space.inv_harish_chandra(random_lambda_b)  # [1, O]
 
         out = B.concat(B.real(p) * c, B.imag(p) * c, axis=-1)  # [N, 2*O]
-        normalizer = B.sqrt(B.sum(out**2, axis=-1, squeeze=False))
-        out = out / normalizer
+        if normalize:
+            normalizer = B.sqrt(B.sum(out**2, axis=-1, squeeze=False))
+            out = out / normalizer
 
         _context: Dict[str, B.types.RandomState] = {"key": key}
         return out, _context
@@ -240,7 +254,8 @@ def random_phase_feature_map_noncompact(
 
 
 def rejection_sampling_feature_map_hyperbolic(
-    space: Hyperbolic, num_random_phases=3000
+    space: Hyperbolic,
+    num_random_phases=3000,
 ):
     r"""
     Random phase feature map for the Hyperbolic space based on the
@@ -248,6 +263,7 @@ def rejection_sampling_feature_map_hyperbolic(
 
     :param space: Hyperbolic space.
     :param num_random_phases: number of random phases to use.
+    :param normalize: whether to normalize to have unit variance.
 
     :return: Callable
             Signature: ``(X, params, state, key, **kwargs)``
@@ -274,7 +290,7 @@ def rejection_sampling_feature_map_hyperbolic(
                      for jax, and the same random state (generator) for all other backends.
     """
 
-    def _map(X: B.Numeric, params, state, key, **kwargs) -> B.Numeric:
+    def _map(X: B.Numeric, params, state, key, normalize=True, **kwargs) -> B.Numeric:
         key, random_phases = space.random_phases(key, num_random_phases)  # [O, D]
 
         key, random_lambda = hyperbolic_density_sample(
@@ -293,8 +309,9 @@ def rejection_sampling_feature_map_hyperbolic(
         p = space.power_function(random_lambda_b, X_b, random_phases_b)  # [N, O]
 
         out = B.concat(B.real(p), B.imag(p), axis=-1)  # [N, 2*O]
-        normalizer = B.sqrt(B.sum(out**2, axis=-1, squeeze=False))
-        out = out / normalizer
+        if normalize:
+            normalizer = B.sqrt(B.sum(out**2, axis=-1, squeeze=False))
+            out = out / normalizer
 
         _context: Dict[str, B.types.RandomState] = {"key": key}
         return out, _context
@@ -303,7 +320,8 @@ def rejection_sampling_feature_map_hyperbolic(
 
 
 def rejection_sampling_feature_map_spd(
-    space: SymmetricPositiveDefiniteMatrices, num_random_phases=3000
+    space: SymmetricPositiveDefiniteMatrices,
+    num_random_phases: int = 3000,
 ):
     r"""
     Random phase feature map for the SPD space based on the
@@ -337,7 +355,9 @@ def rejection_sampling_feature_map_spd(
                      for jax, and the same random state (generator) for all other backends.
     """
 
-    def _map(X: B.Numeric, params, state, key, **kwargs) -> B.Numeric:
+    def _map(
+        X: B.Numeric, params, state, key, normalize: bool = True, **kwargs
+    ) -> B.Numeric:
         key, random_phases = space.random_phases(key, num_random_phases)  # [O, D, D]
 
         key, random_lambda = spd_density_sample(
@@ -356,8 +376,9 @@ def rejection_sampling_feature_map_spd(
         p = space.power_function(random_lambda_b, X_b, random_phases_b)  # [N, O]
 
         out = B.concat(B.real(p), B.imag(p), axis=-1)  # [N, 2*O]
-        normalizer = B.sqrt(B.sum(out**2, axis=-1, squeeze=False))
-        out = out / normalizer
+        if normalize:
+            normalizer = B.sqrt(B.sum(out**2, axis=-1, squeeze=False))
+            out = out / normalizer
 
         _context: Dict[str, B.types.RandomState] = {"key": key}
         return out, _context

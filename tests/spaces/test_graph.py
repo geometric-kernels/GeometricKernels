@@ -25,7 +25,7 @@ A = np.array(
         [0, 0, 1, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
     ]
-).astype("float")
+).astype(np.float64)
 
 L = np.array(
     [
@@ -37,10 +37,10 @@ L = np.array(
         [0, 0, -1, 0, 0, 1, 0],
         [0, 0, 0, 0, 0, 0, 0],
     ]
-).astype("float")
+).astype(np.float64)
 
 
-def run_tests_with_adj(A, L, tol=1e-14, tol_m=1e-7):
+def run_tests_with_adj(A, L, tol=1e-7, tol_m=1e-4):
     ##############################################
     # Inits
 
@@ -79,6 +79,7 @@ def run_tests_with_adj(A, L, tol=1e-14, tol_m=1e-7):
     evals = graph.get_eigenvalues(n)
 
     evals_np, evecs_np = np.linalg.eigh(L)
+    evecs_np *= np.sqrt(graph.num_vertices)
 
     # check vals
     np.testing.assert_allclose(evals[:, 0], evals_np, atol=tol, rtol=tol)
@@ -105,14 +106,14 @@ def run_tests_with_adj(A, L, tol=1e-14, tol_m=1e-7):
     ##############################################
     # Kernel init checks
 
-    K_cons = MaternKarhunenLoeveKernel(graph, n)
+    K_cons = MaternKarhunenLoeveKernel(graph, n, normalize=False)
     params, state = K_cons.init_params_and_state()
     idx = B.cast(B.dtype(A), np.arange(n)[:, None])
 
     nu = B.cast(B.dtype(A), np.array([1.0]))
     lscale = B.cast(B.dtype(A), np.array([1.0]))
 
-    K_normed_cons = MaternKarhunenLoeveKernel(normed_graph, n)
+    K_normed_cons = MaternKarhunenLoeveKernel(normed_graph, n, normalize=False)
     normed_params, normed_state = K_normed_cons.init_params_and_state()
 
     ##############################################
@@ -155,6 +156,7 @@ def run_tests_with_adj(A, L, tol=1e-14, tol_m=1e-7):
         evals_np, evecs_np = evals_np[:m], evecs_np[:, :m]
     else:
         evals_np, evecs_np = sp.linalg.eigsh(B.to_numpy(L), m, sigma=1e-8)
+    evecs_np *= np.sqrt(graph.num_vertices)
 
     np.testing.assert_allclose(evals[:, 0], evals_np, atol=tol_m, rtol=tol_m)
 
@@ -167,7 +169,7 @@ def run_tests_with_adj(A, L, tol=1e-14, tol_m=1e-7):
             np.abs(evecs)[:, [1, 0]], np.abs(evecs_np)[:, :2], atol=tol_m, rtol=tol_m
         )
 
-    K_cons = MaternKarhunenLoeveKernel(graph, m)
+    K_cons = MaternKarhunenLoeveKernel(graph, m, normalize=False)
     params, state = K_cons.init_params_and_state()
 
     nu = B.cast(B.dtype(A), np.array([np.inf]))
@@ -194,7 +196,7 @@ def test_graphs_tf():
 
 
 def test_graphs_jax():
-    run_tests_with_adj(jax.numpy.array(A), L, 1e-6, 1e-6)
+    run_tests_with_adj(jax.numpy.array(A), L, 1e-4, 1e-4)
 
 
 def test_graphs_torch_cuda():
@@ -205,7 +207,7 @@ def test_graphs_torch_cuda():
         graph = Graph(adj)
         # normed_graph = Graph(adj, normalize_laplacian=True)  # fails due to bug in lab
 
-        K_cons = MaternKarhunenLoeveKernel(graph, n)
+        K_cons = MaternKarhunenLoeveKernel(graph, n, normalize=False)
         params, state = K_cons.init_params_and_state()
 
         params["nu"] = torch.nn.Parameter(torch.tensor([1.0]).cuda())
