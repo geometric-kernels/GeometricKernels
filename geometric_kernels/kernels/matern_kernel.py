@@ -21,6 +21,7 @@ from geometric_kernels.spaces import (
     Mesh,
     NoncompactSymmetricSpace,
     Space,
+    SymmetricPositiveDefiniteMatrices,
 )
 
 
@@ -82,12 +83,12 @@ class MaternGeometricKernel:
     _DEFAULT_NUM_RANDOM_PHASES = 3000
 
     def __new__(
-      cls,
-      space: Space, 
-      num=None, 
-      normalize=True, 
-      return_feature_map=False, 
-      **kwargs,
+        cls,
+        space: Space,
+        num=None,
+        normalize=True,
+        return_feature_map=False,
+        **kwargs,
     ):
         r"""
         Construct a kernel and (if `return_feature_map` is `True`) a
