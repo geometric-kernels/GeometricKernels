@@ -83,15 +83,18 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         Depends on the `lengthscale` parameters.
         """
         if nu == np.inf:
-            return B.exp(-(lengthscale**2) / 2.0 * from_numpy(lengthscale, s**2))
+            spectral_values = B.exp(
+                -(lengthscale**2) / 2.0 * from_numpy(lengthscale, s**2)
+            )
         elif nu > 0:
             power = -nu - self.space.dimension / 2.0
             base = 2.0 * nu / lengthscale**2 + B.cast(
                 B.dtype(nu), from_numpy(nu, s**2)
             )
-            return base**power
+            spectral_values = base**power
         else:
             raise NotImplementedError
+        return spectral_values
 
     def eigenfunctions(self) -> Eigenfunctions:
         """
@@ -100,7 +103,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         eigenfunctions = self.space.get_eigenfunctions(self.num_eigenfunctions)
         return eigenfunctions
 
-    def eigenvalues(self, params, state) -> B.Numeric:
+    def eigenvalues(self, params, state, normalize: Optional[bool] = None) -> B.Numeric:
         """
         Eigenvalues of the kernel.
 
@@ -117,7 +120,8 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             nu=params["nu"],
             lengthscale=params["lengthscale"],
         )
-        if self.normalize:
+        normalize = normalize or (normalize is None and self.normalize)
+        if normalize:
             normalizer = B.sum(
                 spectral_values
                 * B.cast(
