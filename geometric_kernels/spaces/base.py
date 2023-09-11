@@ -142,3 +142,12 @@ class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
     def num_eigenfunctions(self) -> int:
         """Number of eigenvectors, M"""
         return B.shape(self.eigenvectors)[-1]
+
+    @property
+    def num_levels(self) -> int:
+        """Number of levels, L"""
+        return self.num_eigenfunctions
+
+    @property
+    def num_eigenfunctions_per_level(self) -> B.Numeric:
+        return [1] * self.num_levels

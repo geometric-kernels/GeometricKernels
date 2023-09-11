@@ -120,15 +120,9 @@ def get_random_state(key: B.TorchRandomState):
     """
     Return the random state of a random generator.
 
-    Parameters
-    ----------
-    key : B.TorchRandomState
-        The key used to generate the random state.
+    :param key: the random generator of type `B.TorchRandomState`.
 
-    Returns
-    -------
-    Any
-        The random state of the random generator.
+    :return: the random state of the random generator.
     """
     return key.get_state()
 
@@ -138,17 +132,10 @@ def restore_random_state(key: B.TorchRandomState, state):
     """
     Set the random state of a random generator.
 
-    Parameters
-    ----------
-    key : B.TorchRandomState
-        The random generator.
-    state : Any
-        The new random state of the random generator.
+    :param key: the random generator of type `B.TorchRandomState`.
+    :param state: the new random state of the random generator.
 
-    Returns
-    -------
-    Any
-       The new random generator with state `state`.
+    :return: the new random generator with state `state`.
     """
     gen = torch.Generator()
     gen.set_state(state)

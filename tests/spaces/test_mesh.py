@@ -43,4 +43,4 @@ def test_eigenvectors(mesh: Mesh):
 
 def test_orthonormality_eigenvectors(mesh: Mesh):
     evecs = mesh.get_eigenvectors(10)  # [Nv, 10]
-    assert_array_almost_equal(evecs.T @ evecs, np.eye(10))
+    assert_array_almost_equal(evecs.T @ evecs, mesh.num_vertices * np.eye(10))

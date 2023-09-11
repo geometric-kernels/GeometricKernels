@@ -137,14 +137,12 @@ class ProductEigenfunctions(Eigenfunctions):
         """
         Wrapper class for handling eigenfunctions on product spaces
 
-        Parameters
-        ----------
-        dimensions : List[int]
-            The dimensions of the spaces being producted together
-        eigenindicies : B.Numeric
-            An array mapping i'th eigenfunction of the product space to
-            the index of the eigenlevels of the subspaces
-        eigenfunctions : Eigenfunctions
+        :param dimensions: the dimensions of the spaces being producted together
+
+        :param eigenindicies: an array mapping i'th eigenfunction of the product
+                              space to the index of the eigenlevels of the subspaces
+
+        :param eigenfunctions: the eigenfunctions
 
         """
         if dimension_indices is None:
@@ -255,6 +253,10 @@ class ProductEigenfunctions(Eigenfunctions):
         return out
 
     @property
+    def num_eigenfunctions_per_level(self):
+        return total_multiplicities(self.eigenindicies, self.nums_per_level)
+
+    @property
     def dim_of_eigenspaces(self):
         return total_multiplicities(self.eigenindicies, self.nums_per_level)
 
@@ -277,12 +279,14 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
         The eigenfunctions of such manifolds can't in general be analytically ordered, and
         so they must be precomputed.
 
-        :param spaces: The spaces to product together
+        :param spaces: The spaces to product together (each must inherit from DiscreteSpectrumSpace)
         :param num_eigenvalues: (optional)
             number of eigenvalues to use for this product space.
         """
         for space in spaces:
-            assert isinstance(space, DiscreteSpectrumSpace)
+            assert isinstance(
+                space, DiscreteSpectrumSpace
+            ), "One of the spaces is not an instance of DiscreteSpectrumSpace."
 
         self.sub_spaces = spaces
         self.num_eigen = num_eigenvalues
