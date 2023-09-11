@@ -43,37 +43,15 @@ def make_deterministic(f, key):
     """
     Returns a deterministic version of a function that uses a random number generator.
 
-    Parameters
-    ----------
-    f : function
-        The function to make deterministic.
-    key : Any
-        The key used to generate the random state.
+    :param f: the function to make deterministic.
+    :param key: the key used to generate the random state.
 
-    Returns
-    -------
-    function
-        A deterministic version of the input function.
+    :return: a function representing the deterministic version of the input function.
 
-    Notes
-    -----
-    This function assumes that the input function has a 'key' argument or keyword-only argument that is used to generate random numbers. Otherwise, the function is returned as is.
-
-    Examples
-    --------
-    >>> import jax.numpy as jnp
-    >>> from jax import random
-
-    >>> def f(x, y, key=random.PRNGKey(0)):
-            return jnp.dot(x, y) + random.normal(key=key)
-
-    >>> f_deterministic = make_deterministic(f, random.PRNGKey(42))
-    >>> x = jnp.array([1., 2., 3.])
-    >>> y = jnp.array([4., 5., 6.])
-    >>> f(x, y)
-    DeviceArray(10.832865, dtype=float32)
-    >>> f_deterministic(x, y)
-    DeviceArray(10.832865, dtype=float32)
+        .. Note:
+            This function assumes that the input function has a 'key' argument
+            or keyword-only argument that is used to generate random numbers.
+            Otherwise, the function is returned as is.
     """
     f_argspec = inspect.getfullargspec(f)
     f_varnames = f_argspec.args
@@ -107,12 +85,10 @@ def ordered_pairwise_differences(X):
     """
     Compute the ordered pairwise differences between elements of a vector.
 
-    Args:
-        X: A tensor of shape [B, D], where B is the batch size and D is the dimension.
+    :param X: a tensor of shape [B, D], where B is the batch size and D is the dimension.
 
-    Returns:
-        diffX: A vector of shape [B, C], where C = D*(D-1)//2, with the ordered pairwise differences
-            between elements of X. That is, diffX contains differences X[...,i]-X[...,j] where i < j.
+    :return: a vector of shape [B, C], where C = D*(D-1)//2, with the ordered pairwise differences
+            between elements of X. That is, the vector containing differences X[...,i]-X[...,j] where i < j.
     """
     diffX = B.expand_dims(X, -2) - B.expand_dims(X, -1)  # [B, D, D]
     # diffX[i, j] = X[j] - X[i]

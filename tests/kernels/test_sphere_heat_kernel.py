@@ -28,14 +28,14 @@ def test_sphere_heat_kernel():
     ys = xs
 
     # Define kernel
-    kernel = MaternKarhunenLoeveKernel(hypersphere, _TRUNCATION_LEVEL)
-    params, state = kernel.init_params_and_state()
+    kernel = MaternKarhunenLoeveKernel(hypersphere, _TRUNCATION_LEVEL, normalize=False)
+    params = kernel.init_params()
     params["nu"] = torch.tensor(torch.inf)
 
     # Define heat kernel function
     def heat_kernel(t, x, y):
         params["lengthscale"] = B.sqrt(2 * t)
-        return kernel.K(params, state, x, y)
+        return kernel.K(params, x, y)
 
     for t in ts:
         for x in xs:

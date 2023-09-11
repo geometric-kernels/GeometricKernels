@@ -28,9 +28,7 @@ class GPytorchGeometricKernel(gpytorch.kernels.Kernel):
 
         self._kernel = kernel
 
-        params, state = self._kernel.init_params_and_state()
-
-        self.state = state
+        params = self._kernel.init_params()
 
         self.lengthscale = torch.tensor(lengthscale)
 
@@ -73,5 +71,5 @@ class GPytorchGeometricKernel(gpytorch.kernels.Kernel):
 
         params = dict(lengthscale=self.lengthscale, nu=self.nu)
         if diag:
-            return self._kernel.K_diag(params, self.state, x1)
-        return self._kernel.K(params, self.state, x1, x2)
+            return self._kernel.K_diag(params, x1)
+        return self._kernel.K(params, x1, x2)

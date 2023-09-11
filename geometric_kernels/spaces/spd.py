@@ -13,7 +13,7 @@ from geometric_kernels.lab_extras import (
     qr,
     slogdet,
 )
-from geometric_kernels.spaces import NoncompactSymmetricSpace
+from geometric_kernels.spaces.base import NoncompactSymmetricSpace
 from geometric_kernels.utils.utils import ordered_pairwise_differences
 
 

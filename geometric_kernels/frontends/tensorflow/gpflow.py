@@ -31,8 +31,6 @@ class GPflowGeometricKernel(gpflow.kernels.Kernel):
         super().__init__(active_dims, name)
         self._kernel = kernel
 
-        _, state = self._kernel.init_params_and_state()
-
         self.lengthscale = gpflow.Parameter(lengthscale, transform=positive())
 
         self.trainable_nu = trainable_nu
@@ -43,7 +41,6 @@ class GPflowGeometricKernel(gpflow.kernels.Kernel):
             self.nu = gpflow.Parameter(nu, transform=positive())
         else:
             self.nu = nu
-        self.state = state
 
     @property
     def space(self) -> Space:
@@ -54,13 +51,13 @@ class GPflowGeometricKernel(gpflow.kernels.Kernel):
         lengthscale = tf.convert_to_tensor(self.lengthscale)
         nu = tf.cast(tf.convert_to_tensor(self.nu), lengthscale.dtype)
         params = dict(lengthscale=lengthscale, nu=nu)
-        return self._kernel.K(params, self.state, X, X2)
+        return self._kernel.K(params, X, X2)
 
     def K_diag(self, X):
         lengthscale = tf.convert_to_tensor(self.lengthscale)
         nu = tf.cast(tf.convert_to_tensor(self.nu), lengthscale.dtype)
         params = dict(lengthscale=lengthscale, nu=nu)
-        return self._kernel.K_diag(params, self.state, X)
+        return self._kernel.K_diag(params, X)
 
 
 class DefaultFloatZeroMeanFunction(gpflow.mean_functions.Constant):

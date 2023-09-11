@@ -115,15 +115,9 @@ def get_random_state(key: B.TFRandomState):
     """
     Return the random state of a random generator.
 
-    Parameters
-    ----------
-    key : B.TFRandomState
-        The key used to generate the random state.
+    :param key: the random generator of type `B.TFRandomState`.
 
-    Returns
-    -------
-    Any
-        The random state of the random generator.
+    :return: the random state of the random generator.
     """
     return key.state, key.algorithm
 
@@ -133,17 +127,10 @@ def restore_random_state(key: B.TFRandomState, state):
     """
     Set the random state of a random generator.
 
-    Parameters
-    ----------
-    key : B.TFRandomState
-        The random generator.
-    state : Any
-        The new random state of the random generator.
+    :param key: the random generator.
+    :param state: the new random state of the random generator of type `B.TFRandomState`.
 
-    Returns
-    -------
-    Any
-       The new random generator with state `state`.
+    :return: the new random generator with state `state`.
     """
     gen = tf.random.Generator.from_state(state=state[0], alg=state[1])
     return gen
