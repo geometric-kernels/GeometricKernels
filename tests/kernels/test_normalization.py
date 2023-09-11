@@ -49,13 +49,13 @@ def test_normalization_matern_kl_kernel(space_name):
         raise ValueError(f"Unknown space {space}")
 
     kernel = MaternKarhunenLoeveKernel(space, num_eigenfns, normalize=True)
-    params, state = kernel.init_params_and_state()
+    params = kernel.init_params()
     params = {"nu": np.r_[2.5], "lengthscale": np.r_[1.0]}
 
-    kxx = kernel.K_diag(params, state, points)
+    kxx = kernel.K_diag(params, points)
     np.testing.assert_allclose(np.mean(kxx), 1.0)
 
-    kxx = np.diag(kernel.K(params, state, points))
+    kxx = np.diag(kernel.K(params, points))
     np.testing.assert_allclose(np.mean(kxx), 1.0)
 
 
@@ -75,14 +75,13 @@ def test_normalization_feature_map_kernel(space_name):
         raise ValueError(f"Unknown space {space}")
 
     params = dict(nu=np.r_[2.5], lengthscale=np.r_[1.0])
-    state = dict()
 
     feature_map = random_phase_feature_map_noncompact(space, num_features)
 
     kernel = MaternFeatureMapKernel(space, feature_map, key)
 
-    kxx = kernel.K_diag(params, state, points)
+    kxx = kernel.K_diag(params, points)
     np.testing.assert_allclose(kxx, 1.0)
 
-    kxx = np.diag(kernel.K(params, state, points))
+    kxx = np.diag(kernel.K(params, points))
     np.testing.assert_allclose(kxx, 1.0)
