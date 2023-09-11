@@ -314,13 +314,8 @@ def rejection_sampling_feature_map_spd(
 
     :return: Callable
             Signature: ``(X, params, state, key, **kwargs)``
-
             :param X: [N, D, D] points in the space to evaluate the map on.
-
             :param params: parameters of the feature map (lengthscale and smoothness).
-
-            :param state: unused.
-
             :param key: random state, either `np.random.RandomState`, `tf.random.Generator`,
                         `torch.Generator` or `jax.tensor` (representing random state).
 
@@ -329,7 +324,6 @@ def rejection_sampling_feature_map_spd(
                          This is because these backends' random state has... a state.
                          One either has to recreate/restore the state each time or
                          make use of `geometric_kernels.utils.make_deterministic`.
-
             :param kwargs: unused.
 
             :return: `Tuple(features, context)` where `features` is [N, O] features,
@@ -337,9 +331,7 @@ def rejection_sampling_feature_map_spd(
                      for jax, and the same random state (generator) for all other backends.
     """
 
-    def _map(
-        X: B.Numeric, params, state, key, normalize: bool = True, **kwargs
-    ) -> B.Numeric:
+    def _map(X: B.Numeric, params, key, normalize: bool = True, **kwargs) -> B.Numeric:
         key, random_phases = space.random_phases(key, num_random_phases)  # [O, D, D]
 
         key, random_lambda = spd_density_sample(
