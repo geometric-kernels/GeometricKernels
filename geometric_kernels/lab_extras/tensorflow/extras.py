@@ -115,15 +115,9 @@ def get_random_state(key: B.TFRandomState):
     """
     Return the random state of a random generator.
 
-    Parameters
-    ----------
-    key : B.TFRandomState
-        The key used to generate the random state.
+    :param key: the random generator of type `B.TFRandomState`.
 
-    Returns
-    -------
-    Any
-        The random state of the random generator.
+    :return: the random state of the random generator.
     """
     return key.state, key.algorithm
 
@@ -133,17 +127,10 @@ def restore_random_state(key: B.TFRandomState, state):
     """
     Set the random state of a random generator.
 
-    Parameters
-    ----------
-    key : B.TFRandomState
-        The random generator.
-    state : Any
-        The new random state of the random generator.
+    :param key: the random generator.
+    :param state: the new random state of the random generator of type `B.TFRandomState`.
 
-    Returns
-    -------
-    Any
-       The new random generator with state `state`.
+    :return: the new random generator with state `state`.
     """
     gen = tf.random.Generator.from_state(state=state[0], alg=state[1])
     return gen
@@ -182,6 +169,32 @@ def cumsum(x: B.TFNumeric, axis=None):
     Return cumulative sum (optionally along axis)
     """
     return tf.math.cumsum(x, axis=axis)
+
+
+@dispatch
+def qr(x: B.TFNumeric):
+    """
+    Return a QR decomposition of a matrix x.
+    """
+    Q, R = tf.linalg.qr(x)
+    return Q, R
+
+
+@dispatch
+def slogdet(x: B.TFNumeric):
+    """
+    Return the sign and log-determinant of a matrix x.
+    """
+    sign, logdet = tf.linalg.slogdet(x)
+    return sign, logdet
+
+
+@dispatch
+def eigvalsh(x: B.TFNumeric):
+    """
+    Compute the eigenvalues of a Hermitian or real symmetric matrix x.
+    """
+    return tf.linalg.eigvalsh(x)
 
 
 @dispatch

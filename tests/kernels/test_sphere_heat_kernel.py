@@ -28,7 +28,7 @@ def test_sphere_heat_kernel():
     ys = xs
 
     # Define kernel
-    kernel = MaternKarhunenLoeveKernel(hypersphere, _TRUNCATION_LEVEL)
+    kernel = MaternKarhunenLoeveKernel(hypersphere, _TRUNCATION_LEVEL, normalize=False)
     params = kernel.init_params()
     params["nu"] = torch.tensor(torch.inf)
 

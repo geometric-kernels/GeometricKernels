@@ -107,32 +107,24 @@ def get_random_state(key: B.JAXRandomState):
     """
     Return the random state of a random generator.
 
-    Parameters
-    ----------
-    key : B.JAXRandomState
-        The key used to generate the random state.
+    :param key: the random generator of type `B.JAXRandomState`.
 
-    Returns
-    -------
-    Any
-        The random state of the random generator.
+    :return: the random state of the random generator.
     """
     return key
 
 
 @dispatch
-def set_random_state(key: B.JAXRandomState, state):
+def restore_random_state(key: B.JAXRandomState, state):
     """
     Set the random state of a random generator.
 
-    Parameters
-    ----------
-    key : B.JAXRandomState
-        The random generator.
-    state : Any
-        The new random state of the random generator.
+    :param key: the random generator of type `B.JAXRandomState`.
+    :param state: the new random state of the random generator.
+
+    :return: the new random generator with state `state`.
     """
-    pass
+    return state
 
 
 @dispatch
@@ -168,6 +160,32 @@ def cumsum(x: B.JAXNumeric, axis=None):
     Return cumulative sum (optionally along axis)
     """
     return jnp.cumsum(x, axis=axis)
+
+
+@dispatch
+def qr(x: B.JAXNumeric):
+    """
+    Return a QR decomposition of a matrix x.
+    """
+    Q, R = jnp.linalg.qr(x)
+    return Q, R
+
+
+@dispatch
+def slogdet(x: B.JAXNumeric):
+    """
+    Return the sign and log-determinant of a matrix x.
+    """
+    sign, logdet = jnp.linalg.slogdet(x)
+    return sign, logdet
+
+
+@dispatch
+def eigvalsh(x: B.JAXNumeric):
+    """
+    Compute the eigenvalues of a Hermitian or real symmetric matrix x.
+    """
+    return jnp.linalg.eigvalsh(x)
 
 
 @dispatch

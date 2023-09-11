@@ -9,7 +9,14 @@ import lab as B
 import numpy as np
 from sympy import Poly, Product, symbols
 
-from geometric_kernels.lab_extras import cumsum, dtype_double, dtype_integer, from_numpy
+from geometric_kernels.lab_extras import (
+    cumsum,
+    dtype_double,
+    dtype_integer,
+    eigvalsh,
+    from_numpy,
+)
+from geometric_kernels.utils.utils import ordered_pairwise_differences
 
 
 def student_t_sample(key, size, deg_freedom, dtype=None):
@@ -31,8 +38,10 @@ def student_t_sample(key, size, deg_freedom, dtype=None):
     :param deg_freedom: degrees of freedom of the student-t distribution.
     :param dtype: dtype of the returned tensor.
     """
+    assert B.shape(deg_freedom) == (1,), "deg_freedom must be a 1-vector."
     dtype = dtype or dtype_double(key)
     key, z = B.randn(key, dtype, *size)
+
     key, g = B.randgamma(
         key,
         dtype,
@@ -40,6 +49,7 @@ def student_t_sample(key, size, deg_freedom, dtype=None):
         alpha=deg_freedom / 2,
         scale=2 / deg_freedom,
     )
+    g = B.squeeze(g, axis=-1)
 
     u = z / B.sqrt(g)
     return key, u
@@ -227,3 +237,41 @@ def hyperbolic_density_sample(key, size, params, dim):
             samples.append(sign * proposal)
     samples = B.reshape(B.concat(*samples), *size)
     return key, B.cast(B.dtype(L), samples)
+
+
+def spd_density_sample(key, size, params, degree, rho):
+    nu = params["nu"]
+    L = params["lengthscale"]
+
+    samples = []
+    while len(samples) < reduce(operator.mul, size, 1):
+        key, X = B.randn(key, B.dtype(L), degree, degree)
+        M = (X + B.transpose(X)) / 2
+
+        eigv = eigvalsh(M)  # [D]
+
+        if nu == np.inf:
+            proposal = eigv / L
+        else:
+            eigv = eigv / B.sqrt(2 * nu / L**2 + B.sum(rho**2))
+
+            # Gamma(nu, 2) distribution is the same as chi2(2nu) distribution
+            key, chi2_sample = B.randgamma(key, B.dtype(L), 1, alpha=nu, scale=2)
+            chi_sample = B.sqrt(chi2_sample)
+
+            proposal = eigv / chi_sample  # [D]
+
+        diffp = ordered_pairwise_differences(proposal)
+        diffp = B.pi * B.abs(diffp)
+        logprod = B.sum(B.log(B.tanh(diffp)), axis=-1)
+        prod = B.exp(0.5 * logprod)
+        assert B.all(prod > 0)
+
+        # accept with probability `prod`
+        key, u = B.rand(key, B.dtype(L), 1)
+        acceptance = B.all(u < prod)
+        if acceptance:
+            samples.append(proposal)
+
+    samples = B.reshape(B.concat(*samples), *size, degree)
+    return key, samples

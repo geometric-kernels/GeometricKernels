@@ -18,7 +18,7 @@ from geometric_kernels.lab_extras import (
     sinh,
     trapz,
 )
-from geometric_kernels.spaces import NoncompactSymmetricSpace
+from geometric_kernels.spaces.base import NoncompactSymmetricSpace
 
 
 class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
@@ -148,6 +148,10 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
     @property
     def rho(self):
         return B.ones(1) * (self.dimension - 1) / 2
+
+    @property
+    def num_axes(self):
+        return 1
 
     def random_phases(self, key, num):
         if not isinstance(num, tuple):

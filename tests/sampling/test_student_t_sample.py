@@ -12,7 +12,7 @@ def test_student_t_sample(deg_freedom):
     key = np.random.RandomState(seed=1234)
     default_rng = np.random.default_rng(seed=1234)
 
-    _, random_sample = student_t_sample(key, size, deg_freedom)
+    _, random_sample = student_t_sample(key, size, np.r_[deg_freedom])
 
     np_random_sample = default_rng.standard_t(deg_freedom, size=size)
 

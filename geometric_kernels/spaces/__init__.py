@@ -13,3 +13,4 @@ from geometric_kernels.spaces.hyperbolic import Hyperbolic
 from geometric_kernels.spaces.hypersphere import Hypersphere
 from geometric_kernels.spaces.mesh import Mesh
 from geometric_kernels.spaces.product import ProductDiscreteSpectrumSpace
+from geometric_kernels.spaces.spd import SymmetricPositiveDefiniteMatrices

@@ -48,3 +48,15 @@ def test_K_shapes(kernel: MaternKarhunenLoeveKernel):
 
     K = kernel.K_diag(params, X)
     assert K.shape == (N1,)
+
+
+def test_normalize(kernel: MaternKarhunenLoeveKernel):
+    random_points = np.arange(kernel.space.num_vertices).reshape(-1, 1)
+
+    params, state = kernel.init_params_and_state()
+    params["nu"] = _NU
+    params["lengthscale"] = np.r_[0.99]
+
+    K = kernel.K_diag(params, state, random_points)  # (N, )
+
+    np.testing.assert_allclose(np.mean(K), 1.0)

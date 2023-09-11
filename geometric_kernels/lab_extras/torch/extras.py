@@ -120,15 +120,9 @@ def get_random_state(key: B.TorchRandomState):
     """
     Return the random state of a random generator.
 
-    Parameters
-    ----------
-    key : B.TorchRandomState
-        The key used to generate the random state.
+    :param key: the random generator of type `B.TorchRandomState`.
 
-    Returns
-    -------
-    Any
-        The random state of the random generator.
+    :return: the random state of the random generator.
     """
     return key.get_state()
 
@@ -138,17 +132,10 @@ def restore_random_state(key: B.TorchRandomState, state):
     """
     Set the random state of a random generator.
 
-    Parameters
-    ----------
-    key : B.TorchRandomState
-        The random generator.
-    state : Any
-        The new random state of the random generator.
+    :param key: the random generator of type `B.TorchRandomState`.
+    :param state: the new random state of the random generator.
 
-    Returns
-    -------
-    Any
-       The new random generator with state `state`.
+    :return: the new random generator with state `state`.
     """
     gen = torch.Generator()
     gen.set_state(state)
@@ -188,6 +175,32 @@ def cumsum(x: B.TorchNumeric, axis=None):
     Return cumulative sum (optionally along axis)
     """
     return torch.cumsum(x, dim=axis)
+
+
+@dispatch
+def qr(x: B.TorchNumeric):
+    """
+    Return a QR decomposition of a matrix x.
+    """
+    Q, R = torch.qr(x)
+    return Q, R
+
+
+@dispatch
+def slogdet(x: B.TorchNumeric):
+    """
+    Return the sign and log-determinant of a matrix x.
+    """
+    sign, logdet = torch.slogdet(x)
+    return sign, logdet
+
+
+@dispatch
+def eigvalsh(x: B.TorchNumeric):
+    """
+    Compute the eigenvalues of a Hermitian or real symmetric matrix x.
+    """
+    return torch.linalg.eigvalsh(x)
 
 
 @dispatch

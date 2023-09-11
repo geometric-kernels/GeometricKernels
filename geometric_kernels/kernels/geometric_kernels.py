@@ -6,7 +6,7 @@ import lab as B
 import numpy as np
 from opt_einsum import contract as einsum
 
-from geometric_kernels.kernels import BaseGeometricKernel
+from geometric_kernels.kernels.base import BaseGeometricKernel
 from geometric_kernels.lab_extras import from_numpy, logspace, trapz
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace, Space
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
@@ -39,6 +39,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         self,
         space: DiscreteSpectrumSpace,
         num_eigenfunctions: int,
+        normalize: bool = True,
     ):
         r"""
         :param space: Space providing the eigenvalues and eigenfunctions of
@@ -48,6 +49,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             `np.inf` which corresponds to the Squared Exponential kernel.
         :param num_eigenfunctions: number of eigenvalues and functions to include
             in the summation.
+        :param normalize: whether to normalize to have unit average variance.
         """
         super().__init__(space)
         self.num_eigenfunctions = num_eigenfunctions  # in code referred to as `M`.
@@ -55,6 +57,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             self.num_eigenfunctions
         )
         self._eigenfunctions = self.space.get_eigenfunctions(self.num_eigenfunctions)
+        self.normalize = normalize
 
     def init_params(self):
         """
@@ -76,15 +79,18 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         Depends on the `lengthscale` parameters.
         """
         if nu == np.inf:
-            return B.exp(-(lengthscale**2) / 2.0 * from_numpy(lengthscale, s**2))
+            spectral_values = B.exp(
+                -(lengthscale**2) / 2.0 * from_numpy(lengthscale, s**2)
+            )
         elif nu > 0:
             power = -nu - self.space.dimension / 2.0
             base = 2.0 * nu / lengthscale**2 + B.cast(
                 B.dtype(nu), from_numpy(nu, s**2)
             )
-            return base**power
+            spectral_values = base**power
         else:
             raise NotImplementedError
+        return spectral_values
 
     @property
     def eigenfunctions(self) -> Eigenfunctions:
@@ -100,7 +106,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         """
         return self._eigenvalues_laplacian
 
-    def eigenvalues(self, params) -> B.Numeric:
+    def eigenvalues(self, params, normalize: Optional[bool] = None) -> B.Numeric:
         """
         Eigenvalues of the kernel.
 
@@ -109,11 +115,25 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         assert "lengthscale" in params
         assert "nu" in params
 
-        return self._spectrum(
+        spectral_values = self._spectrum(
             self.eigenvalues_laplacian**0.5,
             nu=params["nu"],
             lengthscale=params["lengthscale"],
         )
+        normalize = normalize or (normalize is None and self.normalize)
+        if normalize:
+            normalizer = B.sum(
+                spectral_values
+                * B.cast(
+                    B.dtype(spectral_values),
+                    from_numpy(
+                        spectral_values,
+                        self.eigenfunctions.num_eigenfunctions_per_level,
+                    )[:, None],
+                )
+            )
+            return spectral_values / normalizer
+        return spectral_values
 
     def K(
         self, params, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs  # type: ignore
@@ -149,18 +169,19 @@ class MaternFeatureMapKernel(BaseGeometricKernel):
     a smoothness parameter `nu` and a lengthscale parameter `lengthscale`.
     """
 
-    def __init__(self, space: Space, feature_map, key):
+    def __init__(self, space: Space, feature_map, key, normalize=True):
         super().__init__(space)
         self.feature_map = make_deterministic(feature_map, key)
+        self.normalize = normalize
 
     def init_params(self):
         params = dict(nu=np.array(np.inf), lengthscale=np.array(1.0))
         return params
 
     def K(self, params, X, X2=None, **kwargs):
-        features_X, _ = self.feature_map(X, params, **kwargs)  # [N, O]
+        features_X, _ = self.feature_map(X, params, normalize=self.normalize, **kwargs)  # [N, O]
         if X2 is not None:
-            features_X2, _ = self.feature_map(X2, params, **kwargs)  # [M, O]
+            features_X2, _ = self.feature_map(X2, params, normalize=self.normalize, **kwargs)  # [M, O]
         else:
             features_X2 = features_X
 
@@ -168,7 +189,7 @@ class MaternFeatureMapKernel(BaseGeometricKernel):
         return feature_product
 
     def K_diag(self, params, X, **kwargs):
-        features_X, _ = self.feature_map(X, params, **kwargs)  # [N, O]
+        features_X, _ = self.feature_map(X, params, normalize=self.normalize, **kwargs)  # [N, O]
         return B.sum(features_X**2, axis=-1)  # [N, ]
 
 

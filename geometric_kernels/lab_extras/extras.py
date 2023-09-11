@@ -118,15 +118,9 @@ def get_random_state(key):
     """
     Return the random state of a random generator.
 
-    Parameters
-    ----------
-    key : Any
-        The random generator.
+    :param key: the random generator.
 
-    Returns
-    -------
-    Any
-        The random state of the random generator.
+    :return: the random state of the random generator.
     """
 
 
@@ -136,17 +130,10 @@ def restore_random_state(key, state):
     """
     Set the random state of a random generator.
 
-    Parameters
-    ----------
-    key : Any
-        The random generator.
-    state : Any
-        The new random state of the random generator.
+    :param key: the random generator.
+    :param state: the new random state of the random generator.
 
-    Returns
-    -------
-    Any
-       The new random generator with state `state`.
+    :return: the new random generator with state `state`.
     """
 
 
@@ -178,6 +165,30 @@ def dtype_complex(reference: B.Numeric):
 def cumsum(a: B.Numeric, axis=None):
     """
     Return cumulative sum (optionally along axis)
+    """
+
+
+@dispatch
+@abstract()
+def qr(x: B.Numeric):
+    """
+    Return a QR decomposition of a matrix x.
+    """
+
+
+@dispatch
+@abstract()
+def slogdet(x: B.Numeric):
+    """
+    Return the sign and log-determinant of a matrix x.
+    """
+
+
+@dispatch
+@abstract()
+def eigvalsh(x: B.Numeric):
+    """
+    Compute the eigenvalues of a Hermitian or real symmetric matrix x.
     """
 
 
