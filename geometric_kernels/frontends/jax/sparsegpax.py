@@ -25,7 +25,7 @@ class SparseGPaxGeometricKernel(sparsegpax.kernel.AbstractKernel):
 
     def __init__(self, kernel: BaseGeometricKernel):
         self._kernel = kernel
-        self._init_params, self._state = kernel.init_params_and_state()
+        self._init_params = kernel.init_params()
 
     def init_params(self, key) -> GeometricKernelParameters:
         params = self._init_params
@@ -40,7 +40,7 @@ class SparseGPaxGeometricKernel(sparsegpax.kernel.AbstractKernel):
             "nu": jnp.exp(params.log_nu),
         }
 
-        return self._kernel.K(kernel_params, self._state, x1, x2)
+        return self._kernel.K(kernel_params, x1, x2)
 
     def kernel(self, params: GeometricKernelParameters):
         return self._kernel

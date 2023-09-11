@@ -107,32 +107,33 @@ def run_tests_with_adj(A, L, tol=1e-7, tol_m=1e-4):
     # Kernel init checks
 
     K_cons = MaternKarhunenLoeveKernel(graph, n, normalize=False)
-    params, state = K_cons.init_params_and_state()
+    params = K_cons.init_params()
+
     idx = B.cast(B.dtype(A), np.arange(n)[:, None])
 
     nu = B.cast(B.dtype(A), np.array([1.0]))
     lscale = B.cast(B.dtype(A), np.array([1.0]))
 
     K_normed_cons = MaternKarhunenLoeveKernel(normed_graph, n, normalize=False)
-    normed_params, normed_state = K_normed_cons.init_params_and_state()
+    normed_params = K_normed_cons.init_params()
 
     ##############################################
     # Matern 1 check
 
     params["nu"], params["lengthscale"] = nu, lscale
-    Kg = K_cons.K(params, state, idx)
+    Kg = K_cons.K(params, idx)
     K1 = evecs_np @ np.diag(np.power(evals_np + 2, -1)) @ evecs_np.T
     np.testing.assert_allclose(Kg, K1, atol=tol, rtol=tol)
 
     normed_params["nu"], normed_params["lengthscale"] = nu, lscale
-    K_normed_cons.K(normed_params, normed_state, idx)
+    K_normed_cons.K(normed_params, idx)
 
     ##############################################
     # Matern 2 check
 
     nu = B.cast(B.dtype(A), np.array([2.0]))
     params["nu"], params["lengthscale"] = nu, lscale
-    Kg = K_cons.K(params, state, idx)
+    Kg = K_cons.K(params, idx)
     K2 = evecs_np @ np.diag(np.power(evals_np + 4, -2)) @ evecs_np.T
     np.testing.assert_allclose(Kg, K2, atol=tol, rtol=tol)
 
@@ -141,7 +142,7 @@ def run_tests_with_adj(A, L, tol=1e-7, tol_m=1e-4):
 
     nu = B.cast(B.dtype(A), np.array([np.inf]))
     params["nu"], params["lengthscale"] = nu, lscale
-    Kg = K_cons.K(params, state, idx)
+    Kg = K_cons.K(params, idx)
     Ki = evecs_np @ np.diag(np.exp(-0.5 * evals_np)) @ evecs_np.T
     np.testing.assert_allclose(Kg, Ki, atol=tol, rtol=tol)
 
@@ -170,11 +171,11 @@ def run_tests_with_adj(A, L, tol=1e-7, tol_m=1e-4):
         )
 
     K_cons = MaternKarhunenLoeveKernel(graph, m, normalize=False)
-    params, state = K_cons.init_params_and_state()
+    params = K_cons.init_params()
 
     nu = B.cast(B.dtype(A), np.array([np.inf]))
     params["nu"], params["lengthscale"] = nu, lscale
-    Kg = K_cons.K(params, state, idx)
+    Kg = K_cons.K(params, idx)
     Ki = evecs_np @ np.diag(np.exp(-0.5 * evals_np)) @ evecs_np.T
     np.testing.assert_allclose(Kg, Ki, atol=tol_m, rtol=tol_m)
 
@@ -208,12 +209,12 @@ def test_graphs_torch_cuda():
         # normed_graph = Graph(adj, normalize_laplacian=True)  # fails due to bug in lab
 
         K_cons = MaternKarhunenLoeveKernel(graph, n, normalize=False)
-        params, state = K_cons.init_params_and_state()
+        params = K_cons.init_params()
 
         params["nu"] = torch.nn.Parameter(torch.tensor([1.0]).cuda())
         params["lengthscale"] = torch.nn.Parameter(torch.tensor([1.0]).cuda())
 
         idx = torch.arange(n)[:, None].cuda()
-        K_cons.K(params, state, idx)
+        K_cons.K(params, idx)
     else:
         pass

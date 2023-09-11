@@ -31,7 +31,7 @@ from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 
 
 kernel = MaternKarhunenLoeveKernel(prod_space, 101)
-params, state = kernel.init_params_and_state()
+params = kernel.init_params()
 
 k_xx = kernel.K(params, state, X, X).reshape((101,101,101,101))
 

@@ -53,27 +53,23 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         """
         super().__init__(space)
         self.num_eigenfunctions = num_eigenfunctions  # in code referred to as `M`.
+        self._eigenvalues_laplacian = self.space.get_eigenvalues(
+            self.num_eigenfunctions
+        )
+        self._eigenfunctions = self.space.get_eigenfunctions(self.num_eigenfunctions)
         self.normalize = normalize
 
-    def init_params_and_state(self):
+    def init_params(self):
         """
-        Get initial params and state.
+        Get initial params.
 
-        In this case, state is Laplacian eigenvalues and eigenfunctions,
-        and params contains the lengthscale and smoothness parameter `nu`.
+        params contains the lengthscale and the smoothness parameter `nu`.
 
-        :return: tuple(params, state)
+        :return: params
         """
         params = dict(lengthscale=np.array(1.0), nu=np.array(np.inf))
 
-        eigenvalues_laplacian = self.space.get_eigenvalues(self.num_eigenfunctions)
-        eigenfunctions = self.space.get_eigenfunctions(self.num_eigenfunctions)
-
-        state = dict(
-            eigenvalues_laplacian=eigenvalues_laplacian, eigenfunctions=eigenfunctions
-        )
-
-        return params, state
+        return params
 
     def _spectrum(
         self, s: B.Numeric, nu: B.Numeric, lengthscale: B.Numeric
@@ -96,14 +92,21 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             raise NotImplementedError
         return spectral_values
 
+    @property
     def eigenfunctions(self) -> Eigenfunctions:
         """
         Eigenfunctions of the kernel, may depend on parameters.
         """
-        eigenfunctions = self.space.get_eigenfunctions(self.num_eigenfunctions)
-        return eigenfunctions
+        return self._eigenfunctions
 
-    def eigenvalues(self, params, state, normalize: Optional[bool] = None) -> B.Numeric:
+    @property
+    def eigenvalues_laplacian(self) -> B.Numeric:
+        """
+        Eigenvalues of the Laplacian.
+        """
+        return self._eigenvalues_laplacian
+
+    def eigenvalues(self, params, normalize: Optional[bool] = None) -> B.Numeric:
         """
         Eigenvalues of the kernel.
 
@@ -112,11 +115,8 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         assert "lengthscale" in params
         assert "nu" in params
 
-        assert "eigenvalues_laplacian" in state
-
-        eigenvalues_laplacian = state["eigenvalues_laplacian"]  # [M, 1]
         spectral_values = self._spectrum(
-            eigenvalues_laplacian**0.5,
+            self.eigenvalues_laplacian**0.5,
             nu=params["nu"],
             lengthscale=params["lengthscale"],
         )
@@ -128,7 +128,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
                     B.dtype(spectral_values),
                     from_numpy(
                         spectral_values,
-                        state["eigenfunctions"].num_eigenfunctions_per_level,
+                        self.eigenfunctions.num_eigenfunctions_per_level,
                     )[:, None],
                 )
             )
@@ -136,25 +136,17 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         return spectral_values
 
     def K(
-        self, params, state, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs  # type: ignore
+        self, params, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs  # type: ignore
     ) -> B.Numeric:
         """Compute the mesh kernel via Laplace eigendecomposition"""
-        assert "eigenfunctions" in state
-        assert "eigenvalues_laplacian" in state
-
-        weights = B.cast(
-            B.dtype(params["nu"]), self.eigenvalues(params, state)
-        )  # [M, 1]
-        Phi = state["eigenfunctions"]
+        weights = B.cast(B.dtype(params["nu"]), self.eigenvalues(params))  # [M, 1]
+        Phi = self.eigenfunctions
 
         return Phi.weighted_outerproduct(weights, X, X2, **params)  # [N, N2]
 
-    def K_diag(self, params, state, X: B.Numeric, **kwargs) -> B.Numeric:
-        assert "eigenvalues_laplacian" in state
-        assert "eigenfunctions" in state
-
-        weights = self.eigenvalues(params, state)  # [M, 1]
-        Phi = state["eigenfunctions"]
+    def K_diag(self, params, X: B.Numeric, **kwargs) -> B.Numeric:
+        weights = self.eigenvalues(params)  # [M, 1]
+        Phi = self.eigenfunctions
 
         return Phi.weighted_outerproduct_diag(weights, X, **params)  # [N,]
 
@@ -182,18 +174,17 @@ class MaternFeatureMapKernel(BaseGeometricKernel):
         self.feature_map = make_deterministic(feature_map, key)
         self.normalize = normalize
 
-    def init_params_and_state(self):
+    def init_params(self):
         params = dict(nu=np.array(np.inf), lengthscale=np.array(1.0))
-        state = dict()
-        return params, state
+        return params
 
-    def K(self, params, state, X, X2=None, **kwargs):
+    def K(self, params, X, X2=None, **kwargs):
         features_X, _ = self.feature_map(
-            X, params, state, normalize=self.normalize, **kwargs
+            X, params, normalize=self.normalize, **kwargs
         )  # [N, O]
         if X2 is not None:
             features_X2, _ = self.feature_map(
-                X2, params, state, normalize=self.normalize, **kwargs
+                X2, params, normalize=self.normalize, **kwargs
             )  # [M, O]
         else:
             features_X2 = features_X
@@ -201,9 +192,9 @@ class MaternFeatureMapKernel(BaseGeometricKernel):
         feature_product = einsum("...no,...mo->...nm", features_X, features_X2)
         return feature_product
 
-    def K_diag(self, params, state, X, **kwargs):
+    def K_diag(self, params, X, **kwargs):
         features_X, _ = self.feature_map(
-            X, params, state, normalize=self.normalize, **kwargs
+            X, params, normalize=self.normalize, **kwargs
         )  # [N, O]
         return B.sum(features_X**2, axis=-1)  # [N, ]
 
@@ -237,18 +228,16 @@ class MaternIntegratedKernel(BaseGeometricKernel):
         super().__init__(space)
         self.num_points_t = num_points_t  # in code referred to as `T`.
 
-    def init_params_and_state(self):
+    def init_params(self):
         """
-        Get initial params and state.
+        Get initial params.
 
-        For `MaternIntegratedKernel`, params contains the lengthscale and smoothness parameter `nu`. The state is an empty `dict`.
+        For `MaternIntegratedKernel`, params contains the lengthscale and smoothness parameter `nu`.
 
-        :return: tuple(params, state)
+        :return: params
         """
         params = dict(lengthscale=1.0, nu=np.inf)
-        state = dict()
-
-        return params, state
+        return params
 
     def link_function(self, params, distance: B.Numeric, t: B.Numeric):
         r"""
@@ -328,14 +317,11 @@ class MaternIntegratedKernel(BaseGeometricKernel):
         return kernel / normalizing_cst
 
     def K(
-        self, params, state, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs  # type: ignore
+        self, params, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs  # type: ignore
     ) -> B.Numeric:
         """Compute the kernel via integration of heat kernel"""
         return self.kernel(params, X, X2, diag=False)
 
-    def K_diag(self, params, state, X: B.Numeric, **kwargs) -> B.Numeric:
+    def K_diag(self, params, X: B.Numeric, **kwargs) -> B.Numeric:
         """Compute the kernel via integration of heat kernel"""
         return self.kernel(params, X, diag=True)
-
-    def feature_map(self, params, state, **kwargs):
-        raise NotImplementedError
