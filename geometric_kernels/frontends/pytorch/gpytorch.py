@@ -28,8 +28,6 @@ class GPytorchGeometricKernel(gpytorch.kernels.Kernel):
 
         self._kernel = kernel
 
-        params = self._kernel.init_params()
-
         self.lengthscale = torch.tensor(lengthscale)
 
         self.trainable_nu = trainable_nu
