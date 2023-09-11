@@ -20,9 +20,7 @@ def sample_at(
     if key is None:
         key = B.global_random_state(B.dtype(X))
 
-    features, _context = feature_map(
-        X, params, key=key, normalize=normalize
-    )  # [N, M]
+    features, _context = feature_map(X, params, key=key, normalize=normalize)  # [N, M]
 
     if "key" in _context:
         key = _context["key"]

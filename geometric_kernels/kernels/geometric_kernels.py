@@ -179,9 +179,13 @@ class MaternFeatureMapKernel(BaseGeometricKernel):
         return params
 
     def K(self, params, X, X2=None, **kwargs):
-        features_X, _ = self.feature_map(X, params, normalize=self.normalize, **kwargs)  # [N, O]
+        features_X, _ = self.feature_map(
+            X, params, normalize=self.normalize, **kwargs
+        )  # [N, O]
         if X2 is not None:
-            features_X2, _ = self.feature_map(X2, params, normalize=self.normalize, **kwargs)  # [M, O]
+            features_X2, _ = self.feature_map(
+                X2, params, normalize=self.normalize, **kwargs
+            )  # [M, O]
         else:
             features_X2 = features_X
 
@@ -189,7 +193,9 @@ class MaternFeatureMapKernel(BaseGeometricKernel):
         return feature_product
 
     def K_diag(self, params, X, **kwargs):
-        features_X, _ = self.feature_map(X, params, normalize=self.normalize, **kwargs)  # [N, O]
+        features_X, _ = self.feature_map(
+            X, params, normalize=self.normalize, **kwargs
+        )  # [N, O]
         return B.sum(features_X**2, axis=-1)  # [N, ]
 
 
