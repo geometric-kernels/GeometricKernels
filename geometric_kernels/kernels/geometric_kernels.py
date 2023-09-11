@@ -177,9 +177,10 @@ class MaternFeatureMapKernel(BaseGeometricKernel):
     a smoothness parameter `nu` and a lengthscale parameter `lengthscale`.
     """
 
-    def __init__(self, space: Space, feature_map, key):
+    def __init__(self, space: Space, feature_map, key, normalize=True):
         super().__init__(space)
         self.feature_map = make_deterministic(feature_map, key)
+        self.normalize = normalize
 
     def init_params_and_state(self):
         params = dict(nu=np.array(np.inf), lengthscale=np.array(1.0))
@@ -187,9 +188,13 @@ class MaternFeatureMapKernel(BaseGeometricKernel):
         return params, state
 
     def K(self, params, state, X, X2=None, **kwargs):
-        features_X, _ = self.feature_map(X, params, state, **kwargs)  # [N, O]
+        features_X, _ = self.feature_map(
+            X, params, state, normalize=self.normalize, **kwargs
+        )  # [N, O]
         if X2 is not None:
-            features_X2, _ = self.feature_map(X2, params, state, **kwargs)  # [M, O]
+            features_X2, _ = self.feature_map(
+                X2, params, state, normalize=self.normalize, **kwargs
+            )  # [M, O]
         else:
             features_X2 = features_X
 
@@ -197,7 +202,9 @@ class MaternFeatureMapKernel(BaseGeometricKernel):
         return feature_product
 
     def K_diag(self, params, state, X, **kwargs):
-        features_X, _ = self.feature_map(X, params, state, **kwargs)  # [N, O]
+        features_X, _ = self.feature_map(
+            X, params, state, normalize=self.normalize, **kwargs
+        )  # [N, O]
         return B.sum(features_X**2, axis=-1)  # [N, ]
 
 

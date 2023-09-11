@@ -19,13 +19,13 @@ from geometric_kernels.spaces import (
 
 
 @dispatch
-def default_feature_map(space: DiscreteSpectrumSpace, *, num, kernel, normalize):
+def default_feature_map(space: DiscreteSpectrumSpace, *, num, kernel):
     return deterministic_feature_map_compact(space, kernel)
 
 
 @dispatch
-def default_feature_map(space: NoncompactSymmetricSpace, *, num, kernel, normalize):
-    return random_phase_feature_map_noncompact(space, num, normalize)
+def default_feature_map(space: NoncompactSymmetricSpace, *, num, kernel):
+    return random_phase_feature_map_noncompact(space, num)
 
 
 @dispatch
@@ -89,9 +89,10 @@ class MaternGeometricKernel:
                 space,
                 kernel=kernel,
                 num=num,
-                normalize=normalize,
             )
-            kernel = MaternFeatureMapKernel(space, feature_map, key)
+            kernel = MaternFeatureMapKernel(
+                space, feature_map, key, normalize=normalize
+            )
         else:
             raise NotImplementedError
 
