@@ -137,14 +137,12 @@ class ProductEigenfunctions(Eigenfunctions):
         """
         Wrapper class for handling eigenfunctions on product spaces
 
-        Parameters
-        ----------
-        dimensions : List[int]
-            The dimensions of the spaces being producted together
-        eigenindicies : B.Numeric
-            An array mapping i'th eigenfunction of the product space to
-            the index of the eigenlevels of the subspaces
-        eigenfunctions : Eigenfunctions
+        :param dimensions: the dimensions of the spaces being producted together
+
+        :param eigenindicies: an array mapping i'th eigenfunction of the product
+                              space to the index of the eigenlevels of the subspaces
+
+        :param eigenfunctions: the eigenfunctions
 
         """
         if dimension_indices is None:
@@ -253,6 +251,10 @@ class ProductEigenfunctions(Eigenfunctions):
 
         out = B.sum(B.flatten(weights) * prod_phis, axis=-1)  # [N, L] -> [N,]
         return out
+
+    @property
+    def num_eigenfunctions_per_level(self):
+        return total_multiplicities(self.eigenindicies, self.nums_per_level)
 
     @property
     def dim_of_eigenspaces(self):

@@ -95,15 +95,9 @@ def get_random_state(key: B.NPRandomState):
     """
     Return the random state of a random generator.
 
-    Parameters
-    ----------
-    key : Any
-        The key used to generate the random state.
+    :param key: the random generator of type `B.NPRandomState`.
 
-    Returns
-    -------
-    Any
-        The random state of the random generator.
+    :return: the random state of the random generator.
     """
     return key.get_state()
 
@@ -113,12 +107,10 @@ def restore_random_state(key: B.NPRandomState, state):
     """
     Set the random state of a random generator.
 
-    Parameters
-    ----------
-    key : B.NPRandomState
-        The random generator.
-    state : Any
-        The new random state of the random generator.
+    :param key: the random generator of type `B.NPRandomState`.
+    :param state: the new random state of the random generator.
+
+    :return: the new random generator with state `state`.
     """
     gen = np.random.RandomState()
     gen.set_state(state)

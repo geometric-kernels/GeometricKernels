@@ -18,7 +18,7 @@ from geometric_kernels.lab_extras import (
     sinh,
     trapz,
 )
-from geometric_kernels.spaces import NoncompactSymmetricSpace
+from geometric_kernels.spaces.base import NoncompactSymmetricSpace
 
 
 class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
