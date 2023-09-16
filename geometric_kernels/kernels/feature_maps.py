@@ -28,10 +28,13 @@ def deterministic_feature_map_compact(
     Deterministic feature map for compact spaces based on the Laplacian eigendecomposition.
 
     :return: Callable
-        Signature: (X, params,  **kwargs)
+        Signature: ``(X, params,  **kwargs)``
+
         :param X: [N, D] points in the space to evaluate the map on.
+
         :param params: parameters of the kernel (lengthscale and smoothness).
-        :param **kwargs: unused.
+
+        :param ``**kwargs``: unused.
 
         :return: `Tuple(feature_map, context)` where `feature_map` is Callable,
                  and `context` is empty (no context).
@@ -44,7 +47,7 @@ def deterministic_feature_map_compact(
         :param X: points in the space to evaluate the map on.
         :param params: parameters of the kernel (lengthscale and smoothness).
         :param normalize: normalize to have unit average variance.
-        :param **kwargs: unused.
+        :param ``**kwargs``: unused.
 
         :return: `Tuple(features, context)` where `features` is [N, O] features,
                  and `context` is empty (no context).
@@ -85,9 +88,11 @@ def random_phase_feature_map_compact(
 
     :return: Callable
         Signature: ``(X, params, key, **kwargs)``
+
         :param X: [N, D] points in the space to evaluate the map on.
 
         :param params: parameters of the kernel (lengthscale and smoothness).
+
         :param key: random state, either `np.random.RandomState`, `tf.random.Generator`,
                     `torch.Generator` or `jax.tensor` (representing random state).
 
@@ -96,8 +101,10 @@ def random_phase_feature_map_compact(
                      This is because these backends' random state has... a state.
                      One either has to recreate/restore the state each time or
                      make use of `geometric_kernels.utils.make_deterministic`.
+
         :param normalize: normalize to have unit average variance.
-        :param **kwargs: unused.
+
+        :param ``**kwargs``: unused.
 
         :return: `Tuple(features, context)` where `features` is [N, O] features,
                  and `context` is `{'key': <new key>}`. `<new key>` is the new key
@@ -107,7 +114,9 @@ def random_phase_feature_map_compact(
     def _map(X: B.Numeric, params, key, normalize=None, **kwargs) -> B.Numeric:
         """
         :param X: [N, D] points in the space to evaluate the map on.
+
         :param params: parameters of the kernel (lengthscale and smoothness).
+
         :param key: random state, either `np.random.RandomState`, `tf.random.Generator`,
                     `torch.Generator` or `jax.tensor` (representing random state).
 
@@ -116,8 +125,10 @@ def random_phase_feature_map_compact(
                      This is because these backends' random state has... a state.
                      One either has to recreate/restore the state each time or
                      make use of `geometric_kernels.utils.make_deterministic`.
+
         :param normalize: normalize to have unit average variance.
-        :param **kwargs: unused.
+
+        :param ``**kwargs``: unused.
 
         :return: `Tuple(features, context)` where `features` is [N, O] features,
                  and `context` is `{'key': <new key>}`. `<new key>` is the new key
@@ -171,6 +182,7 @@ def random_phase_feature_map_noncompact(
             :param X: [N, D] points in the space to evaluate the map on.
 
             :param params: parameters of the feature map (lengthscale and smoothness).
+
             :param key: random state, either `np.random.RandomState`, `tf.random.Generator`,
                         `torch.Generator` or `jax.tensor` (representing random state).
 
@@ -179,8 +191,10 @@ def random_phase_feature_map_noncompact(
                          This is because these backends' random state has... a state.
                          One either has to recreate/restore the state each time or
                          make use of `geometric_kernels.utils.make_deterministic`.
+
             :param normalize: normalize to have unit average variance.
-            :param **kwargs: unused.
+
+            :param ``**kwargs``: unused.
 
             :return: `Tuple(features, context)` where `features` is [N, O] features,
                      and `context` is `{'key': <new key>}`. `<new key>` is the new key
@@ -190,7 +204,9 @@ def random_phase_feature_map_noncompact(
     def _map(X: B.Numeric, params, key, normalize=True, **kwargs) -> B.Numeric:
         """
         :param X: [N, D] points in the space to evaluate the map on.
+
         :param params: parameters of the feature map (lengthscale and smoothness).
+
         :param key: random state, either `np.random.RandomState`, `tf.random.Generator`,
                     `torch.Generator` or `jax.tensor` (representing random state).
 
@@ -199,7 +215,9 @@ def random_phase_feature_map_noncompact(
                      This is because these backends' random state has... a state.
                      One either has to recreate/restore the state each time or
                      make use of `geometric_kernels.utils.make_deterministic`.
+
         :param normalize: normalize to have unit average variance.
+
         :param kwargs: unused.
 
         :return: `Tuple(features, context)` where `features` is [N, O] features,
@@ -253,9 +271,11 @@ def rejection_sampling_feature_map_hyperbolic(
 
     :return: Callable
             Signature: ``(X, params, key, **kwargs)``
+
             :param X: [N, D] points in the space to evaluate the map on.
 
             :param params: parameters of the feature map (lengthscale and smoothness).
+
             :param key: random state, either `np.random.RandomState`, `tf.random.Generator`,
                         `torch.Generator` or `jax.tensor` (representing random state).
 
@@ -314,8 +334,11 @@ def rejection_sampling_feature_map_spd(
 
     :return: Callable
             Signature: ``(X, params, state, key, **kwargs)``
+
             :param X: [N, D, D] points in the space to evaluate the map on.
+
             :param params: parameters of the feature map (lengthscale and smoothness).
+
             :param key: random state, either `np.random.RandomState`, `tf.random.Generator`,
                         `torch.Generator` or `jax.tensor` (representing random state).
 
@@ -324,6 +347,7 @@ def rejection_sampling_feature_map_spd(
                          This is because these backends' random state has... a state.
                          One either has to recreate/restore the state each time or
                          make use of `geometric_kernels.utils.make_deterministic`.
+
             :param kwargs: unused.
 
             :return: `Tuple(features, context)` where `features` is [N, O] features,

@@ -1,4 +1,4 @@
-.. Copyright 2020 The Geometric Kernels Contributors
+.. Copyright The GeometricKernels Contributors
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.
@@ -179,17 +179,17 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> # Generate 3 random points on the sphere.
    >>> xs = np.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
 
-   >>> # Initialize kernel, use 10 levels to approximate the infinite series.
+   >>> # Initialize kernel.
    >>> kernel = MaternGeometricKernel(hypersphere)
-   >>> params, state = kernel.init_params_and_state()
+   >>> params = kernel.init_params()
    >>> params["nu"] = np.array([5/2])
    >>> params["lengthscale"] = np.array([1.])
 
    >>> # Compute and print out the 3x3 kernel matrix.
-   >>> print(kernel.K(params, state, xs))
-   [[0.00855706 0.0030498  0.0030498 ]
-    [0.0030498  0.00855706 0.0030498 ]
-    [0.0030498  0.0030498  0.00855706]]
+   >>> print(kernel.K(params, xs))
+   [[1.         0.35640725 0.35640725]
+    [0.35640725 1.         0.35640725]
+    [0.35640725 0.35640725 1.        ]]
 
 .. raw:: html
 
@@ -225,17 +225,18 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> # Generate 3 random points on the sphere.
    >>> xs = np.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
 
-   >>> # Initialize kernel, use 10 levels to approximate the infinite series.
+   >>> # Initialize kernel.
    >>> kernel = MaternGeometricKernel(hypersphere)
-   >>> params, state = kernel.init_params_and_state()
+   >>> params = kernel.init_params()
    >>> params["nu"] = tf.convert_to_tensor(5/2)
    >>> params["lengthscale"] = tf.convert_to_tensor(1.)
 
    >>> # Compute and print out the 3x3 kernel matrix.
-   >>> print(kernel.K(params, state, tf.convert_to_tensor(xs)).numpy())
-   [[0.00855706 0.0030498  0.0030498 ]
-    [0.0030498  0.00855706 0.0030498 ]
-    [0.0030498  0.0030498  0.00855706]]
+   >>> print(kernel.K(params, tf.convert_to_tensor(xs)).numpy())
+   [[1.         0.35640725 0.35640725]
+    [0.35640725 1.         0.35640725]
+    [0.35640725 0.35640725 1.        ]]
+
 
 .. raw:: html
 
@@ -271,17 +272,17 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> # Generate 3 random points on the sphere.
    >>> xs = np.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
 
-   >>> # Initialize kernel, use 10 terms to approximate the infinite series.
+   >>> # Initialize kernel.
    >>> kernel = MaternGeometricKernel(hypersphere)
-   >>> params, state = kernel.init_params_and_state()
+   >>> params = kernel.init_params()
    >>> params["nu"] = torch.tensor(5/2)
    >>> params["lengthscale"] = torch.tensor(1.)
 
    >>> # Compute and print out the 3x3 kernel matrix.
-   >>> print(kernel.K(params, state, torch.from_numpy(xs)).detach().cpu().numpy())
-   [[0.00855706 0.0030498  0.0030498 ]
-    [0.0030498  0.00855706 0.0030498 ]
-    [0.0030498  0.0030498  0.00855706]]
+   >>> print(kernel.K(params, torch.from_numpy(xs)).detach().cpu().numpy())
+   [[1.0000001  0.35640728 0.35640728]
+    [0.35640728 1.0000001  0.35640728]
+    [0.35640728 0.35640728 1.0000001 ]]
 
 .. raw:: html
 
@@ -317,17 +318,17 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> # Generate 3 random points on the sphere.
    >>> xs = np.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
 
-   >>> # Initialize kernel, use 10 levels to approximate the infinite series.
+   >>> # Initialize kernel.
    >>> kernel = MaternGeometricKernel(hypersphere)
-   >>> params, state = kernel.init_params_and_state()
+   >>> params = kernel.init_params()
    >>> params["nu"] = jnp.r_[5/2]
    >>> params["lengthscale"] = jnp.r_[1.]
 
    >>> # Compute and print out the 3x3 kernel matrix.
-   >>> print(kernel.K(params, state, jnp.array(xs)))
-   [[0.00855482 0.0030498  0.0030498 ]
-    [0.0030498  0.00855482 0.0030498 ]
-    [0.0030498  0.0030498  0.00855482]]
+   >>> print(kernel.K(params, jnp.array(xs)))
+   [[0.99973804 0.35640728 0.35640728]
+    [0.35640728 0.99973804 0.35640728]
+    [0.35640728 0.35640728 0.99973804]]
 
 
 .. raw:: html
@@ -352,6 +353,7 @@ You can find more examples in our `example notebooks <https://github.com/GPflow/
    :hidden:
 
    Examples <examples/index>
+   Theory <theory/index>
    API reference <autoapi/geometric_kernels/index>
    GitHub <https://github.com/GPflow/GeometricKernels>
 

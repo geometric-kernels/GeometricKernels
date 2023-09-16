@@ -31,6 +31,8 @@ extensions = [
     'sphinx.ext.duration',
     'sphinx.ext.doctest',
     'sphinx.ext.autodoc',
+    'sphinx_math_dollar',
+    'sphinx.ext.mathjax',
 ]
 
 # autoapi
@@ -91,4 +93,19 @@ html_context = {
   'github_user': 'GPflow',
   'github_repo': 'GeometricKernels',
   'github_version': 'main/docs/'
+}
+
+# For sphinx_math_dollar (see https://www.sympy.org/sphinx-math-dollar/)
+mathjax_config = {
+    'tex2jax': {
+        'inlineMath': [ ["\\(","\\)"] ],
+        'displayMath': [["\\[","\\]"] ],
+    },
+}
+
+mathjax3_config = {
+  "tex": {
+    "inlineMath": [['\\(', '\\)']],
+    "displayMath": [["\\[", "\\]"]],
+  }
 }
