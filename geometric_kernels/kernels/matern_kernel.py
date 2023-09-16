@@ -1,7 +1,6 @@
 """
 A wrapper around different kernels and feature maps that dispatches on space.
 """
-import lab as B
 from plum import dispatch
 
 from geometric_kernels.kernels.feature_maps import (
@@ -126,10 +125,14 @@ class MaternGeometricKernel:
             if "key" in kwargs:
                 key = kwargs["key"]
             else:
-                raise Exception(("MaternGeometricKernel for %s requires "
-                        "mandatory keyword argument 'key' which is a random "
-                        "number generator specific to the backend used")
-                        % str(type(space)))
+                raise Exception(
+                    (
+                        "MaternGeometricKernel for %s requires mandatory"
+                        " keyword argument 'key' which is a random number"
+                        " generator specific to the backend used"
+                    )
+                    % str(type(space))
+                )
             feature_map = default_feature_map(space, kernel=None, num=num)
             kernel = MaternFeatureMapKernel(
                 space, feature_map, key, normalize=normalize
