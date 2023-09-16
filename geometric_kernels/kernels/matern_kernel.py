@@ -47,6 +47,9 @@ def default_feature_map(space: Hyperbolic, *, num, kernel):
 
 @dispatch
 def default_feature_map(space: SymmetricPositiveDefiniteMatrices, *, num, kernel):
+    """
+    Note parameter `kernel` is not used, just pass None.
+    """
     return rejection_sampling_feature_map_spd(space, num)
 
 
@@ -108,8 +111,9 @@ class MaternGeometricKernel:
         :param return_feature_map: if `True`, return a feature map (needed
             e.g. for efficient sampling from Gaussian processes) along with
             the kernel. Default is `False`.
-        :param kwargs: any additional keyword arguments to be passed to
-            the kernel (like `key`).
+        :param ``**kwargs``: any additional keyword arguments to be passed to
+            the kernel (like `key`). **Important:** for non-compact symmetric
+            spaces (Hyperbolic, SPD) the `key` **must** be provided in kwargs.
         """
 
         if isinstance(space, DiscreteSpectrumSpace):
@@ -119,12 +123,14 @@ class MaternGeometricKernel:
 
         elif isinstance(space, NoncompactSymmetricSpace):
             num = num or default_num(space)
-            key = kwargs.get("key", B.create_random_state())
-            feature_map = default_feature_map(
-                space,
-                kernel=kernel,
-                num=num,
-            )
+            if "key" in kwargs:
+                key = kwargs["key"]
+            else:
+                raise Exception(("MaternGeometricKernel for %s requires "
+                        "mandatory keyword argument 'key' which is a random "
+                        "number generator specific to the backend used")
+                        % str(type(space)))
+            feature_map = default_feature_map(space, kernel=None, num=num)
             kernel = MaternFeatureMapKernel(
                 space, feature_map, key, normalize=normalize
             )
