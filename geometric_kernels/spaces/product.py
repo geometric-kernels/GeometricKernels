@@ -281,7 +281,7 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
 
         :param spaces: The spaces to product together (each must inherit from DiscreteSpectrumSpace)
         :param num_eigenvalues: (optional)
-            number of eigenvalues to use for this product space.
+            number of the per-level eigenvalues to use for this product space.
         """
         for space in spaces:
             assert isinstance(
