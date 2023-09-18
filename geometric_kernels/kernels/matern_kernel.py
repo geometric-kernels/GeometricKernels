@@ -125,7 +125,7 @@ class MaternGeometricKernel:
             if "key" in kwargs:
                 key = kwargs["key"]
             else:
-                raise Exception(
+                raise ValueError(
                     (
                         "MaternGeometricKernel for %s requires mandatory"
                         " keyword argument 'key' which is a random number"
