@@ -27,12 +27,6 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
     eigenvalues and eigenfunctions belong to the
     `DiscreteSpectrumSpace` instance.
 
-    We refer to sets of :math:`\{\phi_{ij}\}_{j=0}^{K_i}` as
-    "levels". In many practical spaces, like the sphere, we can employ
-    _addition theorems_ to efficiently compute the sums over levels
-    :math:`\sum_{j=0}^{K_i} \phi_{ij}(x) \phi_{ij}(x')`. A level may
-    consist of one eigenfunction.
-
     We refer to the pairs :math:`(\lambda_i, G_i(\cdot, \cdot'))`
     where :math:`G_i(\cdot, \cdot') = \sum_{j=0}^{K_i}
     \phi_{ij}(\cdot) \phi_{ij}(\cdot')` as "levels". For many spaces,
@@ -41,7 +35,8 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
     individual :math:`\phi_{ij}`. Note that :math:`\lambda_i` are not
     required to be unique: it is possible that for some :math:`i,j`,
     :math:`\lambda_i = \lambda_j`. In other words, the "levels" do not
-    necessarily correspond to eigenspaces.
+    necessarily correspond to full eigenspaces. A level may even correspond
+    to a single eigenfunction.
 
     References:
 
