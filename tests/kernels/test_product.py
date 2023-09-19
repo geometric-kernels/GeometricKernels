@@ -15,7 +15,7 @@ def test_circle_product_eigenfunctions():
     # assert that the naive method of phi-product calculation
     # gives the same result as the addition theorem based calculation
     product = ProductDiscreteSpectrumSpace(
-        Circle(), Circle(), num_eigenvalues=_TRUNC_LEVEL**2
+        Circle(), Circle(), num_levels=_TRUNC_LEVEL**2
     )
 
     grid = B.linspace(0, 2 * B.pi, _GRID_SIZE)
@@ -42,7 +42,7 @@ def test_circle_product_eigenfunctions():
 
 def test_circle_product_kernel():
     product = ProductDiscreteSpectrumSpace(
-        Circle(), Circle(), num_eigenvalues=_TRUNC_LEVEL**2
+        Circle(), Circle(), num_levels=_TRUNC_LEVEL**2
     )
 
     grid = B.linspace(0, 2 * B.pi, _GRID_SIZE)
