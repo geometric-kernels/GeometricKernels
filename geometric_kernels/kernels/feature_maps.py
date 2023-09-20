@@ -49,7 +49,8 @@ def deterministic_feature_map_compact(
         :return: `Tuple(features, context)` where `features` is [N, O] features,
                  and `context` is empty (no context).
         """
-        repeated_eigenvalues = space.get_repeated_eigenvalues(kernel.num_eigenfunctions)
+
+        repeated_eigenvalues = space.get_repeated_eigenvalues(kernel.num_levels)
         spectrum = kernel._spectrum(
             repeated_eigenvalues**0.5,
             nu=params["nu"],
