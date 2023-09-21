@@ -15,16 +15,28 @@ from geometric_kernels.utils.utils import Optional, make_deterministic
 
 
 class MaternKarhunenLoeveKernel(BaseGeometricKernel):
-    r"""
-    This class approximates a kernel by the finite feature decomposition using
+    r"""This class approximates a kernel by the finite feature decomposition using
     its Laplace-Beltrami eigenfunctions and eigenvalues [1, 2].
 
-    .. math:: k(x, x') = \sum_{i=0}^{M-1} S(\sqrt\lambda_i) \phi_i(x) \phi_i(x'),
+    .. math:: k(x, x') = \sum_{i=0}^{M-1} S(\sqrt\lambda_i) \sum_{j=0}^{K_i} \phi_{ij}(x) \phi_{ij}(x'),
 
-    where :math:`\lambda_i` and :math:`\phi_i(\cdot)` are the eigenvalues and
-    eigenfunctions of the Laplace-Beltrami operator and :math:`S(\cdot)` the
-    spectrum of the stationary kernel. The eigenvalues and eigenfunctions belong
-    to the `SpaceWithEigenDecomposition` instance.
+    where :math:`\lambda_i` and :math:`\phi_{ij}(\cdot)` are the
+    eigenvalues and eigenfunctions of the Laplace-Beltrami operator
+    such that :math:`\Delta \phi_{ij} = \lambda_i \phi_{ij}`, and
+    :math:`S(\cdot)` is the spectrum of the stationary kernel. The
+    eigenvalues and eigenfunctions belong to the
+    `DiscreteSpectrumSpace` instance.
+
+    We refer to the pairs :math:`(\lambda_i, G_i(\cdot, \cdot'))`
+    where :math:`G_i(\cdot, \cdot') = \sum_{j=0}^{K_i}
+    \phi_{ij}(\cdot) \phi_{ij}(\cdot')` as "levels". For many spaces,
+    like the sphere, we can employ addition theorems to efficiently
+    compute :math:`G_i(\cdot, \cdot')` without calculating the
+    individual :math:`\phi_{ij}`. Note that :math:`\lambda_i` are not
+    required to be unique: it is possible that for some :math:`i,j`,
+    :math:`\lambda_i = \lambda_j`. In other words, the "levels" do not
+    necessarily correspond to full eigenspaces. A level may even correspond
+    to a single eigenfunction.
 
     References:
 
@@ -33,12 +45,13 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
 
     [2] Arno Solin, and Simo Särkkä, Hilbert Space Methods for Reduced-Rank
         Gaussian Process Regression
+
     """
 
     def __init__(
         self,
         space: DiscreteSpectrumSpace,
-        num_eigenfunctions: int,
+        num_levels: int,
         normalize: bool = True,
     ):
         r"""
@@ -47,16 +60,13 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         :param nu: Determines continuity of the Mat\'ern kernel. Typical values
             include 1/2 (i.e., the Exponential kernel), 3/2, 5/2 and +\infty
             `np.inf` which corresponds to the Squared Exponential kernel.
-        :param num_eigenfunctions: number of eigenvalues and functions to include
-            in the summation.
+        :param num_levels: number of levels to include in the summation.
         :param normalize: whether to normalize to have unit average variance.
         """
         super().__init__(space)
-        self.num_eigenfunctions = num_eigenfunctions  # in code referred to as `M`.
-        self._eigenvalues_laplacian = self.space.get_eigenvalues(
-            self.num_eigenfunctions
-        )
-        self._eigenfunctions = self.space.get_eigenfunctions(self.num_eigenfunctions)
+        self.num_levels = num_levels  # in code referred to as `M`.
+        self._eigenvalues_laplacian = self.space.get_eigenvalues(self.num_levels)
+        self._eigenfunctions = self.space.get_eigenfunctions(self.num_levels)
         self.normalize = normalize
 
     def init_params(self):
