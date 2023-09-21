@@ -1,7 +1,7 @@
 """
 Product of kernels
 """
-from typing import List, Mapping
+from typing import List, Mapping, Optional
 
 import lab as B
 
@@ -13,7 +13,7 @@ class ProductGeometricKernel(BaseGeometricKernel):
     def __init__(
         self,
         *kernels: BaseGeometricKernel,
-        dimension_indices: List[B.Numeric] = None,
+        dimension_indices: Optional[List[B.Numeric]] = None,
     ):
         """
         Basic implementation of product kernels.
