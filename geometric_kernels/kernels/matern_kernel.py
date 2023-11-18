@@ -25,30 +25,49 @@ from geometric_kernels.spaces import (
 
 
 @dispatch
-def default_feature_map(space: DiscreteSpectrumSpace, *, num, kernel):
+def default_feature_map(space: DiscreteSpectrumSpace, *, kernel, num=None):
+    if num is None:
+        num = default_num(space)
     return deterministic_feature_map_compact(space, kernel)
 
 
 @dispatch
-def default_feature_map(space: NoncompactSymmetricSpace, *, num, kernel):
+def default_feature_map(space: NoncompactSymmetricSpace, *, kernel, num=None):
+    """
+    Note parameter `kernel` is not used, just pass None.
+    """
+    if num is None:
+        num = default_num(space)
     return random_phase_feature_map_noncompact(space, num)
 
 
 @dispatch
-def default_feature_map(space: Hyperbolic, *, num, kernel):
-    return rejection_sampling_feature_map_hyperbolic(space, num)
-
-
-@dispatch
-def default_feature_map(space: Hyperbolic, *, num, kernel):
-    return rejection_sampling_feature_map_hyperbolic(space, num)
-
-
-@dispatch
-def default_feature_map(space: SymmetricPositiveDefiniteMatrices, *, num, kernel):
+def default_feature_map(space: Hyperbolic, *, kernel, num=None):
     """
     Note parameter `kernel` is not used, just pass None.
     """
+    if num is None:
+        num = default_num(space)
+    return rejection_sampling_feature_map_hyperbolic(space, num)
+
+
+@dispatch
+def default_feature_map(space: Hyperbolic, *, kernel, num=None):
+    """
+    Note parameter `kernel` is not used, just pass None.
+    """
+    if num is None:
+        num = default_num(space)
+    return rejection_sampling_feature_map_hyperbolic(space, num)
+
+
+@dispatch
+def default_feature_map(space: SymmetricPositiveDefiniteMatrices, *, kernel, num=None):
+    """
+    Note parameter `kernel` is not used, just pass None.
+    """
+    if num is None:
+        num = default_num(space)
     return rejection_sampling_feature_map_spd(space, num)
 
 
@@ -118,7 +137,8 @@ class MaternGeometricKernel:
         if isinstance(space, DiscreteSpectrumSpace):
             num = num or default_num(space)
             kernel = MaternKarhunenLoeveKernel(space, num, normalize=normalize)
-            feature_map = default_feature_map(space, kernel=kernel, num=num)
+            if return_feature_map:
+                feature_map = default_feature_map(space, kernel=kernel, num=num)
 
         elif isinstance(space, NoncompactSymmetricSpace):
             num = num or default_num(space)
