@@ -12,7 +12,7 @@ The theory for *non-compact symmetric spaces* (like hyperbolic spaces or manifol
 For the latter, kernels are given by a finite sum or an infinite series and are approximated using *truncation*.
 For the former, kernels are given by integrals and are approximated using *Monte Carlo*.
 
-More specifically, for non-compact symmetric spaces an analog of the *random Fourier features* technique of `Rahimi Recht (2007) <https://people.eecs.berkeley.edu/~brecht/papers/07.rah.rec.nips.pdf>`_ exits.
+More specifically, for non-compact symmetric spaces an analog of the *random Fourier features* technique of `Rahimi and Recht (2007) <https://papers.nips.cc/paper_files/paper/2007/file/013a006f03dbc5392effeb8f18fda755-Paper.pdf>`_ exits.
 In the Euclidean case, closed form expressions for kernels are available and random Fourier features are only used to speed up computations.
 No closed form expressions for kernel are (usually) available in general non-compact symmetric spaces.
 Because of that, random Fourier features are the basic means of computing kernels in this case.

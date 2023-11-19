@@ -12,3 +12,4 @@
    Kernels on non-compact symmetric spaces <symmetric>
    Kernels on product spaces <product_spaces>
    Product kernels <product_kernels>
+   Feature maps and sampling <feature_maps>

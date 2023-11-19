@@ -79,3 +79,6 @@ Edge Set of a Graph
 ==========================
 
 if you want to model a **signal on the edges** of a graph $G$, you can consider modeling the signal on the nodes of the `line graph <https://en.wikipedia.org/wiki/Line_graph>`_. The line graph of $G$ has a node for each edge of $G$ and its two nodes are connected by an edge if the corresponding edges in $G$ used to share a common node. To build the line graph, you can use the `line_graph <https://networkx.org/documentation/stable/reference/generated/networkx.generators.line.line_graph.html#line-graph>`_ function of `networkx <https://networkx.org>`_.
+
+Alternatively, especially for the flow-type data, you might want to use specialized edge kernels, see `Yang et al. (2023) <https://arxiv.org/abs/2310.19450>`_ and `Alain et al. (2023) <https://arxiv.org/abs/2311.01198>`_.
+These are not implemented in GeometricKernels at the moment.
