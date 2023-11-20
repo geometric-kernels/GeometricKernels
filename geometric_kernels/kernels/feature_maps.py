@@ -207,6 +207,11 @@ def random_phase_feature_map_noncompact(
                  and `context` is `{'key': <new key>}`. `<new key>` is the new key
                  for jax, and the same random state (generator) for all other backends.
         """
+
+        # default behavior
+        if normalize is None:
+            normalize = True
+
         key, random_phases = space.random_phases(key, num_random_phases)  # [O, <axes>]
 
         key, random_lambda = base_density_sample(
@@ -274,6 +279,10 @@ def rejection_sampling_feature_map_hyperbolic(
     """
 
     def _map(X: B.Numeric, params, key, normalize=True, **kwargs) -> B.Numeric:
+        # default behavior
+        if normalize is None:
+            normalize = True
+
         key, random_phases = space.random_phases(key, num_random_phases)  # [O, D]
 
         key, random_lambda = hyperbolic_density_sample(
@@ -333,6 +342,10 @@ def rejection_sampling_feature_map_spd(
     """
 
     def _map(X: B.Numeric, params, key, normalize: bool = True, **kwargs) -> B.Numeric:
+        # default behavior
+        if normalize is None:
+            normalize = True
+
         key, random_phases = space.random_phases(key, num_random_phases)  # [O, D, D]
 
         key, random_lambda = spd_density_sample(
