@@ -197,7 +197,7 @@ def test_feature_map_dtype(kl_spacepoint, dtype, backend):
     # make sure it runs
     key = B.create_random_state(B.dtype(point), seed=1234)
     feature_map = random_phase_feature_map_compact(space, num_levels)
-    feature_map(point, params, key)
+    feature_map(point, params, key=key)
 
 
 @pytest.fixture(params=["naive", "rs"])
@@ -234,4 +234,4 @@ def test_feature_map_noncompact_dtype(feature_map_on_noncompact, dtype, backend,
 
     # make sure it runs
     key = B.create_random_state(B.dtype(point), seed=1234)
-    feature_map(point, params, key)
+    feature_map(point, params, key=key)

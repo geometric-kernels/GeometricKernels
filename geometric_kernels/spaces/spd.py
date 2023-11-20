@@ -86,3 +86,15 @@ class SymmetricPositiveDefiniteMatrices(
         logproduct = B.sum(logpower, axis=-1)  # [...,]
         logproduct = B.cast(dtype_complex(lam), logproduct)
         return B.exp(logproduct)
+
+    def random(self, key, number):
+        """
+        Random points on the SPD space. Calls the respective routine of
+        geomstats.
+
+        TODO: implement in a way that actually uses key for randomness.
+
+        Always returns [N, D, D] float64 array of the `key`'s backend.
+        """
+
+        return key, B.cast(dtype_double(key), self.random_point(number))

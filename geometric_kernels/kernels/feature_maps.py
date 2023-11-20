@@ -115,7 +115,7 @@ def random_phase_feature_map_compact(
 
     kernel = MaternKarhunenLoeveKernel(space, num_levels)
 
-    def _map(X: B.Numeric, params, key, normalize=None, **kwargs) -> B.Numeric:
+    def _map(X: B.Numeric, params, *, key, normalize=None, **kwargs) -> B.Numeric:
         """
         :param X: [N, D] points in the space to evaluate the map on.
         :param params: parameters of the kernel (lengthscale and smoothness).
@@ -199,7 +199,7 @@ def random_phase_feature_map_noncompact(
                  state (generator) for all other backends.
     """
 
-    def _map(X: B.Numeric, params, key, normalize=True, **kwargs) -> B.Numeric:
+    def _map(X: B.Numeric, params, *, key, normalize=True, **kwargs) -> B.Numeric:
         """
         :param X: [N, D] points in the space to evaluate the map on.
         :param params: parameters of the feature map (lengthscale and smoothness).
@@ -288,7 +288,7 @@ def rejection_sampling_feature_map_hyperbolic(
                  state (generator) for all other backends.
     """
 
-    def _map(X: B.Numeric, params, key, normalize=True, **kwargs) -> B.Numeric:
+    def _map(X: B.Numeric, params, *, key, normalize=True, **kwargs) -> B.Numeric:
         """
         :param X: [N, D] points in the space to evaluate the map on.
         :param params: parameters of the feature map (lengthscale and smoothness).
@@ -369,7 +369,9 @@ def rejection_sampling_feature_map_spd(
                  state (generator) for all other backends.
     """
 
-    def _map(X: B.Numeric, params, key, normalize: bool = True, **kwargs) -> B.Numeric:
+    def _map(
+        X: B.Numeric, params, *, key, normalize: bool = True, **kwargs
+    ) -> B.Numeric:
         """
         :param X: [N, D] points in the space to evaluate the map on.
         :param params: parameters of the feature map (lengthscale and smoothness).
