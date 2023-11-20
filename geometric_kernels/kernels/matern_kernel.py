@@ -100,7 +100,7 @@ class MaternGeometricKernel:
     """
 
     _DEFAULT_NUM_EIGENFUNCTIONS = 1000
-    _DEFAULT_NUM_LEVELS = 35
+    _DEFAULT_NUM_LEVELS = 25
     _DEFAULT_NUM_RANDOM_PHASES = 3000
 
     def __new__(
