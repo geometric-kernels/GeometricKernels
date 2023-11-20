@@ -262,7 +262,7 @@ class ProductEigenfunctions(Eigenfunctions):
 
 
 class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
-    def __init__(self, *spaces: DiscreteSpectrumSpace, num_levels: int = 35):
+    def __init__(self, *spaces: DiscreteSpectrumSpace, num_levels: int = 25):
         r"""Implementation of products of discrete spectrum spaces.
         Assumes the spaces are compact manifolds and that the eigenfunctions are the
         eigenfunctions of the Laplace-Beltrami operator.
