@@ -2,7 +2,7 @@ gpytorch
 torch
 gpflow
 gpjax>=0.5.2
-tensorflow
+tensorflow<2.14
 tensorflow-probability
 jax
 jaxlib
