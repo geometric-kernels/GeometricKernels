@@ -357,7 +357,7 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
         assert num <= self.num_eigen
 
         eigenfunctions = self.get_eigenfunctions(num)
-        eigenvalues = self._eigenvalues[:num, None]
+        eigenvalues = self._eigenvalues[:num]
         multiplicities = eigenfunctions.dim_of_eigenspaces
 
         repeated_eigenvalues = chain(eigenvalues, multiplicities)
