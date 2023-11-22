@@ -1,4 +1,5 @@
 import lab as B
+import scipy
 import scipy.sparse as sp
 from lab import dispatch
 from plum import Signature, Union
@@ -39,7 +40,11 @@ def eigenpairs(L: Union[SparseArray, _Numeric], k: int):
     """
     if sp.issparse(L) and (k == L.shape[0]):
         L = L.toarray()
-    return sp.linalg.eigsh(L, k, sigma=1e-8)
+    if sp.issparse(L):
+        return sp.linalg.eigsh(L, k, sigma=1e-8)
+    else:
+        eigenvalues, eigenvectors = scipy.linalg.eigh(L)
+        return (eigenvalues[:k], eigenvectors[:, :k])
 
 
 @dispatch
