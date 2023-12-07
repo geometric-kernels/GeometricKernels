@@ -2,18 +2,13 @@ import json
 import math
 import operator
 import itertools
-import more_itertools
-import sympy
 import lab as B
 import numpy as np
 from opt_einsum import contract as einsum
 from pathlib import Path
-from sympy.matrices.determinant import _det as sp_det
 from functools import reduce
 from geometric_kernels.lab_extras import dtype_double, from_numpy, qr
-from geometric_kernels.spaces.base import DiscreteSpectrumSpace
-from geometric_kernels.spaces.eigenfunctions import EigenfunctionWithAdditionTheorem, Eigenfunctions
-from geometric_kernels.utils.utils import fixed_length_partitions, partition_dominance_cone, partition_dominance_or_subpartition_cone
+from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 
 from geometric_kernels.spaces.lie_groups import LieGroup, LieGroupAddtitionTheorem, LieGroupCharacter
 
@@ -32,8 +27,6 @@ class SUEigenfunctions(LieGroupAddtitionTheorem):
         self._dimensions = np.array([self._compute_dimension(signature) for signature in self._signatures])
         if init_eigenfunctions:
             self._characters = [SUCharacter(n, signature) for signature in self._signatures]
-
-
 
     def _generate_signatures(self, num_levels):
         """
@@ -63,36 +56,15 @@ class SUEigenfunctions(LieGroupAddtitionTheorem):
         lb_eigenvalue = (np.linalg.norm(self.rho + normalized_signature) ** 2 - np.linalg.norm(self.rho) ** 2)
         return lb_eigenvalue.item()
 
-
     def _torus_representative(self, X):
         return B.eig(X, False)
-
-    def _compute_character_formula(self):
-        n = self.representation.manifold.n
-        gammas = sympy.symbols(' '.join('g{}'.format(i) for i in range(1, n + 1)))
-        qs = [pk + n - k - 1 for k, pk in enumerate(self.representation.index)]
-        numer_mat = sympy.Matrix(n, n, lambda i, j: gammas[i]**qs[j])
-        numer = sympy.Poly(sp_det(numer_mat, method='berkowitz'))
-        denom = sympy.Poly(sympy.prod(gammas[i] - gammas[j] for i, j in itertools.combinations(range(n), r=2)))
-        monomials_tuples = list(itertools.chain.from_iterable(
-            more_itertools.distinct_permutations(p) for p in partition_dominance_cone(self.representation.index)
-        ))
-        monomials = [sympy.polys.monomials.Monomial(m, gammas).as_expr() for m in monomials_tuples]
-        chi_coeffs = list(more_itertools.always_iterable(sympy.symbols(' '.join('c{}'.format(i) for i in range(1, len(monomials) + 1)))))
-        chi_poly = sympy.Poly(sum(c * m for c, m in zip(chi_coeffs, monomials)), gammas)
-        pr = chi_poly * denom - numer
-        sol = list(sympy.linsolve(pr.coeffs(), chi_coeffs)).pop()
-        p = sympy.Poly(sum(c * m for c, m in zip(sol, monomials)), gammas)
-        coeffs = list(map(int, p.coeffs()))
-        monoms = [list(map(int, monom)) for monom in p.monoms()]
-        return coeffs, monoms
 
     def inverse(self, X: B.Numeric) -> B.Numeric:
         return B.transpose(X).conj()
 
     def num_levels(self) -> int:
-            """Number of levels, L"""
-            return self._num_levels
+        """Number of levels, L"""
+        return self._num_levels
 
     def num_eigenfunctions_per_level(self) -> int:
         """Number of eigenfunctions per level"""
@@ -120,12 +92,11 @@ class SUCharacter(LieGroupCharacter):
                                'Run compute_characters.py with changed parameters.'.format(e.args[0],
                                                                                            group_name)) from None
 
-
     def __call__(self, gammas):
-            char_val = B.zeros(B.dtype(gammas), *gammas.shape[:-1])
-            for coeff, monom in zip(self.coeffs, self.monoms):
-                char_val += coeff * B.prod(gammas ** from_numpy(gammas, monom), axis=-1)
-            return char_val
+        char_val = B.zeros(B.dtype(gammas), *gammas.shape[:-1])
+        for coeff, monom in zip(self.coeffs, self.monoms):
+            char_val += coeff * B.prod(gammas ** from_numpy(gammas, monom), axis=-1)
+        return char_val
 
 
 class SUGroup(LieGroup):
@@ -143,7 +114,6 @@ class SUGroup(LieGroup):
 
     def inverse(self, X: B.Numeric) -> B.Numeric:
         return B.transpose(X).conj()
-
 
     def get_eigenfunctions(self, num: int) -> Eigenfunctions:
         """
@@ -192,7 +162,7 @@ class SUGroup(LieGroup):
         else:
             key, real = B.random.randn(key, dtype_double(key), number, self.n, self.n)
             key, imag = B.random.randn(key, dtype_double(key), number, self.n, self.n)
-            h = (real +1j*imag)/math.sqrt(2)
+            h = (real + 1j * imag)/math.sqrt(2)
             q, r = qr(h)
             r_diag = einsum('...ii->...i', r)
             r_diag_inv_phase = (r_diag / B.abs(r_diag)).conj()

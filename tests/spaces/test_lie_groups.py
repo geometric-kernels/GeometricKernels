@@ -1,19 +1,16 @@
-import sys
 import itertools
 import unittest
 from parameterized import parameterized_class
-import torch
-#from torch.autograd.functional import _vmap as vmap
 import lab as B
 import numpy as np
 from opt_einsum import contract as einsum
 
-from geometric_kernels.spaces.so import SOGroup
 from geometric_kernels.spaces.su import SUGroup
 from geometric_kernels.kernels.geometric_kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.kernels.feature_maps import random_phase_feature_map
 
 np.set_printoptions(3)
+
 
 @parameterized_class([
     # {'group': SOGroup, 'n': 3, 'order': 10, 'dtype': np.double},
@@ -57,7 +54,6 @@ class TestCompactLieGroups(unittest.TestCase):
         zeros = np.zeros_like(eye_)
         self.assertTrue(np.allclose(diff, zeros))
 
-
     def test_character_conjugation_invariance(self):
         num_samples_x = 20
         num_samples_g = 20
@@ -93,7 +89,6 @@ class TestCompactLieGroups(unittest.TestCase):
             j, chi2 = b
             scalar_products[i, j] = np.mean((np.conj(chi1(gammas)) * chi2(gammas)).real)
         print(np.max(np.abs(scalar_products - np.eye(self.order, dtype=self.dtype))))
-        #print(scalar_products)
         self.assertTrue(np.allclose(scalar_products, np.eye(self.order, dtype=self.dtype), atol=5e-2))
 
     def test_feature_map(self) -> None:
@@ -107,6 +102,7 @@ class TestCompactLieGroups(unittest.TestCase):
         print('-------')
         print(F_xx)
         self.assertTrue(np.allclose(K_xx, F_xx, atol=5e-2))
+
 
 if __name__ == '__main__':
     unittest.main(verbosity=2)

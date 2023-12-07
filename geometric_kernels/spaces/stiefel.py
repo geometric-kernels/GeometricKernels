@@ -1,9 +1,10 @@
 import lab as B
 import numpy as np
-from geometric_kernels.lab_extras import dtype_double, from_numpy, qr, take_along_axis
+from geometric_kernels.lab_extras import qr
 from geometric_kernels.spaces.homogeneous_spaces import CompactHomogeneousSpace, CompactHomogeneousSpaceAddtitionTheorem
 from geometric_kernels.spaces.so import SOGroup
 from opt_einsum import contract as einsum
+
 
 def hook_content_formula(lmd, n):
     numer = 1
@@ -12,7 +13,7 @@ def hook_content_formula(lmd, n):
     l_cols = [sum([row_l >= i+1 for row_l in lmd]) for i in range(lmd[0])]
     for id_row, l_row in enumerate(lmd):
         for id_col in range(l_row):
-            numer  *= (n + id_col - id_row)
+            numer *= (n + id_col - id_row)
             denom *= l_cols[id_col] + l_row-id_row - id_col - 1
 
     return numer/denom
@@ -31,6 +32,7 @@ class StiefelEigenfunctions(CompactHomogeneousSpaceAddtitionTheorem):
             return 0
         signature_abs = tuple(abs(x) for x in signature)
         return hook_content_formula(signature_abs, m_)
+
 
 class Stiefel(CompactHomogeneousSpace):
     r"""
@@ -53,7 +55,6 @@ class Stiefel(CompactHomogeneousSpace):
 
     def project_to_manifold(self, g):
         return g[..., :self.m]
-
 
     def embed_manifold(self, x):
         g, r = qr(x)

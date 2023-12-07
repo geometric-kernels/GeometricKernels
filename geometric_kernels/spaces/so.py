@@ -1,22 +1,19 @@
+import itertools
 import json
 import math
 import operator
-import itertools
-import more_itertools
-import sympy
 import lab as B
 import numpy as np
 from opt_einsum import contract as einsum
 from pathlib import Path
 from functools import reduce
-from sympy.matrices.determinant import _det as sp_det
 from geometric_kernels.lab_extras import dtype_double, from_numpy, qr, take_along_axis
-from geometric_kernels.utils.utils import fixed_length_partitions, partition_dominance_or_subpartition_cone
-from geometric_kernels.spaces.lie_groups import LieGroup, LieGroupAddtitionTheorem, LieGroupCharacter
+from geometric_kernels.utils.utils import fixed_length_partitions
+from geometric_kernels.spaces.lie_groups import MatrixLieGroup, LieGroupAddtitionTheorem, LieGroupCharacter
 
 
 class SOEigenfunctions(LieGroupAddtitionTheorem):
-    def __init__(self, n, num_levels,  init_eigenfunctions=True):
+    def __init__(self, n, num_levels, init_eigenfunctions=True):
         self.n = n
         self.dim = n * (n-1) // 2
         self.rank = n // 2
@@ -38,6 +35,7 @@ class SOEigenfunctions(LieGroupAddtitionTheorem):
         """
         Generate the signatures of irreducible representations
         Representations of SO(dim) can be enumerated by partitions of size rank, called signatures.
+
         :return signatures: list of signatures of representations likely having the smallest LB eigenvalues
         """
         signatures = []
@@ -45,14 +43,14 @@ class SOEigenfunctions(LieGroupAddtitionTheorem):
         # IF p >> k the number of partitions of p into k parts is O(p^k)
         if self.n == 3:
             # in this case rank=1, so all partitions are trivial
-            # and LB eigenvalue of signature corresponding to p is p
+            # and LB eigenvalue of the signature corresponding to p is p
             # 200 is more than enough, since the contribution of such term
             # even in Matern(0.5) case is less than 200^{-2}
-            signature_sum = 200
+            SIGNATURE_SUM = 200
         else:
             # Roughly speaking this is a bruteforce search through 50^{self.rank} smallest eigenvalues
-            signature_sum = 50
-        for signature_sum in range(0, signature_sum):
+            SIGNATURE_SUM = 50
+        for signature_sum in range(0, SIGNATURE_SUM):
             for i in range(0, self.rank + 1):
                 for signature in fixed_length_partitions(signature_sum, i):
                     signature.extend([0] * (self.rank - i))
@@ -70,8 +68,8 @@ class SOEigenfunctions(LieGroupAddtitionTheorem):
         if self.n % 2 == 1:
             qs = [pk + self.rank - k - 1 / 2 for k, pk in enumerate(signature)]
             rep_dim = reduce(operator.mul, (2 * qs[k] / math.factorial(2 * k + 1) for k in range(0, self.rank))) \
-                      * reduce(operator.mul, ((qs[i] - qs[j]) * (qs[i] + qs[j])
-                                              for i, j in itertools.combinations(range(self.rank), 2)), 1)
+                * reduce(operator.mul, ((qs[i] - qs[j]) * (qs[i] + qs[j])
+                                        for i, j in itertools.combinations(range(self.rank), 2)), 1)
             return int(round(rep_dim))
         else:
             qs = [pk + self.rank - k - 1 if k != self.rank - 1 else abs(pk) for k, pk in enumerate(signature)]
@@ -87,115 +85,53 @@ class SOEigenfunctions(LieGroupAddtitionTheorem):
         return eigenvalue.item()
 
     def _torus_representative(self, X):
-            """
-            The function maps Lie Group Element X to T -- a maximal torus of the Lie group
-            [n1,n2,\ldots, nk,X, X] ---> [n1,n2,\ldots,nk,X, X]
-            """
+        r"""
+        The function maps Lie Group Element X to T -- a maximal torus of the Lie group
+        [n1,n2,\ldots, nk,X, X] ---> [n1,n2,\ldots,nk,X, X]
+        """
 
-            gamma = None
+        gamma = None
 
-            if self.n == 3:
-                # In SO(3) the torus representative is determined by the non-trivial pair of eigenvalues,
-                # which can be calculated from the trace
-                trace = B.expand_dims(B.trace(X), axis=-1)
-                real = (trace - 1) / 2
-                zeros = real * 0
-                imag = B.sqrt(B.maximum(1 - real*real, zeros))
-                gamma = real + 1j*imag
-            elif self.n % 2 == 1:
-                # In SO(2n+1) the torus representative is determined by the (unordered) non-trivial eigenvalues
-                eigvals = B.eig(X, False)
-                sorted_ind = B.argsort(B.real(eigvals), axis=-1)
-                eigvals = take_along_axis(eigvals, sorted_ind, -1)
-                gamma = eigvals[..., 0:-1:2]
-            else:
-                # In SO(2n) each unordered set of eigenvalues determines two conjugacy classes
-                eigvals, eigvecs = B.eig(X)
-                sorted_ind = B.argsort(B.real(eigvals), axis=-1)
-                eigvals = take_along_axis(eigvals, sorted_ind, -1)
-                eigvecs = take_along_axis(eigvecs, B.broadcast_to(B.expand_dims(sorted_ind, axis=-2), *eigvecs.shape), -1)
-                # c is a matrix transforming x into its canonical form (with 2x2 blocks)
-                c = 0*eigvecs
-                c[..., ::2] = eigvecs[..., ::2] + eigvecs[..., 1::2]
-                c[..., 1::2] = (eigvecs[..., ::2] - eigvecs[..., 1::2])
-                # eigenvectors calculated by LAPACK are either real or purely imaginary, make everything real
-                # WARNING: might depend on the implementation of the eigendecomposition!
-                c = c.real + c.imag
-                # normalize s.t. det(c)≈±1, probably unnecessary
-                c /= math.sqrt(2)
-                eigvals[..., 0] = B.power(eigvals[..., 0], B.sign(B.det(c)))
-                gamma = eigvals[..., ::2]
-            gamma = B.concat(gamma, gamma.conj(), axis=-1)
-            return gamma
-
-    def _compute_character_formula(self, signature):
-        n = self.n
-        rank = self.rank
-        gammas = sympy.symbols(' '.join('g{}'.format(i + 1) for i in range(rank)))
-        gammas = list(more_itertools.always_iterable(gammas))
-        gammas_conj = sympy.symbols(' '.join('gc{}'.format(i + 1) for i in range(rank)))
-        gammas_conj = list(more_itertools.always_iterable(gammas_conj))
-        chi_variables = gammas + gammas_conj
-        if n % 2:
-            gammas_sqrt = sympy.symbols(' '.join('gr{}'.format(i + 1) for i in range(rank)))
-            gammas_sqrt = list(more_itertools.always_iterable(gammas_sqrt))
-            gammas_conj_sqrt = sympy.symbols(' '.join('gcr{}'.format(i + 1) for i in range(rank)))
-            gammas_conj_sqrt = list(more_itertools.always_iterable(gammas_conj_sqrt))
-            chi_variables = gammas_sqrt + gammas_conj_sqrt
-            def xi1(qs):
-                mat = sympy.Matrix(rank, rank, lambda i, j: gammas_sqrt[i]**qs[j]-gammas_conj_sqrt[i]**qs[j])
-                return sympy.Poly(sp_det(mat, method='berkowitz'), chi_variables)
-            # qs = [sympy.Integer(2*pk + 2*rank - 2*k - 1) / 2 for k, pk in enumerate(signature)]
-            qs = [2 * pk + 2 * rank - 2 * k - 1 for k, pk in enumerate(signature)]
-            # denom_pows = [sympy.Integer(2*k - 1) / 2 for k in range(rank, 0, -1)]
-            denom_pows = [2 * k - 1 for k in range(rank, 0, -1)]
-            numer = xi1(qs)
-            denom = xi1(denom_pows)
+        if self.n == 3:
+            # In SO(3) the torus representative is determined by the non-trivial pair of eigenvalues,
+            # which can be calculated from the trace
+            trace = B.expand_dims(B.trace(X), axis=-1)
+            real = (trace - 1) / 2
+            zeros = real * 0
+            imag = B.sqrt(B.maximum(1 - real*real, zeros))
+            gamma = real + 1j*imag
+        elif self.n % 2 == 1:
+            # In SO(2n+1) the torus representative is determined by the (unordered) non-trivial eigenvalues
+            eigvals = B.eig(X, False)
+            sorted_ind = B.argsort(B.real(eigvals), axis=-1)
+            eigvals = take_along_axis(eigvals, sorted_ind, -1)
+            gamma = eigvals[..., 0:-1:2]
         else:
-            def xi0(qs):
-                mat = sympy.Matrix(rank, rank, lambda i, j: gammas[i] ** qs[j] + gammas_conj[i] ** qs[j])
-                return sympy.Poly(sp_det(mat, method='berkowitz'), chi_variables)
-            def xi1(qs):
-                mat = sympy.Matrix(rank, rank, lambda i, j: gammas[i] ** qs[j] - gammas_conj[i] ** qs[j])
-                return sympy.Poly(sp_det(mat, method='berkowitz'), chi_variables)
-            qs = [pk + rank - k - 1 if k != rank - 1 else abs(pk) for k, pk in enumerate(signature)]
-            pm = signature[-1]
-            numer = xi0(qs)
-            if pm:
-                numer += (1 if pm > 0 else -1) * xi1(qs)
-            denom = xi0(list(reversed(range(rank))))
-        partition = tuple(map(abs, self.representation.index)) + tuple([0] * self.representation.manifold.rank)
-        monomials_tuples = itertools.chain.from_iterable(
-            more_itertools.distinct_permutations(p) for p in partition_dominance_or_subpartition_cone(partition)
-        )
-        monomials_tuples = filter(lambda p: all(p[i] == 0 or p[i + rank] == 0 for i in range(rank)), monomials_tuples)
-        monomials_tuples = list(monomials_tuples)
-        monomials = [sympy.polys.monomials.Monomial(m, chi_variables).as_expr()
-                     for m in monomials_tuples]
-        chi_coeffs = list(more_itertools.always_iterable(
-            sympy.symbols(' '.join('c{}'.format(i) for i in range(1, len(monomials) + 1)))))
-        exponents = [n % 2 + 1] * len(monomials)  # the correction s.t. chi is the same polynomial for both oddities of n
-        chi_poly = sympy.Poly(sum(c * m**d for c, m, d in zip(chi_coeffs, monomials, exponents)), chi_variables)
-        pr = chi_poly * denom - numer
-        if n % 2:
-            pr = sympy.Poly(pr.subs((g*gc, 1) for g, gc in zip(gammas_sqrt, gammas_conj_sqrt)), chi_variables)
-        else:
-            pr = sympy.Poly(pr.subs((g*gc, 1) for g, gc in zip(gammas, gammas_conj)), chi_variables)
-        sol = list(sympy.linsolve(pr.coeffs(), chi_coeffs)).pop()
-        if n % 2:
-            chi_variables = gammas + gammas_conj
-            chi_poly = sympy.Poly(chi_poly.subs([gr ** 2, g] for gr, g in zip(gammas_sqrt + gammas_conj_sqrt, chi_variables)), chi_variables)
-        p = sympy.Poly(chi_poly.subs((c, c_val) for c, c_val in zip(chi_coeffs, sol)), chi_variables)
-        coeffs = list(map(int, p.coeffs()))
-        monoms = [list(map(int, monom)) for monom in p.monoms()]
-        return coeffs, monoms
+            # In SO(2n) each unordered set of eigenvalues determines two conjugacy classes
+            eigvals, eigvecs = B.eig(X)
+            sorted_ind = B.argsort(B.real(eigvals), axis=-1)
+            eigvals = take_along_axis(eigvals, sorted_ind, -1)
+            eigvecs = take_along_axis(eigvecs, B.broadcast_to(B.expand_dims(sorted_ind, axis=-2), *eigvecs.shape), -1)
+            # c is a matrix transforming x into its canonical form (with 2x2 blocks)
+            c = 0*eigvecs
+            c[..., ::2] = eigvecs[..., ::2] + eigvecs[..., 1::2]
+            c[..., 1::2] = (eigvecs[..., ::2] - eigvecs[..., 1::2])
+            # eigenvectors calculated by LAPACK are either real or purely imaginary, make everything real
+            # WARNING: might depend on the implementation of the eigendecomposition!
+            c = c.real + c.imag
+            # normalize s.t. det(c)≈±1, probably unnecessary
+            c /= math.sqrt(2)
+            eigvals[..., 0] = B.power(eigvals[..., 0], B.sign(B.det(c)))
+            gamma = eigvals[..., ::2]
+        gamma = B.concat(gamma, gamma.conj(), axis=-1)
+        return gamma
 
     def inverse(self, X: B.Numeric) -> B.Numeric:
         return B.transpose(X)
 
     def num_levels(self) -> int:
-            """Number of levels, L"""
-            return self._num_levels
+        """Number of levels, L"""
+        return self._num_levels
 
     def num_eigenfunctions_per_level(self) -> int:
         """Number of eigenfunctions per level"""
@@ -229,16 +165,15 @@ class SOCharacter(LieGroupCharacter):
         return char_val
 
 
-class SOGroup(LieGroup):
+class SOGroup(MatrixLieGroup):
     r"""
-    The d-dimensional hypersphere embedded in the (d+1)-dimensional Euclidean space.
+    Special Orthogonal Group: group of matrices with unit determinant.
     """
     def __init__(self, n):
         self.n = n
         self.dim = n * (n-1) // 2
         self.rank = n // 2
-        LieGroup.__init__(self)
-
+        MatrixLieGroup.__init__(self)
 
     @property
     def dimension(self) -> int:

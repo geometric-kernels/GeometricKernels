@@ -30,7 +30,7 @@ class LieGroupAddtitionTheorem(EigenfunctionWithAdditionTheorem):
         X_ = B.tile(X[..., None, :, :], 1, X2_inv.shape[0], 1, 1)  # (a, b, n, n)
         X2_inv_ = B.tile(X2_inv[None, ..., :, :], X.shape[0], 1, 1, 1)  # (a, b, n, n)
 
-        diff = B.matmul(X_, X2_inv_).reshape(X.shape[0], X2_inv.shape[0], X.shape[-1], X.shape[-1] )  # (a, b, n, n)
+        diff = B.matmul(X_, X2_inv_).reshape(X.shape[0], X2_inv.shape[0], X.shape[-1], X.shape[-1])  # (a, b, n, n)
         return diff
 
     def _addition_theorem(self, X: B.Numeric, X2: B.Numeric, **parameters) -> B.Numeric:
@@ -59,8 +59,8 @@ class LieGroupAddtitionTheorem(EigenfunctionWithAdditionTheorem):
 
     @property
     def num_levels(self) -> int:
-            """Number of levels, L"""
-            return self._num_levels
+        """Number of levels, L"""
+        return self._num_levels
 
     @property
     def num_eigenfunctions(self) -> int:
@@ -86,9 +86,9 @@ class LieGroupCharacter(abc.ABC):
         raise NotImplementedError
 
 
-class LieGroup(DiscreteSpectrumSpace):
+class MatrixLieGroup(DiscreteSpectrumSpace):
     r"""
-    A class for Lie groups represented as matrices,
+    A class for Lie groups represented as matrices.
     """
 
     @property

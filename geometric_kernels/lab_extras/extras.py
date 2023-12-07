@@ -29,6 +29,7 @@ def trapz(y: B.Numeric, x: B.Numeric, dx: B.Numeric = 1.0, axis: int = -1):
     Integrate along the given axis using the trapezoidal rule.
     """
 
+
 @dispatch
 @abstract()
 def qr(a):

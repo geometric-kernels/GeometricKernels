@@ -33,6 +33,7 @@ def trapz(y: B.JAXNumeric, x: _Numeric, dx: _Numeric = 1.0, axis: int = -1):  # 
     """
     return jnp.trapz(y, x, dx, axis)
 
+
 @dispatch
 def qr(a: B.JAXNumeric):
     """

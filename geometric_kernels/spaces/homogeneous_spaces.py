@@ -1,14 +1,8 @@
 import lab as B
-import json
-from pathlib import Path
-import more_itertools
-import sympy
-from sympy.matrices.determinant import _det as sp_det
 import numpy as np
-from geometric_kernels.lab_extras import dtype_double, from_numpy
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import EigenfunctionWithAdditionTheorem, Eigenfunctions
-from geometric_kernels.spaces.lie_groups import LieGroup, LieGroupAddtitionTheorem, LieGroupCharacter
+from geometric_kernels.spaces.lie_groups import LieGroup, LieGroupCharacter
 import abc
 
 
@@ -24,7 +18,7 @@ class CompactHomogeneousSpaceAddtitionTheorem(EigenfunctionWithAdditionTheorem):
 
         self._signatures = G_eigenfunctions._signatures.copy()
         self._eigenvalues = np.copy(G_eigenfunctions._eigenvalues)
-        self._dimensions = np.copy(G_eigenfunctions._dimensions) # np.array([self._compute_dimension(signature) for signature in self._signatures])
+        self._dimensions = np.copy(G_eigenfunctions._dimensions)
         self._characters = [AveragedLieGroupCharacter(self.average_order, character) for character in
                             G_eigenfunctions._characters]
         self.G_torus_representative = G_eigenfunctions._torus_representative
@@ -80,8 +74,8 @@ class CompactHomogeneousSpaceAddtitionTheorem(EigenfunctionWithAdditionTheorem):
 
     @property
     def num_levels(self) -> int:
-            """Number of levels, L"""
-            return self._num_levels
+        """Number of levels, L"""
+        return self._num_levels
 
     @property
     def num_eigenfunctions(self) -> int:

@@ -1,6 +1,6 @@
 import lab as B
 import numpy as np
-from geometric_kernels.lab_extras import dtype_double, from_numpy, qr, take_along_axis
+from geometric_kernels.lab_extras import qr
 from geometric_kernels.spaces.homogeneous_spaces import CompactHomogeneousSpace, CompactHomogeneousSpaceAddtitionTheorem
 from geometric_kernels.spaces.so import SOGroup
 from opt_einsum import contract as einsum

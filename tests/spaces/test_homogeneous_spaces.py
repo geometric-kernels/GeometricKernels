@@ -1,19 +1,15 @@
-import sys
-import itertools
 import unittest
 from parameterized import parameterized_class
-import torch
-#from torch.autograd.functional import _vmap as vmap
 import lab as B
 import numpy as np
 from opt_einsum import contract as einsum
 
 from geometric_kernels.spaces.stiefel import Stiefel
-from geometric_kernels.spaces.grassmannian import Grassmannian
 from geometric_kernels.kernels.geometric_kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.kernels.feature_maps import random_phase_feature_map
 
 np.set_printoptions(3)
+
 
 @parameterized_class([
     {'manifold': Stiefel, 'n': 5, 'm': 2, 'order': 20, 'average_order': 100, 'dtype': np.double},

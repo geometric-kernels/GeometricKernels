@@ -36,8 +36,7 @@ def chain(elements: B.Numeric, repetitions: List[int]) -> B.Numeric:
     return B.concat(*values, axis=0)
 
 
-
-def fixed_length_partitions(n, L):
+def fixed_length_partitions(n, L):  # noqa: C901
     """
     https://www.ics.uci.edu/~eppstein/PADS/IntegerPartitions.py
     Integer partitions of n into L parts, in colex order.
@@ -136,4 +135,3 @@ def partition_dominance_or_subpartition_cone(partition):
         cone.update(new_partitions)
         prev_partitions = new_partitions
     return cone
-
