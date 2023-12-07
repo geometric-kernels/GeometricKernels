@@ -313,7 +313,6 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
         return sum([space.dimension for space in self.sub_spaces])
 
     def random(self, key, number):
-
         random_points = []
         for factor in self.sub_spaces:
             key, factor_random_points = factor.random(key, number)

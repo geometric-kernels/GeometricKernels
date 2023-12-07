@@ -1,18 +1,23 @@
 import lab as B
 import numpy as np
-from geometric_kernels.lab_extras import qr
-from geometric_kernels.spaces.homogeneous_spaces import CompactHomogeneousSpace, CompactHomogeneousSpaceAddtitionTheorem
-from geometric_kernels.spaces.so import SOGroup
 from opt_einsum import contract as einsum
+
+from geometric_kernels.lab_extras import qr
+from geometric_kernels.spaces.homogeneous_spaces import (
+    CompactHomogeneousSpace,
+    CompactHomogeneousSpaceAddtitionTheorem,
+)
+from geometric_kernels.spaces.so import SOGroup
 
 
 class _SOxSO:
     """Helper class for sampling, represents SO(n) x SO(m)"""
+
     def __init__(self, n, m):
         self.n, self.m = n, m
         self.so_n = SOGroup(n)
         self.so_m = SOGroup(m)
-        self.dim = n*(n-1)//2 + m*(m-1)//2
+        self.dim = n * (n - 1) // 2 + m * (m - 1) // 2
 
     def random(self, key, number):
         key, h_u = self.so_n.random(key, number)
@@ -41,9 +46,10 @@ class Grassmannian(CompactHomogeneousSpace):
     Elements of manifold represented as nxm matrices, note that
     X and X x (SO(m) \oplus I_{n-m}) are representatives of the same element
     """
+
     def __new__(cls, n, m, key, average_order=1000):
         assert n > m, "n should be greater than m"
-        H = _SOxSO(m, n-m)
+        H = _SOxSO(m, n - m)
         G = SOGroup(n)
         key, H_samples = H.random(key, average_order)
         new_space = super().__new__(cls)
@@ -54,19 +60,21 @@ class Grassmannian(CompactHomogeneousSpace):
         return key, new_space
 
     def project_to_manifold(self, g):
-        return g[..., :self.m]
+        return g[..., : self.m]
 
     def embed_manifold(self, x):
         g, r = qr(x)
-        r_diag = einsum('...ii->...i', r[..., :self.m, :self.m])
-        r_diag = B.concat(r_diag, B.ones(B.dtype(x), *x.shape[:-2], self.n-self.m), axis=-1)
+        r_diag = einsum("...ii->...i", r[..., : self.m, : self.m])
+        r_diag = B.concat(
+            r_diag, B.ones(B.dtype(x), *x.shape[:-2], self.n - self.m), axis=-1
+        )
         g = g * r_diag[:, None]
-        diff = 2*(B.all(B.abs(g[..., :self.m] - x) < 1e-5, axis=-1)-0.5)
+        diff = 2 * (B.all(B.abs(g[..., : self.m] - x) < 1e-5, axis=-1) - 0.5)
         g = g * diff[..., None]
         det_sign_g = B.sign(B.det(g))
         g[:, :, -1] *= det_sign_g[:, None]
 
-        assert B.all((B.abs(x - g[:, :, :x.shape[-1]])) < 1e-6)
+        assert B.all((B.abs(x - g[:, :, : x.shape[-1]])) < 1e-6)
         return g
 
     def embed_stabilizer(self, h):

@@ -39,7 +39,7 @@ def qr(a: B.JAXNumeric):
     """
     Compute QR factorization of a matrix.
     """
-    return jnp.linalg.qr(a, mode='complete')
+    return jnp.linalg.qr(a, mode="complete")
 
 
 @dispatch

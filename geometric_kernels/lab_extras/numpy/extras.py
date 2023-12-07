@@ -37,7 +37,7 @@ def qr(a: _Numeric):
     """
     Compute QR factorization of a matrix.
     """
-    return np.linalg.qr(a, mode='complete')
+    return np.linalg.qr(a, mode="complete")
 
 
 @dispatch

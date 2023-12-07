@@ -1,9 +1,14 @@
+import abc
+
 import lab as B
 import numpy as np
+
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
-from geometric_kernels.spaces.eigenfunctions import EigenfunctionWithAdditionTheorem, Eigenfunctions
+from geometric_kernels.spaces.eigenfunctions import (
+    Eigenfunctions,
+    EigenfunctionWithAdditionTheorem,
+)
 from geometric_kernels.spaces.lie_groups import LieGroup, LieGroupCharacter
-import abc
 
 
 class CompactHomogeneousSpaceAddtitionTheorem(EigenfunctionWithAdditionTheorem):
@@ -19,8 +24,10 @@ class CompactHomogeneousSpaceAddtitionTheorem(EigenfunctionWithAdditionTheorem):
         self._signatures = G_eigenfunctions._signatures.copy()
         self._eigenvalues = np.copy(G_eigenfunctions._eigenvalues)
         self._dimensions = np.copy(G_eigenfunctions._dimensions)
-        self._characters = [AveragedLieGroupCharacter(self.average_order, character) for character in
-                            G_eigenfunctions._characters]
+        self._characters = [
+            AveragedLieGroupCharacter(self.average_order, character)
+            for character in G_eigenfunctions._characters
+        ]
         self.G_torus_representative = G_eigenfunctions._torus_representative
         self.G_difference = G_eigenfunctions._difference
 
@@ -49,7 +56,9 @@ class CompactHomogeneousSpaceAddtitionTheorem(EigenfunctionWithAdditionTheorem):
         diff_h = self.G_difference(diff, self.H_samples)
         torus_repr_diff = self.G_torus_representative(diff_h)
         values = [
-            (degree * chi(torus_repr_diff)[..., None]).reshape(X.shape[0], X2.shape[0], 1)  # [N1, N2, 1]
+            (degree * chi(torus_repr_diff)[..., None]).reshape(
+                X.shape[0], X2.shape[0], 1
+            )  # [N1, N2, 1]
             for chi, degree in zip(self._characters, self._dimensions)
         ]
 
@@ -139,7 +148,9 @@ class CompactHomogeneousSpace(DiscreteSpectrumSpace):
         """
         :param num: number of eigenfunctions returned.
         """
-        eigenfunctions = CompactHomogeneousSpaceAddtitionTheorem(self, num, self.H_samples)
+        eigenfunctions = CompactHomogeneousSpaceAddtitionTheorem(
+            self, num, self.H_samples
+        )
         return eigenfunctions
 
     def get_eigenvalues(self, num: int) -> B.Numeric:
@@ -147,7 +158,9 @@ class CompactHomogeneousSpace(DiscreteSpectrumSpace):
         First `num` eigenvalues of the Laplace-Beltrami operator
         :return: [num, 1] array containing the eigenvalues
         """
-        eigenfunctions = CompactHomogeneousSpaceAddtitionTheorem(self, num, self.H_samples)
+        eigenfunctions = CompactHomogeneousSpaceAddtitionTheorem(
+            self, num, self.H_samples
+        )
         eigenvalues = np.array(eigenfunctions._eigenvalues)
         return B.reshape(eigenvalues, -1, 1)  # [num, 1]
 

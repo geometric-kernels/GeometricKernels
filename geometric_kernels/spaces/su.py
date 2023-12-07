@@ -1,32 +1,43 @@
+import itertools
 import json
 import math
 import operator
-import itertools
+from functools import reduce
+from pathlib import Path
+
 import lab as B
 import numpy as np
 from opt_einsum import contract as einsum
-from pathlib import Path
-from functools import reduce
+
 from geometric_kernels.lab_extras import dtype_double, from_numpy, qr
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
-
-from geometric_kernels.spaces.lie_groups import LieGroup, LieGroupAddtitionTheorem, LieGroupCharacter
+from geometric_kernels.spaces.lie_groups import (
+    LieGroup,
+    LieGroupAddtitionTheorem,
+    LieGroupCharacter,
+)
 
 
 class SUEigenfunctions(LieGroupAddtitionTheorem):
     def __init__(self, n, num_levels, init_eigenfunctions=True):
         self.n = n
-        self.dim = n * (n-1)
+        self.dim = n * (n - 1)
         self.rank = n - 1
 
         self.rho = np.arange(self.n - 1, -self.n, -2) * 0.5
 
         self._num_levels = num_levels
         self._signatures = self._generate_signatures(self._num_levels)
-        self._eigenvalues = np.array([self._compute_eigenvalue(signature) for signature in self._signatures])
-        self._dimensions = np.array([self._compute_dimension(signature) for signature in self._signatures])
+        self._eigenvalues = np.array(
+            [self._compute_eigenvalue(signature) for signature in self._signatures]
+        )
+        self._dimensions = np.array(
+            [self._compute_dimension(signature) for signature in self._signatures]
+        )
         if init_eigenfunctions:
-            self._characters = [SUCharacter(n, signature) for signature in self._signatures]
+            self._characters = [
+                SUCharacter(n, signature) for signature in self._signatures
+            ]
 
     def _generate_signatures(self, num_levels):
         """
@@ -37,7 +48,11 @@ class SUEigenfunctions(LieGroupAddtitionTheorem):
         """
 
         sign_vals_lim = 100 if self.n in (1, 2) else 30 if self.n == 3 else 10
-        signatures = list(itertools.combinations_with_replacement(range(sign_vals_lim, -1, -1), r=self.rank))
+        signatures = list(
+            itertools.combinations_with_replacement(
+                range(sign_vals_lim, -1, -1), r=self.rank
+            )
+        )
         signatures = [sgn + (0,) for sgn in signatures]
 
         dimensions = [self._compute_eigenvalue(signature) for signature in signatures]
@@ -46,14 +61,28 @@ class SUEigenfunctions(LieGroupAddtitionTheorem):
         return signatures
 
     def _compute_dimension(self, signature):
-        rep_dim = reduce(operator.mul, (reduce(operator.mul, (signature[i - 1] - signature[j - 1] + j - i for j in
-                                                              range(i + 1, self.n + 1))) / math.factorial(self.n - i)
-                                        for i in range(1, self.n)))
+        rep_dim = reduce(
+            operator.mul,
+            (
+                reduce(
+                    operator.mul,
+                    (
+                        signature[i - 1] - signature[j - 1] + j - i
+                        for j in range(i + 1, self.n + 1)
+                    ),
+                )
+                / math.factorial(self.n - i)
+                for i in range(1, self.n)
+            ),
+        )
         return int(round(rep_dim))
 
     def _compute_eigenvalue(self, signature):
         normalized_signature = signature - np.mean(signature)
-        lb_eigenvalue = (np.linalg.norm(self.rho + normalized_signature) ** 2 - np.linalg.norm(self.rho) ** 2)
+        lb_eigenvalue = (
+            np.linalg.norm(self.rho + normalized_signature) ** 2
+            - np.linalg.norm(self.rho) ** 2
+        )
         return lb_eigenvalue.item()
 
     def _torus_representative(self, X):
@@ -78,19 +107,22 @@ class SUCharacter(LieGroupCharacter):
         self.coeffs, self.monoms = self._load()
 
     def _load(self):
-        group_name = 'SU({})'.format(self.n)
-        file_path = Path(__file__).with_name('precomputed_characters.json')
-        with file_path.open('r') as file:
+        group_name = "SU({})".format(self.n)
+        file_path = Path(__file__).with_name("precomputed_characters.json")
+        with file_path.open("r") as file:
             character_formulas = json.load(file)
             try:
                 cs, ms = character_formulas[group_name][str(self.signature)]
                 coeffs, monoms = (np.array(data) for data in (cs, ms))
                 return coeffs, monoms
             except KeyError as e:
-                raise KeyError('Unable to retrieve character parameters for signature {} of {}, '
-                               'perhaps it is not precomputed.'
-                               'Run compute_characters.py with changed parameters.'.format(e.args[0],
-                                                                                           group_name)) from None
+                raise KeyError(
+                    "Unable to retrieve character parameters for signature {} of {}, "
+                    "perhaps it is not precomputed."
+                    "Run compute_characters.py with changed parameters.".format(
+                        e.args[0], group_name
+                    )
+                ) from None
 
     def __call__(self, gammas):
         char_val = B.zeros(B.dtype(gammas), *gammas.shape[:-1])
@@ -103,9 +135,10 @@ class SUGroup(LieGroup):
     r"""
     The d-dimensional hypersphere embedded in the (d+1)-dimensional Euclidean space.
     """
+
     def __init__(self, n):
         self.n = n
-        self.dim = n * (n-1) // 2
+        self.dim = n * (n - 1) // 2
         LieGroup.__init__(self)
 
     @property
@@ -141,10 +174,14 @@ class SUGroup(LieGroup):
         """
         eigenfunctions = SUEigenfunctions(self.n, num)
         eigenvalues = np.array(
-            itertools.chain([
-                [eigenfunction] * dim
-                for eigenfunction, dim in zip(eigenfunctions._eigenvalues, eigenfunctions._dimensions)
-            ])
+            itertools.chain(
+                [
+                    [eigenfunction] * dim
+                    for eigenfunction, dim in zip(
+                        eigenfunctions._eigenvalues, eigenfunctions._dimensions
+                    )
+                ]
+            )
         )
         return B.reshape(eigenvalues, -1, 1)  # [M, 1]
 
@@ -152,9 +189,11 @@ class SUGroup(LieGroup):
         if self.n == 2:
             # explicit parametrization via the double cover SU(2) = S^3
             key, sphere_point = B.random.randn(key, dtype_double(key), number, 4)
-            sphere_point /= B.reshape(B.sqrt(einsum('ij,ij->i', sphere_point, sphere_point)), -1, 1)
-            a = sphere_point[..., 0] + 1j*sphere_point[..., 1]
-            b = sphere_point[..., 2] + 1j*sphere_point[..., 3]
+            sphere_point /= B.reshape(
+                B.sqrt(einsum("ij,ij->i", sphere_point, sphere_point)), -1, 1
+            )
+            a = sphere_point[..., 0] + 1j * sphere_point[..., 1]
+            b = sphere_point[..., 2] + 1j * sphere_point[..., 3]
             r1 = B.stack(a, -b.conj(), axis=-1)
             r2 = B.stack(b, a.conj(), axis=-1)
             q = B.stack(r1, r2, axis=-1)
@@ -162,9 +201,9 @@ class SUGroup(LieGroup):
         else:
             key, real = B.random.randn(key, dtype_double(key), number, self.n, self.n)
             key, imag = B.random.randn(key, dtype_double(key), number, self.n, self.n)
-            h = (real + 1j * imag)/math.sqrt(2)
+            h = (real + 1j * imag) / math.sqrt(2)
             q, r = qr(h)
-            r_diag = einsum('...ii->...i', r)
+            r_diag = einsum("...ii->...i", r)
             r_diag_inv_phase = (r_diag / B.abs(r_diag)).conj()
             q *= r_diag_inv_phase[:, None]
             q_det = B.det(q)

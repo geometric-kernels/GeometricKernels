@@ -81,10 +81,10 @@ def fixed_length_partitions(n, L):  # noqa: C901
 
 
 def partition_dominance_cone(partition):
-    '''
+    """
     Calculates partitions dominated by a given one
     and having the same number of parts (including zero parts of the original)
-    '''
+    """
     cone = {partition}
     new_partitions = {0}
     prev_partitions = cone
@@ -94,7 +94,10 @@ def partition_dominance_cone(partition):
             for i in range(len(partition) - 1):
                 if partition[i] > partition[i + 1]:
                     for j in range(i + 1, len(partition)):
-                        if partition[i] > partition[j] + 1 and partition[j] < partition[j - 1]:
+                        if (
+                            partition[i] > partition[j] + 1
+                            and partition[j] < partition[j - 1]
+                        ):
                             new_partition = list(partition)
                             new_partition[i] -= 1
                             new_partition[j] += 1
@@ -107,10 +110,10 @@ def partition_dominance_cone(partition):
 
 
 def partition_dominance_or_subpartition_cone(partition):
-    '''
-        Calculates subpartitions and partitions dominated by a given one
-        and having the same number of parts (including zero parts of the original)
-        '''
+    """
+    Calculates subpartitions and partitions dominated by a given one
+    and having the same number of parts (including zero parts of the original)
+    """
     cone = {partition}
     new_partitions = {0}
     prev_partitions = cone
@@ -125,7 +128,10 @@ def partition_dominance_or_subpartition_cone(partition):
                     if new_partition not in cone:
                         new_partitions.add(new_partition)
                     for j in range(i + 1, len(partition)):
-                        if partition[i] > partition[j] + 1 and partition[j] < partition[j - 1]:
+                        if (
+                            partition[i] > partition[j] + 1
+                            and partition[j] < partition[j - 1]
+                        ):
                             new_partition = list(partition)
                             new_partition[i] -= 1
                             new_partition[j] += 1

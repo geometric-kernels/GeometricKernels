@@ -1,16 +1,27 @@
 import abc
+
 import lab as B
 import numpy as np
+
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
-from geometric_kernels.spaces.eigenfunctions import EigenfunctionWithAdditionTheorem, Eigenfunctions
+from geometric_kernels.spaces.eigenfunctions import (
+    Eigenfunctions,
+    EigenfunctionWithAdditionTheorem,
+)
 
 
 class LieGroupAddtitionTheorem(EigenfunctionWithAdditionTheorem):
     def __init__(self, num_levels):
         self._num_levels = num_levels
-        self._signatures, self._eigenvalues, self._dimensions = self._generate_signatures(self._num_levels)
+        (
+            self._signatures,
+            self._eigenvalues,
+            self._dimensions,
+        ) = self._generate_signatures(self._num_levels)
         self._num_eigenfunctions = self.degree_to_num_eigenfunctions(self._num_levels)
-        self._characters = [LieGroupCharacter(signature) for signature in self._signatures]
+        self._characters = [
+            LieGroupCharacter(signature) for signature in self._signatures
+        ]
 
     def _generate_signatures(self, num_levels):
         raise NotImplementedError
@@ -30,7 +41,9 @@ class LieGroupAddtitionTheorem(EigenfunctionWithAdditionTheorem):
         X_ = B.tile(X[..., None, :, :], 1, X2_inv.shape[0], 1, 1)  # (a, b, n, n)
         X2_inv_ = B.tile(X2_inv[None, ..., :, :], X.shape[0], 1, 1, 1)  # (a, b, n, n)
 
-        diff = B.matmul(X_, X2_inv_).reshape(X.shape[0], X2_inv.shape[0], X.shape[-1], X.shape[-1])  # (a, b, n, n)
+        diff = B.matmul(X_, X2_inv_).reshape(
+            X.shape[0], X2_inv.shape[0], X.shape[-1], X.shape[-1]
+        )  # (a, b, n, n)
         return diff
 
     def _addition_theorem(self, X: B.Numeric, X2: B.Numeric, **parameters) -> B.Numeric:
