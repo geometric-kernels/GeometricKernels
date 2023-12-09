@@ -29,19 +29,7 @@ class SOEigenfunctions(LieGroupAddtitionTheorem):
         else:
             self.rho = np.arange(self.rank - 1, -1, -1) + 0.5
 
-        self._num_levels = num_levels
-        self._signatures = self._generate_signatures(self._num_levels)
-        self._eigenvalues = np.array(
-            [self._compute_eigenvalue(signature) for signature in self._signatures]
-        )
-        self._dimensions = np.array(
-            [self._compute_dimension(signature) for signature in self._signatures]
-        )
-
-        if init_eigenfunctions:
-            self._characters = [
-                SOCharacter(n, signature) for signature in self._signatures
-            ]
+        super().__init__(n, num_levels)
 
     def _generate_signatures(self, num_levels):
         """
@@ -117,6 +105,9 @@ class SOEigenfunctions(LieGroupAddtitionTheorem):
         rho = self.rho
         eigenvalue = np.linalg.norm(rho + np_sgn) ** 2 - np.linalg.norm(rho) ** 2
         return eigenvalue.item()
+
+    def _compute_character(self, n, signature):
+        return SOCharacter(n, signature)
 
     def _torus_representative(self, X):
         r"""

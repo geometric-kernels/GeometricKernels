@@ -11,21 +11,49 @@ from geometric_kernels.spaces.eigenfunctions import (
 
 
 class LieGroupAddtitionTheorem(EigenfunctionWithAdditionTheorem):
-    def __init__(self, num_levels):
+    def __init__(self, n, num_levels, init_eigenfunctions=True):
         self._num_levels = num_levels
-        (
-            self._signatures,
-            self._eigenvalues,
-            self._dimensions,
-        ) = self._generate_signatures(self._num_levels)
-        self._num_eigenfunctions = self.degree_to_num_eigenfunctions(self._num_levels)
-        self._characters = [
-            LieGroupCharacter(signature) for signature in self._signatures
-        ]
+        self._signatures = self._generate_signatures(self._num_levels)
+        self._eigenvalues = np.array(
+            [self._compute_eigenvalue(signature) for signature in self._signatures]
+        )
+        self._dimensions = np.array(
+            [self._compute_dimension(signature) for signature in self._signatures]
+        )
+        if init_eigenfunctions:
+            self._characters = [
+                self._compute_character(n, signature) for signature in self._signatures
+            ]
 
+    @abc.abstractmethod
     def _generate_signatures(self, num_levels):
+        """
+        Generate signatures corresponding to `num_levels` representations.
+        """
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def _compute_eigenvalue(self, signature):
+        """
+        Compute eigenvalue corresponding to `signature`.
+        """
+        raise NotImplementedError
+
+    @abs.abstractmethod
+    def _compute_dimension(self, signature):
+        """
+        Compute dimension of the representation corresponding to `signature`.
+        """
+        raise NotImplementedError
+
+    @abs.abstractmethod
+    def _compute_character(self, signature):
+        """
+        Compute character of the representation corresponding to `signature`.
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
     def _torus_representative(self, X):
         """The function maps Lie Group Element X to T -- a maximal torus of the Lie group
         [b, n, n] ---> [b, rank]"""
@@ -95,13 +123,14 @@ class LieGroupAddtitionTheorem(EigenfunctionWithAdditionTheorem):
 
 
 class LieGroupCharacter(abc.ABC):
+    @abc.abstractmethod
     def __call__(self, gammas):
         raise NotImplementedError
 
 
 class MatrixLieGroup(DiscreteSpectrumSpace):
     r"""
-    A class for Lie groups represented as matrices.
+    A base class for Lie groups represented as matrices.
     """
 
     @property

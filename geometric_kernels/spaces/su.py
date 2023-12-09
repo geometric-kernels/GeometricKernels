@@ -26,27 +26,16 @@ class SUEigenfunctions(LieGroupAddtitionTheorem):
 
         self.rho = np.arange(self.n - 1, -self.n, -2) * 0.5
 
-        self._num_levels = num_levels
-        self._signatures = self._generate_signatures(self._num_levels)
-        self._eigenvalues = np.array(
-            [self._compute_eigenvalue(signature) for signature in self._signatures]
-        )
-        self._dimensions = np.array(
-            [self._compute_dimension(signature) for signature in self._signatures]
-        )
-        if init_eigenfunctions:
-            self._characters = [
-                SUCharacter(n, signature) for signature in self._signatures
-            ]
+        super().__init__(n, num_levels)
 
     def _generate_signatures(self, num_levels):
         """
-        Generate the signatures of irreducible representations
+        Generate the signatures of irreducible representations.
         Representations of SU(dim) can be enumerated by partitions of size dim, called signatures.
-        :param int order: number of eigenfunctions that will be returned
-        :return signatures: signatures of representations likely having the smallest LB eigenvalues
-        """
 
+        :param num_levels: number of eigenfunctions that will be returned.
+        :return signatures: signatures of representations likely having the smallest LB eigenvalues.
+        """
         sign_vals_lim = 100 if self.n in (1, 2) else 30 if self.n == 3 else 10
         signatures = list(
             itertools.combinations_with_replacement(
@@ -84,6 +73,9 @@ class SUEigenfunctions(LieGroupAddtitionTheorem):
             - np.linalg.norm(self.rho) ** 2
         )
         return lb_eigenvalue.item()
+
+    def _compute_character(self, n, signature):
+        return SUCharacter(n, signature)
 
     def _torus_representative(self, X):
         return B.eig(X, False)
