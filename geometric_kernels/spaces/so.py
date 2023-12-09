@@ -104,7 +104,7 @@ class SOEigenfunctions(LieGroupAddtitionTheorem):
         np_sgn = np.array(signature)
         rho = self.rho
         eigenvalue = np.linalg.norm(rho + np_sgn) ** 2 - np.linalg.norm(rho) ** 2
-        return eigenvalue.item()
+        return eigenvalue
 
     def _compute_character(self, n, signature):
         return SOCharacter(n, signature)
@@ -207,7 +207,7 @@ class SOGroup(MatrixLieGroup):
         self.n = n
         self.dim = n * (n - 1) // 2
         self.rank = n // 2
-        MatrixLieGroup.__init__(self)
+        super().__init__(self)
 
     @property
     def dimension(self) -> int:
