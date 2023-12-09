@@ -8,11 +8,20 @@ import geomstats as gs
 import lab as B
 from opt_einsum import contract as einsum
 
-from geometric_kernels.lab_extras import cosh, from_numpy, logspace, sinh, trapz
-from geometric_kernels.spaces import Space
+from geometric_kernels.lab_extras import (
+    cosh,
+    create_complex,
+    dtype_complex,
+    dtype_double,
+    from_numpy,
+    logspace,
+    sinh,
+    trapz,
+)
+from geometric_kernels.spaces.base import NoncompactSymmetricSpace
 
 
-class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
+class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
     r"""
     Hyperbolic manifold.
 
@@ -81,6 +90,75 @@ class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
         diagonal = from_numpy(vector_a, [-1.0] * p + [1.0] * q)  # (dim+1)
         diagonal = B.cast(B.dtype(vector_a), diagonal)
         return einsum("...i,...i->...", diagonal * vector_a, vector_b)
+
+    def inv_harish_chandra(self, X):
+        X = B.squeeze(X, -1)
+        if self.dimension == 2:
+            c = B.abs(X) * B.tanh(B.pi * B.abs(X))
+            return B.sqrt(c)
+
+        if self.dimension % 2 == 0:
+            m = self.dimension // 2
+            js = B.range(B.dtype(X), 0, m - 1)
+            addenda = ((js * 2 + 1.0) ** 2) / 4  # [M]
+        elif self.dimension % 2 == 1:
+            m = self.dimension // 2
+            js = B.range(B.dtype(X), 0, m)
+            addenda = js**2  # [M]
+        log_c = B.sum(B.log(X[..., None] ** 2 + addenda), axis=-1)  # [N, M] --> [N, ]
+        if self.dimension % 2 == 0:
+            log_c += B.log(B.abs(X)) + B.log(B.tanh(B.pi * B.abs(X)))
+
+        return B.exp(0.5 * log_c)
+
+    def power_function(self, lam, g, h):
+        r"""
+        Power function :math:`p^{\lambda)(g, h) = \exp(i \lambda + \rho) a(h \cdot g)`.
+
+        Zonal spherical functions are defined as :math:`\pi^{\lambda}(g) = \int_{H} p^{\lambda}(g, h) d\mu_H(h)`.
+
+        In the hyperbolic case, in Poincare ball coordinates,
+        :math:`\exp(i \lambda + \rho) a(h \cdot g) = ((1 - |g|^2)/|g - h|^2)^{-i |\lambda| + \rho}`
+
+        :param lam: [N1, ..., Nk, 1] eigenvalues.
+        :param g: [N1, ..., Nk, D+1] points on the hyperbolic space.
+        :param h: [N1, ..., Nk, D] phases (points on the unit sphere).
+        """
+        lam = B.squeeze(lam, -1)
+        g_poincare = self.convert_to_ball(g)  # [..., D]
+        gh_norm = B.sum(B.power(g_poincare - h, 2), axis=-1)  # [N1, ..., Nk]
+        denominator = B.log(gh_norm)
+        numerator = B.log(1.0 - B.sum(g_poincare**2, axis=-1))
+        exponent = create_complex(self.rho[0], -1 * B.abs(lam))  # rho is 1-d
+        log_out = (
+            B.cast(dtype_complex(lam), (numerator - denominator)) * exponent
+        )  # [N1, ..., Nk]
+        out = B.exp(log_out)
+        return out
+
+    def convert_to_ball(self, point):
+        """
+        Converts `point` from extrinsic coordinates (i.e, in the ambient :math:`R^{d+1}` space)
+        to Poincare ball coordinates. This corresponds to stereographically projecting the hyperboloid
+        onto the ball.
+        """
+        # point [N1, ..., Nk, D]
+        return point[..., 1:] / (1 + point[..., :1])
+
+    @property
+    def rho(self):
+        return B.ones(1) * (self.dimension - 1) / 2
+
+    @property
+    def num_axes(self):
+        return 1
+
+    def random_phases(self, key, num):
+        if not isinstance(num, tuple):
+            num = (num,)
+        key, x = B.randn(key, dtype_double(key), *num, self.dimension)
+        x = x / B.sqrt(B.sum(x**2, axis=-1, squeeze=False))
+        return key, x
 
     def heat_kernel(
         self, distance: B.Numeric, t: B.Numeric, num_points: int = 100
@@ -152,3 +230,15 @@ class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
             raise NotImplementedError
 
         return heat_kernel
+
+    def random(self, key, number):
+        """
+        Random points on the hyperbolic space. Calls the respective routine
+        of geomstats.
+
+        TODO: implement in a way that actually uses key for randomness.
+
+        Always returns [N, D+1] float64 array of the `key`'s backend.
+        """
+
+        return key, B.cast(dtype_double(key), self.random_point(number))

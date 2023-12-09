@@ -6,8 +6,8 @@ from setuptools import find_namespace_packages, setup
 requirements = [
     "numpy>=1.16",
     "scipy>=1.3",
-    "plum-dispatch>=1",
-    "backends>=1.4.3",
+    "plum-dispatch>=2.2.0",
+    "backends>=1.5.4",
     "potpourri3d",
     "robust_laplacian",
     "meshzoo",

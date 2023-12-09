@@ -137,14 +137,12 @@ class ProductEigenfunctions(Eigenfunctions):
         """
         Wrapper class for handling eigenfunctions on product spaces
 
-        Parameters
-        ----------
-        dimensions : List[int]
-            The dimensions of the spaces being producted together
-        eigenindicies : B.Numeric
-            An array mapping i'th eigenfunction of the product space to
-            the index of the eigenlevels of the subspaces
-        eigenfunctions : Eigenfunctions
+        :param dimensions: the dimensions of the spaces being producted together
+
+        :param eigenindicies: an array mapping i'th eigenfunction of the product
+                              space to the index of the eigenlevels of the subspaces
+
+        :param eigenfunctions: the eigenfunctions
 
         """
         if dimension_indices is None:
@@ -255,37 +253,52 @@ class ProductEigenfunctions(Eigenfunctions):
         return out
 
     @property
+    def num_eigenfunctions_per_level(self):
+        return total_multiplicities(self.eigenindicies, self.nums_per_level)
+
+    @property
     def dim_of_eigenspaces(self):
         return total_multiplicities(self.eigenindicies, self.nums_per_level)
 
 
 class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
-    def __init__(self, *spaces: DiscreteSpectrumSpace, num_eigen: int = 100):
+    def __init__(self, *spaces: DiscreteSpectrumSpace, num_levels: int = 25):
         r"""Implementation of products of discrete spectrum spaces.
         Assumes the spaces are compact manifolds and that the eigenfunctions are the
-        eigenfunctions of the Laplace-Beltrami operator. On such a space the eigen(values/functions)
-        on the product space associated with the multiindex :math:`\alpha` are given by
+        eigenfunctions of the Laplace-Beltrami operator.
 
-        .. math::
-            \lambda_{\alpha} = \sum_i \lambda_{i, \alpha_i}
+        Denote a product space :math:`\mathcal{S} = \mathcal{S}_1 \times \ldots \mathcal{S}_S`.
 
-            \phi_{\alpha} = \prod_i \phi_{i, \alpha_i}
+        Eigenvalues on the product space are sums of the factors' eigenvalues:
 
-        where :math:`\lambda_{i, j}` is the j'th eigenvalue on the i'th manifold in the product
-        and :math:`\phi_{i, j}` is the j'th eigenfunction on the i'th manifold in the product.
+        .. math ::
+            \lambda_{l_1, \ldots, l_S} = \lambda^{1}_{l_1} + \ldots + \lambda^{S}_{l_S}
 
-        The eigenfunctions of such manifolds can't in genreal be analytically ordered, and
+        Each factor's eigenvalue corresponds to the factor's eigenfunctions (perhaps multiple eigenfunctions):
+
+        .. math ::
+            \lambda^{s}_{l_s} \leftrightarrow (\phi^{s}_{l_s, 1}, \ldots, \phi^{s}_{l_s, J_{l_s}})
+
+        This is reffered to as a level.
+        Product-space eigenfunctions are products of factors' eigenfunctions within each level.
+
+        Whenever factors' eigenfunctions are grouped in a level, this induces the product-space
+        eigenfunction to be group in a level. Thus, we operate on levels.
+
+        The product-space levels can't in general be analytically ordered, and
         so they must be precomputed.
 
-        :param spaces: The spaces to product together
-        :param num_eigen: (optional)
-            number of eigenvalues to use for this product space, by default 100
+        :param spaces: The spaces to product together (each must inherit from DiscreteSpectrumSpace)
+        :param num_levels: (optional)
+            number of levels to pre-compute for this product space.
         """
         for space in spaces:
-            assert isinstance(space, DiscreteSpectrumSpace)
+            assert isinstance(
+                space, DiscreteSpectrumSpace
+            ), "One of the spaces is not an instance of DiscreteSpectrumSpace."
 
         self.sub_spaces = spaces
-        self.num_eigen = num_eigen
+        self.num_eigen = num_levels
 
         # perform an breadth-first search for the smallest eigenvalues,
         # assuming that the eigenvalues come sorted,the next biggest eigenvalue
@@ -316,7 +329,7 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
         random_points = []
         for factor in self.sub_spaces:
             key, factor_random_points = factor.random(key, number)
-            random_points.append(random_points)
+            random_points.append(factor_random_points)
 
         return key, B.concat(*random_points, axis=1)
 
@@ -344,7 +357,7 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
         assert num <= self.num_eigen
 
         eigenfunctions = self.get_eigenfunctions(num)
-        eigenvalues = self._eigenvalues[:num, None]
+        eigenvalues = self._eigenvalues[:num]
         multiplicities = eigenfunctions.dim_of_eigenspaces
 
         repeated_eigenvalues = chain(eigenvalues, multiplicities)

@@ -64,7 +64,6 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
         """
         super().__init__(compute_engine, active_dims, True, False, name)
         self.base_kernel = base_kernel
-        _, self.state = base_kernel.init_params_and_state()
 
     def __call__(
         self, params: tp.Dict, x: Float[Array, "N D"], y: Float[Array, "M D"]
@@ -81,7 +80,7 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
         """
         return self.base_kernel.K(params, self.state, x, y)
 
-    def _initialise_params(self, key: jr.KeyArray = None) -> tp.Dict:
+    def init_params(self, key: jr.KeyArray = None) -> tp.Dict:
         """Initialise the parameters of the kernel.
 
         Args:
@@ -90,6 +89,6 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
         Returns:
             tp.Dict: A dictionary of parameters
         """
-        params, _ = self.base_kernel.init_params_and_state()
+        params = self.base_kernel.init_params()
         # Convert each value to Jax arrays
         return jax.tree_util.tree_map(lambda x: jnp.atleast_1d(x), params)

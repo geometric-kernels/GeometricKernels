@@ -7,7 +7,13 @@ from typing import Dict, Tuple
 import lab as B
 import numpy as np
 
-from geometric_kernels.lab_extras import degree, dtype_integer, eigenpairs, set_value
+from geometric_kernels.lab_extras import (
+    degree,
+    dtype_integer,
+    eigenpairs,
+    reciprocal_no_nan,
+    set_value,
+)
 from geometric_kernels.spaces.base import (
     ConvertEigenvectorsToEigenfunctions,
     DiscreteSpectrumSpace,
@@ -20,15 +26,17 @@ class Graph(DiscreteSpectrumSpace):
     Represents an arbitrary undirected graph.
     """
 
-    def __init__(self, adjacency_matrix: B.Numeric):  # type: ignore
+    def __init__(self, adjacency_matrix: B.Numeric, normalize_laplacian: bool = False):  # type: ignore
         """
         :param adjacency_matrix: An n-dimensional square, symmetric matrix,
             where adjacency_matrix[i, j] is non-zero if there is an edge
             between nodes i and j. Scipy's sparse matrices are supported.
+        :param normalize_laplacian: If True, the Laplacian will be degree
+            normalized (symmetrically). L_sym = D^-0.5 * L * D^-0.5
         """
         self.cache: Dict[int, Tuple[B.Numeric, B.Numeric]] = {}
         self._checks(adjacency_matrix)
-        self.set_laplacian(adjacency_matrix)  # type: ignore
+        self.set_laplacian(adjacency_matrix, normalize_laplacian)  # type: ignore
 
     @staticmethod
     def _checks(adjacency):
@@ -43,8 +51,16 @@ class Graph(DiscreteSpectrumSpace):
     def dimension(self) -> int:
         return 0  # this is needed for the kernel math to work out
 
-    def set_laplacian(self, adjacency):
-        self._laplacian = degree(adjacency) - adjacency
+    @property
+    def num_vertices(self) -> int:
+        return self._laplacian.shape[0]
+
+    def set_laplacian(self, adjacency, normalize_laplacian=False):
+        degree_matrix = degree(adjacency)
+        self._laplacian = degree_matrix - adjacency
+        if normalize_laplacian:
+            degree_inv_sqrt = reciprocal_no_nan(B.sqrt(degree_matrix))
+            self._laplacian = degree_inv_sqrt @ self._laplacian @ degree_inv_sqrt
 
     def get_eigensystem(self, num):
         """
@@ -59,9 +75,13 @@ class Graph(DiscreteSpectrumSpace):
         """
         if num not in self.cache:
             evals, evecs = eigenpairs(self._laplacian, num)
-            evals = set_value(
-                evals, 0, np.finfo(float).eps
-            )  # lowest eigenval should be zero
+
+            evecs *= B.sqrt(self.num_vertices)
+
+            eps = np.finfo(float).eps
+            for i, evalue in enumerate(evals):
+                if evalue < eps or evalue < 0:
+                    evals = set_value(evals, i, eps)  # lowest eigenvals should be zero
 
             self.cache[num] = (evecs, evals[:, None])
 

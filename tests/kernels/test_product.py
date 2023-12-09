@@ -15,7 +15,7 @@ def test_circle_product_eigenfunctions():
     # assert that the naive method of phi-product calculation
     # gives the same result as the addition theorem based calculation
     product = ProductDiscreteSpectrumSpace(
-        Circle(), Circle(), num_eigen=_TRUNC_LEVEL**2
+        Circle(), Circle(), num_levels=_TRUNC_LEVEL**2
     )
 
     grid = B.linspace(0, 2 * B.pi, _GRID_SIZE)
@@ -42,7 +42,7 @@ def test_circle_product_eigenfunctions():
 
 def test_circle_product_kernel():
     product = ProductDiscreteSpectrumSpace(
-        Circle(), Circle(), num_eigen=_TRUNC_LEVEL**2
+        Circle(), Circle(), num_levels=_TRUNC_LEVEL**2
     )
 
     grid = B.linspace(0, 2 * B.pi, _GRID_SIZE)
@@ -56,23 +56,23 @@ def test_circle_product_kernel():
         kernel = MaternKarhunenLoeveKernel(product, _TRUNC_LEVEL**2)
         kernel_single = MaternKarhunenLoeveKernel(Circle(), _TRUNC_LEVEL)
 
-        params, state = kernel.init_params_and_state()
+        params = kernel.init_params()
         params["nu"] = from_numpy(grid_, np.inf)
         params["lengthscale"] = from_numpy(grid, ls)
 
-        params_single, state_single = kernel_single.init_params_and_state()
+        params_single = kernel_single.init_params()
         params_single["nu"] = from_numpy(grid_, np.inf)
         params_single["lengthscale"] = from_numpy(grid, ls)
 
-        k_xx = kernel.K(params, state, grid_, grid_)
+        k_xx = kernel.K(params, grid_, grid_)
         k_xx = k_xx.reshape(_GRID_SIZE, _GRID_SIZE, _GRID_SIZE, _GRID_SIZE)
 
         k_xx_single_1 = kernel_single.K(
-            params_single, state_single, grid_[..., :1], grid_[..., :1]
+            params_single, grid_[..., :1], grid_[..., :1]
         ).reshape(_GRID_SIZE, _GRID_SIZE, _GRID_SIZE, _GRID_SIZE)
 
         k_xx_single_2 = kernel_single.K(
-            params_single, state_single, grid_[..., 1:], grid_[..., 1:]
+            params_single, grid_[..., 1:], grid_[..., 1:]
         ).reshape(_GRID_SIZE, _GRID_SIZE, _GRID_SIZE, _GRID_SIZE)
 
         k_xx_product = k_xx_single_1 * k_xx_single_2

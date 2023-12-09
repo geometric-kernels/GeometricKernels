@@ -4,7 +4,9 @@ GPflow kernel wrapper
 from typing import Optional
 
 import gpflow
+import numpy as np
 import tensorflow as tf
+from gpflow.base import TensorType
 from gpflow.kernels.base import ActiveDims
 from gpflow.utilities import positive
 
@@ -22,15 +24,23 @@ class GPflowGeometricKernel(gpflow.kernels.Kernel):
         kernel: BaseGeometricKernel,
         active_dims: Optional[ActiveDims] = None,
         name: Optional[str] = None,
+        lengthscale: TensorType = 1.0,
+        nu: TensorType = np.inf,
+        trainable_nu: bool = False,
     ):
         super().__init__(active_dims, name)
         self._kernel = kernel
 
-        params, state = self._kernel.init_params_and_state()
+        self.lengthscale = gpflow.Parameter(lengthscale, transform=positive())
 
-        self.lengthscale = gpflow.Parameter(params["lengthscale"], transform=positive())
-        self.nu = gpflow.Parameter(params["nu"], transform=positive())
-        self.state = state
+        self.trainable_nu = trainable_nu
+        if self.trainable_nu and tf.math.is_inf(nu):
+            raise ValueError("Cannot have trainable `nu` parameter with infinite value")
+
+        if self.trainable_nu:
+            self.nu = gpflow.Parameter(nu, transform=positive())
+        else:
+            self.nu = nu
 
     @property
     def space(self) -> Space:
@@ -39,15 +49,15 @@ class GPflowGeometricKernel(gpflow.kernels.Kernel):
 
     def K(self, X, X2=None):
         lengthscale = tf.convert_to_tensor(self.lengthscale)
-        nu = tf.convert_to_tensor(self.nu)
+        nu = tf.cast(tf.convert_to_tensor(self.nu), lengthscale.dtype)
         params = dict(lengthscale=lengthscale, nu=nu)
-        return self._kernel.K(params, self.state, X, X2)
+        return self._kernel.K(params, X, X2)
 
     def K_diag(self, X):
         lengthscale = tf.convert_to_tensor(self.lengthscale)
-        nu = tf.convert_to_tensor(self.nu)
+        nu = tf.cast(tf.convert_to_tensor(self.nu), lengthscale.dtype)
         params = dict(lengthscale=lengthscale, nu=nu)
-        return self._kernel.K_diag(params, self.state, X)
+        return self._kernel.K_diag(params, X)
 
 
 class DefaultFloatZeroMeanFunction(gpflow.mean_functions.Constant):

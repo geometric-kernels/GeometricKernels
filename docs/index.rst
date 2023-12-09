@@ -171,7 +171,7 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> import geometric_kernels
    >>> # Import a space and an appropriate kernel.
    >>> from geometric_kernels.spaces.hypersphere import Hypersphere
-   >>> from geometric_kernels.kernels.geometric_kernels import MaternKarhunenLoeveKernel
+   >>> from geometric_kernels.kernels import MaternGeometricKernel
 
    >>> # Create a manifold (2-dim sphere).
    >>> hypersphere = Hypersphere(dim=2)
@@ -180,16 +180,16 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> xs = np.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
 
    >>> # Initialize kernel, use 10 levels to approximate the infinite series.
-   >>> kernel = MaternKarhunenLoeveKernel(hypersphere, 10)
+   >>> kernel = MaternGeometricKernel(hypersphere)
    >>> params, state = kernel.init_params_and_state()
    >>> params["nu"] = np.array([5/2])
    >>> params["lengthscale"] = np.array([1.])
 
    >>> # Compute and print out the 3x3 kernel matrix.
    >>> print(kernel.K(params, state, xs))
-   [[0.00855354 0.00305004 0.00305004]
-    [0.00305004 0.00855354 0.00305004]
-    [0.00305004 0.00305004 0.00855354]]
+   [[0.00855706 0.0030498  0.0030498 ]
+    [0.0030498  0.00855706 0.0030498 ]
+    [0.0030498  0.0030498  0.00855706]]
 
 .. raw:: html
 
@@ -217,7 +217,7 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> import geometric_kernels.tensorflow
    >>> # Import a space and an appropriate kernel.
    >>> from geometric_kernels.spaces.hypersphere import Hypersphere
-   >>> from geometric_kernels.kernels.geometric_kernels import MaternKarhunenLoeveKernel
+   >>> from geometric_kernels.kernels import MaternGeometricKernel
 
    >>> # Create a manifold (2-dim sphere).
    >>> hypersphere = Hypersphere(dim=2)
@@ -226,16 +226,16 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> xs = np.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
 
    >>> # Initialize kernel, use 10 levels to approximate the infinite series.
-   >>> kernel = MaternKarhunenLoeveKernel(hypersphere, 10)
+   >>> kernel = MaternGeometricKernel(hypersphere)
    >>> params, state = kernel.init_params_and_state()
    >>> params["nu"] = tf.convert_to_tensor(5/2)
    >>> params["lengthscale"] = tf.convert_to_tensor(1.)
 
    >>> # Compute and print out the 3x3 kernel matrix.
    >>> print(kernel.K(params, state, tf.convert_to_tensor(xs)).numpy())
-   [[0.00855354 0.00305004 0.00305004]
-    [0.00305004 0.00855354 0.00305004]
-    [0.00305004 0.00305004 0.00855354]]
+   [[0.00855706 0.0030498  0.0030498 ]
+    [0.0030498  0.00855706 0.0030498 ]
+    [0.0030498  0.0030498  0.00855706]]
 
 .. raw:: html
 
@@ -263,7 +263,7 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> import geometric_kernels.torch
    >>> # Import a space and an appropriate kernel.
    >>> from geometric_kernels.spaces.hypersphere import Hypersphere
-   >>> from geometric_kernels.kernels.geometric_kernels import MaternKarhunenLoeveKernel
+   >>> from geometric_kernels.kernels import MaternGeometricKernel
 
    >>> # Create a manifold (2-dim sphere).
    >>> hypersphere = Hypersphere(dim=2)
@@ -272,16 +272,16 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> xs = np.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
 
    >>> # Initialize kernel, use 10 terms to approximate the infinite series.
-   >>> kernel = MaternKarhunenLoeveKernel(hypersphere, 10)
+   >>> kernel = MaternGeometricKernel(hypersphere)
    >>> params, state = kernel.init_params_and_state()
    >>> params["nu"] = torch.tensor(5/2)
    >>> params["lengthscale"] = torch.tensor(1.)
 
    >>> # Compute and print out the 3x3 kernel matrix.
    >>> print(kernel.K(params, state, torch.from_numpy(xs)).detach().cpu().numpy())
-   [[0.00855354 0.00305004 0.00305004]
-    [0.00305004 0.00855354 0.00305004]
-    [0.00305004 0.00305004 0.00855354]]
+   [[0.00855706 0.0030498  0.0030498 ]
+    [0.0030498  0.00855706 0.0030498 ]
+    [0.0030498  0.0030498  0.00855706]]
 
 .. raw:: html
 
@@ -309,7 +309,7 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> import geometric_kernels.jax
    >>> # Import a space and an appropriate kernel.
    >>> from geometric_kernels.spaces.hypersphere import Hypersphere
-   >>> from geometric_kernels.kernels.geometric_kernels import MaternKarhunenLoeveKernel
+   >>> from geometric_kernels.kernels import MaternGeometricKernel
 
    >>> # Create a manifold (2-dim sphere).
    >>> hypersphere = Hypersphere(dim=2)
@@ -318,16 +318,16 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> xs = np.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
 
    >>> # Initialize kernel, use 10 levels to approximate the infinite series.
-   >>> kernel = MaternKarhunenLoeveKernel(hypersphere, 10)
+   >>> kernel = MaternGeometricKernel(hypersphere)
    >>> params, state = kernel.init_params_and_state()
    >>> params["nu"] = jnp.r_[5/2]
    >>> params["lengthscale"] = jnp.r_[1.]
 
    >>> # Compute and print out the 3x3 kernel matrix.
    >>> print(kernel.K(params, state, jnp.array(xs)))
-   [[0.00855354 0.00305004 0.00305004]
-    [0.00305004 0.00855354 0.00305004]
-    [0.00305004 0.00305004 0.00855354]]
+   [[0.00855482 0.0030498  0.0030498 ]
+    [0.0030498  0.00855482 0.0030498 ]
+    [0.0030498  0.0030498  0.00855482]]
 
 
 .. raw:: html
@@ -351,5 +351,7 @@ You can find more examples in our `example notebooks <https://github.com/GPflow/
    :titlesonly:
    :hidden:
 
+   Examples <examples/index>
    API reference <autoapi/geometric_kernels/index>
    GitHub <https://github.com/GPflow/GeometricKernels>
+

@@ -1,4 +1,5 @@
 import lab as B
+import scipy
 import scipy.sparse as sp
 from lab import dispatch
 from plum import Signature, Union
@@ -9,18 +10,15 @@ from .extras import _Numeric
 SparseArray defines a lab data type that covers all possible sparse
 scipy arrays, so that multiple dispatch works with such arrays.
 """
-SparseArray = Union(
-    sp.bsr.bsr_matrix,
-    sp.coo.coo_matrix,
-    sp.csc.csc_matrix,
-    sp.csr.csr_matrix,
-    sp.dia.dia_matrix,
-    sp.dok.dok_matrix,
-    sp.lil.lil_matrix,
-    alias="SparseArray",
-)
-
-_SparseArraySign = Signature(SparseArray)
+SparseArray = Union[
+    sp.bsr_matrix,
+    sp.coo_matrix,
+    sp.csc_matrix,
+    sp.csr_matrix,
+    sp.dia_matrix,
+    sp.dok_matrix,
+    sp.lil_matrix,
+]
 
 
 @dispatch
@@ -42,7 +40,11 @@ def eigenpairs(L: Union[SparseArray, _Numeric], k: int):
     """
     if sp.issparse(L) and (k == L.shape[0]):
         L = L.toarray()
-    return sp.linalg.eigsh(L, k, sigma=1e-8)
+    if sp.issparse(L):
+        return sp.linalg.eigsh(L, k, sigma=1e-8)
+    else:
+        eigenvalues, eigenvectors = scipy.linalg.eigh(L)
+        return (eigenvalues[:k], eigenvectors[:, :k])
 
 
 @dispatch
@@ -56,19 +58,26 @@ def set_value(a: Union[SparseArray, _Numeric], index: int, value: float):
     return a
 
 
-def sparse_transpose(a):
-    return a.T
+""" Register methods for simple ops for a sparse array. """
 
 
-def sparse_shape(a):
-    return a.shape
+def pinv(a: Union[SparseArray]):
+    i, j = a.nonzero()
+    if not (i == j).all():
+        raise NotImplementedError(
+            "pinv is not supported for non-diagonal sparse arrays."
+        )
+    else:
+        a = sp.csr_matrix(a.copy())
+        a[i, i] = 1 / a[i, i]
+        return a
 
 
-def sparse_any(a):
-    return bool((a == True).sum())  # noqa
+_SparseArray = Signature(SparseArray)
 
+B.T.register(lambda a: a.T, _SparseArray)
+B.shape.register(lambda a: a.shape, _SparseArray)
+B.sqrt.register(lambda a: a.sqrt(), _SparseArray)
+B.any.register(lambda a: bool((a == True).sum()), _SparseArray)  # noqa
 
-""" Register methods for the shape, transpose and any of a sparse array. """
-B.T.register(_SparseArraySign, sparse_transpose)
-B.shape.register(_SparseArraySign, sparse_shape)
-B.any.register(_SparseArraySign, sparse_any)
+B.linear_algebra.pinv.register(pinv, _SparseArray)

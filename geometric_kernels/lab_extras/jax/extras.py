@@ -90,8 +90,117 @@ def dtype_double(reference: B.JAXRandomState):  # type: ignore
 
 
 @dispatch
+def float_like(reference: B.JAXNumeric):
+    """
+    Return the type of the reference if it is a floating point type.
+    Otherwise return `double` dtype of a backend based on the reference.
+    """
+    reference_dtype = reference.dtype
+    if jnp.issubdtype(reference_dtype, jnp.floating):
+        return B.dtype(reference)
+    else:
+        return jnp.float64
+
+
+@dispatch
 def dtype_integer(reference: B.JAXRandomState):  # type: ignore
     """
     Return `int` dtype of a backend based on the reference.
     """
     return jnp.int32
+
+
+@dispatch
+def get_random_state(key: B.JAXRandomState):
+    """
+    Return the random state of a random generator.
+
+    :param key: the random generator of type `B.JAXRandomState`.
+
+    :return: the random state of the random generator.
+    """
+    return key
+
+
+@dispatch
+def restore_random_state(key: B.JAXRandomState, state):
+    """
+    Set the random state of a random generator.
+
+    :param key: the random generator of type `B.JAXRandomState`.
+    :param state: the new random state of the random generator.
+
+    :return: the new random generator with state `state`.
+    """
+    return state
+
+
+@dispatch
+def create_complex(real: _Numeric, imag: B.JAXNumeric):
+    """
+    Returns a complex number with the given real and imaginary parts using jax.
+
+    Args:
+    - real: float, real part of the complex number.
+    - imag: float, imaginary part of the complex number.
+
+    Returns:
+    - complex_num: complex, a complex number with the given real and imaginary parts.
+    """
+    complex_num = real + 1j * imag
+    return complex_num
+
+
+@dispatch
+def dtype_complex(reference: B.JAXNumeric):
+    """
+    Return `complex` dtype of a backend based on the reference.
+    """
+    if B.dtype(reference) == jnp.float32:
+        return jnp.complex64
+    else:
+        return jnp.complex128
+
+
+@dispatch
+def cumsum(x: B.JAXNumeric, axis=None):
+    """
+    Return cumulative sum (optionally along axis)
+    """
+    return jnp.cumsum(x, axis=axis)
+
+
+@dispatch
+def qr(x: B.JAXNumeric):
+    """
+    Return a QR decomposition of a matrix x.
+    """
+    Q, R = jnp.linalg.qr(x)
+    return Q, R
+
+
+@dispatch
+def slogdet(x: B.JAXNumeric):
+    """
+    Return the sign and log-determinant of a matrix x.
+    """
+    sign, logdet = jnp.linalg.slogdet(x)
+    return sign, logdet
+
+
+@dispatch
+def eigvalsh(x: B.JAXNumeric):
+    """
+    Compute the eigenvalues of a Hermitian or real symmetric matrix x.
+    """
+    return jnp.linalg.eigvalsh(x)
+
+
+@dispatch
+def reciprocal_no_nan(x: B.JAXNumeric):
+    """
+    Return element-wise reciprocal (1/x). Whenever x = 0 puts 1/x = 0.
+    """
+    x_is_zero = jnp.equal(x, 0.0)
+    safe_x = jnp.where(x_is_zero, 1.0, x)
+    return jnp.where(x_is_zero, 0.0, jnp.reciprocal(safe_x))

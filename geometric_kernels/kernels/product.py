@@ -1,11 +1,11 @@
 """
 Product of kernels
 """
-from typing import List, Mapping, Tuple
+from typing import List, Mapping, Optional
 
 import lab as B
 
-from geometric_kernels.kernels import BaseGeometricKernel
+from geometric_kernels.kernels.base import BaseGeometricKernel
 from geometric_kernels.spaces import Space
 
 
@@ -13,7 +13,7 @@ class ProductGeometricKernel(BaseGeometricKernel):
     def __init__(
         self,
         *kernels: BaseGeometricKernel,
-        dimension_indices: List[B.Numeric] = None,
+        dimension_indices: Optional[List[B.Numeric]] = None,
     ):
         """
         Basic implementation of product kernels.
@@ -46,35 +46,38 @@ class ProductGeometricKernel(BaseGeometricKernel):
     def space(self) -> List[Space]:
         return [kernel.space for kernel in self.kernels]
 
-    def init_params_and_state(self) -> Tuple[List[Mapping], List[Mapping]]:
-        params_and_state = [kernel.init_params_and_state() for kernel in self.kernels]
+    def init_params(self) -> List[Mapping]:
+        params = [kernel.init_params() for kernel in self.kernels]
+        return params
 
-        return [p[0] for p in params_and_state], [s[1] for s in params_and_state]
-
-    def K(
-        self, params: List[Mapping], state: List[Mapping], X, X2=None, **kwargs
-    ) -> B.Numeric:
+    def K(self, params: List[Mapping], X, X2=None, **kwargs) -> B.Numeric:
         if X2 is None:
             X2 = X
 
         Xs = [B.take(X, inds, axis=-1) for inds in self.dimension_indices]
         X2s = [B.take(X2, inds, axis=-1) for inds in self.dimension_indices]
 
-        return B.stack(
-            *[
-                kernel.K(p, s, X, X2)
-                for kernel, X, X2, p, s in zip(self.kernels, Xs, X2s, params, state)
-            ],
+        return B.prod(
+            B.stack(
+                *[
+                    kernel.K(p, X, X2)
+                    for kernel, X, X2, p in zip(self.kernels, Xs, X2s, params)
+                ],
+                axis=-1,
+            ),
             axis=-1,
-        ).prod(dim=-1)
+        )
 
-    def K_diag(self, params, state, X):
+    def K_diag(self, params, X):
         Xs = [B.take(X, inds, axis=-1) for inds in self.dimension_indices]
 
-        return B.stack(
-            *[
-                kernel.K_diag(p, s, X)
-                for kernel, X, p, s in zip(self.kernels, Xs, params, state)
-            ],
+        return B.prod(
+            B.stack(
+                *[
+                    kernel.K_diag(p, X)
+                    for kernel, X, p in zip(self.kernels, Xs, params)
+                ],
+                axis=-1,
+            ),
             axis=-1,
-        ).prod(dim=-1)
+        )

@@ -13,7 +13,7 @@ from spherical_harmonics import SphericalHarmonics as _SphericalHarmonics
 from spherical_harmonics.fundamental_set import num_harmonics
 
 from geometric_kernels.lab_extras import dtype_double
-from geometric_kernels.spaces import DiscreteSpectrumSpace
+from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import (
     Eigenfunctions,
     EigenfunctionWithAdditionTheorem,
@@ -164,7 +164,8 @@ class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
 
     def get_eigenfunctions(self, num: int) -> Eigenfunctions:
         """
-        :param num: number of eigenfunctions returned.
+        :param num: number of eigenlevels (number of eigenspaces, less than or
+                    equal to the number of eigenfunctions).
         """
         return SphericalHarmonics(self.dim, num)
 

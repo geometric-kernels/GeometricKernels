@@ -14,14 +14,18 @@
 
 name: QualityChecks
 
-on: [push]
+on:
+  push:
+  pull_request:
+    branches:
+      - main
 
 jobs:
   check-and-test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
       fail-fast: false
 
     name: Python-${{ matrix.python-version }}
@@ -45,7 +49,7 @@ jobs:
       run: |
         sudo apt-get install gfortran
         # We need to pin `pip`. See https://github.com/pypa/pip/issues/10373.
-        pip install --upgrade pip==20.2.2 setuptools numpy Cython
+        pip install --upgrade pip setuptools numpy Cython
         pip install --upgrade --upgrade-strategy eager --no-cache-dir -U -r requirements.txt -r dev_requirements.txt | cat
         pip install --upgrade numpy
         pip install -e .

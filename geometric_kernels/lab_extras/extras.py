@@ -4,6 +4,7 @@ import lab as B
 from lab import dispatch
 from lab.util import abstract
 from plum import Union
+from scipy.sparse import spmatrix
 
 
 @dispatch
@@ -104,7 +105,104 @@ def dtype_double(reference):
 
 @dispatch
 @abstract()
+def float_like(reference: B.Numeric):
+    """
+    Return the type of the reference if it is a floating point type.
+    Otherwise return `double` dtype of a backend based on the reference.
+    """
+
+
+@dispatch
+@abstract()
 def dtype_integer(reference):
     """
     Return `int` dtype of a backend based on the reference.
+    """
+
+
+@dispatch
+@abstract()
+def get_random_state(key):
+    """
+    Return the random state of a random generator.
+
+    :param key: the random generator.
+
+    :return: the random state of the random generator.
+    """
+
+
+@dispatch
+@abstract()
+def restore_random_state(key, state):
+    """
+    Set the random state of a random generator.
+
+    :param key: the random generator.
+    :param state: the new random state of the random generator.
+
+    :return: the new random generator with state `state`.
+    """
+
+
+@dispatch
+@abstract()
+def create_complex(real: B.Numeric, imag: B.Numeric):
+    """
+    Returns a complex number with the given real and imaginary parts.
+
+    Args:
+    - real: float, real part of the complex number.
+    - imag: float, imaginary part of the complex number.
+
+    Returns:
+    - complex_num: complex, a complex number with the given real and imaginary parts.
+    """
+
+
+@dispatch
+@abstract()
+def dtype_complex(reference: B.Numeric):
+    """
+    Return `complex` dtype of a backend based on the reference.
+    """
+
+
+@dispatch
+@abstract()
+def cumsum(a: B.Numeric, axis=None):
+    """
+    Return cumulative sum (optionally along axis)
+    """
+
+
+@dispatch
+@abstract()
+def qr(x: B.Numeric):
+    """
+    Return a QR decomposition of a matrix x.
+    """
+
+
+@dispatch
+@abstract()
+def slogdet(x: B.Numeric):
+    """
+    Return the sign and log-determinant of a matrix x.
+    """
+
+
+@dispatch
+@abstract()
+def eigvalsh(x: B.Numeric):
+    """
+    Compute the eigenvalues of a Hermitian or real symmetric matrix x.
+    """
+
+
+@dispatch
+@abstract()
+def reciprocal_no_nan(x: Union[B.Numeric, spmatrix]):
+    """
+    Return element-wise reciprocal (1/x). Whenever x = 0 puts 1/x = 0.
     """

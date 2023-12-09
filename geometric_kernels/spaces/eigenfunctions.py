@@ -241,4 +241,7 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
 
     @property
     def dim_of_eigenspaces(self) -> B.Numeric:
+        """
+        Dimensionality of "per-level" eigenspaces.
+        """
         return self.num_eigenfunctions_per_level

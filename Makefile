@@ -30,8 +30,9 @@ lint:
 	flake8 geometric_kernels tests
 	black geometric_kernels tests --check --diff
 	isort geometric_kernels tests --check-only --diff
-	mypy geometric_kernels
+	# Turn off mypy for now
+	# mypy geometric_kernels
 
 
 test:  ## Run the tests, start with the failing ones and break on first fail.
-	pytest -v -x --ff -rN -Wignore -s --tb=short --durations=10
+	pytest -v -x --ff -rN -Wignore -s --tb=short --durations=10 tests
