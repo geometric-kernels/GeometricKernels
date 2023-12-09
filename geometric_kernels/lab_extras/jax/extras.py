@@ -204,3 +204,11 @@ def reciprocal_no_nan(x: B.JAXNumeric):
     x_is_zero = jnp.equal(x, 0.0)
     safe_x = jnp.where(x_is_zero, 1.0, x)
     return jnp.where(x_is_zero, 0.0, jnp.reciprocal(safe_x))
+
+
+@dispatch
+def complex_conj(x: B.JAXNumeric):
+    """
+    Return complex conjugate
+    """
+    return jnp.conj(x)

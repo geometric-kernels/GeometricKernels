@@ -206,3 +206,11 @@ def reciprocal_no_nan(x: Union[B.Numeric, spmatrix]):
     """
     Return element-wise reciprocal (1/x). Whenever x = 0 puts 1/x = 0.
     """
+
+
+@dispatch
+@abstract()
+def complex_conj(x: B.Numeric):
+    """
+    Return complex conjugate
+    """

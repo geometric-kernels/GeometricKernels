@@ -211,3 +211,11 @@ def reciprocal_no_nan(x: B.TFNumeric):
     Return element-wise reciprocal (1/x). Whenever x = 0 puts 1/x = 0.
     """
     return tf.math.reciprocal_no_nan(x)
+
+
+@dispatch
+def complex_conj(x: B.TFNumeric):
+    """
+    Return complex conjugate
+    """
+    return tf.math.conj(x)

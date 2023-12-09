@@ -218,3 +218,11 @@ def reciprocal_no_nan(x: B.TorchNumeric):
     """
     safe_x = torch.where(x == 0.0, 1.0, x)
     return torch.where(x == 0.0, 0.0, torch.reciprocal(safe_x))
+
+
+@dispatch
+def complex_conj(x: B.TorchNumeric):
+    """
+    Return complex conjugate
+    """
+    return torch.conj(x)

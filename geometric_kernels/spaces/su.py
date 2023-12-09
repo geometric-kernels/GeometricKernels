@@ -9,12 +9,18 @@ import lab as B
 import numpy as np
 from opt_einsum import contract as einsum
 
-from geometric_kernels.lab_extras import dtype_double, from_numpy, qr
+from geometric_kernels.lab_extras import (
+    complex_conj,
+    create_complex,
+    dtype_double,
+    from_numpy,
+    qr,
+)
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 from geometric_kernels.spaces.lie_groups import (
-    LieGroup,
     LieGroupAddtitionTheorem,
     LieGroupCharacter,
+    MatrixLieGroup,
 )
 
 
@@ -72,7 +78,7 @@ class SUEigenfunctions(LieGroupAddtitionTheorem):
             np.linalg.norm(self.rho + normalized_signature) ** 2
             - np.linalg.norm(self.rho) ** 2
         )
-        return lb_eigenvalue.item()
+        return lb_eigenvalue
 
     def _compute_character(self, n, signature):
         return SUCharacter(n, signature)
@@ -123,22 +129,22 @@ class SUCharacter(LieGroupCharacter):
         return char_val
 
 
-class SUGroup(LieGroup):
+class SUGroup(MatrixLieGroup):
     r"""
-    The d-dimensional hypersphere embedded in the (d+1)-dimensional Euclidean space.
+    Special Unitary Group, that is, the group of unitary matrices with unit determinant.
     """
 
     def __init__(self, n):
         self.n = n
         self.dim = n * (n - 1) // 2
-        LieGroup.__init__(self)
+        super().__init__(self)
 
     @property
     def dimension(self) -> int:
         return self.dim
 
     def inverse(self, X: B.Numeric) -> B.Numeric:
-        return B.transpose(X).conj()
+        return complex_conj(B.transpose(X))
 
     def get_eigenfunctions(self, num: int) -> Eigenfunctions:
         """
@@ -184,21 +190,21 @@ class SUGroup(LieGroup):
             sphere_point /= B.reshape(
                 B.sqrt(einsum("ij,ij->i", sphere_point, sphere_point)), -1, 1
             )
-            a = sphere_point[..., 0] + 1j * sphere_point[..., 1]
-            b = sphere_point[..., 2] + 1j * sphere_point[..., 3]
-            r1 = B.stack(a, -b.conj(), axis=-1)
-            r2 = B.stack(b, a.conj(), axis=-1)
+            a = create_complex(sphere_point[..., 0], sphere_point[..., 1])
+            b = create_complex(sphere_point[..., 2], sphere_point[..., 3])
+            r1 = B.stack(a, -complex_conj(b), axis=-1)
+            r2 = B.stack(b, complex_conj(a), axis=-1)
             q = B.stack(r1, r2, axis=-1)
             return key, q
         else:
             key, real = B.random.randn(key, dtype_double(key), number, self.n, self.n)
             key, imag = B.random.randn(key, dtype_double(key), number, self.n, self.n)
-            h = (real + 1j * imag) / math.sqrt(2)
+            h = create_complex(real, imag) / B.sqrt(2)
             q, r = qr(h)
             r_diag = einsum("...ii->...i", r)
-            r_diag_inv_phase = (r_diag / B.abs(r_diag)).conj()
+            r_diag_inv_phase = complex_conj(r_diag / B.abs(r_diag))
             q *= r_diag_inv_phase[:, None]
             q_det = B.det(q)
-            q_det_inv_phase = (q_det / B.abs(q_det)).conj()
+            q_det_inv_phase = complex_conj((q_det / B.abs(q_det)))
             q[:, :, 0] *= q_det_inv_phase[:, None]
             return key, q
