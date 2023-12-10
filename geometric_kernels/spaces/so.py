@@ -114,7 +114,6 @@ class SOEigenfunctions(LieGroupAddtitionTheorem):
         The function maps Lie Group Element X to T -- a maximal torus of the Lie group
         [n1,n2,\ldots, nk,X, X] ---> [n1,n2,\ldots,nk,X, X]
         """
-
         gamma = None
 
         if self.n == 3:

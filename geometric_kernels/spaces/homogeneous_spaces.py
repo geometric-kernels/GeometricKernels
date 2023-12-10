@@ -8,7 +8,10 @@ from geometric_kernels.spaces.eigenfunctions import (
     Eigenfunctions,
     EigenfunctionWithAdditionTheorem,
 )
-from geometric_kernels.spaces.lie_groups import LieGroup, LieGroupCharacter
+from geometric_kernels.spaces.lie_groups import (
+    LieGroupCharacter,
+    MatrixLieGroup,
+)
 
 
 class CompactHomogeneousSpaceAddtitionTheorem(EigenfunctionWithAdditionTheorem):
@@ -21,6 +24,8 @@ class CompactHomogeneousSpaceAddtitionTheorem(EigenfunctionWithAdditionTheorem):
         self.average_order = B.shape(H_samples)[0]
         G_eigenfunctions = M.G.get_eigenfunctions(num_levels)
 
+        self.G_eigenfunctions = G_eigenfunctions
+
         self._signatures = G_eigenfunctions._signatures.copy()
         self._eigenvalues = np.copy(G_eigenfunctions._eigenvalues)
         self._dimensions = np.copy(G_eigenfunctions._dimensions)
@@ -31,14 +36,16 @@ class CompactHomogeneousSpaceAddtitionTheorem(EigenfunctionWithAdditionTheorem):
         self.G_torus_representative = G_eigenfunctions._torus_representative
         self.G_difference = G_eigenfunctions._difference
 
+    @abc.abstractmethod
     def _compute_dimension(self, signature):
         raise NotImplementedError
 
     def _torus_representative(self, X):
-        return self.G_torus_representative(X)
         """The function maps Lie Group Element X to T -- a maximal torus of the Lie group
-        [b, n, m] ---> [b, rank, h]"""
+        [b, n, m] ---> [b, rank, h]"""        
+        return self.G_eigenfunctions._torus_representative(X)
 
+    @abc.abstractmethod
     def inverse(self, X):
         """The function that computes inverse element in the group"""
         raise NotImplementedError
@@ -59,7 +66,7 @@ class CompactHomogeneousSpaceAddtitionTheorem(EigenfunctionWithAdditionTheorem):
             (degree * chi(torus_repr_diff)[..., None]).reshape(
                 X.shape[0], X2.shape[0], 1
             )  # [N1, N2, 1]
-            for chi, degree in zip(self._characters, self._dimensions)
+            for degree, chi in zip(self._dimensions, self._characters)
         ]
 
         return B.concat(*values, axis=-1)  # [N, N2, L]
@@ -118,25 +125,34 @@ class AveragedLieGroupCharacter(abc.ABC):
 
 class CompactHomogeneousSpace(DiscreteSpectrumSpace):
     r"""
-    A class for Homogeneous Spaces represented as M=G/H, where G and H are groups.
-    M-- homogeneous space;
-    G -- a group of isometries of M;
-    H -- a stabilizer of G in M.
+    A Homogeneous Space of a Compact Lie Group, which is represented as M = G / H, where G is a Lie group,
+    and H is a stabilizer subgroup.
+
+    Examples of this class of spaces include Stiefel manifold (SO(n) / SO(n-m)).
     """
 
-    def __init__(self, G: LieGroup, H, H_samples, average_order):
+    def __init__(self, G: MatrixLieGroup, H, H_samples, average_order):
+        """
+        :param G: Lie group.
+        :param H: stabilizer subgroup.
+        :param H_samples: random samples from the stabilizer.
+        :param average_order: average order.
+        """
         self.G = G
         self.H = H
         self.H_samples = H_samples
         self.dim = self.G.dim - self.H.dim
         self.average_order = average_order
 
+    @abc.abstractmethod
     def project_to_manifold(self, g):
         raise NotImplementedError
 
+    @abc.abstractmethod    
     def embed_manifold(self, x):
         raise NotImplementedError
 
+    @abc.abstractmethod    
     def embed_stabilizer(self, h):
         raise NotImplementedError
 

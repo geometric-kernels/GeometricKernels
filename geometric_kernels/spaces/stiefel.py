@@ -40,10 +40,7 @@ class StiefelEigenfunctions(CompactHomogeneousSpaceAddtitionTheorem):
 
 class Stiefel(CompactHomogeneousSpace):
     r"""
-    A class for Homogeneous Spaces represented as M=G/H, where G and H are groups.
-    M-- homogeneous space;
-    G -- a group of isometries of M;
-    H -- a stabilizer of G in M.
+    Stifiel manifold V(n, m) = SO(n) / SO(n-m).
     """
 
     def __new__(cls, n, m, key, average_order=1000):
