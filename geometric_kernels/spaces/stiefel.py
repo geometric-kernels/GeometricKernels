@@ -59,25 +59,14 @@ class Stiefel(CompactHomogeneousSpace):
         return g[..., : self.m]
 
     def embed_manifold(self, x):
-        # print('x', x.shape)
-        g, r = qr(x, mode='complete')
-        # print('r', r.shape)
-        # print('g', g.shape)
-        # print('x', x)
-        # print('qr', g @ r)
+        g, r = qr(x, mode="complete")
         r_diag = einsum("...ii->...i", r[..., : self.m, : self.m])
-        # print('r_daig', r_diag.shape)
         r_diag = B.concat(
             r_diag, B.ones(B.dtype(x), *x.shape[:-2], self.n - self.m), axis=-1
         )
-        # print('r_diag', r_diag.shape)
-        # print('m', self.m)
-        # print('g', g.shape)
         g = g * r_diag[..., None]
-        # print('g', g.shape)
         diff = 2 * (B.all(B.abs(g[..., : self.m] - x) < 1e-5, axis=-1) - 0.5)
         g = g * diff[..., None]
-        # print('g', g.shape)        
         det_sign_g = B.sign(B.det(g))
         g[:, :, -1] *= det_sign_g[:, None]
 

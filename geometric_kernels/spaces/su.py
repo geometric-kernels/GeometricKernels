@@ -201,7 +201,7 @@ class SUGroup(MatrixLieGroup):
             key, real = B.random.randn(key, dtype_double(key), number, self.n, self.n)
             key, imag = B.random.randn(key, dtype_double(key), number, self.n, self.n)
             h = create_complex(real, imag) / B.sqrt(2)
-            q, r = qr(h, mode='complete')
+            q, r = qr(h, mode="complete")
             r_diag = einsum("...ii->...i", r)
             r_diag_inv_phase = complex_conj(r_diag / B.abs(r_diag))
             q *= r_diag_inv_phase[:, None]

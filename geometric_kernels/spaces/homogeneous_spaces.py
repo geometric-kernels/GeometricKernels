@@ -8,10 +8,7 @@ from geometric_kernels.spaces.eigenfunctions import (
     Eigenfunctions,
     EigenfunctionWithAdditionTheorem,
 )
-from geometric_kernels.spaces.lie_groups import (
-    LieGroupCharacter,
-    MatrixLieGroup,
-)
+from geometric_kernels.spaces.lie_groups import LieGroupCharacter, MatrixLieGroup
 
 
 class CompactHomogeneousSpaceAddtitionTheorem(EigenfunctionWithAdditionTheorem):
@@ -43,7 +40,7 @@ class CompactHomogeneousSpaceAddtitionTheorem(EigenfunctionWithAdditionTheorem):
 
     def _torus_representative(self, X):
         """The function maps Lie Group Element X to T -- a maximal torus of the Lie group
-        [b, n, m] ---> [b, rank, h]"""        
+        [b, n, m] ---> [b, rank, h]"""
         return self.G_eigenfunctions._torus_representative(X)
 
     # @abc.abstractmethod
@@ -150,11 +147,11 @@ class CompactHomogeneousSpace(DiscreteSpectrumSpace):
     def project_to_manifold(self, g):
         raise NotImplementedError
 
-    @abc.abstractmethod    
+    @abc.abstractmethod
     def embed_manifold(self, x):
         raise NotImplementedError
 
-    @abc.abstractmethod    
+    @abc.abstractmethod
     def embed_stabilizer(self, h):
         raise NotImplementedError
 

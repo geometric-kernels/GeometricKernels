@@ -33,15 +33,6 @@ def trapz(y: _Numeric, x: _Numeric, dx: _Numeric = 1.0, axis: int = -1):  # type
     return np.trapz(y, x, dx, axis)
 
 
-# @dispatch
-# def qr(a: _Numeric):
-#     """
-#     Compute QR factorization of a matrix.
-#     """
-#     print('complete')
-#     return np.linalg.qr(a, mode="complete")
-
-
 @dispatch
 def norm(x: _Numeric, ord: Optional[Any] = None, axis: Optional[int] = None):  # type: ignore
     """
@@ -162,7 +153,7 @@ def cumsum(a: _Numeric, axis=None):
 
 
 @dispatch
-def qr(x: _Numeric, mode='reduced'):
+def qr(x: _Numeric, mode="reduced"):
     """
     Return a QR decomposition of a matrix x.
     """

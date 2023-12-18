@@ -34,14 +34,6 @@ def trapz(y: _Numeric, x: _Numeric, dx=None, axis=-1):  # type: ignore
 
 
 @dispatch
-def qr(a: B.TFNumeric):
-    """
-    Compute QR factorization of a matrix.
-    """
-    return tf.linalg.qr(a, full_matrices=True)
-
-
-@dispatch
 def norm(x: _Numeric, ord: Optional[Any] = None, axis: Optional[int] = None):  # type: ignore
     """
     Matrix or vector norm.
@@ -180,11 +172,11 @@ def cumsum(x: B.TFNumeric, axis=None):
 
 
 @dispatch
-def qr(x: B.TFNumeric, mode='reduced'):
+def qr(x: B.TFNumeric, mode="reduced"):
     """
     Return a QR decomposition of a matrix x.
     """
-    full_matrices = mode == 'complete'
+    full_matrices = mode == "complete"
     Q, R = tf.linalg.qr(x, full_matrices=full_matrices)
     return Q, R
 

@@ -35,14 +35,6 @@ def trapz(y: B.JAXNumeric, x: _Numeric, dx: _Numeric = 1.0, axis: int = -1):  # 
 
 
 @dispatch
-def qr(a: B.JAXNumeric):
-    """
-    Compute QR factorization of a matrix.
-    """
-    return jnp.linalg.qr(a, mode="complete")
-
-
-@dispatch
 def logspace(start: B.JAXNumeric, stop: _Numeric, num: int = 50):  # type: ignore
     """
     Return numbers spaced evenly on a log scale.
@@ -171,7 +163,7 @@ def cumsum(x: B.JAXNumeric, axis=None):
 
 
 @dispatch
-def qr(x: B.JAXNumeric, mode='reduced'):
+def qr(x: B.JAXNumeric, mode="reduced"):
     """
     Return a QR decomposition of a matrix x.
     """

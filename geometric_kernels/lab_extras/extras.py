@@ -170,7 +170,7 @@ def cumsum(a: B.Numeric, axis=None):
 
 @dispatch
 @abstract()
-def qr(x: B.Numeric, mode='reduced'):
+def qr(x: B.Numeric, mode="reduced"):
     """
     Return a QR decomposition of a matrix x.
     """
