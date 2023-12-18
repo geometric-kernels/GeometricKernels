@@ -33,14 +33,6 @@ def trapz(y: B.Numeric, x: B.Numeric, dx: B.Numeric = 1.0, axis: int = -1):
 
 @dispatch
 @abstract()
-def qr(a):
-    """
-    Compute QR factorization of a matrix.
-    """
-
-
-@dispatch
-@abstract()
 def logspace(start: B.Numeric, stop: B.Numeric, num: int = 50):
     """
     Return numbers spaced evenly on a log scale.
@@ -178,7 +170,7 @@ def cumsum(a: B.Numeric, axis=None):
 
 @dispatch
 @abstract()
-def qr(x: B.Numeric):
+def qr(x: B.Numeric, mode='reduced'):
     """
     Return a QR decomposition of a matrix x.
     """

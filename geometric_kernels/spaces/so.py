@@ -161,6 +161,7 @@ class SOEigenfunctions(LieGroupAddtitionTheorem):
         """Number of levels, L"""
         return self._num_levels
 
+    @property
     def num_eigenfunctions_per_level(self) -> int:
         """Number of eigenfunctions per level"""
         return self._dimensions
@@ -206,7 +207,7 @@ class SOGroup(MatrixLieGroup):
         self.n = n
         self.dim = n * (n - 1) // 2
         self.rank = n // 2
-        super().__init__(self)
+        super().__init__()
 
     @property
     def dimension(self) -> int:
@@ -283,7 +284,7 @@ class SOGroup(MatrixLieGroup):
         else:
             # qr decomposition is not in the lab package, so numpy is used.
             key, h = B.random.randn(key, dtype_double(key), number, self.n, self.n)
-            q, r = qr(h)
+            q, r = qr(h, mode='complete')
             r_diag_sign = B.sign(einsum("...ii->...i", r))
             q *= r_diag_sign[:, None]
             q_det_sign = B.sign(B.det(q))

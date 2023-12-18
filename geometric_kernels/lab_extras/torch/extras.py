@@ -186,11 +186,11 @@ def cumsum(x: B.TorchNumeric, axis=None):
 
 
 @dispatch
-def qr(x: B.TorchNumeric):
+def qr(x: B.TorchNumeric, mode='reduced'):
     """
     Return a QR decomposition of a matrix x.
     """
-    Q, R = torch.qr(x)
+    Q, R = torch.linalg.qr(x, mode=mode)
     return Q, R
 
 

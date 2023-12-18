@@ -171,11 +171,11 @@ def cumsum(x: B.JAXNumeric, axis=None):
 
 
 @dispatch
-def qr(x: B.JAXNumeric):
+def qr(x: B.JAXNumeric, mode='reduced'):
     """
     Return a QR decomposition of a matrix x.
     """
-    Q, R = jnp.linalg.qr(x)
+    Q, R = jnp.linalg.qr(x, mode=mode)
     return Q, R
 
 

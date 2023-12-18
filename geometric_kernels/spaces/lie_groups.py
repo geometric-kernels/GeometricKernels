@@ -39,14 +39,14 @@ class LieGroupAddtitionTheorem(EigenfunctionWithAdditionTheorem):
         """
         raise NotImplementedError
 
-    @abs.abstractmethod
+    @abc.abstractmethod
     def _compute_dimension(self, signature):
         """
         Compute dimension of the representation corresponding to `signature`.
         """
         raise NotImplementedError
 
-    @abs.abstractmethod
+    @abc.abstractmethod
     def _compute_character(self, signature):
         """
         Compute character of the representation corresponding to `signature`.

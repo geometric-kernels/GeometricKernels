@@ -93,6 +93,7 @@ class SUEigenfunctions(LieGroupAddtitionTheorem):
         """Number of levels, L"""
         return self._num_levels
 
+    @property
     def num_eigenfunctions_per_level(self) -> int:
         """Number of eigenfunctions per level"""
         return self._dimensions
@@ -137,7 +138,7 @@ class SUGroup(MatrixLieGroup):
     def __init__(self, n):
         self.n = n
         self.dim = n * (n - 1) // 2
-        super().__init__(self)
+        super().__init__()
 
     @property
     def dimension(self) -> int:
@@ -200,7 +201,7 @@ class SUGroup(MatrixLieGroup):
             key, real = B.random.randn(key, dtype_double(key), number, self.n, self.n)
             key, imag = B.random.randn(key, dtype_double(key), number, self.n, self.n)
             h = create_complex(real, imag) / B.sqrt(2)
-            q, r = qr(h)
+            q, r = qr(h, mode='complete')
             r_diag = einsum("...ii->...i", r)
             r_diag_inv_phase = complex_conj(r_diag / B.abs(r_diag))
             q *= r_diag_inv_phase[:, None]

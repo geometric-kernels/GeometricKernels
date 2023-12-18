@@ -35,8 +35,9 @@ class CompactHomogeneousSpaceAddtitionTheorem(EigenfunctionWithAdditionTheorem):
         ]
         self.G_torus_representative = G_eigenfunctions._torus_representative
         self.G_difference = G_eigenfunctions._difference
+        self._num_levels = num_levels
 
-    @abc.abstractmethod
+    # @abc.abstractmethod
     def _compute_dimension(self, signature):
         raise NotImplementedError
 
@@ -45,7 +46,7 @@ class CompactHomogeneousSpaceAddtitionTheorem(EigenfunctionWithAdditionTheorem):
         [b, n, m] ---> [b, rank, h]"""        
         return self.G_eigenfunctions._torus_representative(X)
 
-    @abc.abstractmethod
+    # @abc.abstractmethod
     def inverse(self, X):
         """The function that computes inverse element in the group"""
         raise NotImplementedError
@@ -101,7 +102,8 @@ class CompactHomogeneousSpaceAddtitionTheorem(EigenfunctionWithAdditionTheorem):
     @property
     def num_eigenfunctions_per_level(self) -> B.Numeric:
         """Number of eigenfunctions per level"""
-        raise NotImplementedError
+        return [1] * self.num_levels
+        # raise NotImplementedError
 
     def __call__(self, X: B.Numeric):
         gammas = self._torus_representative(X)

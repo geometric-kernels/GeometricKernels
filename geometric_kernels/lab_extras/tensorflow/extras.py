@@ -180,11 +180,12 @@ def cumsum(x: B.TFNumeric, axis=None):
 
 
 @dispatch
-def qr(x: B.TFNumeric):
+def qr(x: B.TFNumeric, mode='reduced'):
     """
     Return a QR decomposition of a matrix x.
     """
-    Q, R = tf.linalg.qr(x)
+    full_matrices = mode == 'complete'
+    Q, R = tf.linalg.qr(x, full_matrices=full_matrices)
     return Q, R
 
 

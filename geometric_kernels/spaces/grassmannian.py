@@ -63,7 +63,7 @@ class Grassmannian(CompactHomogeneousSpace):
         return g[..., : self.m]
 
     def embed_manifold(self, x):
-        g, r = qr(x)
+        g, r = qr(x, mode='complete')
         r_diag = einsum("...ii->...i", r[..., : self.m, : self.m])
         r_diag = B.concat(
             r_diag, B.ones(B.dtype(x), *x.shape[:-2], self.n - self.m), axis=-1
