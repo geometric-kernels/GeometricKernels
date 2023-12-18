@@ -1,12 +1,14 @@
 import itertools
+
+import lab as B
 import numpy as np
+import pytest
 from numpy.testing import assert_allclose
 from opt_einsum import contract as einsum
+
 from geometric_kernels.kernels.feature_maps import random_phase_feature_map_compact
 from geometric_kernels.kernels.geometric_kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces.su import SUGroup
-import lab as B
-import pytest
 
 
 @pytest.mark.parametrize(
@@ -30,18 +32,12 @@ def test_compact_lie_groups(group_cls, n, order, dtype):
 
     group = group_cls(n=n)
     eigenfunctions = group.get_eigenfunctions(order)
-    lengthscale, nu = 2.0, 5.0
 
-    kernel = MaternKarhunenLoeveKernel(group, order, normalize=False)
-    param = dict(lengthscale=np.array(1), nu=np.array(1.5))
-    # _, state = kernel.init_params_and_state()
+    kernel = MaternKarhunenLoeveKernel(group, order, normalize=True)
+    param = dict(lengthscale=np.array(5), nu=np.array(1.5))
 
-    feature_order = 100
-    feature_map = random_phase_feature_map_compact(
-        group, order, feature_order   # kernel, param, state, key, order=feature_order
-    )
-
-    # key = key["key"]
+    feature_order = 5000
+    feature_map = random_phase_feature_map_compact(group, order, feature_order)
 
     b1, b2 = 10, 10
     key, x = group.random(key, b1)
@@ -87,13 +83,11 @@ def test_compact_lie_groups(group_cls, n, order, dtype):
     assert_allclose(scalar_products, np.eye(order, dtype=dtype), atol=5e-2)
 
     identity = np.eye(n, dtype=dtype).reshape(-1, n, n)
-    K_00 = kernel.K(param, identity, identity)
 
     K_xx = (kernel.K(param, x, x)).real
-    key, embed_x = feature_map(x, param, key=key, normalize=False)
+    key, embed_x = feature_map(x, param, key=key, normalize=True)
     F_xx = (einsum("ni,mi-> nm", embed_x, embed_x.conj())).real
     print(K_xx)
     print("-------")
     print(F_xx)
-    print('K00', K_00)
     assert_allclose(K_xx, F_xx, atol=5e-2)
