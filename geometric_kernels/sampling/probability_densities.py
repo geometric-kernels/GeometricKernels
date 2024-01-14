@@ -253,7 +253,7 @@ def spd_density_sample(key, size, params, degree, rho):
         if nu == np.inf:
             proposal = eigv / L
         else:
-            eigv = eigv / B.sqrt(2 * nu / L**2 + B.sum(rho**2))
+            eigv = eigv * B.sqrt(2 * nu / L**2 + B.sum(rho**2))
 
             # Gamma(nu, 2) distribution is the same as chi2(2nu) distribution
             key, chi2_sample = B.randgamma(key, B.dtype(L), 1, alpha=nu, scale=2)
