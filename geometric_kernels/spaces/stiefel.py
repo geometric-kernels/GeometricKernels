@@ -5,7 +5,7 @@ from opt_einsum import contract as einsum
 from geometric_kernels.lab_extras import qr
 from geometric_kernels.spaces.homogeneous_spaces import (
     CompactHomogeneousSpace,
-    CompactHomogeneousSpaceAddtitionTheorem,
+    AveragingAdditionTheorem,
 )
 from geometric_kernels.spaces.so import SOGroup
 
@@ -23,7 +23,7 @@ def hook_content_formula(lmd, n):
     return numer / denom
 
 
-class StiefelEigenfunctions(CompactHomogeneousSpaceAddtitionTheorem):
+class StiefelEigenfunctions(AveragingAdditionTheorem):
     def _compute_projected_character_value_at_e(self, signature):
         """
         Value of character on class of identity element is equal to the dimension of invariant space
@@ -47,9 +47,9 @@ class Stiefel(CompactHomogeneousSpace):
         assert n > m, "n should be greater than m"
         H = SOGroup(n - m)
         G = SOGroup(n)
-        key, H_samples = H.random(key, average_order)
+        key, samples_H = H.random(key, average_order)
         new_space = super().__new__(cls)
-        new_space.__init__(G=G, H=H, H_samples=H_samples, average_order=average_order)
+        new_space.__init__(G=G, H=H, samples_H=samples_H, average_order=average_order)
         new_space.n = n
         new_space.m = m
         new_space.dim = G.dim - H.dim
@@ -92,11 +92,11 @@ class Stiefel(CompactHomogeneousSpace):
     def dimension(self) -> int:
         return self.dim
 
-    def get_eigenfunctions(self, num: int) -> CompactHomogeneousSpaceAddtitionTheorem:
+    def get_eigenfunctions(self, num: int) -> AveragingAdditionTheorem:
         """
         :param num: number of eigenfunctions returned.
         """
-        eigenfunctions = StiefelEigenfunctions(self, num, self.H_samples)
+        eigenfunctions = StiefelEigenfunctions(self, num, self.samples_H)
         return eigenfunctions
 
     def get_repeated_eigenvalues(self, num: int) -> B.Numeric:
@@ -107,7 +107,7 @@ class Stiefel(CompactHomogeneousSpace):
         First `num` eigenvalues of the Laplace-Beltrami operator
         :return: [num, 1] array containing the eigenvalues
         """
-        eigenfunctions = StiefelEigenfunctions(self, num, self.H_samples)
+        eigenfunctions = StiefelEigenfunctions(self, num, self.samples_H)
         eigenvalues = np.array(eigenfunctions._eigenvalues)
         return B.reshape(eigenvalues, -1, 1)  # [num, 1]
 

@@ -11,14 +11,14 @@ from geometric_kernels.spaces.eigenfunctions import (
 from geometric_kernels.spaces.lie_groups import LieGroupCharacter, MatrixLieGroup
 
 
-class CompactHomogeneousSpaceAddtitionTheorem(EigenfunctionWithAdditionTheorem):
-    def __init__(self, M, num_levels, H_samples):
+class AveragingAdditionTheorem(EigenfunctionWithAdditionTheorem):
+    def __init__(self, M, num_levels, samples_H):
         self.M = M
         self.dim = M.G.dim - M.H.dim
         self.G_n = M.G.n
-        self.H_samples = H_samples
-        self.H_samples = self.M.embed_stabilizer(H_samples)
-        self.average_order = B.shape(H_samples)[0]
+        self.samples_H = samples_H
+        self.samples_H = self.M.embed_stabilizer(samples_H)
+        self.average_order = B.shape(samples_H)[0]
         G_eigenfunctions = M.G.get_eigenfunctions(num_levels)
 
         self.G_eigenfunctions = G_eigenfunctions
@@ -58,7 +58,7 @@ class CompactHomogeneousSpaceAddtitionTheorem(EigenfunctionWithAdditionTheorem):
     def _addition_theorem(self, X: B.Numeric, X2: B.Numeric, **parameters) -> B.Numeric:
         diff = self._difference(X, X2)
         diff = diff.reshape(X.shape[0] * X2.shape[0], self.G_n, self.G_n)
-        diff_h = self.G_difference(diff, self.H_samples)
+        diff_h = self.G_difference(diff, self.samples_H)
         torus_repr_diff = self.G_torus_representative(diff_h)
         values = [
             (degree * chi(torus_repr_diff)[..., None]).reshape(
@@ -78,7 +78,7 @@ class CompactHomogeneousSpaceAddtitionTheorem(EigenfunctionWithAdditionTheorem):
             a value for each level [N, L]
         """
         g = self.M.embed_manifold(X)
-        g_h = self._difference(g, self.H_samples)
+        g_h = self._difference(g, self.samples_H)
         torus_repr_X = self._torus_representative(g_h)
         values = [
             degree * chi(torus_repr_X)  # [N, 1]
@@ -130,16 +130,16 @@ class CompactHomogeneousSpace(DiscreteSpectrumSpace):
     Examples of this class of spaces include Stiefel manifold (SO(n) / SO(n-m)).
     """
 
-    def __init__(self, G: MatrixLieGroup, H, H_samples, average_order):
+    def __init__(self, G: MatrixLieGroup, H, samples_H, average_order):
         """
         :param G: Lie group.
         :param H: stabilizer subgroup.
-        :param H_samples: random samples from the stabilizer.
+        :param samples_H: random samples from the stabilizer.
         :param average_order: average order.
         """
         self.G = G
         self.H = H
-        self.H_samples = H_samples
+        self.samples_H = samples_H
         self.dim = self.G.dim - self.H.dim
         self.average_order = average_order
 
@@ -163,8 +163,8 @@ class CompactHomogeneousSpace(DiscreteSpectrumSpace):
         """
         :param num: number of eigenfunctions returned.
         """
-        eigenfunctions = CompactHomogeneousSpaceAddtitionTheorem(
-            self, num, self.H_samples
+        eigenfunctions = AveragingAdditionTheorem(
+            self, num, self.samples_H
         )
         return eigenfunctions
 
@@ -173,8 +173,8 @@ class CompactHomogeneousSpace(DiscreteSpectrumSpace):
         First `num` eigenvalues of the Laplace-Beltrami operator
         :return: [num, 1] array containing the eigenvalues
         """
-        eigenfunctions = CompactHomogeneousSpaceAddtitionTheorem(
-            self, num, self.H_samples
+        eigenfunctions = AveragingAdditionTheorem(
+            self, num, self.samples_H
         )
         eigenvalues = np.array(eigenfunctions._eigenvalues)
         return B.reshape(eigenvalues, -1, 1)  # [num, 1]

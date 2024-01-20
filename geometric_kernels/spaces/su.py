@@ -18,13 +18,13 @@ from geometric_kernels.lab_extras import (
 )
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 from geometric_kernels.spaces.lie_groups import (
-    LieGroupAddtitionTheorem,
+    WeylAddtitionTheorem,
     LieGroupCharacter,
     MatrixLieGroup,
 )
 
 
-class SUEigenfunctions(LieGroupAddtitionTheorem):
+class SUEigenfunctions(WeylAddtitionTheorem):
     def __init__(self, n, num_levels, init_eigenfunctions=True):
         self.n = n
         self.dim = n * (n - 1)

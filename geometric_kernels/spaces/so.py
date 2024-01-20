@@ -11,14 +11,14 @@ from opt_einsum import contract as einsum
 
 from geometric_kernels.lab_extras import dtype_double, from_numpy, qr, take_along_axis
 from geometric_kernels.spaces.lie_groups import (
-    LieGroupAddtitionTheorem,
+    WeylAddtitionTheorem,
     LieGroupCharacter,
     MatrixLieGroup,
 )
 from geometric_kernels.utils.utils import fixed_length_partitions
 
 
-class SOEigenfunctions(LieGroupAddtitionTheorem):
+class SOEigenfunctions(WeylAddtitionTheorem):
     def __init__(self, n, num_levels, init_eigenfunctions=True):
         self.n = n
         self.dim = n * (n - 1) // 2

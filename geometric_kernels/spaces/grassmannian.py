@@ -5,13 +5,15 @@ from opt_einsum import contract as einsum
 from geometric_kernels.lab_extras import qr
 from geometric_kernels.spaces.homogeneous_spaces import (
     CompactHomogeneousSpace,
-    CompactHomogeneousSpaceAddtitionTheorem,
+    AveragingAdditionTheorem,
 )
 from geometric_kernels.spaces.so import SOGroup
 
 
 class _SOxSO:
-    """Helper class for sampling, represents SO(n) x SO(m)"""
+    """Helper class for sampling. Represents SO(n) x SO(m), as described by
+    :math:`(n+m) \times (n+m)` block-diagonal matrices.
+    """
 
     def __init__(self, n, m):
         self.n, self.m = n, m
@@ -20,6 +22,12 @@ class _SOxSO:
         self.dim = n * (n - 1) // 2 + m * (m - 1) // 2
 
     def random(self, key, number):
+        """"Randomly samples `number` matrices of size
+        :math:`(n+m)\times(n+m)`.
+        For each of the matricies, the upper left block is uniformly
+        sampled over :math:`SO(n)`, and the lower right block is
+        uniformly sampled over :math:`SO(m)`.
+        """
         key, h_u = self.so_n.random(key, number)
         key, h_d = self.so_m.random(key, number)
         zeros = B.zeros(B.dtype(h_u), number, self.n, self.m)
@@ -29,11 +37,11 @@ class _SOxSO:
         return key, res
 
 
-class GrassmannianEigenfunctions(CompactHomogeneousSpaceAddtitionTheorem):
+class GrassmannianEigenfunctions(AveragingAdditionTheorem):
     def _compute_projected_character_value_at_e(self, signature):
         """
-        Value of character on class of identity element is equal to the dimension of invariant space
-        In case of grassmannian this value always equal to 1, since the space is symmetric.
+        Value of character on class of identity element is equal to the dimension of invariant space.
+        In case of Grassmannian this value always equal to 1, since the space is symmetric.
         :param signature:
         :return: int
         """
@@ -42,18 +50,19 @@ class GrassmannianEigenfunctions(CompactHomogeneousSpaceAddtitionTheorem):
 
 class Grassmannian(CompactHomogeneousSpace):
     r"""
-    Class for Grassmannian manifold as SO(n)/(SO(m)xSO(n-m))
-    Elements of manifold represented as nxm matrices, note that
-    X and X x (SO(m) \oplus I_{n-m}) are representatives of the same element
+    Grassmanian manifold.
+
+    Class for Grassmannian manifold as :math:`SO(n) / (SO(m) \times SO(n-m))`.
+    Elements of the manifold are represented as :math:`n \times m` matrices.
     """
 
     def __new__(cls, n, m, key, average_order=1000):
         assert n > m, "n should be greater than m"
         H = _SOxSO(m, n - m)
         G = SOGroup(n)
-        key, H_samples = H.random(key, average_order)
+        key, samples_H = H.random(key, average_order)
         new_space = super().__new__(cls)
-        new_space.__init__(G=G, H=H, H_samples=H_samples, average_order=average_order)
+        new_space.__init__(G=G, H=H, samples_H=samples_H, average_order=average_order)
         new_space.n = n
         new_space.m = m
         new_space.dim = G.dim - H.dim
@@ -84,11 +93,11 @@ class Grassmannian(CompactHomogeneousSpace):
     def dimension(self) -> int:
         return self.dim
 
-    def get_eigenfunctions(self, num: int) -> CompactHomogeneousSpaceAddtitionTheorem:
+    def get_eigenfunctions(self, num: int) -> AveragingAdditionTheorem:
         """
         :param num: number of eigenfunctions returned.
         """
-        eigenfunctions = GrassmannianEigenfunctions(self, num, self.H_samples)
+        eigenfunctions = GrassmannianEigenfunctions(self, num, self.samples_H)
         return eigenfunctions
 
     def get_repeated_eigenvalues(self, num: int) -> B.Numeric:
@@ -99,7 +108,7 @@ class Grassmannian(CompactHomogeneousSpace):
         First `num` eigenvalues of the Laplace-Beltrami operator
         :return: [num, 1] array containing the eigenvalues
         """
-        eigenfunctions = GrassmannianEigenfunctions(self, num, self.H_samples)
+        eigenfunctions = GrassmannianEigenfunctions(self, num, self.samples_H)
         eigenvalues = np.array(eigenfunctions._eigenvalues)
         return B.reshape(eigenvalues, -1, 1)  # [num, 1]
 

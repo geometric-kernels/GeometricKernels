@@ -10,7 +10,7 @@ from geometric_kernels.spaces.eigenfunctions import (
 )
 
 
-class LieGroupAddtitionTheorem(EigenfunctionWithAdditionTheorem):
+class WeylAddtitionTheorem(EigenfunctionWithAdditionTheorem):
     def __init__(self, n, num_levels, init_eigenfunctions=True):
         self._num_levels = num_levels
         self._signatures = self._generate_signatures(self._num_levels)
@@ -141,14 +141,14 @@ class MatrixLieGroup(DiscreteSpectrumSpace):
         """
         :param num: number of eigenfunctions returned.
         """
-        return LieGroupAddtitionTheorem(self.n, num)
+        return WeylAddtitionTheorem(self.n, num)
 
     def get_eigenvalues(self, num: int) -> B.Numeric:
         """
         First `num` eigenvalues of the Laplace-Beltrami operator
         :return: [num, 1] array containing the eigenvalues
         """
-        eigenfunctions = LieGroupAddtitionTheorem(self.n, num)
+        eigenfunctions = WeylAddtitionTheorem(self.n, num)
         eigenvalues = np.array(eigenfunctions._eigenvalues)
         return B.reshape(eigenvalues, -1, 1)  # [num, 1]
 
