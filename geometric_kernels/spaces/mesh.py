@@ -8,8 +8,8 @@ import numpy as np
 import potpourri3d as pp3d
 import robust_laplacian
 import scipy.sparse.linalg as sla
-
 from scipy.linalg import eigh
+
 from geometric_kernels.lab_extras import dtype_integer
 from geometric_kernels.spaces.base import (
     ConvertEigenvectorsToEigenfunctions,
