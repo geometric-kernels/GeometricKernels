@@ -3,6 +3,7 @@ A wrapper around different kernels and feature maps that dispatches on space.
 """
 from plum import dispatch
 
+from geometric_kernels.kernels.base import BaseGeometricKernel
 from geometric_kernels.kernels.feature_maps import (
     deterministic_feature_map_compact,
     random_phase_feature_map_noncompact,
@@ -24,50 +25,66 @@ from geometric_kernels.spaces import (
 )
 
 
-@dispatch
-def default_feature_map(space: DiscreteSpectrumSpace, *, kernel, num=None):
-    if num is None:
-        num = default_num(space)
-    return deterministic_feature_map_compact(space, kernel)
+def default_feature_map(
+    *, space: Space = None, num: int = None, kernel: BaseGeometricKernel = None
+):
+    """
+    Constructs the default feature map for the specified space or kernel.
+
+    :param space: space to construct the feature map on. If provided, kernel
+                  must either be omitted or set to None.
+    :param kernel: kernel to construct the feature map from. If provided,
+                   space and num must either be omitted or set to None.
+    :param num: controls the number of features (dimensionality of the feature
+                map). If omitted or set to None, the default value for each
+                respective space is used. Must only be provided when
+                constructing a feature map on a space (not from a kernel).
+
+    :return: Callable which is the respective feature map.
+    """
+    if kernel is not None:
+        if space is not None or num is not None:
+            raise ValueError(
+                "When kernel is provided, space and num must be omitted or set to None"
+            )
+        return feature_map_from_kernel(kernel)
+    elif space is not None:
+        if num is None:
+            num = default_num(space)
+        return feature_map_from_space(space, num)
+    else:
+        raise ValueError(
+            "Either kernel or space must be provided and be different from None"
+        )
 
 
 @dispatch
-def default_feature_map(space: NoncompactSymmetricSpace, *, kernel, num=None):
-    """
-    Note parameter `kernel` is not used, just pass None.
-    """
-    if num is None:
-        num = default_num(space)
+def feature_map_from_kernel(kernel: MaternKarhunenLoeveKernel):
+    return deterministic_feature_map_compact(kernel.space, kernel.num_levels)
+
+
+@dispatch
+def feature_map_from_kernel(kernel: MaternFeatureMapKernel):
+    return kernel.feature_map
+
+
+@dispatch
+def feature_map_from_space(space: DiscreteSpectrumSpace, num: int):
+    return deterministic_feature_map_compact(space, num)
+
+
+@dispatch
+def feature_map_from_space(space: NoncompactSymmetricSpace, num: int):
     return random_phase_feature_map_noncompact(space, num)
 
 
 @dispatch
-def default_feature_map(space: Hyperbolic, *, kernel, num=None):
-    """
-    Note parameter `kernel` is not used, just pass None.
-    """
-    if num is None:
-        num = default_num(space)
+def feature_map_from_space(space: Hyperbolic, num: int):
     return rejection_sampling_feature_map_hyperbolic(space, num)
 
 
 @dispatch
-def default_feature_map(space: Hyperbolic, *, kernel, num=None):
-    """
-    Note parameter `kernel` is not used, just pass None.
-    """
-    if num is None:
-        num = default_num(space)
-    return rejection_sampling_feature_map_hyperbolic(space, num)
-
-
-@dispatch
-def default_feature_map(space: SymmetricPositiveDefiniteMatrices, *, kernel, num=None):
-    """
-    Note parameter `kernel` is not used, just pass None.
-    """
-    if num is None:
-        num = default_num(space)
+def feature_map_from_space(space: SymmetricPositiveDefiniteMatrices, num: int):
     return rejection_sampling_feature_map_spd(space, num)
 
 
@@ -138,7 +155,7 @@ class MaternGeometricKernel:
             num = num or default_num(space)
             kernel = MaternKarhunenLoeveKernel(space, num, normalize=normalize)
             if return_feature_map:
-                feature_map = default_feature_map(space, kernel=kernel, num=num)
+                feature_map = default_feature_map(kernel=kernel)
 
         elif isinstance(space, NoncompactSymmetricSpace):
             num = num or default_num(space)
@@ -153,7 +170,7 @@ class MaternGeometricKernel:
                     )
                     % str(type(space))
                 )
-            feature_map = default_feature_map(space, kernel=None, num=num)
+            feature_map = default_feature_map(space=space, num=num)
             kernel = MaternFeatureMapKernel(
                 space, feature_map, key, normalize=normalize
             )

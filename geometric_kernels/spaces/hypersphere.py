@@ -164,7 +164,8 @@ class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
 
     def get_eigenfunctions(self, num: int) -> Eigenfunctions:
         """
-        :param num: number of eigenfunctions returned.
+        :param num: number of eigenlevels (number of eigenspaces, less than or
+                    equal to the number of eigenfunctions).
         """
         return SphericalHarmonics(self.dim, num)
 

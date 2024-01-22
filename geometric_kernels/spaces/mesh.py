@@ -9,6 +9,7 @@ import potpourri3d as pp3d
 import robust_laplacian
 import scipy.sparse.linalg as sla
 
+from scipy.linalg import eigh
 from geometric_kernels.lab_extras import dtype_integer
 from geometric_kernels.spaces.base import (
     ConvertEigenvectorsToEigenfunctions,
@@ -54,7 +55,10 @@ class Mesh(DiscreteSpectrumSpace):
         """
         if num not in self.cache:
             L, M = robust_laplacian.mesh_laplacian(self.vertices, self.faces)
-            evals, evecs = sla.eigsh(L, num, M, sigma=1e-8)
+            if L.shape[0] == num:
+                evals, evecs = eigh(L.toarray(), M.toarray())
+            else:
+                evals, evecs = sla.eigsh(L, num, M, sigma=1e-8)
             evecs, _ = np.linalg.qr(evecs)
             evecs *= np.sqrt(self.num_vertices)
             evals = np.clip(
