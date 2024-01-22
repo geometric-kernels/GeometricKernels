@@ -11,43 +11,64 @@ from geometric_kernels.spaces.so import SOGroup
 
 
 class _SOxSO:
-    """Helper class for sampling, represents SO(n) x SO(m)"""
+    """Helper class for sampling, represents SO(n) x SO(m)."""
 
-    def __init__(self, n, m):
+    def __init__(self, n: int, m: int):
         self.n, self.m = n, m
         self.so_n = SOGroup(n)
         self.so_m = SOGroup(m)
-        self.dim = n * (n - 1) // 2 + m * (m - 1) // 2
+        self.dim = self.so_n.dim + self.so_m.dim
 
     def random(self, key, number):
-        key, h_u = self.so_n.random(key, number)
-        key, h_d = self.so_m.random(key, number)
-        zeros = B.zeros(B.dtype(h_u), number, self.n, self.m)
-        zeros_t = B.transpose(zeros)
-        l, r = B.concat(h_u, zeros_t, axis=-2), B.concat(zeros, h_d, axis=-2)
-        res = B.concat(l, r, axis=-1)
+        """
+        Samples from the product SO(n) x SO(m),
+        sample has form [[h_n, 0], [0, h_m]].
+
+        :param key: a random state
+        :param number: a number of samples
+        :return: [..., n + m, n + m] array of points in SO(n) x SO(m)
+        """
+        
+        key, h_u = self.so_n.random(key, number) # [number, n, n]
+        key, h_d = self.so_m.random(key, number) # [number, m, m]
+
+        zeros = B.zeros(B.dtype(h_u), number, self.n, self.m) # [number, n, m]
+        zeros_t = B.transpose(zeros) # [number, m, n]
+        # [number, n + m, n], [number, n + m, m]
+        l, r = B.concat(h_u, zeros_t, axis=-2), B.concat(zeros, h_d, axis=-2) 
+        res = B.concat(l, r, axis=-1) # [number, n + m, n + m]
         return key, res
 
 
 class GrassmannianEigenfunctions(CompactHomogeneousSpaceAddtitionTheorem):
-    def _compute_projected_character_value_at_e(self, signature):
+    def _compute_projected_character_value_at_e(self, signature) -> int:
         """
-        Value of character on class of identity element is equal to the dimension of invariant space
+        Value of character on class of identity element is equal to the dimension of invariant space.
         In case of grassmannian this value always equal to 1, since the space is symmetric.
-        :param signature:
-        :return: int
+        
+        :param signature: the signature of a representation
+        :return: value at e, the identity element
         """
+
         return 1
 
 
 class Grassmannian(CompactHomogeneousSpace):
-    r"""
-    Class for Grassmannian manifold as SO(n)/(SO(m)xSO(n-m))
-    Elements of manifold represented as nxm matrices, note that
+    """
+    Class for Grassmannian manifold Gr(n, m) as SO(n)/(SO(m) x SO(n-m))
+    Elements of manifold represented as n x m matrices, note that
     X and X x (SO(m) \oplus I_{n-m}) are representatives of the same element
     """
 
     def __new__(cls, n, m, key, average_order=1000):
+        """
+        :param n: the number of rows
+        :param m: the number of columns
+        :param key: random state used to sample from H
+        :param average_order: the number of random samples from H
+        :return: a tuple (new random state, a realization of Gr(n, m)) 
+        """
+
         assert n > m, "n should be greater than m"
         H = _SOxSO(m, n - m)
         G = SOGroup(n)
@@ -60,9 +81,23 @@ class Grassmannian(CompactHomogeneousSpace):
         return key, new_space
 
     def project_to_manifold(self, g):
+        """
+        Take first m columns of an orthogonal matrix.
+
+        :param g: [..., n, n] array of points in SO(n)
+        :return: [..., n, m] array of points in V(n, m)
+        """
+
         return g[..., : self.m]
 
     def embed_manifold(self, x):
+        """
+        Complete [n, m] matrix with orthogonal columns to an orthogonal [n, n] one using QR algorithm.
+
+        :param x: [..., n, m] array of points in V(n, m)
+        :return g: [..., n, n] array of points in SO(n)
+        """
+
         g, r = qr(x, mode="complete")
         r_diag = einsum("...ii->...i", r[..., : self.m, : self.m])
         r_diag = B.concat(
@@ -78,31 +113,12 @@ class Grassmannian(CompactHomogeneousSpace):
         return g
 
     def embed_stabilizer(self, h):
+        """
+        Embed SO(m) x SO(n-m) matrix into SO(n),
+        In case of grassmannian, it is identity.
+
+        :param h: [..., n, n] array of points in SO(m) x SO(n-m)
+        :return res: [..., n, n] array of points in SO(n)
+        """
+
         return h
-
-    @property
-    def dimension(self) -> int:
-        return self.dim
-
-    def get_eigenfunctions(self, num: int) -> CompactHomogeneousSpaceAddtitionTheorem:
-        """
-        :param num: number of eigenfunctions returned.
-        """
-        eigenfunctions = GrassmannianEigenfunctions(self, num, self.H_samples)
-        return eigenfunctions
-
-    def get_repeated_eigenvalues(self, num: int) -> B.Numeric:
-        pass
-
-    def get_eigenvalues(self, num: int) -> B.Numeric:
-        """
-        First `num` eigenvalues of the Laplace-Beltrami operator
-        :return: [num, 1] array containing the eigenvalues
-        """
-        eigenfunctions = GrassmannianEigenfunctions(self, num, self.H_samples)
-        eigenvalues = np.array(eigenfunctions._eigenvalues)
-        return B.reshape(eigenvalues, -1, 1)  # [num, 1]
-
-    def random(self, key, number):
-        key, raw_samples = self.G.random(key, number)
-        return key, self.project_to_manifold(raw_samples)

@@ -9,19 +9,32 @@ from geometric_kernels.spaces.eigenfunctions import (
     EigenfunctionWithAdditionTheorem,
 )
 from geometric_kernels.spaces.lie_groups import LieGroupCharacter, MatrixLieGroup
-
+from opt_einsum import contract as einsum
 
 class CompactHomogeneousSpaceAddtitionTheorem(EigenfunctionWithAdditionTheorem):
+    """
+    Class corresponding to the sum of eigenfunctions corresponding
+    to the same eigenspaces of Laplace-Beltrami operator on compact homogeneous space M=G/H
+    Eigenspaces coincide with eigenspaces of G, and the sums might be computed via averaging 
+    of characters of group G w.r.t. H
+
+    :math:`\chi_M(x) = \int_H \chi_G(xh)dh`
+
+    """
     def __init__(self, M, num_levels, H_samples):
+        """
+        :param M: CompactHomogeneousSpace 
+        :param num_levels int: number of eigenspaces
+        :param H_samples: samples from the uniform distribution on H  
+        """
         self.M = M
         self.dim = M.G.dim - M.H.dim
         self.G_n = M.G.n
-        self.H_samples = H_samples
+        
         self.H_samples = self.M.embed_stabilizer(H_samples)
         self.average_order = B.shape(H_samples)[0]
-        G_eigenfunctions = M.G.get_eigenfunctions(num_levels)
 
-        self.G_eigenfunctions = G_eigenfunctions
+        G_eigenfunctions = M.G.get_eigenfunctions(num_levels)
 
         self._signatures = G_eigenfunctions._signatures.copy()
         self._eigenvalues = np.copy(G_eigenfunctions._eigenvalues)
@@ -30,38 +43,63 @@ class CompactHomogeneousSpaceAddtitionTheorem(EigenfunctionWithAdditionTheorem):
             AveragedLieGroupCharacter(self.average_order, character)
             for character in G_eigenfunctions._characters
         ]
+
+        self.G_eigenfunctions = G_eigenfunctions
         self.G_torus_representative = G_eigenfunctions._torus_representative
         self.G_difference = G_eigenfunctions._difference
+        
         self._num_levels = num_levels
 
     # @abc.abstractmethod
-    def _compute_dimension(self, signature):
-        raise NotImplementedError
-
-    def _torus_representative(self, X):
-        """The function maps Lie Group Element X to T -- a maximal torus of the Lie group
-        [b, n, m] ---> [b, rank, h]"""
-        return self.G_eigenfunctions._torus_representative(X)
-
-    # @abc.abstractmethod
-    def inverse(self, X):
-        """The function that computes inverse element in the group"""
+    def _compute_projected_character_value_at_e(self, signature):
+        """
+        Value of character on class of identity element is equal to the dimension of invariant space
+        
+        :param signature:
+        :return: int
+        """
         raise NotImplementedError
 
     def _difference(self, X: B.Numeric, X2: B.Numeric) -> B.Numeric:
-        """X -- [a,n,m], X2 -- [b,n,m] --> [a,b,n,n]"""
+        """
+        Computes pairwise differences between points of the homogeneous space M embedded into G
+
+        :param X: [N, ...] an array of points in M
+        :param X2: [N2, ...] an array of points in M
+        :return: [N, N2, ...] an array of points in G
+        """
+
         g = self.M.embed_manifold(X)
         g2 = self.M.embed_manifold(X2)
         diff = self.G_difference(g, g2)
         return diff
 
     def _addition_theorem(self, X: B.Numeric, X2: B.Numeric, **parameters) -> B.Numeric:
-        diff = self._difference(X, X2)
-        diff = diff.reshape(X.shape[0] * X2.shape[0], self.G_n, self.G_n)
-        diff_h = self.G_difference(diff, self.H_samples)
-        torus_repr_diff = self.G_torus_representative(diff_h)
+        """
+        Returns the result of applying the additional theorem when
+        summing over all the eigenfunctions within a level, for each level
+        
+        To ensure that the resulting function is positive definite we average
+        both left and right shifts
+
+        :math:`\chi_X(g1,g2) \approx \frac{1}{S^2}\sum_{i=1}^S\sum_{j=1}^S \chi_G(h_i g2^{-1} g1 h_j)`
+        :param X: [N, ...]
+        :param X2: [N2, ...]
+        :param parameters: unused.
+        :return: Evaluate the sum of eigenfunctions on each level. Returns
+            a value for each level [N, N2, L]
+        """
+
+        # [N * N2, G_n, G_n]
+        diff = self._difference(X, X2).reshape(-1, self.G_n, self.G_n)
+        # [N * N2 * H_samples, G_n, G_n]
+        diff_h2 = self.G_difference(diff, self.H_samples).reshape(-1, self.G_n, self.G_n)
+        # [H_samples * N * N2 * H_samples, G_n, G_n]
+        h1_diff_h2 = self.G_difference(self.H_samples, diff_h2).reshape(-1, self.G_n, self.G_n)
+        # [H_samples * N * N2 * H_samples, T]
+        torus_repr = self.G_torus_representative(h1_diff_h2)
         values = [
-            (degree * chi(torus_repr_diff)[..., None]).reshape(
+            (degree * chi(torus_repr)[..., None]).reshape(
                 X.shape[0], X2.shape[0], 1
             )  # [N1, N2, 1]
             for degree, chi in zip(self._dimensions, self._characters)
@@ -72,17 +110,16 @@ class CompactHomogeneousSpaceAddtitionTheorem(EigenfunctionWithAdditionTheorem):
     def _addition_theorem_diag(self, X: B.Numeric, **parameters) -> B.Numeric:
         """
         Returns the sum of eigenfunctions on a level for which we have a simplified expression
-        :param X: [N, D]
+        
+        :param X: [N, ...]
         :param parameters: any additional parameters
         :return: Evaluate the sum of eigenfunctions on each level. Returns
             a value for each level [N, L]
         """
-        g = self.M.embed_manifold(X)
-        g_h = self._difference(g, self.H_samples)
-        torus_repr_X = self._torus_representative(g_h)
+
         values = [
-            degree * chi(torus_repr_X)  # [N, 1]
-            for chi, degree in zip(self._characters, self._dimensions)
+            degree * self._compute_projected_character_value_at_e(signature)  # [N, 1]
+            for signature, degree in zip(self._signatures, self._dimensions)
         ]
         return B.concat(*values, axis=1)  # [N, L]
 
@@ -100,8 +137,7 @@ class CompactHomogeneousSpaceAddtitionTheorem(EigenfunctionWithAdditionTheorem):
     def num_eigenfunctions_per_level(self) -> B.Numeric:
         """Number of eigenfunctions per level"""
         return [1] * self.num_levels
-        # raise NotImplementedError
-
+        
     def __call__(self, X: B.Numeric):
         gammas = self._torus_representative(X)
         res = []
@@ -112,30 +148,44 @@ class CompactHomogeneousSpaceAddtitionTheorem(EigenfunctionWithAdditionTheorem):
 
 
 class AveragedLieGroupCharacter(abc.ABC):
-    def __init__(self, average_order, character: LieGroupCharacter):
+    """
+    Sum of eigenfunctions is equal to the mean value of the character averaged over subgroup H.
+    To ensure that the function is positive definite we average from the both sides.
+
+    :math:`\chi_M(x) = \int_H\int_H (h_1 x h_2)`
+    """
+    def __init__(self, average_order: int, character: LieGroupCharacter):
+        """
+        :param average_order: the number of points sampled from H
+        param character: a character of a Lie group G.
+        """
         self.character = character
         self.average_order = average_order
 
-    def __call__(self, gammas_x_h):
-        character_x_h = B.reshape(self.character(gammas_x_h), -1, self.average_order)
-        avg_character_x = B.mean(character_x_h, axis=-1)
-        return avg_character_x
+    def __call__(self, gammas_h1_x_h2):
+        """ 
+        Compute characters from the torus embedding and then averages w.r.t. H.
+        :param gammas_h1_x_h2: [average_order*n*average_order, T]
+        """
+        character_h1_x_h2 = B.reshape(self.character(gammas_h1_x_h2), self.average_order, -1, self.average_order)
+        avg_character = einsum('ugv->g', character_h1_x_h2)/(self.average_order ** 2)
+        return avg_character
 
 
 class CompactHomogeneousSpace(DiscreteSpectrumSpace):
-    r"""
-    A Homogeneous Space of a Compact Lie Group, which is represented as M = G / H, where G is a Lie group,
-    and H is a stabilizer subgroup.
-
-    Examples of this class of spaces include Stiefel manifold (SO(n) / SO(n-m)).
+    """
+    Represents a compact homogeneous space X that are given as M=G/H, 
+    where G is a compact Lie group, H is a subgroup called stabilizer.
+        
+    Examples include Stiefel manifolds `SO(n) / SO(n-m)` and Grassmanians `SO(n)/(SO(m) x SO(n-m))`.
     """
 
     def __init__(self, G: MatrixLieGroup, H, H_samples, average_order):
         """
-        :param G: Lie group.
+        :param G: A Lie group.
         :param H: stabilizer subgroup.
-        :param H_samples: random samples from the stabilizer.
-        :param average_order: average order.
+        :param H_samples: random samples from the stabilizer
+        :param average_order: average order
         """
         self.G = G
         self.H = H
@@ -145,14 +195,34 @@ class CompactHomogeneousSpace(DiscreteSpectrumSpace):
 
     @abc.abstractmethod
     def project_to_manifold(self, g):
+        """
+        Represents map \pi: G \mapsto X projecting elements of G onto X,
+        e.g. \pi sends O \in SO(n) ([n,n] shape) to \pi(O) \in St(n,m) ([n,m] shape)
+        by taking first m columns.
+
+        :param g: [N, ...] array of points in G
+        :return: [N, ...] array of points in M
+        """
         raise NotImplementedError
 
     @abc.abstractmethod
     def embed_manifold(self, x):
+        """
+        Inverse to the function \pi, i.e. for given x \in X finds g such that \pi(g) = x.
+
+        :param x: [N, ...] array of points in M
+        :return: [N, ...] array of points in G 
+        """
         raise NotImplementedError
 
     @abc.abstractmethod
     def embed_stabilizer(self, h):
+        """
+        Embed subgroup H into G.
+        
+        :param h: [N, ...] array of points in H
+        :return: [N, ...] array of points in G
+        """
         raise NotImplementedError
 
     @property
@@ -170,7 +240,8 @@ class CompactHomogeneousSpace(DiscreteSpectrumSpace):
 
     def get_eigenvalues(self, num: int) -> B.Numeric:
         """
-        First `num` eigenvalues of the Laplace-Beltrami operator
+        First `num` eigenvalues of the Laplace-Beltrami operator.
+
         :return: [num, 1] array containing the eigenvalues
         """
         eigenfunctions = CompactHomogeneousSpaceAddtitionTheorem(
@@ -179,6 +250,13 @@ class CompactHomogeneousSpace(DiscreteSpectrumSpace):
         eigenvalues = np.array(eigenfunctions._eigenvalues)
         return B.reshape(eigenvalues, -1, 1)  # [num, 1]
 
-    def random(self, key, number):
+    def random(self, key, number: int):
+        """
+        Samples random points from the uniform distribution on M.
+
+        :param key: a random state
+        :param number: a number of random to generate
+        :return [number, ...] an array of randomly generated points
+        """
         key, raw_samples = self.g.rand(key, number)
         return key, self.project_to_manifold(raw_samples)

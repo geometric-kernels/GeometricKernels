@@ -31,6 +31,7 @@ class StiefelEigenfunctions(CompactHomogeneousSpaceAddtitionTheorem):
         :param signature:
         :return: int
         """
+        
         m_ = min(self.M.m, self.M.n - self.M.m)
         if m_ < self.M.G.rank and signature[m_] > 0:
             return 0
@@ -39,11 +40,20 @@ class StiefelEigenfunctions(CompactHomogeneousSpaceAddtitionTheorem):
 
 
 class Stiefel(CompactHomogeneousSpace):
-    r"""
-    Stifiel manifold V(n, m) = SO(n) / SO(n-m).
+    """
+    Stifiel manifold `V(n, m) = SO(n) / SO(n-m)`.
+    V(n, m) is represented as n x m matricies with orthogonal columns
     """
 
-    def __new__(cls, n, m, key, average_order=1000):
+    def __new__(cls, n: int, m: int, key, average_order: int =1000):
+        """
+        :param n: the number of rows
+        :param m: the number of columns
+        :param key: random state used to sample from H
+        :param average_order: the number of random samples from H
+        :return: a tuple (new random state, a realization of V(n, m)) 
+        """
+
         assert n > m, "n should be greater than m"
         H = SOGroup(n - m)
         G = SOGroup(n)
@@ -56,9 +66,23 @@ class Stiefel(CompactHomogeneousSpace):
         return key, new_space
 
     def project_to_manifold(self, g):
+        """
+        Take first m columns of an orthogonal matrix.
+
+        :param g: [..., n, n] array of points in SO(n)
+        :return: [..., n, m] array of points in V(n, m)
+        """
+
         return g[..., : self.m]
 
     def embed_manifold(self, x):
+        """
+        Complete [n, m] matrix with orthogonal columns to an orthogonal [n, n] one using QR algorithm.
+
+        :param x: [..., n, m] array of points in V(n, m)
+        :return g: [..., n, n] array of points in SO(n)
+        """
+
         g, r = qr(x, mode="complete")
         r_diag = einsum("...ii->...i", r[..., : self.m, : self.m])
         r_diag = B.concat(
@@ -74,8 +98,16 @@ class Stiefel(CompactHomogeneousSpace):
         return g
 
     def embed_stabilizer(self, h):
-        zeros = B.zeros(B.dtype(h), *h.shape[:-2], self.m, self.n - self.m)
-        zeros_t = B.transpose(zeros)
+        """
+        Embed SO(n-m) matrix into SO(n) adding ones on diagonal,
+        i.e. i(h) = [[h, 0], [0, 1]].
+
+        :param h: [..., n-m, n-m] array of points in SO(n-m)
+        :return res: [..., n, n] array of points in SO(n)
+        """
+
+        zeros = B.zeros(B.dtype(h), *h.shape[:-2], self.m, self.n - self.m) # [m, n - m]
+        zeros_t = B.transpose(zeros) # [n - m, m]
         eye = B.tile(
             B.eye(B.dtype(h), self.m, self.m).reshape(
                 *([1] * (len(h.shape) - 2)), self.m, self.m
@@ -83,34 +115,7 @@ class Stiefel(CompactHomogeneousSpace):
             *h.shape[:-2],
             1,
             1,
-        )
-        l, r = B.concat(eye, zeros_t, axis=-2), B.concat(zeros, h, axis=-2)
-        res = B.concat(l, r, axis=-1)
+        ) # [..., m, m]
+        l, r = B.concat(eye, zeros_t, axis=-2), B.concat(zeros, h, axis=-2) # [..., n, m], [..., n, n - m]
+        res = B.concat(l, r, axis=-1) # [..., n, n]
         return res
-
-    @property
-    def dimension(self) -> int:
-        return self.dim
-
-    def get_eigenfunctions(self, num: int) -> CompactHomogeneousSpaceAddtitionTheorem:
-        """
-        :param num: number of eigenfunctions returned.
-        """
-        eigenfunctions = StiefelEigenfunctions(self, num, self.H_samples)
-        return eigenfunctions
-
-    def get_repeated_eigenvalues(self, num: int) -> B.Numeric:
-        pass
-
-    def get_eigenvalues(self, num: int) -> B.Numeric:
-        """
-        First `num` eigenvalues of the Laplace-Beltrami operator
-        :return: [num, 1] array containing the eigenvalues
-        """
-        eigenfunctions = StiefelEigenfunctions(self, num, self.H_samples)
-        eigenvalues = np.array(eigenfunctions._eigenvalues)
-        return B.reshape(eigenvalues, -1, 1)  # [num, 1]
-
-    def random(self, key, number):
-        key, raw_samples = self.G.random(key, number)
-        return key, self.project_to_manifold(raw_samples)
