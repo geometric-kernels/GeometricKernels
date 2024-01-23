@@ -112,7 +112,6 @@ class SOEigenfunctions(WeylAddtitionTheorem):
     def _torus_representative(self, X):
         r"""
         The function maps Lie Group Element X to T -- a maximal torus of the Lie group
-        [n1,n2,\ldots, nk,X, X] ---> [n1,n2,\ldots,nk,X, X]
         """
         gamma = None
 
@@ -156,15 +155,6 @@ class SOEigenfunctions(WeylAddtitionTheorem):
 
     def inverse(self, X: B.Numeric) -> B.Numeric:
         return B.transpose(X)
-
-    def num_levels(self) -> int:
-        """Number of levels, L"""
-        return self._num_levels
-
-    @property
-    def num_eigenfunctions_per_level(self) -> int:
-        """Number of eigenfunctions per level"""
-        return self._dimensions
 
 
 class SOCharacter(LieGroupCharacter):
@@ -224,7 +214,7 @@ class SOGroup(MatrixLieGroup):
 
     def get_eigenvalues(self, num: int) -> B.Numeric:
         """
-        First `num` eigenvalues of the Laplace-Beltrami operator
+        Eigenvalues of first 'num' levels of the Laplace-Beltrami operator.
 
         :return: [num, 1] array containing the eigenvalues
         """
@@ -244,7 +234,7 @@ class SOGroup(MatrixLieGroup):
         eigenvalues = np.array(
             itertools.chain(
                 [
-                    [eigenfunction] * dim
+                    [eigenfunction] * dim**2
                     for eigenfunction, dim in zip(
                         eigenfunctions._eigenvalues, eigenfunctions._dimensions
                     )

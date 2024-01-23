@@ -87,7 +87,7 @@ class WeylAddtitionTheorem(EigenfunctionWithAdditionTheorem):
         diff = self._difference(X, X2)
         torus_repr_diff = self._torus_representative(diff)
         values = [
-            degree * chi(torus_repr_diff)[..., None]  # [N1, N2, 1]
+            degree**2 * chi(torus_repr_diff)[..., None]  # [N1, N2, 1]
             for chi, degree in zip(self._characters, self._dimensions)
         ]
         return B.concat(*values, axis=-1)  # [N, N2, L]
@@ -102,7 +102,7 @@ class WeylAddtitionTheorem(EigenfunctionWithAdditionTheorem):
         """
         torus_repr_X = self._torus_representative(X)  # TODO: fixme
         values = [
-            degree * chi(torus_repr_X)  # [N, 1]
+            degree**2 * chi(torus_repr_X)  # [N, 1]
             for chi, degree in zip(self._characters, self._dimensions)
         ]
         return B.concat(*values, axis=1)  # [N, L]
@@ -120,7 +120,7 @@ class WeylAddtitionTheorem(EigenfunctionWithAdditionTheorem):
     @property
     def num_eigenfunctions_per_level(self) -> B.Numeric:
         """Number of eigenfunctions per level"""
-        raise NotImplementedError
+        return self._dimensions ** 2
 
     def __call__(self, X: B.Numeric):
         gammas = self._torus_representative(X)
@@ -146,20 +146,20 @@ class MatrixLieGroup(DiscreteSpectrumSpace):
     def dimension(self) -> int:
         return self.dim
 
-    def get_eigenfunctions(self, num: int) -> Eigenfunctions:
+    def get_eigenfunctions(self, num: int) -> WeylAdditionTheorem:
         """
         :param num: number of eigenfunctions returned.
         """
-        return WeylAddtitionTheorem(self.n, num)
+        raise NotImplementedError
 
     def get_eigenvalues(self, num: int) -> B.Numeric:
         """
-        First `num` eigenvalues of the Laplace-Beltrami operator
-        :return: [num, 1] array containing the eigenvalues
+        Eigenvalues corresponding to the first `num` levels.
+        :return: [num, 1]  array containing the eigenvalues
         """
         eigenfunctions = WeylAddtitionTheorem(self.n, num)
         eigenvalues = np.array(eigenfunctions._eigenvalues)
-        return B.reshape(eigenvalues, -1, 1)  # [num, 1]
+        return B.reshape(eigenvalues, -1, 1)  # [m, 1]
 
     def random(self, number):
         raise NotImplementedError

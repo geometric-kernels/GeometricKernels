@@ -155,7 +155,7 @@ class SUGroup(MatrixLieGroup):
 
     def get_eigenvalues(self, num: int) -> B.Numeric:
         """
-        First `num` eigenvalues of the Laplace-Beltrami operator
+        Eigenvalues of first 'num' levels of the Laplace-Beltrami operator.
 
         :return: [num, 1] array containing the eigenvalues
         """
@@ -175,7 +175,7 @@ class SUGroup(MatrixLieGroup):
         eigenvalues = np.array(
             itertools.chain(
                 [
-                    [eigenfunction] * dim
+                    [eigenfunction] * dim**2
                     for eigenfunction, dim in zip(
                         eigenfunctions._eigenvalues, eigenfunctions._dimensions
                     )
