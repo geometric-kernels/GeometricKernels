@@ -29,6 +29,9 @@ class WeylAddtitionTheorem(EigenfunctionWithAdditionTheorem):
     def _generate_signatures(self, num_levels):
         """
         Generate signatures corresponding to `num_levels` representations.
+
+        A signature determines a character (see `_compute_character` method) and an eigenvalue
+        (`_compute_eigenvalue`).
         """
         raise NotImplementedError
 
@@ -55,16 +58,22 @@ class WeylAddtitionTheorem(EigenfunctionWithAdditionTheorem):
 
     @abc.abstractmethod
     def _torus_representative(self, X):
-        """The function maps Lie Group Element X to T -- a maximal torus of the Lie group
-        [b, n, n] ---> [b, rank]"""
+        """The function maps a Lie Group element `X` to T -- a maximal torus of the Lie group.
+
+        :param X: [b, n, n]
+        :return: [b, rank]. `rank` is the dimension of maximal tori."""
         raise NotImplementedError
 
     def inverse(self, X):
-        """The function that computes inverse element in the group"""
+        """Computes inverse element in the group"""
         raise NotImplementedError
 
     def _difference(self, X: B.Numeric, X2: B.Numeric) -> B.Numeric:
-        """X -- [a,n,n], X2 -- [b,n,n] --> [a,b,n,n]"""
+        """Pairwise difference (in the group sense) between elements `X` and `X2`.
+
+        :param X: [a, n, n]
+        :param X2: [b, n, n]
+        :return: [a, b, n, n]"""
         X2_inv = self.inverse(X2)
         X_ = B.tile(X[..., None, :, :], 1, X2_inv.shape[0], 1, 1)  # (a, b, n, n)
         X2_inv_ = B.tile(X2_inv[None, ..., :, :], X.shape[0], 1, 1, 1)  # (a, b, n, n)
@@ -91,7 +100,7 @@ class WeylAddtitionTheorem(EigenfunctionWithAdditionTheorem):
         :return: Evaluate the sum of eigenfunctions on each level. Returns
             a value for each level [N, L]
         """
-        torus_repr_X = self._torus_representative(X)
+        torus_repr_X = self._torus_representative(X)  # TODO: fixme
         values = [
             degree * chi(torus_repr_X)  # [N, 1]
             for chi, degree in zip(self._characters, self._dimensions)
