@@ -14,6 +14,7 @@ class _SOxSO:
     """Helper class for sampling. Represents SO(n) x SO(m), as described by
     :math:`(n+m) \times (n+m)` block-diagonal matrices.
     """
+
     def __init__(self, n: int, m: int):
         self.n, self.m = n, m
         self.so_n = SOGroup(n)
@@ -21,7 +22,7 @@ class _SOxSO:
         self.dim = self.so_n.dim + self.so_m.dim
 
     def random(self, key, number):
-        """"Randomly samples `number` matrices of size
+        """Randomly samples `number` matrices of size
         :math:`(n+m)\times(n+m)`.
 
         Each sample has a form of `[[H_n, 0], [0, H_m]]`.
@@ -31,16 +32,16 @@ class _SOxSO:
         """
         key, h_u = self.so_n.random(key, number)  # [number, n, n]
         key, h_d = self.so_m.random(key, number)  # [number, m, m]
-        zeros = B.zeros(B.dtype(h_u), number, self.n, self.m)   # [number, n, m]
+        zeros = B.zeros(B.dtype(h_u), number, self.n, self.m)  # [number, n, m]
         zeros_t = B.transpose(zeros)
 
-        # [number, n + m, n], [number, n + m, m]        
+        # [number, n + m, n], [number, n + m, m]
         l, r = B.concat(h_u, zeros_t, axis=-2), B.concat(zeros, h_d, axis=-2)
-        res = B.concat(l, r, axis=-1)  # [number, n + m, n + m]  
+        res = B.concat(l, r, axis=-1)  # [number, n + m, n + m]
         return key, res
 
 
-class GrassmannianEigenfunctions(CompactHomogeneousSpaceAddtitionTheorem):
+class GrassmannianEigenfunctions(AveragingAdditionTheorem):
     def _compute_projected_character_value_at_e(self, signature) -> int:
         """
         Value of character on class of identity element is equal to the dimension of invariant space.
@@ -147,9 +148,6 @@ class Grassmannian(CompactHomogeneousSpace):
         eigenvalues = np.array(eigenfunctions._eigenvalues)
         return B.reshape(eigenvalues, -1, 1)  # [num, 1]
 
-        return h
-
     def random(self, key, number):
         key, raw_samples = self.G.random(key, number)
         return key, self.project_to_manifold(raw_samples)
-        

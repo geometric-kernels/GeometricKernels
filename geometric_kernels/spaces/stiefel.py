@@ -45,13 +45,13 @@ class Stiefel(CompactHomogeneousSpace):
     V(n, m) is represented as n x m matricies with orthogonal columns
     """
 
-    def __new__(cls, n: int, m: int, key, average_order: int =1000):
+    def __new__(cls, n: int, m: int, key, average_order: int = 1000):
         """
         :param n: the number of rows
         :param m: the number of columns
         :param key: random state used to sample from H
         :param average_order: the number of random samples from H
-        :return: a tuple (new random state, a realization of V(n, m)) 
+        :return: a tuple (new random state, a realization of V(n, m))
         """
 
         assert n > m, "n should be greater than m"
@@ -106,8 +106,10 @@ class Stiefel(CompactHomogeneousSpace):
         :return res: [..., n, n] array of points in SO(n)
         """
 
-        zeros = B.zeros(B.dtype(h), *h.shape[:-2], self.m, self.n - self.m) # [m, n - m]
-        zeros_t = B.transpose(zeros) # [n - m, m]
+        zeros = B.zeros(
+            B.dtype(h), *h.shape[:-2], self.m, self.n - self.m
+        )  # [m, n - m]
+        zeros_t = B.transpose(zeros)  # [n - m, m]
         eye = B.tile(
             B.eye(B.dtype(h), self.m, self.m).reshape(
                 *([1] * (len(h.shape) - 2)), self.m, self.m
@@ -115,9 +117,10 @@ class Stiefel(CompactHomogeneousSpace):
             *h.shape[:-2],
             1,
             1,
-        ) # [..., m, m]
-        l, r = B.concat(eye, zeros_t, axis=-2), B.concat(zeros, h, axis=-2) # [..., n, m], [..., n, n - m]
-        res = B.concat(l, r, axis=-1) # [..., n, n]
+        )  # [..., m, m]
+        left = B.concat(eye, zeros_t, axis=-2)  # [..., n, m]
+        right = B.concat(zeros, h, axis=-2)  # [..., n, n - m]
+        res = B.concat(left, right, axis=-1)  # [..., n, n]
         return res
 
     @property
@@ -146,4 +149,3 @@ class Stiefel(CompactHomogeneousSpace):
     def random(self, key, number):
         key, raw_samples = self.G.random(key, number)
         return key, self.project_to_manifold(raw_samples)
-
