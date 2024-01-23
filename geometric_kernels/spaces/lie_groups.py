@@ -11,7 +11,7 @@ from geometric_kernels.spaces.eigenfunctions import (
 
 
 class WeylAddtitionTheorem(EigenfunctionWithAdditionTheorem):
-    def __init__(self, n, num_levels, init_eigenfunctions=True):
+    def __init__(self, n, num_levels, compute_characters=True):
         self._num_levels = num_levels
         self._signatures = self._generate_signatures(self._num_levels)
         self._eigenvalues = np.array(
@@ -20,7 +20,7 @@ class WeylAddtitionTheorem(EigenfunctionWithAdditionTheorem):
         self._dimensions = np.array(
             [self._compute_dimension(signature) for signature in self._signatures]
         )
-        if init_eigenfunctions:
+        if compute_characters:
             self._characters = [
                 self._compute_character(n, signature) for signature in self._signatures
             ]

@@ -25,14 +25,14 @@ from geometric_kernels.spaces.lie_groups import (
 
 
 class SUEigenfunctions(WeylAddtitionTheorem):
-    def __init__(self, n, num_levels, init_eigenfunctions=True):
+    def __init__(self, n, num_levels, compute_characters=True):
         self.n = n
         self.dim = n * (n - 1)
         self.rank = n - 1
 
         self.rho = np.arange(self.n - 1, -self.n, -2) * 0.5
 
-        super().__init__(n, num_levels)
+        super().__init__(n, num_levels, compute_characters)
 
     def _generate_signatures(self, num_levels):
         """

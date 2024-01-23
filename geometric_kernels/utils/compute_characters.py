@@ -278,7 +278,7 @@ if __name__ == "__main__":
     for name, n, eigenfunctions_class in groups:
         group_name = "{}({})".format(name.__name__, n)
         print(group_name)
-        eigenfunctions = eigenfunctions_class(order, n, init_eigenfunctions=False)
+        eigenfunctions = eigenfunctions_class(order, n, compute_characters=False)
         if recalculate or (not recalculate and group_name not in characters):
             characters[group_name] = {}
         for signature in eigenfunctions._signatures:

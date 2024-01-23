@@ -19,7 +19,7 @@ from geometric_kernels.utils.utils import fixed_length_partitions
 
 
 class SOEigenfunctions(WeylAddtitionTheorem):
-    def __init__(self, n, num_levels, init_eigenfunctions=True):
+    def __init__(self, n, num_levels, compute_characters=True):
         self.n = n
         self.dim = n * (n - 1) // 2
         self.rank = n // 2
@@ -29,7 +29,7 @@ class SOEigenfunctions(WeylAddtitionTheorem):
         else:
             self.rho = np.arange(self.rank - 1, -1, -1) + 0.5
 
-        super().__init__(n, num_levels)
+        super().__init__(n, num_levels, compute_characters)
 
     def _generate_signatures(self, num_levels):
         """
