@@ -4,8 +4,8 @@ from opt_einsum import contract as einsum
 
 from geometric_kernels.lab_extras import qr
 from geometric_kernels.spaces.homogeneous_spaces import (
-    CompactHomogeneousSpace,
     AveragingAdditionTheorem,
+    CompactHomogeneousSpace,
 )
 from geometric_kernels.spaces.so import SOGroup
 

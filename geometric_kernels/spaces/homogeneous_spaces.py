@@ -2,6 +2,7 @@ import abc
 
 import lab as B
 import numpy as np
+from opt_einsum import contract as einsum
 
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import (
@@ -9,7 +10,6 @@ from geometric_kernels.spaces.eigenfunctions import (
     EigenfunctionWithAdditionTheorem,
 )
 from geometric_kernels.spaces.lie_groups import LieGroupCharacter, MatrixLieGroup
-from opt_einsum import contract as einsum
 
 
 class AveragingAdditionTheorem(EigenfunctionWithAdditionTheorem):

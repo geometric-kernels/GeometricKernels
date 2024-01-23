@@ -11,9 +11,9 @@ from opt_einsum import contract as einsum
 
 from geometric_kernels.lab_extras import dtype_double, from_numpy, qr, take_along_axis
 from geometric_kernels.spaces.lie_groups import (
-    WeylAddtitionTheorem,
     LieGroupCharacter,
     MatrixLieGroup,
+    WeylAddtitionTheorem,
 )
 from geometric_kernels.utils.utils import fixed_length_partitions
 

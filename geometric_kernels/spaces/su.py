@@ -18,9 +18,9 @@ from geometric_kernels.lab_extras import (
 )
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 from geometric_kernels.spaces.lie_groups import (
-    WeylAddtitionTheorem,
     LieGroupCharacter,
     MatrixLieGroup,
+    WeylAddtitionTheorem,
 )
 
 
