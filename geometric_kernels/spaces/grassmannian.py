@@ -45,10 +45,10 @@ class GrassmannianEigenfunctions(AveragingAdditionTheorem):
     def _compute_projected_character_value_at_e(self, signature) -> int:
         """
         Value of character on class of identity element is equal to the dimension of invariant space.
-        In case of grassmannian this value always equal to 1, since the space is symmetric.
+        In case of the Grassmannian this value always equal to 1, since the space is symmetric.
 
-        :param signature: the signature of a representation
-        :return: value at e, the identity element
+        :param signature: the signature of a representation.
+        :return: value at e, the identity element.
         """
 
         return 1
@@ -118,7 +118,7 @@ class Grassmannian(CompactHomogeneousSpace):
     def embed_stabilizer(self, h):
         """
         Embed SO(m) x SO(n-m) matrix into SO(n),
-        In case of grassmannian, this is an identity mapping.
+        In case of the Grassmannian, this is an identity mapping.
 
         :param h: [..., n, n] array of points in SO(m) x SO(n-m)
         :return: [..., n, n] array of points in SO(n)

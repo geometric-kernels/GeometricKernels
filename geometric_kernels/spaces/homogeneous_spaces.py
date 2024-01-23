@@ -245,7 +245,8 @@ class CompactHomogeneousSpace(DiscreteSpectrumSpace):
 
     def get_eigenvalues(self, num: int) -> B.Numeric:
         """
-        First `num` eigenvalues of the Laplace-Beltrami operator.
+        Eigenvalues corresponding to the first `num` eigenspaces
+        of the Laplace-Beltrami operator.
 
         :return: [num, 1] array containing the eigenvalues
         """
