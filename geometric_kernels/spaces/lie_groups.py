@@ -4,13 +4,10 @@ import lab as B
 import numpy as np
 
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
-from geometric_kernels.spaces.eigenfunctions import (
-    Eigenfunctions,
-    EigenfunctionWithAdditionTheorem,
-)
+from geometric_kernels.spaces.eigenfunctions import EigenfunctionWithAdditionTheorem
 
 
-class WeylAddtitionTheorem(EigenfunctionWithAdditionTheorem):
+class WeylAdditionTheorem(EigenfunctionWithAdditionTheorem):
     def __init__(self, n, num_levels, compute_characters=True):
         self._num_levels = num_levels
         self._signatures = self._generate_signatures(self._num_levels)
@@ -120,7 +117,7 @@ class WeylAddtitionTheorem(EigenfunctionWithAdditionTheorem):
     @property
     def num_eigenfunctions_per_level(self) -> B.Numeric:
         """Number of eigenfunctions per level"""
-        return self._dimensions ** 2
+        return self._dimensions**2
 
     def __call__(self, X: B.Numeric):
         gammas = self._torus_representative(X)
@@ -157,7 +154,7 @@ class MatrixLieGroup(DiscreteSpectrumSpace):
         Eigenvalues corresponding to the first `num` levels.
         :return: [num, 1]  array containing the eigenvalues
         """
-        eigenfunctions = WeylAddtitionTheorem(self.n, num)
+        eigenfunctions = WeylAdditionTheorem(self.n, num)
         eigenvalues = np.array(eigenfunctions._eigenvalues)
         return B.reshape(eigenvalues, -1, 1)  # [m, 1]
 

@@ -20,11 +20,11 @@ from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 from geometric_kernels.spaces.lie_groups import (
     LieGroupCharacter,
     MatrixLieGroup,
-    WeylAddtitionTheorem,
+    WeylAdditionTheorem,
 )
 
 
-class SUEigenfunctions(WeylAddtitionTheorem):
+class SUEigenfunctions(WeylAdditionTheorem):
     def __init__(self, n, num_levels, compute_characters=True):
         self.n = n
         self.dim = n * (n - 1)

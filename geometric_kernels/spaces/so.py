@@ -13,12 +13,12 @@ from geometric_kernels.lab_extras import dtype_double, from_numpy, qr, take_alon
 from geometric_kernels.spaces.lie_groups import (
     LieGroupCharacter,
     MatrixLieGroup,
-    WeylAddtitionTheorem,
+    WeylAdditionTheorem,
 )
 from geometric_kernels.utils.utils import fixed_length_partitions
 
 
-class SOEigenfunctions(WeylAddtitionTheorem):
+class SOEigenfunctions(WeylAdditionTheorem):
     def __init__(self, n, num_levels, compute_characters=True):
         self.n = n
         self.dim = n * (n - 1) // 2
