@@ -55,7 +55,7 @@ def test_compact_lie_groups(group_cls, n, order, dtype):
     conjugates = np.matmul(np.matmul(gs, xs), group.inverse(gs))
 
     conj_gammas = eigenfunctions._torus_representative(conjugates)
-    xs_gammas = eigenfunctions._torus_representative(conjugates)
+    xs_gammas = eigenfunctions._torus_representative(xs)
     for chi in eigenfunctions._characters:
         chi_vals_xs = chi(xs_gammas)
         chi_vals_conj = chi(conj_gammas)
