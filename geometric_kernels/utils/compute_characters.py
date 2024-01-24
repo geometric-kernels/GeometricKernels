@@ -20,7 +20,7 @@ recalculate = False
 storage_file_name = "../spaces/precomputed_characters.json"
 
 # the number of representations to be calculated for each group
-order = 20
+order = 25
 
 groups = [
     ("SO", 3, SOEigenfunctions),
@@ -29,11 +29,24 @@ groups = [
     ("SO", 6, SOEigenfunctions),
     ("SO", 7, SOEigenfunctions),
     ("SO", 8, SOEigenfunctions),
+    ("SO", 9, SOEigenfunctions),
+    ("SO", 10, SOEigenfunctions),
+    ("SU", 3, SUEigenfunctions),
+    ("SU", 4, SUEigenfunctions),
+    ("SU", 5, SUEigenfunctions),
+    ("SU", 6, SUEigenfunctions),
+    ("SU", 7, SUEigenfunctions),
+    ("SU", 8, SUEigenfunctions),
+    ("SU", 9, SUEigenfunctions),
+    ("SU", 10, SUEigenfunctions),
 ]
 
 
 class CompactJSONEncoder(json.JSONEncoder):
-    """A JSON Encoder that puts small containers on single lines."""
+    """A JSON Encoder that puts small containers on single lines.
+
+    Source (probably):  https://gist.github.com/jannismain/e96666ca4f059c3e5bc28abb711b5c92.
+    """
 
     CONTAINER_TYPES = (list, tuple, dict)
     """Container datatypes include primitives or other containers."""
@@ -111,6 +124,7 @@ class CompactJSONEncoder(json.JSONEncoder):
 
 
 def compute_character_formula_so(self, signature):
+    """Refer to the appendix of https://arxiv.org/pdf/2208.14960.pdf"""
     n = self.n
     rank = self.rank
     gammas = sympy.symbols(" ".join("g{}".format(i + 1) for i in range(rank)))
@@ -168,8 +182,8 @@ def compute_character_formula_so(self, signature):
         if pm:
             numer += (1 if pm > 0 else -1) * xi1(qs)
         denom = xi0(list(reversed(range(rank))))
-    partition = tuple(map(abs, self.representation.index)) + tuple(
-        [0] * self.representation.manifold.rank
+    partition = tuple(map(abs, signature)) + tuple(
+        [0] * self.rank
     )
     monomials_tuples = itertools.chain.from_iterable(
         more_itertools.distinct_permutations(p)
@@ -226,10 +240,11 @@ def compute_character_formula_so(self, signature):
     return coeffs, monoms
 
 
-def compute_character_formula_su(self):
-    n = self.representation.manifold.n
+def compute_character_formula_su(self, signature):
+    """Refer to the appendix of https://arxiv.org/pdf/2208.14960.pdf"""
+    n = self.n
     gammas = sympy.symbols(" ".join("g{}".format(i) for i in range(1, n + 1)))
-    qs = [pk + n - k - 1 for k, pk in enumerate(self.representation.index)]
+    qs = [pk + n - k - 1 for k, pk in enumerate(signature)]
     numer_mat = sympy.Matrix(n, n, lambda i, j: gammas[i] ** qs[j])
     numer = sympy.Poly(sp_det(numer_mat, method="berkowitz"))
     denom = sympy.Poly(
@@ -240,7 +255,7 @@ def compute_character_formula_su(self):
     monomials_tuples = list(
         itertools.chain.from_iterable(
             more_itertools.distinct_permutations(p)
-            for p in partition_dominance_cone(self.representation.index)
+            for p in partition_dominance_cone(signature)
         )
     )
     monomials = [
@@ -276,7 +291,7 @@ if __name__ == "__main__":
             characters = json.load(file)
 
     for name, n, eigenfunctions_class in groups:
-        group_name = "{}({})".format(name.__name__, n)
+        group_name = "{}({})".format(name, n)
         print(group_name)
         eigenfunctions = eigenfunctions_class(order, n, compute_characters=False)
         if recalculate or (not recalculate and group_name not in characters):
@@ -285,9 +300,9 @@ if __name__ == "__main__":
             if str(signature) not in characters[group_name]:
                 sys.stdout.write("{}: ".format(str(signature)))
                 if isinstance(eigenfunctions, SOEigenfunctions):
-                    coeffs, monoms = compute_character_formula_so(signature)
+                    coeffs, monoms = compute_character_formula_so(eigenfunctions, signature)
                 elif isinstance(eigenfunctions, SUEigenfunctions):
-                    coeffs, monoms = compute_character_formula_su(signature)
+                    coeffs, monoms = compute_character_formula_su(eigenfunctions, signature)
                 print(coeffs, monoms)
                 characters[group_name][str(signature)] = (coeffs, monoms)
 
