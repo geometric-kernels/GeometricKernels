@@ -182,9 +182,7 @@ def compute_character_formula_so(self, signature):
         if pm:
             numer += (1 if pm > 0 else -1) * xi1(qs)
         denom = xi0(list(reversed(range(rank))))
-    partition = tuple(map(abs, signature)) + tuple(
-        [0] * self.rank
-    )
+    partition = tuple(map(abs, signature)) + tuple([0] * self.rank)
     monomials_tuples = itertools.chain.from_iterable(
         more_itertools.distinct_permutations(p)
         for p in partition_dominance_or_subpartition_cone(partition)
@@ -300,9 +298,13 @@ if __name__ == "__main__":
             if str(signature) not in characters[group_name]:
                 sys.stdout.write("{}: ".format(str(signature)))
                 if isinstance(eigenfunctions, SOEigenfunctions):
-                    coeffs, monoms = compute_character_formula_so(eigenfunctions, signature)
+                    coeffs, monoms = compute_character_formula_so(
+                        eigenfunctions, signature
+                    )
                 elif isinstance(eigenfunctions, SUEigenfunctions):
-                    coeffs, monoms = compute_character_formula_su(eigenfunctions, signature)
+                    coeffs, monoms = compute_character_formula_su(
+                        eigenfunctions, signature
+                    )
                 print(coeffs, monoms)
                 characters[group_name][str(signature)] = (coeffs, monoms)
 

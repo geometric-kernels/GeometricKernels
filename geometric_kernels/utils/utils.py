@@ -102,11 +102,12 @@ def ordered_pairwise_differences(X):
 
 def fixed_length_partitions(n, L):  # noqa: C901
     """
+    Developed by D. Eppstein in 2005, taken from
     https://www.ics.uci.edu/~eppstein/PADS/IntegerPartitions.py
+
     Integer partitions of n into L parts, in colex order.
     The algorithm follows Knuth v4 fasc3 p38 in rough outline;
-    Knuth credits it
-     to Hindenburg, 1779.
+    Knuth credits it to Hindenburg, 1779.
     """
 
     # guard against special cases
