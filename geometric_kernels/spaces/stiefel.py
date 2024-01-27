@@ -11,6 +11,9 @@ from geometric_kernels.spaces.so import SOGroup
 
 
 def hook_content_formula(lmd, n):
+    """
+    A combinatorial formula used to calculate the dimension of invariant space of the Stiefeld manifold (among other things).
+    """
     numer = 1
     denom = 1
 
@@ -26,9 +29,9 @@ def hook_content_formula(lmd, n):
 class StiefelEigenfunctions(AveragingAdditionTheorem):
     def _compute_projected_character_value_at_e(self, signature):
         """
-        Value of character on class of identity element is equal to the dimension of invariant space
-        In case of Stiefel manifold it could be computed using hook content formula
-        :param signature:
+        Value of character on class of identity element is equal to the dimension of invariant space.
+        In case of Stiefel manifold it could be computed using the hook-content formula.
+        :param signature: the character signature
         :return: int
         """
 
@@ -40,18 +43,19 @@ class StiefelEigenfunctions(AveragingAdditionTheorem):
 
 
 class Stiefel(CompactHomogeneousSpace):
-    """
+    r"""
     Stifiel manifold `V(n, m) = SO(n) / SO(n-m)`.
-    V(n, m) is represented as n x m matricies with orthogonal columns
+
+    `V(n, m)` is represented as :math:`n \times m` matricies with orthogonal columns.
     """
 
     def __new__(cls, n: int, m: int, key, average_order: int = 1000):
         """
-        :param n: the number of rows
-        :param m: the number of columns
-        :param key: random state used to sample from H
-        :param average_order: the number of random samples from H
-        :return: a tuple (new random state, a realization of V(n, m))
+        :param n: the number of rows.
+        :param m: the number of columns.
+        :param key: random state used to sample from the stabilizer `SO(n-m)`.
+        :param average_order: the number of random samples from the stabilizer `SO(n-m)`.
+        :return: a tuple (new random state, a realization of `V(n, m)`).
         """
 
         assert n > m, "n should be greater than m"
@@ -94,7 +98,6 @@ class Stiefel(CompactHomogeneousSpace):
         det_sign_g = B.sign(B.det(g))
         g[:, :, -1] *= det_sign_g[:, None]
 
-        # assert B.all((B.abs(x - g[:, :, : x.shape[-1]])) < 1e-6)
         return g
 
     def embed_stabilizer(self, h):
@@ -139,8 +142,8 @@ class Stiefel(CompactHomogeneousSpace):
 
     def get_eigenvalues(self, num: int) -> B.Numeric:
         """
-        First `num` eigenvalues of the Laplace-Beltrami operator
-        :return: [num, 1] array containing the eigenvalues
+        Eigenvalues of the first `num` levels of the Laplace-Beltrami operator.
+        :return: [num, 1] array containing the eigenvalues.
         """
         eigenfunctions = StiefelEigenfunctions(self, num, self.samples_H)
         eigenvalues = np.array(eigenfunctions._eigenvalues)

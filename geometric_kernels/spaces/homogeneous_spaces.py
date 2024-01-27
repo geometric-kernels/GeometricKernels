@@ -14,19 +14,20 @@ from geometric_kernels.spaces.lie_groups import LieGroupCharacter, MatrixLieGrou
 
 class AveragingAdditionTheorem(EigenfunctionWithAdditionTheorem):
     r"""
-    Class corresponding to the sum of eigenfunctions corresponding
-    to the same eigenspaces of Laplace-Beltrami operator on compact homogeneous space M=G/H
-    Eigenspaces coincide with eigenspaces of G, and the sums might be computed via averaging
-    of characters of group G w.r.t. H
+    Class corresponding to the sum of eigenfunctions
+    corresponding to the same eigenspace of Laplace-Beltrami operator
+    on a compact homogeneous space `M=G/H`.  Eigenspaces coincide with
+    eigenspaces of G, and the sums might be computed via averaging of
+    characters of group G w.r.t. `H`.
 
     :math:`\chi_M(x) = \int_H \chi_G(xh)dh`
     """
 
-    def __init__(self, M, num_levels, samples_H):
+    def __init__(self, M, num_levels: int, samples_H):
         """
-        :param M: CompactHomogeneousSpace
-        :param num_levels int: number of eigenspaces
-        :param H_samples: samples from the uniform distribution on H
+        :param M: CompactHomogeneousSpace.
+        :param num_levels int: number of eigenspaces.
+        :param samples_H: samples from the uniform distribution on the stabilizer `H`.
         """
         self.M = M
         self.dim = M.G.dim - M.H.dim
@@ -54,20 +55,21 @@ class AveragingAdditionTheorem(EigenfunctionWithAdditionTheorem):
     # @abc.abstractmethod
     def _compute_projected_character_value_at_e(self, signature):
         """
-        Value of character on class of identity element is equal to the dimension of invariant space
+        The value of the character on class of identity element.
+        This is equal to the dimension of invariant space.
 
-        :param signature:
+        :param signature: signature of the character.
         :return: int
         """
         raise NotImplementedError
 
     def _difference(self, X: B.Numeric, X2: B.Numeric) -> B.Numeric:
         """
-        Computes pairwise differences between points of the homogeneous space M embedded into G
+        Pairwise differences between points of the homogeneous space `M` embedded into `G`.
 
-        :param X: [N, ...] an array of points in M
-        :param X2: [N2, ...] an array of points in M
-        :return: [N, N2, ...] an array of points in G
+        :param X: [N, ...] an array of points in `M`.
+        :param X2: [N2, ...] an array of points in `M`.
+        :return: [N, N2, ...] an array of points in `G`.
         """
 
         g = self.M.embed_manifold(X)
@@ -78,10 +80,10 @@ class AveragingAdditionTheorem(EigenfunctionWithAdditionTheorem):
     def _addition_theorem(self, X: B.Numeric, X2: B.Numeric, **parameters) -> B.Numeric:
         r"""
         Returns the result of applying the additional theorem when
-        summing over all the eigenfunctions within a level, for each level
+        summing over all the eigenfunctions within a level, for each level.
 
-        To ensure that the resulting function is positive definite we average
-        both left and right shifts
+        To ensure that the resulting function is positive definite, we average
+        over both the left and right shifts.
 
         :math:`\chi_X(g1,g2) \approx \frac{1}{S^2}\sum_{i=1}^S\sum_{j=1}^S \chi_G(h_i g2^{-1} g1 h_j)`
         :param X: [N, ...]
@@ -114,7 +116,7 @@ class AveragingAdditionTheorem(EigenfunctionWithAdditionTheorem):
 
     def _addition_theorem_diag(self, X: B.Numeric, **parameters) -> B.Numeric:
         """
-        Returns the sum of eigenfunctions on a level for which we have a simplified expression
+        Returns the sum of eigenfunctions on a level for which we have a simplified expression.
 
         :param X: [N, ...]
         :param parameters: any additional parameters
@@ -161,15 +163,15 @@ class AveragedLieGroupCharacter(abc.ABC):
 
     def __init__(self, average_order: int, character: LieGroupCharacter):
         """
-        :param average_order: the number of points sampled from H
-        param character: a character of a Lie group G.
+        :param average_order: the number of points sampled from `H`.
+        param character: a character of a Lie group `G`.
         """
         self.character = character
         self.average_order = average_order
 
     def __call__(self, gammas_h1_x_h2):
         """
-        Compute characters from the torus embedding and then averages w.r.t. H.
+        Compute characters from the torus embedding and then averages w.r.t. `H`.
         :param gammas_h1_x_h2: [average_order*n*average_order, T]
         """
         character_h1_x_h2 = B.reshape(
@@ -181,8 +183,8 @@ class AveragedLieGroupCharacter(abc.ABC):
 
 class CompactHomogeneousSpace(DiscreteSpectrumSpace):
     """
-    Represents a compact homogeneous space X that are given as M=G/H,
-    where G is a compact Lie group, H is a subgroup called stabilizer.
+    A compact homogeneous space `M` given as M=G/H,
+    where G is a compact Lie group, `H` is a subgroup called the stabilizer.
 
     Examples include Stiefel manifolds `SO(n) / SO(n-m)` and Grassmanians `SO(n)/(SO(m) x SO(n-m))`.
     """

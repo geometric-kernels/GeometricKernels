@@ -129,8 +129,15 @@ class WeylAdditionTheorem(EigenfunctionWithAdditionTheorem):
 
 
 class LieGroupCharacter(abc.ABC):
+    """
+    Class that represents a character of a Lie group.
+    """
     @abc.abstractmethod
     def __call__(self, gammas):
+        """
+        Compute the character on `gammas` lying in a maximal torus.
+        :param gammas: [..., rank] where `rank` is the dimension of a max-torus.
+        """
         raise NotImplementedError
 
 

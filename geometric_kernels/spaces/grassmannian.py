@@ -65,11 +65,11 @@ class Grassmannian(CompactHomogeneousSpace):
 
     def __new__(cls, n, m, key, average_order=1000):
         """
-        :param n: the number of rows
-        :param m: the number of columns
-        :param key: random state used to sample from H
-        :param average_order: the number of random samples from H
-        :return: a tuple (new random state, a realization of Gr(n, m))
+        :param n: the number of rows.
+        :param m: the number of coluns.
+        :param key: random state used to sample from the stabilizer.
+        :param average_order: the number of random samples from the stabilizer.
+        :return: a tuple (new random state, a realization of `Gr(n, m)`).
         """
 
         assert n > m, "n should be greater than m"
@@ -131,7 +131,7 @@ class Grassmannian(CompactHomogeneousSpace):
 
     def get_eigenfunctions(self, num: int) -> AveragingAdditionTheorem:
         """
-        :param num: number of eigenfunctions returned.
+        :param num: number of levels returned.
         """
         eigenfunctions = GrassmannianEigenfunctions(self, num, self.samples_H)
         return eigenfunctions
@@ -141,8 +141,8 @@ class Grassmannian(CompactHomogeneousSpace):
 
     def get_eigenvalues(self, num: int) -> B.Numeric:
         """
-        First `num` eigenvalues of the Laplace-Beltrami operator
-        :return: [num, 1] array containing the eigenvalues
+        Eigenvalues of the first `num` levels of the Laplace-Beltrami operator.
+        :return: [num, 1] array containing the eigenvalues.
         """
         eigenfunctions = GrassmannianEigenfunctions(self, num, self.samples_H)
         eigenvalues = np.array(eigenfunctions._eigenvalues)
