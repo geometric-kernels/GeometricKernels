@@ -4,91 +4,79 @@ import gpjax
 import jax
 import jax.numpy as jnp
 import jax.random as jr
-from jaxtyping import Array, Float
+import tensorflow_probability.substrates.jax.bijectors as tfb
+from jaxtyping import Float, Num
+from gpjax.base import param_field, static_field
+from gpjax.typing import (
+    Array,
+    ScalarFloat,
+)
+from gpjax.kernels.computations.base import AbstractKernelComputation
+from dataclasses import dataclass
 
 from ...kernels import BaseGeometricKernel
 
+Kernel = tp.TypeVar("Kernel", bound="gpjax.kernels.base.AbstractKernel")  # noqa: F821
 
-class _GeometricComputation(gpjax.kernels.AbstractKernelComputation):
+class GeometricKernelComputation(gpjax.kernels.computations.AbstractKernelComputation):
     """
     A class for computing the covariance matrix of a geometric kernel.
     """
 
-    def __init__(
-        self,
-        kernel_fn: tp.Callable[
-            [tp.Dict, Float[Array, "N D"], Float[Array, "M D"]], Array
-        ] = None,
-    ) -> None:
-        """Initialise the computation class.
-
-        Args:
-            kernel_fn (tp.Callable, optional): A kernel function that accepts a pair of matrics of lengths N and M, and returns the NxM covariance matrix. Defaults to None.
-        """
-        super().__init__(kernel_fn)
-
     def cross_covariance(
-        self, params: tp.Dict, x: Float[Array, "N D"], y: Float[Array, "M D"]
+        self, kernel: Kernel, x: Float[Array, "N #D1 D2"], y: Float[Array, "M #D1 D2"]
     ) -> Float[Array, "N M"]:
         """Compute the cross covariance matrix between two matrices of inputs.
 
         Args:
-            params (tp.Dict): The dictionary of parameters used to compute the covariance matrix.
-            x (Float[Array, "N D"]): An N x D matrix of inputs.
-            y (Float[Array, "M D"]): An M x D matrix of inputs.
+            x (Num[Array, "N #D1 D2"]): A batch of N inputs of, each of which
+            is a matrix of dize D1xD2, or a vector of size D2 if D1 is absent.
+            y (Num[Array, "M #D1 D2"]): A batch of M inputs of, each of which
+            is a matrix of dize D1xD2, or a vector of size D2 if D1 is absent.
 
         Returns:
             Float[Array, "N M"]: The N x M covariance matrix.
         """
-        matrix = jnp.asarray(self.kernel_fn(params, x, y))
-        return matrix
+        return jnp.asarray(kernel(x, y))
+    
 
-
+@dataclass
 class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
-    """A class for wrapping a geometric kernel in a GPJax-compatible format."""
+    """A class for wrapping a geometric kernel in a GPJax-compatible format.
 
-    def __init__(
-        self,
-        base_kernel: BaseGeometricKernel,
-        compute_engine=_GeometricComputation,
-        active_dims: tp.Optional[tp.List[int]] = None,
-        name: tp.Optional[str] = "Geometric Kernel",
-    ) -> None:
-        """Initialise the kernel.
+    Args:
+    base_kernel (BaseGeometricKernel]): a geometric kernel to wrap.
+    """
 
-        Args:
-            base_kernel (BaseGeometricKernel): The geometric kernel to wrap.
-            compute_engine (_GeometricComputation, optional): The compute engine that assigns the logic used to compute covariance matrices. Defaults to _GeometricComputation.
-            active_dims (tp.Optional[tp.List[int]], optional): The indices of the inputs data to use. Defaults to None.
-            name (tp.Optional[str], optional): Kernel name. Defaults to "Geometric Kernel".
-        """
-        super().__init__(compute_engine, active_dims, True, False, name)
-        self.base_kernel = base_kernel
+    nu: ScalarFloat = param_field(None, bijector=tfb.Softplus())
+    lengthscale: tp.Union[ScalarFloat, Float[Array, " D"]] = param_field(
+        None, bijector=tfb.Softplus()
+    )
+    variance: ScalarFloat = param_field(jnp.array(1.0), bijector=tfb.Softplus())
+    base_kernel: BaseGeometricKernel = static_field(None)
+    compute_engine: AbstractKernelComputation = static_field(
+        GeometricKernelComputation(), repr=False
+    )
+    name: str = "Geometric Kernel"
+
+    def __post_init__(self):
+        if self.base_kernel is None:
+            raise ValueError("base_kernel must be specified")
+        params = self.base_kernel.init_params()
+        self.nu, self.lengthscale = jnp.array(params["nu"]), jnp.array(params["lengthscale"])
 
     def __call__(
-        self, params: tp.Dict, x: Float[Array, "N D"], y: Float[Array, "M D"]
-    ) -> Float[Array, "N D"]:
+        self, x: Num[Array, "N #D1 D2"], y: Num[Array, "M #D1 D2"]
+    ) -> Float[Array, "N M"]:
         """Compute the cross covariance matrix between two matrices of inputs.
 
         Args:
-            params (tp.Dict): The dictionary of parameters used to compute the covariance matrix.
-            x (Float[Array, "N D"]): An N x D matrix of inputs.
-            y (Float[Array, "M D"]): An M x D matrix of inputs.
+            x (Num[Array, "N #D1 D2"]): A batch of N inputs of, each of which
+            is a matrix of dize D1xD2, or a vector of size D2 if D1 is absent.
+            y (Num[Array, "M #D1 D2"]): A batch of M inputs of, each of which
+            is a matrix of dize D1xD2, or a vector of size D2 if D1 is absent.
 
         Returns:
             Float[Array, "N M"]: The N x M covariance matrix.
         """
-        return self.base_kernel.K(params, self.state, x, y)
-
-    def init_params(self, key: jr.KeyArray = None) -> tp.Dict:
-        """Initialise the parameters of the kernel.
-
-        Args:
-            key (jr.KeyArray, optional): PRNGKey that is passed around during initialisation to initialise any stochastic parameters. Defaults to None.
-
-        Returns:
-            tp.Dict: A dictionary of parameters
-        """
-        params = self.base_kernel.init_params()
-        # Convert each value to Jax arrays
-        return jax.tree_util.tree_map(lambda x: jnp.atleast_1d(x), params)
+        return self.variance*self.base_kernel.K({"lengthscale": self.lengthscale, "nu": self.nu}, x, y)
