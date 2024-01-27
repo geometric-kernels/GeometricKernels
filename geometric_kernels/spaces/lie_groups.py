@@ -132,6 +132,7 @@ class LieGroupCharacter(abc.ABC):
     """
     Class that represents a character of a Lie group.
     """
+
     @abc.abstractmethod
     def __call__(self, gammas):
         """
@@ -150,20 +151,9 @@ class MatrixLieGroup(DiscreteSpectrumSpace):
     def dimension(self) -> int:
         return self.dim
 
-    def get_eigenfunctions(self, num: int) -> WeylAdditionTheorem:
+    @abc.abstractmethod
+    def inverse(self, X: B.Numeric) -> B.Numeric:
         """
-        :param num: number of eigenfunctions returned.
+        Inverse of the group element `X`.
         """
-        raise NotImplementedError
-
-    def get_eigenvalues(self, num: int) -> B.Numeric:
-        """
-        Eigenvalues corresponding to the first `num` levels.
-        :return: [num, 1]  array containing the eigenvalues
-        """
-        eigenfunctions = WeylAdditionTheorem(self.n, num)
-        eigenvalues = np.array(eigenfunctions._eigenvalues)
-        return B.reshape(eigenvalues, -1, 1)  # [m, 1]
-
-    def random(self, number):
         raise NotImplementedError

@@ -126,29 +126,14 @@ class Stiefel(CompactHomogeneousSpace):
         res = B.concat(left, right, axis=-1)  # [..., n, n]
         return res
 
-    @property
-    def dimension(self) -> int:
-        return self.dim
-
     def get_eigenfunctions(self, num: int) -> AveragingAdditionTheorem:
-        """
-        :param num: number of eigenfunctions returned.
-        """
         eigenfunctions = StiefelEigenfunctions(self, num, self.samples_H)
         return eigenfunctions
 
     def get_repeated_eigenvalues(self, num: int) -> B.Numeric:
-        pass
+        return self.get_eigenvalues(num)
 
     def get_eigenvalues(self, num: int) -> B.Numeric:
-        """
-        Eigenvalues of the first `num` levels of the Laplace-Beltrami operator.
-        :return: [num, 1] array containing the eigenvalues.
-        """
         eigenfunctions = StiefelEigenfunctions(self, num, self.samples_H)
         eigenvalues = np.array(eigenfunctions._eigenvalues)
         return B.reshape(eigenvalues, -1, 1)  # [num, 1]
-
-    def random(self, key, number):
-        key, raw_samples = self.G.random(key, number)
-        return key, self.project_to_manifold(raw_samples)

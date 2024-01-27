@@ -5,10 +5,7 @@ import numpy as np
 from opt_einsum import contract as einsum
 
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
-from geometric_kernels.spaces.eigenfunctions import (
-    Eigenfunctions,
-    EigenfunctionWithAdditionTheorem,
-)
+from geometric_kernels.spaces.eigenfunctions import EigenfunctionWithAdditionTheorem
 from geometric_kernels.spaces.lie_groups import LieGroupCharacter, MatrixLieGroup
 
 
@@ -52,7 +49,7 @@ class AveragingAdditionTheorem(EigenfunctionWithAdditionTheorem):
 
         self._num_levels = num_levels
 
-    # @abc.abstractmethod
+    @abc.abstractmethod
     def _compute_projected_character_value_at_e(self, signature):
         """
         The value of the character on class of identity element.
@@ -183,7 +180,7 @@ class AveragedLieGroupCharacter(abc.ABC):
 
 class CompactHomogeneousSpace(DiscreteSpectrumSpace):
     """
-    A compact homogeneous space `M` given as M=G/H,
+    A compact homogeneous space `M` given as `M=G/H`,
     where G is a compact Lie group, `H` is a subgroup called the stabilizer.
 
     Examples include Stiefel manifolds `SO(n) / SO(n-m)` and Grassmanians `SO(n)/(SO(m) x SO(n-m))`.
@@ -201,6 +198,10 @@ class CompactHomogeneousSpace(DiscreteSpectrumSpace):
         self.samples_H = samples_H
         self.dim = self.G.dim - self.H.dim
         self.average_order = average_order
+
+    @property
+    def dimension(self) -> int:
+        return self.dim
 
     @abc.abstractmethod
     def project_to_manifold(self, g):
@@ -238,31 +239,13 @@ class CompactHomogeneousSpace(DiscreteSpectrumSpace):
     def dimension(self) -> int:
         return self.dim
 
-    def get_eigenfunctions(self, num: int, key) -> Eigenfunctions:
-        """
-        :param num: number of eigenfunctions returned.
-        """
-        eigenfunctions = AveragingAdditionTheorem(self, num, self.samples_H)
-        return eigenfunctions
-
-    def get_eigenvalues(self, num: int) -> B.Numeric:
-        """
-        Eigenvalues corresponding to the first `num` eigenspaces
-        of the Laplace-Beltrami operator.
-
-        :return: [num, 1] array containing the eigenvalues
-        """
-        eigenfunctions = AveragingAdditionTheorem(self, num, self.samples_H)
-        eigenvalues = np.array(eigenfunctions._eigenvalues)
-        return B.reshape(eigenvalues, -1, 1)  # [num, 1]
-
     def random(self, key, number: int):
         """
-        Samples random points from the uniform distribution on M.
+        Samples random points from the uniform distribution on `M`.
 
         :param key: a random state
         :param number: a number of random to generate
         :return [number, ...] an array of randomly generated points
         """
-        key, raw_samples = self.g.rand(key, number)
+        key, raw_samples = self.G.random(key, number)
         return key, self.project_to_manifold(raw_samples)

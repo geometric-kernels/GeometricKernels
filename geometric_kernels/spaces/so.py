@@ -199,10 +199,6 @@ class SOGroup(MatrixLieGroup):
         self.rank = n // 2
         super().__init__()
 
-    @property
-    def dimension(self) -> int:
-        return self.dim
-
     def inverse(self, X: B.Numeric) -> B.Numeric:
         return B.transpose(X)
 
