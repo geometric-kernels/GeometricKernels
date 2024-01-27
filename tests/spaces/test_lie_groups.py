@@ -34,7 +34,7 @@ def test_compact_lie_groups(group_cls, n, order, dtype):
     eigenfunctions = group.get_eigenfunctions(order)
 
     kernel = MaternKarhunenLoeveKernel(group, order, normalize=True)
-    param = dict(lengthscale=np.array(5), nu=np.array(1.5))
+    param = dict(lengthscale=np.array(10), nu=np.array(1.5))
 
     feature_order = 5000
     feature_map = random_phase_feature_map_compact(group, order, feature_order)
