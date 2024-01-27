@@ -89,6 +89,7 @@ class SUEigenfunctions(WeylAdditionTheorem):
     def inverse(self, X: B.Numeric) -> B.Numeric:
         return B.transpose(X).conj()
 
+    @property
     def num_levels(self) -> int:
         """Number of levels, L"""
         return self._num_levels

@@ -8,45 +8,61 @@ from opt_einsum import contract as einsum
 
 from geometric_kernels.kernels.feature_maps import random_phase_feature_map_compact
 from geometric_kernels.kernels.geometric_kernels import MaternKarhunenLoeveKernel
+from geometric_kernels.spaces.so import SOGroup
 from geometric_kernels.spaces.su import SUGroup
 
 
-@pytest.mark.parametrize(
-    "group_cls, n, order, dtype",
-    [
-        # (SOGroup, 3, 10, np.double),
-        # (SOGroup, 4, 10, np.double),
-        # (SOGroup, 5, 10, np.double),
-        # (SOGroup, 6, 10, np.double),
-        # (SOGroup, 7, 10, np.double),
-        # (SOGroup, 8, 10, np.double),
-        (SUGroup, 2, 20, np.cdouble),
-        # (SUGroup, 3, 20, np.cdouble),
-        # (SUGroup, 4, 20, np.cdouble),
-        # (SUGroup, 5, 20, np.cdouble),
-        # (SUGroup, 6, 20, np.cdouble),
-    ],
-)
-def test_compact_lie_groups(group_cls, n, order, dtype):
+@pytest.fixture(name="group_cls", params=["so", "su"])
+def _group_cls(request):
+    if request.param == "so":
+        return SOGroup
+    elif request.param == "su":
+        return SUGroup
+
+
+@pytest.fixture(name="group", params=[3, 5])
+def _group(group_cls, request):
+    group = group_cls(n=request.param)
+    return group
+
+
+@pytest.fixture(name="group_and_eigf", params=[10])
+def _group_and_eigf(group, request):
+    eigf = group.get_eigenfunctions(num=request.param)
+    return group, eigf
+
+
+def get_dtype(group):
+    if isinstance(group, SOGroup):
+        return np.double
+    elif isinstance(group, SUGroup):
+        return np.cdouble
+    else:
+        raise ValueError()
+
+
+def test_group_inverse(group_and_eigf):
+    group, eigenfunctions = group_and_eigf
+    dtype = get_dtype(group)
+
     key = B.create_random_state(dtype, seed=0)
-
-    group = group_cls(n=n)
-    eigenfunctions = group.get_eigenfunctions(order)
-
-    kernel = MaternKarhunenLoeveKernel(group, order, normalize=True)
-    param = dict(lengthscale=np.array(10), nu=np.array(1.5))
-
-    feature_order = 5000
-    feature_map = random_phase_feature_map_compact(group, order, feature_order)
 
     b1, b2 = 10, 10
     key, x = group.random(key, b1)
     key, y = group.random(key, b2)
 
     eye_ = np.matmul(x, group.inverse(x))[None, ...]
-    diff = eye_ - np.eye(n, dtype=dtype)
+    diff = eye_ - np.eye(group.n, dtype=dtype)
     zeros = np.zeros_like(eye_)
+
     assert_allclose(diff, zeros, atol=1e-5)
+
+
+def test_character_conj_invariant(group_and_eigf):
+    group, eigenfunctions = group_and_eigf
+    dtype = get_dtype(group)
+
+    key = B.create_random_state(dtype, seed=0)
 
     num_samples_x = 20
     num_samples_g = 20
@@ -61,7 +77,12 @@ def test_compact_lie_groups(group_cls, n, order, dtype):
         chi_vals_conj = chi(conj_gammas)
         assert_allclose(chi_vals_xs, chi_vals_conj)
 
-    identity = np.eye(n, dtype=dtype).reshape(1, n, n)
+
+def test_character_at_identity(group_and_eigf):
+    group, eigenfunctions = group_and_eigf
+    dtype = get_dtype(group)
+
+    identity = np.eye(group.n, dtype=dtype).reshape(1, group.n, group.n)
     identity_gammas = eigenfunctions._torus_representative(identity)
     dimensions = eigenfunctions._dimensions
     characters = eigenfunctions._characters
@@ -69,6 +90,14 @@ def test_compact_lie_groups(group_cls, n, order, dtype):
         chi_val = chi(identity_gammas)
         assert_allclose(chi_val.real, dim)
         assert_allclose(chi_val.imag, 0)
+
+
+def test_characters_orthogonal(group_and_eigf):
+    group, eigenfunctions = group_and_eigf
+    dtype = get_dtype(group)
+    order = eigenfunctions.num_levels
+
+    key = B.create_random_state(dtype, seed=0)
 
     num_samples_x = 5 * 10**5
     key, xs = group.random(key, num_samples_x)
@@ -79,15 +108,26 @@ def test_compact_lie_groups(group_cls, n, order, dtype):
         i, chi1 = a
         j, chi2 = b
         scalar_products[i, j] = np.mean((np.conj(chi1(gammas)) * chi2(gammas)).real)
-    print(np.max(np.abs(scalar_products - np.eye(order, dtype=dtype))))
+
     assert_allclose(scalar_products, np.eye(order, dtype=dtype), atol=5e-2)
 
-    identity = np.eye(n, dtype=dtype).reshape(-1, n, n)
+
+def test_feature_map(group_and_eigf):
+    group, eigenfunctions = group_and_eigf
+    order = eigenfunctions.num_levels
+    dtype = get_dtype(group)
+    key = B.create_random_state(dtype, seed=0)
+
+    kernel = MaternKarhunenLoeveKernel(group, order, normalize=True)
+    param = dict(lengthscale=np.array(10), nu=np.array(1.5))
+
+    feature_order = 5000
+    feature_map = random_phase_feature_map_compact(group, order, feature_order)
+
+    key, x = group.random(key, 10)
 
     K_xx = (kernel.K(param, x, x)).real
     key, embed_x = feature_map(x, param, key=key, normalize=True)
     F_xx = (einsum("ni,mi-> nm", embed_x, embed_x.conj())).real
-    print(K_xx)
-    print("-------")
-    print(F_xx)
+
     assert_allclose(K_xx, F_xx, atol=5e-2)
