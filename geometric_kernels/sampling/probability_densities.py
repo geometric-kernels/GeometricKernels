@@ -177,7 +177,7 @@ def sample_mixture_matern(key, alpha, lengthscale, nu, dim):
     assert m >= 0
     dtype = B.dtype(lengthscale)
     js = B.range(dtype, 0, m + 1)
-    gamma = 2 * nu / lengthscale**2 + ((dim - 1) / 2) ** 2
+    gamma = 2 * nu / lengthscale**2
 
     # B(x, y) = Gamma(x) Gamma(y) / Gamma(x+y)
     beta = B.exp(
@@ -253,7 +253,7 @@ def spd_density_sample(key, size, params, degree, rho):
         if nu == np.inf:
             proposal = eigv / L
         else:
-            eigv = eigv * B.sqrt(2 * nu / L**2 + B.sum(rho**2))
+            eigv = eigv * B.sqrt(2 * nu) / L
 
             # Gamma(nu, 2) distribution is the same as chi2(2nu) distribution
             key, chi2_sample = B.randgamma(key, B.dtype(L), 1, alpha=nu, scale=2)
