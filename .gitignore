@@ -135,3 +135,6 @@ dmypy.json
 
 # Vim swp files
 *.swp
+
+# Mac
+*.DS_Store
