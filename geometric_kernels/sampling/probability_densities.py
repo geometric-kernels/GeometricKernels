@@ -78,17 +78,27 @@ def base_density_sample(key, size, params, dim, rho):
     nu = params["nu"]
     L = params["lengthscale"]
 
-    if nu == np.inf:
-        # sample from Gaussian
-        key, u = B.randn(key, B.dtype(L), *size)
-        scale = L
-    elif nu > 0:
-        # sample from the student-t with 2\nu + dim(space) - dim(rho)  degrees of freedom
-        deg_freedom = 2 * nu + dim - B.rank(rho)
-        key, u = student_t_sample(key, size, deg_freedom, B.dtype(L))
-        scale = L / B.sqrt(
-            nu / deg_freedom + B.sum(rho**2) * L**2 / (2 * deg_freedom)
-        )
+    # Note: 1.0 in safe_nu can be replaced by any finite positive value
+    safe_nu = B.where(nu == np.inf,
+                      B.cast(B.dtype(L), np.r_[1.0]),
+                      nu)
+
+    # for nu == np.inf
+    # sample from Gaussian
+    key, u_nu_infinite = B.randn(key, B.dtype(L), *size)
+    # for nu < np.inf
+    # sample from the student-t with 2\nu + dim(space) - dim(rho)  degrees of freedom
+    deg_freedom = 2 * safe_nu + dim - B.rank(rho)
+    key, u_nu_finite = student_t_sample(key, size, deg_freedom, B.dtype(L))
+
+    u = B.where(nu == np.inf, u_nu_infinite, u_nu_finite)
+
+    scale_nu_infinite = L
+    scale_nu_finite = L / B.sqrt(
+        safe_nu / deg_freedom + B.sum(rho**2) * L**2 / (2 * deg_freedom)
+    )
+
+    scale = B.where(nu == np.inf, scale_nu_infinite, scale_nu_finite)
 
     scale = B.cast(B.dtype(u), scale)
     return key, u / scale
@@ -218,10 +228,17 @@ def hyperbolic_density_sample(key, size, params, dim):
     alpha = alphas(dim)
 
     def base_sampler(key):
-        if nu == np.inf:
-            return sample_mixture_heat(key, alpha, L)
-        else:
-            return sample_mixture_matern(key, alpha, L, nu, dim)
+        # Note: 1.0 in safe_nu can be replaced by any finite positive value
+        safe_nu = B.where(nu == np.inf,
+                          B.cast(B.dtype(L), np.r_[1.0]),
+                          nu)
+
+        # for nu == np.inf
+        key, sample_mixture_nu_infinite = sample_mixture_heat(key, alpha, L)
+        # for nu < np.inf
+        key, sample_mixture_nu_finite = sample_mixture_matern(key, alpha, L, safe_nu, dim)
+
+        return key, B.where(nu == np.inf, sample_mixture_nu_infinite, sample_mixture_nu_finite)
 
     samples = []
     while len(samples) < reduce(operator.mul, size, 1):
@@ -250,16 +267,22 @@ def spd_density_sample(key, size, params, degree, rho):
 
         eigv = eigvalsh(M)  # [D]
 
-        if nu == np.inf:
-            proposal = eigv / L
-        else:
-            eigv = eigv * B.sqrt(2 * nu / L**2 + B.sum(rho**2))
+        # Note: 1.0 in safe_nu can be replaced by any finite positive value
+        safe_nu = B.where(nu == np.inf,
+                          B.cast(B.dtype(L), np.r_[1.0]),
+                          nu)
 
-            # Gamma(nu, 2) distribution is the same as chi2(2nu) distribution
-            key, chi2_sample = B.randgamma(key, B.dtype(L), 1, alpha=nu, scale=2)
-            chi_sample = B.sqrt(chi2_sample)
+        # for nu == np.inf
+        proposal_nu_infinite = eigv / L
 
-            proposal = eigv / chi_sample  # [D]
+        # for nu < np.inf
+        eigv_nu_finite = eigv * B.sqrt(2 * safe_nu / L**2 + B.sum(rho**2))
+        # Gamma(nu, 2) distribution is the same as chi2(2nu) distribution
+        key, chi2_sample = B.randgamma(key, B.dtype(L), 1, alpha=safe_nu, scale=2)
+        chi_sample = B.sqrt(chi2_sample)
+        proposal_nu_finite = eigv_nu_finite / chi_sample  # [D]
+
+        proposal = B.where(nu == np.inf, proposal_nu_infinite, proposal_nu_finite)
 
         diffp = ordered_pairwise_differences(proposal)
         diffp = B.pi * B.abs(diffp)

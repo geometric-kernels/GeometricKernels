@@ -88,19 +88,27 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         Matern or RBF spectrum evaluated at `s`.
         Depends on the `lengthscale` parameters.
         """
-        if nu == np.inf:
-            spectral_values = B.exp(
-                -(lengthscale**2) / 2.0 * from_numpy(lengthscale, s**2)
+
+        # Note: 1.0 in safe_nu can be replaced by any finite positive value
+        safe_nu = B.where(nu == np.inf,
+                          B.cast(B.dtype(lengthscale), np.r_[1.0]),
+                          nu)
+
+        # for nu == np.inf
+        spectral_values_nu_infinite = B.exp(
+            -(lengthscale**2) / 2.0 * B.cast(
+                B.dtype(lengthscale), from_numpy(lengthscale, s**2)
             )
-        elif nu > 0:
-            power = -nu - self.space.dimension / 2.0
-            base = 2.0 * nu / lengthscale**2 + B.cast(
-                B.dtype(nu), from_numpy(nu, s**2)
-            )
-            spectral_values = base**power
-        else:
-            raise NotImplementedError
-        return spectral_values
+        )
+
+        # for nu < np.inf
+        power = -safe_nu - self.space.dimension / 2.0
+        base = 2.0 * safe_nu / lengthscale**2 + B.cast(
+            B.dtype(safe_nu), from_numpy(safe_nu, s**2)
+        )
+        spectral_values_nu_finite = base**power
+
+        return B.where(nu == np.inf, spectral_values_nu_infinite, spectral_values_nu_finite)
 
     @property
     def eigenfunctions(self) -> Eigenfunctions:
