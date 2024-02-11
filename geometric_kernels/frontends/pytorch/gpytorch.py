@@ -34,7 +34,7 @@ class GPytorchGeometricKernel(gpytorch.kernels.Kernel):
         if self.trainable_nu and torch.isinf(nu):
             raise ValueError("Cannot have trainable `nu` parameter with infinite value")
 
-        if self.tranable_nu:
+        if self.trainable_nu:
             self.register_parameter(
                 name="raw_nu", parameter=torch.nn.Parameter(torch.tensor(nu))
             )

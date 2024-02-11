@@ -1,9 +1,7 @@
 import typing as tp
 
 import gpjax
-import jax
 import jax.numpy as jnp
-import jax.random as jr
 import tensorflow_probability.substrates.jax.bijectors as tfb
 from jaxtyping import Float, Num
 from gpjax.base import param_field, static_field
@@ -18,27 +16,28 @@ from ...kernels import BaseGeometricKernel
 
 Kernel = tp.TypeVar("Kernel", bound="gpjax.kernels.base.AbstractKernel")  # noqa: F821
 
+
 class GeometricKernelComputation(gpjax.kernels.computations.AbstractKernelComputation):
     """
     A class for computing the covariance matrix of a geometric kernel.
     """
 
     def cross_covariance(
-        self, kernel: Kernel, x: Float[Array, "N #D1 D2"], y: Float[Array, "M #D1 D2"]
+        self, kernel: Kernel, x: Float[Array, "N #D1 D2"], y: Float[Array, "M #D1 D2"]  # noqa: F821
     ) -> Float[Array, "N M"]:
         """Compute the cross covariance matrix between two matrices of inputs.
 
         Args:
             x (Num[Array, "N #D1 D2"]): A batch of N inputs of, each of which
-            is a matrix of dize D1xD2, or a vector of size D2 if D1 is absent.
+            is a matrix of size D1xD2, or a vector of size D2 if D1 is absent.
             y (Num[Array, "M #D1 D2"]): A batch of M inputs of, each of which
-            is a matrix of dize D1xD2, or a vector of size D2 if D1 is absent.
+            is a matrix of size D1xD2, or a vector of size D2 if D1 is absent.
 
         Returns:
             Float[Array, "N M"]: The N x M covariance matrix.
         """
         return jnp.asarray(kernel(x, y))
-    
+
 
 @dataclass
 class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
@@ -66,15 +65,15 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
         self.nu, self.lengthscale = jnp.array(params["nu"]), jnp.array(params["lengthscale"])
 
     def __call__(
-        self, x: Num[Array, "N #D1 D2"], y: Num[Array, "M #D1 D2"]
+        self, x: Num[Array, "N #D1 D2"], y: Num[Array, "M #D1 D2"]  # noqa: F821
     ) -> Float[Array, "N M"]:
         """Compute the cross covariance matrix between two matrices of inputs.
 
         Args:
             x (Num[Array, "N #D1 D2"]): A batch of N inputs of, each of which
-            is a matrix of dize D1xD2, or a vector of size D2 if D1 is absent.
+            is a matrix of size D1xD2, or a vector of size D2 if D1 is absent.
             y (Num[Array, "M #D1 D2"]): A batch of M inputs of, each of which
-            is a matrix of dize D1xD2, or a vector of size D2 if D1 is absent.
+            is a matrix of size D1xD2, or a vector of size D2 if D1 is absent.
 
         Returns:
             Float[Array, "N M"]: The N x M covariance matrix.
