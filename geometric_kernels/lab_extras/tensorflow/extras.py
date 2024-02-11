@@ -119,7 +119,7 @@ def get_random_state(key: B.TFRandomState):
 
     :return: the random state of the random generator.
     """
-    return key.state, key.algorithm
+    return tf.identity(key.state), key.algorithm
 
 
 @dispatch
@@ -132,7 +132,7 @@ def restore_random_state(key: B.TFRandomState, state):
 
     :return: the new random generator with state `state`.
     """
-    gen = tf.random.Generator.from_state(state=state[0], alg=state[1])
+    gen = tf.random.Generator.from_state(state=tf.identity(state[0]), alg=state[1])
     return gen
 
 

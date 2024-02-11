@@ -1,3 +1,6 @@
+"""
+GPJax wrapper for `BaseGeometricKernel`
+"""
 import typing as tp
 
 import gpjax
@@ -41,10 +44,8 @@ class GeometricKernelComputation(gpjax.kernels.computations.AbstractKernelComput
 
 @dataclass
 class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
-    """A class for wrapping a geometric kernel in a GPJax-compatible format.
-
-    Args:
-    base_kernel (BaseGeometricKernel]): a geometric kernel to wrap.
+    """
+    GPJax wrapper for `BaseGeometricKernel`
     """
 
     nu: ScalarFloat = param_field(None, bijector=tfb.Softplus())

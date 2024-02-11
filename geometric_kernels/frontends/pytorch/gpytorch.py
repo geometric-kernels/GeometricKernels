@@ -1,32 +1,40 @@
 """
-Pytorch kernel wrapper
+GPyTorch kernel wrapper
 """
 import gpytorch
-import numpy as np
 import torch
 
 from geometric_kernels.kernels import BaseGeometricKernel
 from geometric_kernels.spaces.base import Space
 
 
-class GPytorchGeometricKernel(gpytorch.kernels.Kernel):
+class GPyTorchGeometricKernel(gpytorch.kernels.Kernel):
     """
-    Pytorch wrapper for `BaseGeometricKernel`
+    GPyTorch wrapper for `BaseGeometricKernel`
     """
 
     has_lengthscale = True
 
     def __init__(
         self,
-        kernel: BaseGeometricKernel,
-        lengthscale=1.0,
-        nu=np.inf,
+        base_kernel: BaseGeometricKernel,
+        lengthscale=None,
+        nu=None,
+        variance=1.0,
         trainable_nu: bool = False,
         **kwargs,
     ):
         super().__init__(**kwargs)
 
-        self._kernel = kernel
+        self.base_kernel = base_kernel
+
+        default_params = base_kernel.init_params()
+
+        if nu is None:
+            nu = default_params["nu"]
+
+        if lengthscale is None:
+            lengthscale = default_params["lengthscale"]
 
         self.lengthscale = torch.tensor(lengthscale)
 
@@ -34,22 +42,39 @@ class GPytorchGeometricKernel(gpytorch.kernels.Kernel):
         if self.trainable_nu and torch.isinf(nu):
             raise ValueError("Cannot have trainable `nu` parameter with infinite value")
 
+        self.register_parameter(
+            name="raw_variance", parameter=torch.nn.Parameter(torch.tensor(1.0))
+        )
+        self.register_constraint("raw_variance", gpytorch.constraints.Positive())
+        self.variance = variance
+
         if self.trainable_nu:
             self.register_parameter(
-                name="raw_nu", parameter=torch.nn.Parameter(torch.tensor(nu))
+                name="raw_nu", parameter=torch.nn.Parameter(torch.tensor(1.0))
             )
             self.register_constraint("raw_nu", gpytorch.constraints.Positive())
+            self.nu = nu
         else:
             self.register_buffer("raw_nu", torch.tensor(nu))
 
     @property
     def space(self) -> Space:
         """Alias to kernel Space"""
-        return self._kernel.space
+        return self.base_kernel.space
+
+    @property
+    def variance(self) -> torch.Tensor:
+        """The variance parameter"""
+        return self.raw_variance_constraint.transform(self.raw_variance)
+
+    @variance.setter
+    def variance(self, value):
+        value = torch.as_tensor(value).to(self.raw_variance)
+        self.initialize(raw_variance=self.raw_variance_constraint.inverse_transform(value))
 
     @property
     def nu(self) -> torch.Tensor:
-        """A smoothness parameter"""
+        """The smoothness parameter"""
         if self.trainable_nu:
             return self.raw_nu_constraint.transform(self.raw_nu)
         else:
@@ -69,5 +94,5 @@ class GPytorchGeometricKernel(gpytorch.kernels.Kernel):
 
         params = dict(lengthscale=self.lengthscale, nu=self.nu)
         if diag:
-            return self._kernel.K_diag(params, x1)
-        return self._kernel.K(params, x1, x2)
+            return self.base_kernel.K_diag(params, x1)
+        return self.variance*self.base_kernel.K(params, x1, x2)

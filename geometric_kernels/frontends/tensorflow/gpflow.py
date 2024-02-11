@@ -4,7 +4,6 @@ GPflow kernel wrapper
 from typing import Optional
 
 import gpflow
-import numpy as np
 import tensorflow as tf
 from gpflow.base import TensorType
 from gpflow.kernels.base import ActiveDims
@@ -21,17 +20,27 @@ class GPflowGeometricKernel(gpflow.kernels.Kernel):
 
     def __init__(
         self,
-        kernel: BaseGeometricKernel,
+        base_kernel: BaseGeometricKernel,
         active_dims: Optional[ActiveDims] = None,
         name: Optional[str] = None,
-        lengthscale: TensorType = 1.0,
-        nu: TensorType = np.inf,
+        lengthscale: TensorType = None,
+        nu: TensorType = None,
+        variance: TensorType = 1.0,
         trainable_nu: bool = False,
     ):
         super().__init__(active_dims, name)
-        self._kernel = kernel
+        self.base_kernel = base_kernel
+
+        default_params = base_kernel.init_params()
+
+        if nu is None:
+            nu = default_params["nu"]
+
+        if lengthscale is None:
+            lengthscale = default_params["lengthscale"]
 
         self.lengthscale = gpflow.Parameter(lengthscale, transform=positive())
+        self.variance = gpflow.Parameter(variance, transform=positive())
 
         self.trainable_nu = trainable_nu
         if self.trainable_nu and tf.math.is_inf(nu):
@@ -45,19 +54,21 @@ class GPflowGeometricKernel(gpflow.kernels.Kernel):
     @property
     def space(self) -> Space:
         """Alias to kernel Space"""
-        return self._kernel.space
+        return self.base_kernel.space
 
     def K(self, X, X2=None):
         lengthscale = tf.convert_to_tensor(self.lengthscale)
         nu = tf.cast(tf.convert_to_tensor(self.nu), lengthscale.dtype)
+        variance = tf.convert_to_tensor(self.variance)
         params = dict(lengthscale=lengthscale, nu=nu)
-        return self._kernel.K(params, X, X2)
+        return variance*self.base_kernel.K(params, X, X2)
 
     def K_diag(self, X):
         lengthscale = tf.convert_to_tensor(self.lengthscale)
         nu = tf.cast(tf.convert_to_tensor(self.nu), lengthscale.dtype)
+        variance = tf.convert_to_tensor(self.variance)
         params = dict(lengthscale=lengthscale, nu=nu)
-        return self._kernel.K_diag(params, X)
+        return variance*self.base_kernel.K_diag(params, X)
 
 
 class DefaultFloatZeroMeanFunction(gpflow.mean_functions.Constant):

@@ -99,7 +99,7 @@ def random_phase_feature_map_compact(
                     `torch.Generator` or `jax.tensor` (representing random state).
 
                      Note that for any backend other than `jax`, passing the same `key`
-                     twice does not garantee that the feature map will be the same each time.
+                     twice does not guarantee that the feature map will be the same each time.
                      This is because these backends' random state has... a state.
                      One either has to recreate/restore the state each time or
                      make use of `geometric_kernels.utils.make_deterministic`.
@@ -123,7 +123,7 @@ def random_phase_feature_map_compact(
                     `torch.Generator` or `jax.tensor` (representing random state).
 
                      Note that for any backend other than `jax`, passing the same `key`
-                     twice does not garantee that the feature map will be the same each time.
+                     twice does not guarantee that the feature map will be the same each time.
                      This is because these backends' random state has... a state.
                      One either has to recreate/restore the state each time or
                      make use of `geometric_kernels.utils.make_deterministic`.
@@ -187,7 +187,7 @@ def random_phase_feature_map_noncompact(
                     `torch.Generator` or `jax.tensor` (representing random state).
 
                      Note that for any backend other than `jax`, passing the same `key`
-                     twice does not garantee that the feature map will be the same each time.
+                     twice does not guarantee that the feature map will be the same each time.
                      This is because these backends' random state has... a state.
                      One either has to recreate/restore the state each time or
                      make use of `geometric_kernels.utils.make_deterministic`.
@@ -207,7 +207,7 @@ def random_phase_feature_map_noncompact(
                     `torch.Generator` or `jax.tensor` (representing random state).
 
                      Note that for any backend other than `jax`, passing the same `key`
-                     twice does not garantee that the feature map will be the same each time.
+                     twice does not guarantee that the feature map will be the same each time.
                      This is because these backends' random state has... a state.
                      One either has to recreate/restore the state each time or
                      make use of `geometric_kernels.utils.make_deterministic`.
@@ -275,7 +275,7 @@ def rejection_sampling_feature_map_hyperbolic(
                     `torch.Generator` or `jax.tensor` (representing random state).
 
                      Note that for any backend other than `jax`, passing the same `key`
-                     twice does not garantee that the feature map will be the same each time.
+                     twice does not guarantee that the feature map will be the same each time.
                      This is because these backends' random state has... a state.
                      One either has to recreate/restore the state each time or
                      make use of `geometric_kernels.utils.make_deterministic`.
@@ -296,7 +296,7 @@ def rejection_sampling_feature_map_hyperbolic(
                     `torch.Generator` or `jax.tensor` (representing random state).
 
                      Note that for any backend other than `jax`, passing the same `key`
-                     twice does not garantee that the feature map will be the same each time.
+                     twice does not guarantee that the feature map will be the same each time.
                      This is because these backends' random state has... a state.
                      One either has to recreate/restore the state each time or
                      make use of `geometric_kernels.utils.make_deterministic`.
@@ -357,7 +357,7 @@ def rejection_sampling_feature_map_spd(
                     `torch.Generator` or `jax.tensor` (representing random state).
 
                      Note that for any backend other than `jax`, passing the same `key`
-                     twice does not garantee that the feature map will be the same each time.
+                     twice does not guarantee that the feature map will be the same each time.
                      This is because these backends' random state has... a state.
                      One either has to recreate/restore the state each time or
                      make use of `geometric_kernels.utils.make_deterministic`.
@@ -379,7 +379,7 @@ def rejection_sampling_feature_map_spd(
                     `torch.Generator` or `jax.tensor` (representing random state).
 
                      Note that for any backend other than `jax`, passing the same `key`
-                     twice does not garantee that the feature map will be the same each time.
+                     twice does not guarantee that the feature map will be the same each time.
                      This is because these backends' random state has... a state.
                      One either has to recreate/restore the state each time or
                      make use of `geometric_kernels.utils.make_deterministic`.
