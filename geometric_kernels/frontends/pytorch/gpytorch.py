@@ -11,6 +11,8 @@ from geometric_kernels.spaces.base import Space
 class GPyTorchGeometricKernel(gpytorch.kernels.Kernel):
     """
     GPyTorch wrapper for `BaseGeometricKernel`
+
+    Note: you cannot change trainable_nu after constructing the object.
     """
 
     has_lengthscale = True
@@ -36,11 +38,15 @@ class GPyTorchGeometricKernel(gpytorch.kernels.Kernel):
         if lengthscale is None:
             lengthscale = default_params["lengthscale"]
 
-        self.lengthscale = torch.tensor(lengthscale)
+        lengthscale = torch.as_tensor(lengthscale)
+        variance = torch.as_tensor(variance)
+        nu = torch.as_tensor(nu)
 
-        self.trainable_nu = trainable_nu
-        if self.trainable_nu and torch.isinf(nu):
+        self._trainable_nu = trainable_nu
+        if self._trainable_nu and torch.isinf(nu):
             raise ValueError("Cannot have trainable `nu` parameter with infinite value")
+
+        self.lengthscale = lengthscale
 
         self.register_parameter(
             name="raw_variance", parameter=torch.nn.Parameter(torch.tensor(1.0))
@@ -48,14 +54,14 @@ class GPyTorchGeometricKernel(gpytorch.kernels.Kernel):
         self.register_constraint("raw_variance", gpytorch.constraints.Positive())
         self.variance = variance
 
-        if self.trainable_nu:
+        if self._trainable_nu:
             self.register_parameter(
                 name="raw_nu", parameter=torch.nn.Parameter(torch.tensor(1.0))
             )
             self.register_constraint("raw_nu", gpytorch.constraints.Positive())
             self.nu = nu
         else:
-            self.register_buffer("raw_nu", torch.tensor(nu))
+            self.register_buffer("raw_nu", nu)
 
     @property
     def space(self) -> Space:
@@ -75,14 +81,16 @@ class GPyTorchGeometricKernel(gpytorch.kernels.Kernel):
     @property
     def nu(self) -> torch.Tensor:
         """The smoothness parameter"""
-        if self.trainable_nu:
+        if self._trainable_nu:
             return self.raw_nu_constraint.transform(self.raw_nu)
         else:
             return self.raw_nu
 
     @nu.setter
     def nu(self, value):
-        if self.trainable_nu:
+        if self._trainable_nu:
+            if torch.isinf(nu):
+                raise ValueError("Cannot have infinite `nu` value when trainable_nu = True")
             value = torch.as_tensor(value).to(self.raw_nu)
             self.initialize(raw_nu=self.raw_nu_constraint.inverse_transform(value))
         else:

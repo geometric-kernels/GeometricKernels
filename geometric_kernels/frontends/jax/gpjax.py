@@ -62,8 +62,14 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
     def __post_init__(self):
         if self.base_kernel is None:
             raise ValueError("base_kernel must be specified")
-        params = self.base_kernel.init_params()
-        self.nu, self.lengthscale = jnp.array(params["nu"]), jnp.array(params["lengthscale"])
+
+        default_params = self.base_kernel.init_params()
+
+        if self.nu is None:
+            self.nu = jnp.array(default_params["nu"])
+
+        if self.lengthscale is None:
+            self.lengthscale = jnp.array(default_params["lengthscale"])
 
     def __call__(
         self, x: Num[Array, "N #D1 D2"], y: Num[Array, "M #D1 D2"]  # noqa: F821
