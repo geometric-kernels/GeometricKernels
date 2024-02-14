@@ -144,7 +144,7 @@ class LieGroupCharacter(abc.ABC):
 
 class MatrixLieGroup(DiscreteSpectrumSpace):
     r"""
-    A base class for Lie groups represented as matrices.
+    A base class for Lie groups represented as matrices. The group operation is the matrix multiplication, and the inverse is the matrix inverse.
     """
 
     @property
