@@ -1,11 +1,11 @@
 polyscope
 mypy
 pytest
-black
+black==23.12.1
 pytest-cov
-flake8
+flake8==7.0.0
 autoflake
-isort
+isort==5.13.2
 typing-extensions
 plotly
 jupytext

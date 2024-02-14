@@ -137,7 +137,6 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
     ) -> B.Numeric:
         r"""
         Computes :math:`\sum w_i \phi_i(x_1) \phi_i(x_2)`.
-
         :param weights: [L, 1]
 
             .. note:
@@ -153,7 +152,9 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         if X2 is None:
             X2 = X
 
-        sum_phi_phi_for_level = self._addition_theorem(X, X2, **parameters)  # [N, N, L]
+        sum_phi_phi_for_level = self._addition_theorem(
+            X, X2, **parameters
+        )  # [N, N2, L]
         sum_phi_phi_for_level = B.cast(B.dtype(weights), sum_phi_phi_for_level)
 
         return einsum("id,...nki->...nk", weights, sum_phi_phi_for_level)  # [N, N2]
