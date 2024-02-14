@@ -97,14 +97,14 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         # for nu == np.inf
         spectral_values_nu_infinite = B.exp(
             -(lengthscale**2) / 2.0 * B.cast(
-                B.dtype(lengthscale), from_numpy(lengthscale, s**2)
+                B.dtype(lengthscale), s**2
             )
         )
 
         # for nu < np.inf
         power = -safe_nu - self.space.dimension / 2.0
         base = 2.0 * safe_nu / lengthscale**2 + B.cast(
-            B.dtype(safe_nu), from_numpy(safe_nu, s**2)
+            B.dtype(safe_nu), s**2
         )
         spectral_values_nu_finite = base**power
 
