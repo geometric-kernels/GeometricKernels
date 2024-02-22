@@ -1,6 +1,8 @@
 """
 Feature maps
 """
+import warnings
+
 import lab as B
 
 from geometric_kernels.kernels.geometric_kernels import MaternKarhunenLoeveKernel
@@ -29,7 +31,9 @@ class DeterministicFeatureMapCompact:
         self.space = space
         self.num_levels = num_levels
         self.kernel = MaternKarhunenLoeveKernel(space, num_levels)
-        self.repeated_eigenvalues = space.get_repeated_eigenvalues(self.kernel.num_levels)
+        self.repeated_eigenvalues = space.get_repeated_eigenvalues(
+            self.kernel.num_levels
+        )
 
     def __call__(self, X: B.Numeric, params, normalize=None, **kwargs) -> B.Numeric:
         """
@@ -64,7 +68,12 @@ class DeterministicFeatureMapCompact:
 
 
 class RandomPhaseFeatureMapCompact:
-    def __init__(self, space: DiscreteSpectrumSpace, num_levels: int, num_random_phases: int = 3000):
+    def __init__(
+        self,
+        space: DiscreteSpectrumSpace,
+        num_levels: int,
+        num_random_phases: int = 3000,
+    ):
         """
         Random phase feature map for compact spaces based on the Laplacian eigendecomposition.
 
@@ -77,7 +86,9 @@ class RandomPhaseFeatureMapCompact:
         self.num_random_phases = num_random_phases
         self.kernel = MaternKarhunenLoeveKernel(space, num_levels)
 
-    def __call__(self, X: B.Numeric, params, *, key, normalize=None, **kwargs) -> B.Numeric:
+    def __call__(
+        self, X: B.Numeric, params, *, key, normalize=None, **kwargs
+    ) -> B.Numeric:
         """
         :param X: [N, D] points in the space to evaluate the map on.
         :param params: parameters of the kernel (lengthscale and smoothness).
@@ -126,6 +137,7 @@ class RandomPhaseFeatureMapCompact:
 
         return key, features
 
+
 class RandomPhaseFeatureMapNoncompact:
     def __init__(self, space: NoncompactSymmetricSpace, num_random_phases: int = 3000):
         """
@@ -137,7 +149,9 @@ class RandomPhaseFeatureMapNoncompact:
         self.space = space
         self.num_random_phases = num_random_phases
 
-    def __call__(self, X: B.Numeric, params, *, key, normalize=True, **kwargs) -> B.Numeric:
+    def __call__(
+        self, X: B.Numeric, params, *, key, normalize=True, **kwargs
+    ) -> B.Numeric:
         """
         :param X: [N, D] points in the space to evaluate the map on.
         :param params: parameters of the feature map (lengthscale and smoothness).
@@ -161,7 +175,9 @@ class RandomPhaseFeatureMapNoncompact:
         if normalize is None:
             normalize = True
 
-        key, random_phases = self.space.random_phases(key, self.num_random_phases)  # [O, <axes>]
+        key, random_phases = self.space.random_phases(
+            key, self.num_random_phases
+        )  # [O, <axes>]
 
         key, random_lambda = base_density_sample(
             key,
@@ -189,6 +205,7 @@ class RandomPhaseFeatureMapNoncompact:
 
         return key, features
 
+
 class RejectionSamplingFeatureMapHyperbolic:
     def __init__(self, space: Hyperbolic, num_random_phases: int = 3000):
         """
@@ -201,7 +218,9 @@ class RejectionSamplingFeatureMapHyperbolic:
         self.space = space
         self.num_random_phases = num_random_phases
 
-    def __call__(self, X: B.Numeric, params, *, key, normalize=True, **kwargs) -> B.Numeric:
+    def __call__(
+        self, X: B.Numeric, params, *, key, normalize=True, **kwargs
+    ) -> B.Numeric:
         """
         :param X: [N, D] points in the space to evaluate the map on.
         :param params: parameters of the feature map (lengthscale and smoothness).
@@ -224,10 +243,15 @@ class RejectionSamplingFeatureMapHyperbolic:
         if normalize is None:
             normalize = True
 
-        key, random_phases = self.space.random_phases(key, self.num_random_phases)  # [O, D]
+        key, random_phases = self.space.random_phases(
+            key, self.num_random_phases
+        )  # [O, D]
 
         key, random_lambda = hyperbolic_density_sample(
-            key, (self.num_random_phases, B.rank(self.space.rho)), params, self.space.dimension
+            key,
+            (self.num_random_phases, B.rank(self.space.rho)),
+            params,
+            self.space.dimension,
         )  # [O, 1]
 
         random_phases_b = B.expand_dims(
@@ -247,8 +271,13 @@ class RejectionSamplingFeatureMapHyperbolic:
 
         return key, features
 
-class RejectionSamplingFeatureMapSPD:
-    def __init__(self, space: SymmetricPositiveDefiniteMatrices, num_random_phases: int = 3000):
+
+class RejectionSamplingFeatureMapSpd:
+    def __init__(
+        self,
+        space: SymmetricPositiveDefiniteMatrices,
+        num_random_phases: int = 3000,
+    ):
         """
         Random phase feature map for the SPD (Symmetric Positive Definite) space based on the
         rejection sampling algorithm.
@@ -259,7 +288,9 @@ class RejectionSamplingFeatureMapSPD:
         self.space = space
         self.num_random_phases = num_random_phases
 
-    def __call__(self, X: B.Numeric, params, *, key, normalize=True, **kwargs) -> B.Numeric:
+    def __call__(
+        self, X: B.Numeric, params, *, key, normalize=True, **kwargs
+    ) -> B.Numeric:
         """
         :param X: [N, D, D] points in the space to evaluate the map on.
         :param params: parameters of the feature map (lengthscale and smoothness).
@@ -282,7 +313,9 @@ class RejectionSamplingFeatureMapSPD:
         if normalize is None:
             normalize = True
 
-        key, random_phases = self.space.random_phases(key, self.num_random_phases)  # [O, D, D]
+        key, random_phases = self.space.random_phases(
+            key, self.num_random_phases
+        )  # [O, D, D]
 
         key, random_lambda = spd_density_sample(
             key, (self.num_random_phases,), params, self.space.degree, self.space.rho
@@ -304,3 +337,55 @@ class RejectionSamplingFeatureMapSPD:
             features = features / normalizer
 
         return key, features
+
+
+# compatibility layer
+def deprecated(fn):
+    """
+    Ad-hoc decorator that suggests using new camel-cased classes instead of
+    old snake-cased functions.
+    """
+    fn_name = fn.__name__
+    new_name = "".join(word.title() for word in fn_name.split("_"))
+
+    doc = globals()[new_name].__init__.__doc__
+
+    def wrapper(*args, **kwargs):
+        warnings.simplefilter("always", DeprecationWarning)  # turn off filter
+        warnings.warn(
+            f"Calling {fn.__name__} has been deprecated. "
+            f"Please use {new_name} instead.",
+            category=DeprecationWarning,
+            stacklevel=2,
+        )
+        warnings.simplefilter("default", DeprecationWarning)  # reset filter
+        return fn(*args, **kwargs)
+
+    wrapper.__doc__ = doc
+    wrapper.__name__ = fn_name
+    return wrapper
+
+
+@deprecated
+def deterministic_feature_map_compact(*args, **kwargs):
+    return DeterministicFeatureMapCompact(*args, **kwargs)
+
+
+@deprecated
+def random_phase_feature_map_compact(*args, **kwargs):
+    return RandomPhaseFeatureMapCompact(*args, **kwargs)
+
+
+@deprecated
+def random_phase_feature_map_noncompact(*args, **kwargs):
+    return RandomPhaseFeatureMapNoncompact(*args, **kwargs)
+
+
+@deprecated
+def rejection_sampling_feature_map_hyperbolic(*args, **kwargs):
+    return RejectionSamplingFeatureMapHyperbolic(*args, **kwargs)
+
+
+@deprecated
+def rejection_sampling_feature_map_spd(*args, **kwargs):
+    return RejectionSamplingFeatureMapSpd(*args, **kwargs)
