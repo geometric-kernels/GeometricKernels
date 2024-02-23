@@ -8,6 +8,7 @@ tensorflow==2.13.1
 tensorflow-probability==0.20.1
 jax==0.4.13
 jaxlib==0.4.13
+jaxtyping==0.2.25
 backends>=1.5.4
 plum-dispatch>=2.2.0
 sparsegpax @ git+https://github.com/aterenin/SparseGPAX.git
