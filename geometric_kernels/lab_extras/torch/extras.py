@@ -178,11 +178,11 @@ def cumsum(x: B.TorchNumeric, axis=None):
 
 
 @dispatch
-def qr(x: B.TorchNumeric):
+def qr(x: B.TorchNumeric, mode="reduced"):
     """
     Return a QR decomposition of a matrix x.
     """
-    Q, R = torch.qr(x)
+    Q, R = torch.linalg.qr(x, mode=mode)
     return Q, R
 
 
@@ -210,3 +210,11 @@ def reciprocal_no_nan(x: B.TorchNumeric):
     """
     safe_x = torch.where(x == 0.0, 1.0, x)
     return torch.where(x == 0.0, 0.0, torch.reciprocal(safe_x))
+
+
+@dispatch
+def complex_conj(x: B.TorchNumeric):
+    """
+    Return complex conjugate
+    """
+    return torch.conj(x)

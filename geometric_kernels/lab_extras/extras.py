@@ -170,7 +170,7 @@ def cumsum(a: B.Numeric, axis=None):
 
 @dispatch
 @abstract()
-def qr(x: B.Numeric):
+def qr(x: B.Numeric, mode="reduced"):
     """
     Return a QR decomposition of a matrix x.
     """
@@ -197,4 +197,12 @@ def eigvalsh(x: B.Numeric):
 def reciprocal_no_nan(x: Union[B.Numeric, spmatrix]):
     """
     Return element-wise reciprocal (1/x). Whenever x = 0 puts 1/x = 0.
+    """
+
+
+@dispatch
+@abstract()
+def complex_conj(x: B.Numeric):
+    """
+    Return complex conjugate
     """

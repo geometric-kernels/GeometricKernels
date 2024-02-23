@@ -138,3 +138,6 @@ dmypy.json
 
 # Mac
 *.DS_Store
+
+# Idea
+/.idea/

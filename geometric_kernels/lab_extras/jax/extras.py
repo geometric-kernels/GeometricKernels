@@ -163,11 +163,11 @@ def cumsum(x: B.JAXNumeric, axis=None):
 
 
 @dispatch
-def qr(x: B.JAXNumeric):
+def qr(x: B.JAXNumeric, mode="reduced"):
     """
     Return a QR decomposition of a matrix x.
     """
-    Q, R = jnp.linalg.qr(x)
+    Q, R = jnp.linalg.qr(x, mode=mode)
     return Q, R
 
 
@@ -196,3 +196,11 @@ def reciprocal_no_nan(x: B.JAXNumeric):
     x_is_zero = jnp.equal(x, 0.0)
     safe_x = jnp.where(x_is_zero, 1.0, x)
     return jnp.where(x_is_zero, 0.0, jnp.reciprocal(safe_x))
+
+
+@dispatch
+def complex_conj(x: B.JAXNumeric):
+    """
+    Return complex conjugate
+    """
+    return jnp.conj(x)
