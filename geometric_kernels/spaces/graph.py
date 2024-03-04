@@ -1,12 +1,10 @@
 """
 Graph object
 """
-
-from typing import Dict, Tuple
-
 import lab as B
 import numpy as np
 
+from geometric_kernels._typing import Dict, Tuple
 from geometric_kernels.lab_extras import (
     degree,
     dtype_integer,

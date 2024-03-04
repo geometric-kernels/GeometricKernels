@@ -2,12 +2,11 @@
 Samplers.
 """
 from functools import partial
-from typing import Any, Callable, Optional, Tuple
 
 import lab as B
 
+from geometric_kernels._typing import Any, Callable, FeatureMap, Optional, Tuple
 from geometric_kernels.lab_extras import float_like
-from geometric_kernels.types import FeatureMap
 
 
 def sample_at(

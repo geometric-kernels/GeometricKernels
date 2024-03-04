@@ -1,9 +1,9 @@
-from typing import Any, List, Optional
-
 import lab as B
 import torch
 from lab import dispatch
 from plum import Union
+
+from geometric_kernels._typing import Any, List, Optional
 
 _Numeric = Union[B.Number, B.TorchNumeric]
 
