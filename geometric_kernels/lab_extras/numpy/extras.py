@@ -153,11 +153,11 @@ def cumsum(a: _Numeric, axis=None):
 
 
 @dispatch
-def qr(x: _Numeric):
+def qr(x: _Numeric, mode="reduced"):
     """
     Return a QR decomposition of a matrix x.
     """
-    Q, R = np.linalg.qr(x)
+    Q, R = np.linalg.qr(x, mode=mode)
     return Q, R
 
 
@@ -194,3 +194,11 @@ def reciprocal_no_nan(x: spmatrix):
     Return element-wise reciprocal (1/x). Whenever x = 0 puts 1/x = 0.
     """
     return x._with_data(reciprocal_no_nan(x._deduped_data().copy()), copy=True)
+
+
+@dispatch
+def complex_conj(x: B.NPNumeric):
+    """
+    Return complex conjugate
+    """
+    return np.conjugate(x)
