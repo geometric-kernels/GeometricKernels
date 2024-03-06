@@ -1,3 +1,7 @@
+"""
+This module provides the :class:`Stiefel` space and the representation of
+its spectrum, the :class:`StiefelEigenfunctions` class.
+"""
 import lab as B
 import numpy as np
 from opt_einsum import contract as einsum
@@ -10,7 +14,7 @@ from geometric_kernels.spaces.homogeneous_spaces import (
 from geometric_kernels.spaces.so import SOGroup
 
 
-def hook_content_formula(lmd, n):
+def _hook_content_formula(lmd, n):
     """
     A combinatorial formula used to calculate the dimension of invariant space of the Stiefeld manifold (among other things).
     """
@@ -39,14 +43,16 @@ class StiefelEigenfunctions(AveragingAdditionTheorem):
         if m_ < self.M.G.rank and signature[m_] > 0:
             return 0
         signature_abs = tuple(abs(x) for x in signature)
-        return hook_content_formula(signature_abs, m_)
+        return _hook_content_formula(signature_abs, m_)
 
 
 class Stiefel(CompactHomogeneousSpace):
     r"""
-    Stifiel manifold `V(n, m) = SO(n) / SO(n-m)`.
+    The GeometricKernels space representing the Stifiel manifold
+    :math:`V(n, m)` as the homogeneous space :math:`SO(n) / SO(n-m)`.
 
-    `V(n, m)` is represented as :math:`n \times m` matricies with orthogonal columns.
+    The elements of this space are represented as :math:`n \times m` matrices
+    with orthogonal columns.
     """
 
     def __new__(cls, n: int, m: int, key, average_order: int = 1000):

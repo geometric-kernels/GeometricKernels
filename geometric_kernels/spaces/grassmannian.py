@@ -1,3 +1,7 @@
+"""
+This module provides the :class:`Grassmannian` space and the representation of
+its spectrum, the :class:`GrassmannianEigenfunctions` class.
+"""
 import lab as B
 import numpy as np
 from opt_einsum import contract as einsum
@@ -56,11 +60,15 @@ class GrassmannianEigenfunctions(AveragingAdditionTheorem):
 
 class Grassmannian(CompactHomogeneousSpace):
     r"""
-    Grassmanian manifold.
+    The GeometricKernels space representing the Grassmannian manifold
+    :math:`Gr(n, m)` as the homogeneous space
+    :math:`SO(n) / (SO(m) \times SO(n-m))` which also happens to be a symmetric
+    space.
 
-    Class for Grassmannian manifold :math:`Gr(n, m)` as
-    :math:`SO(n) / (SO(m) \times SO(n-m))`.
-    Elements of the manifold are represented as :math:`n \times m` matrices.
+    The elements of this space are represented as :math:`n \times m` matrices
+    with orthogonal columns, just like the elements of the :class:`Stiefel`
+    space. However, for this space, this representation is not unique: two such
+    matrices can represent the same element of the Grassmannian manifold.
     """
 
     def __new__(cls, n, m, key, average_order=1000):
