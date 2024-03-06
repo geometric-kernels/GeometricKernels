@@ -3,11 +3,11 @@ scipy==1.12.0
 gpytorch==1.11
 torch==2.1.2
 gpflow==2.9.0
-gpjax==0.8.0
+gpjax==0.5.9
 tensorflow<2.14
 tensorflow-probability==0.20.1
-jax==0.4.13
-jaxlib==0.4.13
+jax==0.4.23
+jaxlib==0.4.23
 backends>=1.5.4
 plum-dispatch>=2.2.0
 sparsegpax @ git+https://github.com/aterenin/SparseGPAX.git
