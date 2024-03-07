@@ -351,14 +351,12 @@ def deprecated(fn):
     doc = globals()[new_name].__init__.__doc__
 
     def wrapper(*args, **kwargs):
-        warnings.simplefilter("always", DeprecationWarning)  # turn off filter
         warnings.warn(
             f"Calling {fn.__name__} has been deprecated. "
             f"Please use {new_name} instead.",
             category=DeprecationWarning,
             stacklevel=2,
         )
-        warnings.simplefilter("default", DeprecationWarning)  # reset filter
         return fn(*args, **kwargs)
 
     wrapper.__doc__ = doc
