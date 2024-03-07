@@ -76,7 +76,9 @@ class GPyTorchGeometricKernel(gpytorch.kernels.Kernel):
     @variance.setter
     def variance(self, value):
         value = torch.as_tensor(value).to(self.raw_variance)
-        self.initialize(raw_variance=self.raw_variance_constraint.inverse_transform(value))
+        self.initialize(
+            raw_variance=self.raw_variance_constraint.inverse_transform(value)
+        )
 
     @property
     def nu(self) -> torch.Tensor:
@@ -90,7 +92,9 @@ class GPyTorchGeometricKernel(gpytorch.kernels.Kernel):
     def nu(self, value):
         if self._trainable_nu:
             if torch.isinf(value):
-                raise ValueError("Cannot have infinite `nu` value when trainable_nu = True")
+                raise ValueError(
+                    "Cannot have infinite `nu` value when trainable_nu = True"
+                )
             value = torch.as_tensor(value).to(self.raw_nu)
             self.initialize(raw_nu=self.raw_nu_constraint.inverse_transform(value))
         else:
@@ -103,4 +107,4 @@ class GPyTorchGeometricKernel(gpytorch.kernels.Kernel):
         params = dict(lengthscale=self.lengthscale, nu=self.nu)
         if diag:
             return self.base_kernel.K_diag(params, x1)
-        return self.variance*self.base_kernel.K(params, x1, x2)
+        return self.variance * self.base_kernel.K(params, x1, x2)

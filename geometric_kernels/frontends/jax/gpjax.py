@@ -2,18 +2,15 @@
 GPJax wrapper for `BaseGeometricKernel`
 """
 import typing as tp
+from dataclasses import dataclass
 
 import gpjax
 import jax.numpy as jnp
 import tensorflow_probability.substrates.jax.bijectors as tfb
-from jaxtyping import Float, Num
 from gpjax.base import param_field, static_field
-from gpjax.typing import (
-    Array,
-    ScalarFloat,
-)
 from gpjax.kernels.computations.base import AbstractKernelComputation
-from dataclasses import dataclass
+from gpjax.typing import Array, ScalarFloat
+from jaxtyping import Float, Num
 
 from ...kernels import BaseGeometricKernel
 
@@ -26,7 +23,10 @@ class GeometricKernelComputation(gpjax.kernels.computations.AbstractKernelComput
     """
 
     def cross_covariance(
-        self, kernel: Kernel, x: Float[Array, "N #D1 D2"], y: Float[Array, "M #D1 D2"]  # noqa: F821
+        self,
+        kernel: Kernel,
+        x: Float[Array, "N #D1 D2"],  # noqa: F821
+        y: Float[Array, "M #D1 D2"],  # noqa: F821
     ) -> Float[Array, "N M"]:
         """Compute the cross covariance matrix between two matrices of inputs.
 
@@ -85,4 +85,6 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
         Returns:
             Float[Array, "N M"]: The N x M covariance matrix.
         """
-        return self.variance*self.base_kernel.K({"lengthscale": self.lengthscale, "nu": self.nu}, x, y)
+        return self.variance * self.base_kernel.K(
+            {"lengthscale": self.lengthscale, "nu": self.nu}, x, y
+        )

@@ -79,9 +79,7 @@ def base_density_sample(key, size, params, dim, rho):
     L = params["lengthscale"]
 
     # Note: 1.0 in safe_nu can be replaced by any finite positive value
-    safe_nu = B.where(nu == np.inf,
-                      B.cast(B.dtype(L), np.r_[1.0]),
-                      nu)
+    safe_nu = B.where(nu == np.inf, B.cast(B.dtype(L), np.r_[1.0]), nu)
 
     # for nu == np.inf
     # sample from Gaussian
@@ -229,16 +227,18 @@ def hyperbolic_density_sample(key, size, params, dim):
 
     def base_sampler(key):
         # Note: 1.0 in safe_nu can be replaced by any finite positive value
-        safe_nu = B.where(nu == np.inf,
-                          B.cast(B.dtype(L), np.r_[1.0]),
-                          nu)
+        safe_nu = B.where(nu == np.inf, B.cast(B.dtype(L), np.r_[1.0]), nu)
 
         # for nu == np.inf
         key, sample_mixture_nu_infinite = sample_mixture_heat(key, alpha, L)
         # for nu < np.inf
-        key, sample_mixture_nu_finite = sample_mixture_matern(key, alpha, L, safe_nu, dim)
+        key, sample_mixture_nu_finite = sample_mixture_matern(
+            key, alpha, L, safe_nu, dim
+        )
 
-        return key, B.where(nu == np.inf, sample_mixture_nu_infinite, sample_mixture_nu_finite)
+        return key, B.where(
+            nu == np.inf, sample_mixture_nu_infinite, sample_mixture_nu_finite
+        )
 
     samples = []
     while len(samples) < reduce(operator.mul, size, 1):
@@ -268,9 +268,7 @@ def spd_density_sample(key, size, params, degree, rho):
         eigv = eigvalsh(M)  # [D]
 
         # Note: 1.0 in safe_nu can be replaced by any finite positive value
-        safe_nu = B.where(nu == np.inf,
-                          B.cast(B.dtype(L), np.r_[1.0]),
-                          nu)
+        safe_nu = B.where(nu == np.inf, B.cast(B.dtype(L), np.r_[1.0]), nu)
 
         # for nu == np.inf
         proposal_nu_infinite = eigv / L

@@ -11,7 +11,6 @@ import lab as B
 # By https://stackoverflow.com/a/62136491
 if TYPE_CHECKING:
     from geometric_kernels.kernels.feature_maps import FeatureMap
-from geometric_kernels.lab_extras import float_like
 
 
 def sample_at(
@@ -31,7 +30,9 @@ def sample_at(
 
     num_features = B.shape(features)[-1]
 
-    key, random_weights = B.randn(key, B.dtype(params["lengthscale"]), num_features, s)  # [M, S]
+    key, random_weights = B.randn(
+        key, B.dtype(params["lengthscale"]), num_features, s
+    )  # [M, S]
 
     random_sample = B.matmul(features, random_weights)  # [N, S]
 

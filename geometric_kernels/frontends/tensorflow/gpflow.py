@@ -61,14 +61,14 @@ class GPflowGeometricKernel(gpflow.kernels.Kernel):
         nu = tf.cast(tf.convert_to_tensor(self.nu), lengthscale.dtype)
         variance = tf.convert_to_tensor(self.variance)
         params = dict(lengthscale=lengthscale, nu=nu)
-        return variance*self.base_kernel.K(params, X, X2)
+        return variance * self.base_kernel.K(params, X, X2)
 
     def K_diag(self, X):
         lengthscale = tf.convert_to_tensor(self.lengthscale)
         nu = tf.cast(tf.convert_to_tensor(self.nu), lengthscale.dtype)
         variance = tf.convert_to_tensor(self.variance)
         params = dict(lengthscale=lengthscale, nu=nu)
-        return variance*self.base_kernel.K_diag(params, X)
+        return variance * self.base_kernel.K_diag(params, X)
 
 
 class DefaultFloatZeroMeanFunction(gpflow.mean_functions.Constant):

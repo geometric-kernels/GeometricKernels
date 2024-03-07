@@ -90,25 +90,21 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         """
 
         # Note: 1.0 in safe_nu can be replaced by any finite positive value
-        safe_nu = B.where(nu == np.inf,
-                          B.cast(B.dtype(lengthscale), np.r_[1.0]),
-                          nu)
+        safe_nu = B.where(nu == np.inf, B.cast(B.dtype(lengthscale), np.r_[1.0]), nu)
 
         # for nu == np.inf
         spectral_values_nu_infinite = B.exp(
-            -(lengthscale**2) / 2.0 * B.cast(
-                B.dtype(lengthscale), s**2
-            )
+            -(lengthscale**2) / 2.0 * B.cast(B.dtype(lengthscale), s**2)
         )
 
         # for nu < np.inf
         power = -safe_nu - self.space.dimension / 2.0
-        base = 2.0 * safe_nu / lengthscale**2 + B.cast(
-            B.dtype(safe_nu), s**2
-        )
+        base = 2.0 * safe_nu / lengthscale**2 + B.cast(B.dtype(safe_nu), s**2)
         spectral_values_nu_finite = base**power
 
-        return B.where(nu == np.inf, spectral_values_nu_infinite, spectral_values_nu_finite)
+        return B.where(
+            nu == np.inf, spectral_values_nu_infinite, spectral_values_nu_finite
+        )
 
     @property
     def eigenfunctions(self) -> Eigenfunctions:

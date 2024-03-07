@@ -125,7 +125,7 @@ class Mesh(DiscreteSpectrumSpace):
         """
         Dimension of the space. Equal to D-1, where D is the dimension of the embedding space.
         """
-        return (self._vertices.shape[1]-1)
+        return self._vertices.shape[1] - 1
 
     @property
     def vertices(self) -> np.ndarray:
