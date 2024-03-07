@@ -1,5 +1,5 @@
 """
-Abstract base interface for spaces.
+Abstract base interface for GeometricKernels spaces.
 """
 import abc
 

@@ -6,6 +6,7 @@ from plum import dispatch
 from geometric_kernels.kernels.base import BaseGeometricKernel
 from geometric_kernels.kernels.feature_maps import (
     deterministic_feature_map_compact,
+    random_phase_feature_map_compact,
     random_phase_feature_map_noncompact,
     rejection_sampling_feature_map_hyperbolic,
     rejection_sampling_feature_map_spd,
@@ -15,9 +16,11 @@ from geometric_kernels.kernels.geometric_kernels import (
     MaternKarhunenLoeveKernel,
 )
 from geometric_kernels.spaces import (
+    CompactHomogeneousSpace,
     DiscreteSpectrumSpace,
     Graph,
     Hyperbolic,
+    MatrixLieGroup,
     Mesh,
     NoncompactSymmetricSpace,
     Space,
@@ -60,7 +63,19 @@ def default_feature_map(
 
 @dispatch
 def feature_map_from_kernel(kernel: MaternKarhunenLoeveKernel):
-    return deterministic_feature_map_compact(kernel.space, kernel.num_levels)
+    if isinstance(kernel.space, MatrixLieGroup) or isinstance(
+        kernel.space, CompactHomogeneousSpace
+    ):
+        # Because `MatrixLieGroup` and `CompactHomogeneousSpace` do not
+        # currently support explicit eigenfunction computation (they
+        # only support addition theorem).
+        return random_phase_feature_map_compact(
+            kernel.space,
+            kernel.num_levels,
+            MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES,
+        )
+    else:
+        return deterministic_feature_map_compact(kernel.space, kernel.num_levels)
 
 
 @dispatch
@@ -71,6 +86,20 @@ def feature_map_from_kernel(kernel: MaternFeatureMapKernel):
 @dispatch
 def feature_map_from_space(space: DiscreteSpectrumSpace, num: int):
     return deterministic_feature_map_compact(space, num)
+
+
+@dispatch
+def feature_map_from_space(space: MatrixLieGroup, num: int):
+    return random_phase_feature_map_compact(
+        space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
+    )
+
+
+@dispatch
+def feature_map_from_space(space: CompactHomogeneousSpace, num: int):
+    return random_phase_feature_map_compact(
+        space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
+    )
 
 
 @dispatch
@@ -104,6 +133,16 @@ def default_num(space: DiscreteSpectrumSpace):
 
 
 @dispatch
+def default_num(space: MatrixLieGroup):
+    return MaternGeometricKernel._DEFAULT_NUM_LEVELS_LIE_GROUP
+
+
+@dispatch
+def default_num(space: CompactHomogeneousSpace):
+    return MaternGeometricKernel._DEFAULT_NUM_LEVELS_LIE_GROUP
+
+
+@dispatch
 def default_num(space: NoncompactSymmetricSpace):
     return MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
 
@@ -118,6 +157,7 @@ class MaternGeometricKernel:
 
     _DEFAULT_NUM_EIGENFUNCTIONS = 1000
     _DEFAULT_NUM_LEVELS = 25
+    _DEFAULT_NUM_LEVELS_LIE_GROUP = 20
     _DEFAULT_NUM_RANDOM_PHASES = 3000
 
     def __new__(

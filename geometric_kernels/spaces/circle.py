@@ -1,7 +1,6 @@
 """
-Spaces for which there exist analytical expressions for the manifold
-and the eigenvalues and functions. Examples include the `Circle` and the `Hypersphere`.
-The Geomstats package is used for most of the geometric calculations.
+This module provides the :class:`Circle` space and the representation of its
+spectrum, the :class:`SinCosEigenfunctions` class.
 """
 import geomstats as gs
 import lab as B
@@ -18,7 +17,7 @@ from geometric_kernels.utils.utils import Optional, chain
 class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
     """
     Eigenfunctions Laplace-Beltrami operator on the circle correspond
-    to the Fourier basis, i.e. sin and cosines..
+    to the Fourier basis, i.e. sines and cosines.
     """
 
     def __init__(self, num_levels: int) -> None:
@@ -116,7 +115,11 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
 
 class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
     r"""
-    Circle :math:`\mathbb{S}^1` manifold with sinusoids and cosines eigenfunctions.
+    The GeometricKernels space representing the standard unit
+    circle :math:`\mathbb{S}^1`.
+
+    The elements of this space are represented by angles,
+    scalars from 0 to 2*pi.
     """
 
     def __init__(self):
