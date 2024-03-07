@@ -10,7 +10,56 @@ We follow https://peps.python.org/pep-0585/.
 import collections
 import contextlib
 import re
+import typing
 from sys import version_info
+
+__all__ = typing.__all__
+
+_aliased_types = [
+    "Tuple",
+    "List",
+    "Dict",
+    "Set",
+    "FrozenSet",
+    "Type",
+    #
+    "Deque",
+    "DefaultDict",
+    "OrderedDict",
+    "Counter",
+    "ChainMap",
+    #
+    "AbstractSet",
+    #
+    "ContextManager",
+    "AsyncContextManager",
+    #
+    "Pattern",
+    "Match",
+    #
+    "Awaitable",
+    "Coroutine",
+    "AsyncIterable",
+    "AsyncIterator",
+    "AsyncGenerator",
+    "Iterable",
+    "Iterator",
+    "Generator",
+    "Reversible",
+    "Container",
+    "Collection",
+    "Callable",
+    "MutableSet",
+    "Mapping",
+    "MutableMapping",
+    "Sequence",
+    "MutableSequence",
+    "ByteString",
+    "MappingView",
+    "KeysView",
+    "ItemsView",
+    "ValuesView",
+]
 
 if version_info >= (3, 9):
     Tuple = tuple
@@ -97,7 +146,19 @@ else:
         ValuesView,
     )
 
-# These are the types you need to import from `typing` even after PEP 585.
-from typing import Any, Generic, Optional, TypeVar, Union  # noqa: F401
 
-FeatureMap = Callable[[Any], Any]  # alas, B.Numeric is not a type
+# Handling all the types you need to import from `typing` both before and
+# after PEP 585.
+def __getattr__(name):
+    if name in _aliased_types:
+        raise ValueError(
+            """None of the _aliased_types should be imported indirectly by means
+            of __getattr__. There is probably an error in the _typing module
+            implementation."""
+        )
+    if name not in __all__:
+        raise AttributeError
+    return getattr(typing, name)
+
+
+FeatureMap = Callable[[typing.Any], typing.Any]  # alas, B.Numeric is not a type
