@@ -122,6 +122,9 @@ class WeylAdditionTheorem(EigenfunctionWithAdditionTheorem):
         """Number of eigenfunctions per level"""
         return self._dimensions**2
 
+    def __call__(self, X: B.Numeric):
+        raise NotImplementedError
+
 
 class LieGroupCharacter(abc.ABC):
     """
