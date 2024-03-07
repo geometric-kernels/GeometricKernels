@@ -40,15 +40,15 @@ def sample_at(
 
 
 def sampler(
-    feature_map: FeatureMap, s: Optional[int] = 1, key=None, **kwargs
+    feature_map: FeatureMap, s: Optional[int] = 1, **kwargs
 ) -> Callable[[Any], Any]:
     """
     A helper wrapper around `sample_at`.
 
-    Given a `feature_map`, return a function that computes `s` samples with `key` random state at given points in space.
+    Given a `feature_map`, return a function that computes `s` samples.
     """
 
-    sample_f = partial(sample_at, feature_map, s, key=key)
+    sample_f = partial(sample_at, feature_map, s, **kwargs)
     sample_f.__doc__ == sample_at.__doc__
 
     return sample_f
