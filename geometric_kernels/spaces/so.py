@@ -1,3 +1,7 @@
+"""
+This module provides the :class:`SOGroup` space and the representation of
+its spectrum, the :class:`SOEigenfunctions` class.
+"""
 import itertools
 import json
 import math
@@ -15,7 +19,7 @@ from geometric_kernels.spaces.lie_groups import (
     MatrixLieGroup,
     WeylAdditionTheorem,
 )
-from geometric_kernels.utils.utils import fixed_length_partitions
+from geometric_kernels.utils.utils import chain, fixed_length_partitions
 
 
 class SOEigenfunctions(WeylAdditionTheorem):
@@ -190,10 +194,23 @@ class SOCharacter(LieGroupCharacter):
 
 class SOGroup(MatrixLieGroup):
     r"""
-    Special Orthogonal Group: group of matrices with unit determinant.
+    The GeometricKernels space representing the special orthogonal group
+    :math:`SO(n)` consisting of n by n orthogonal matrices with unit
+    determinant.
+
+    The elements of this space are represented as :math:`n \times n` orthogonal
+    matrices with real entries and unit determinant.
+
+    Note: we only support n >= 3. Mathematically, SO(2) is equivalent to the
+    unit circle, which is available as the :class:`Circle` space.
+    For larger values of n, you might need to run the `compute_characters.py`
+    script to precompute the necessary mathematical quantities beyond the ones
+    provided by default.
     """
 
     def __init__(self, n):
+        if n < 3:
+            raise ValueError("Only n >= 3 is supported. For n = 2, use Circle.")
         self.n = n
         self.dim = n * (n - 1) // 2
         self.rank = n // 2
@@ -227,15 +244,9 @@ class SOGroup(MatrixLieGroup):
         :return: [M, 1] array containing the eigenvalues
         """
         eigenfunctions = SOEigenfunctions(self.n, num)
-        eigenvalues = np.array(
-            itertools.chain(
-                [
-                    [eigenfunction] * dim**2
-                    for eigenfunction, dim in zip(
-                        eigenfunctions._eigenvalues, eigenfunctions._dimensions
-                    )
-                ]
-            )
+        eigenvalues = chain(
+            eigenfunctions._eigenvalues,
+            [dim**2 for dim in eigenfunctions._dimensions],
         )
         return B.reshape(eigenvalues, -1, 1)  # [M, 1]
 

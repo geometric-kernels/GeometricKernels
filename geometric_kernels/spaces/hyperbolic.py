@@ -1,5 +1,5 @@
 """
-Hyperbolic space.
+This module provides the :class:`Hyperbolic` space.
 """
 import geomstats as gs
 import lab as B
@@ -21,11 +21,14 @@ from geometric_kernels.spaces.base import NoncompactSymmetricSpace
 
 class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
     r"""
-    Hyperbolic manifold.
+    The GeometricKernels space representing the Hyperbolic spaces :math:`H^n`.
+    More specifically, we use the hyperboloid model of the hyperbolic space.
 
-    The class implements the hyperboloid model of the hyperbolic space :math:`H^n`.
+    The elements of this space are represented by (n+1)-dimensional vectors satisfying
 
-    :math:`H^n = \{ (x_0, \ldots, x_{n}) | x_0^2 - \sum_{i=1}^{n} x_i^2 = 1, x_0 > 0 \}`
+    :math:`x_0^2 - x_1^2 - \ldots - x_{d}^2 = 1,`
+
+    i.e. lying on the hyperboloid.
 
     The class inherits the interface of geomstats's `Hyperbolic` with `point_type=extrinsic`.
     """

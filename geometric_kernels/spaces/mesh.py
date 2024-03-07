@@ -1,5 +1,5 @@
 """
-Mesh object
+This module provides the :class:`Mesh` space.
 """
 import lab as B
 import numpy as np
@@ -19,8 +19,17 @@ from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 
 class Mesh(DiscreteSpectrumSpace):
     """
-    A representation of a surface mesh. Mimics `PyMesh` interface. Uses
-    `potpourri3d` to read mesh files.
+    The GeometricKernels space representing the node set of any user-provided mesh.
+
+    We only support the commonly used 2-dimensional meshes (discrete counterparts
+    of surfaces, 2-dimensional manifolds in a 3-dimensional ambient space) and
+    1-dimensional meshes (discrete counterparts of curves, 1-dimensional manifolds).
+
+    We use `potpourri3d <https://github.com/nmwsharp/potpourri3d>`_ to load meshes
+    and mimic the interface of `PyMesh <https://github.com/PyMesh/PyMesh>`_.
+
+    The elements of this space are represented by node indices, integer values
+    from 0 to n-1, where n is the number of nodes in the user-provided mesh.
     """
 
     def __init__(self, vertices: np.ndarray, faces: np.ndarray):

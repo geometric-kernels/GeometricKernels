@@ -1,7 +1,6 @@
 """
-Spaces for which there exist analytical expressions for the manifold
-and the eigenvalues and functions. Examples include the `Circle` and the `Hypersphere`.
-The Geomstats package is used for most of the geometric calculations.
+This module provides the :class:`Hypersphere` space and the representation of
+its spectrum, the :class:`SphericalHarmonics` class.
 """
 import geomstats as gs
 import lab as B
@@ -29,6 +28,7 @@ class SphericalHarmonics(EigenfunctionWithAdditionTheorem):
         """
         :param dim:
             S^{dim}. Example: dim = 2 is the sphere in R^3. Follows geomstats convention.
+            We only support dim >= 2. For dim = 1, use the `Circle` space.
 
         :param num_levels:
             Specifies the number of levels (degrees) of the spherical harmonics.
@@ -146,13 +146,22 @@ class SphericalHarmonics(EigenfunctionWithAdditionTheorem):
 
 class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
     r"""
-    The d-dimensional hypersphere embedded in the (d+1)-dimensional Euclidean space.
+    The GeometricKernels space representing the d-dimensional hypersphere
+    embedded in the (d+1)-dimensional Euclidean space.
+
+    The elements of this space are represented by (d+1)-dimensional vectors
+    of unit norm.
+
+    We only support d >= 2. For d = 1, use the :class:`Circle` space.
     """
 
     def __init__(self, dim: int):
         r"""
         :param dim: Dimension of the hypersphere :math:`S^d`.
+                    Should satisfy dim >= 2. For dim = 1, use `Circle`.
         """
+        if dim < 2:
+            raise ValueError("Only dim >= 2 is supported. For dim = 1, use Circle.")
         super().__init__(dim=dim)
         self.dim = dim
 
