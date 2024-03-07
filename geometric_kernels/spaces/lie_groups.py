@@ -1,3 +1,6 @@
+"""
+Abstract base interface for compact matrix Lie groups.
+"""
 import abc
 
 import lab as B
@@ -84,25 +87,25 @@ class WeylAdditionTheorem(EigenfunctionWithAdditionTheorem):
         diff = self._difference(X, X2)
         torus_repr_diff = self._torus_representative(diff)
         values = [
-            degree**2 * chi(torus_repr_diff)[..., None]  # [N1, N2, 1]
+            degree**2 * B.real(chi(torus_repr_diff)[..., None])  # [a, b, 1]
             for chi, degree in zip(self._characters, self._dimensions)
         ]
-        return B.concat(*values, axis=-1)  # [N, N2, L]
+        return B.concat(*values, axis=-1)  # [a, b, L]
 
     def _addition_theorem_diag(self, X: B.Numeric, **parameters) -> B.Numeric:
         """
         Returns the sum of eigenfunctions on a level for which we have a simplified expression
-        :param X: [N, D]
+        :param X: [a, n, n]
         :param parameters: any additional parameters
         :return: Evaluate the sum of eigenfunctions on each level. Returns
-            a value for each level [N, L]
+            a value for each level [a, L]
         """
         torus_repr_X = self._torus_representative(X)  # TODO: fixme
         values = [
-            degree**2 * chi(torus_repr_X)  # [N, 1]
+            degree**2 * B.real(chi(torus_repr_X))  # [a, 1]
             for chi, degree in zip(self._characters, self._dimensions)
         ]
-        return B.concat(*values, axis=1)  # [N, L]
+        return B.concat(*values, axis=1)  # [a, L]
 
     @property
     def num_levels(self) -> int:
@@ -118,14 +121,6 @@ class WeylAdditionTheorem(EigenfunctionWithAdditionTheorem):
     def num_eigenfunctions_per_level(self) -> B.Numeric:
         """Number of eigenfunctions per level"""
         return self._dimensions**2
-
-    def __call__(self, X: B.Numeric):
-        gammas = self._torus_representative(X)
-        res = []
-        for chi in self._characters:
-            res.append(chi(gammas))
-        res = B.stack(res, axis=1)
-        return res
 
 
 class LieGroupCharacter(abc.ABC):
@@ -144,7 +139,15 @@ class LieGroupCharacter(abc.ABC):
 
 class MatrixLieGroup(DiscreteSpectrumSpace):
     r"""
-    A base class for Lie groups represented as matrices. The group operation is the matrix multiplication, and the inverse is the matrix inverse.
+    A base class for Lie groups of matrices, subgroups of the general linear
+    group GL(n).
+
+    The group operation is the standard matrix multiplication, and the group
+    inverse is the standard matrix inverse. Despite this, we make the
+    subclasses implement their own multiplication/inverse routines, because
+    in special cases it can typically be implemented much more efficient.
+    For example, for the special orthogonal group :class:`SOGroup`, the
+    inverse is equivalent to transposition.
     """
 
     @property

@@ -1,3 +1,6 @@
+"""
+Abstract base interface for compact homogeneous spaces.
+"""
 import abc
 
 import lab as B
@@ -183,7 +186,8 @@ class CompactHomogeneousSpace(DiscreteSpectrumSpace):
     A compact homogeneous space `M` given as `M=G/H`,
     where G is a compact Lie group, `H` is a subgroup called the stabilizer.
 
-    Examples include Stiefel manifolds `SO(n) / SO(n-m)` and Grassmanians `SO(n)/(SO(m) x SO(n-m))`.
+    Examples include Stiefel manifolds `SO(n) / SO(n-m)`
+    and Grassmannians `SO(n)/(SO(m) x SO(n-m))`.
     """
 
     def __init__(self, G: MatrixLieGroup, H, samples_H, average_order):
