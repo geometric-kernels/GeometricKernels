@@ -1,5 +1,9 @@
 """
 GPJax wrapper for `BaseGeometricKernel`
+
+A tutorial on how to use this wrapper to run Gaussian process regression on
+a geometric space is available in the `frontends/GPJax.ipynb <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/frontends/GPJax.ipynb>`_
+notebook.
 """
 import typing as tp
 from dataclasses import dataclass
@@ -44,11 +48,48 @@ class GeometricKernelComputation(gpjax.kernels.computations.AbstractKernelComput
 
 @dataclass
 class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
-    """
-    GPJax wrapper for `BaseGeometricKernel`
+    r"""
+    GPJax wrapper for :class:`BaseGeometricKernel`.
+
+    A tutorial on how to use this wrapper to run Gaussian process regression on
+    a geometric space is available in the `frontends/GPJax.ipynb <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/frontends/GPJax.ipynb>`_
+    notebook.
+
+    **Note**: the `base_kernel` itself does not store any of its hyperparameters
+    (like `lengthscale` and `nu`), therefore you either need to pass them down to
+    this wrapper explicitly or use the default values, as provided by the
+    `init_params` method of the `base_kernel`.
+
+    **Note**: unlike the frontends for GPflow and GPyTorch, GPJaxGeometricKernel
+    does not have the `trainable_nu` parameter which determines whether or not
+    the smoothness parameter nu is to be optimized over. By default, it is not
+    trainable. If you want to make it trainable, do
+    :code:`kernel = kernel.replace_trainable(nu=False)` on an instance of the
+    `GPJaxGeometricKernel`.
+
+    :param base_kernel:
+        The kernel to wrap.
+    :param name:
+        Optional kernel name (inherited from `gpjax.kernels.AbstractKernel`).
+
+        Defaults to "Geometric Kernel".
+    :param lengthscale:
+        Initial value of the length scale.
+
+        If not given or set to None, uses the default value of the
+        `base_kernel`, as provided by its `init_params` method.
+    :param nu:
+        Initial value of the smoothness parameter nu.
+
+        If not given or set to None, uses the default value of the
+        `base_kernel`, as provided by its `init_params` method.
+    :param variance:
+        Initial value of the variance (outputscale) parameter.
+
+        Defaults to 1.0.
     """
 
-    nu: ScalarFloat = param_field(None, bijector=tfb.Softplus())
+    nu: ScalarFloat = param_field(None, bijector=tfb.Softplus(), trainable=False)
     lengthscale: tp.Union[ScalarFloat, Float[Array, " D"]] = param_field(
         None, bijector=tfb.Softplus()
     )
