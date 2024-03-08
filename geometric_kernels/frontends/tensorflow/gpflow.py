@@ -1,9 +1,14 @@
 """
 GPflow kernel wrapper
+
+A tutorial on how to use this wrapper to run Gaussian process regression on
+a geometric space is available in the `frontends/GPflow.ipynb <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/frontends/GPflow.ipynb>`_
+notebook.
 """
-from typing import Optional
+from typing import Optional, Union
 
 import gpflow
+import numpy as np
 import tensorflow as tf
 from gpflow.base import TensorType
 from gpflow.kernels.base import ActiveDims
@@ -15,7 +20,50 @@ from geometric_kernels.spaces.base import Space
 
 class GPflowGeometricKernel(gpflow.kernels.Kernel):
     """
-    GPflow wrapper for `BaseGeometricKernel`.
+    GPflow wrapper for :class:`BaseGeometricKernel`.
+
+    A tutorial on how to use this wrapper to run Gaussian process regression on
+    a geometric space is available in the `frontends/GPflow.ipynb <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/frontends/GPflow.ipynb>`_
+    notebook.
+
+    **Note**: the `base_kernel` itself does not store any of its hyperparameters
+    (like `lengthscale` and `nu`), therefore you either need to pass them down to
+    this wrapper explicitly or use the default values, as provided by the
+    `init_params` method of the `base_kernel`.
+
+    **Note**: As customary in GPflow, this wrapper calls the length scale
+    parameter `lengthscales` (plural), as opposed to the convention used by
+    GeometricKernels, where we call it `lengthscales` (singular).
+
+    :param base_kernel:
+        The kernel to wrap.
+    :param active_dims:
+        Active dimensions, either a slice or list of indices into the
+        columns of X (inherited from `gpflow.kernels.base.Kernel`).
+    :param name:
+        Optional kernel name (inherited from `gpflow.kernels.base.Kernel`).
+    :param lengthscales:
+        Initial value of the length scale. Note **s** in lengthscale\ **s**\ .
+
+        If not given or set to None, uses the default value of the
+        `base_kernel`, as provided by its `init_params` method.
+    :param nu:
+        Initial value of the smoothness parameter nu.
+
+        If not given or set to None, uses the default value of the
+        `base_kernel`, as provided by its `init_params` method.
+    :param variance:
+        Initial value of the variance (outputscale) parameter.
+        
+        Defaults to 1.0.
+    :param trainable_nu:
+        Whether or not the parameter nu is to be optimized over.
+
+        Cannot be True if nu is equal to infinity. You cannot change
+        this parameter after constructing the object. Defaults to False.
+
+    :raises ValueError: if trying to set nu = infinity together with
+        trainable_nu = True.
     """
 
     def __init__(
@@ -23,9 +71,9 @@ class GPflowGeometricKernel(gpflow.kernels.Kernel):
         base_kernel: BaseGeometricKernel,
         active_dims: Optional[ActiveDims] = None,
         name: Optional[str] = None,
-        lengthscale: TensorType = None,
-        nu: TensorType = None,
-        variance: TensorType = 1.0,
+        lengthscales: Union[float, TensorType, np.ndarray] = None,
+        nu: Union[float, TensorType, np.ndarray] = None,
+        variance: Union[float, TensorType, np.ndarray] = 1.0,
         trainable_nu: bool = False,
     ):
         super().__init__(active_dims, name)
@@ -36,10 +84,10 @@ class GPflowGeometricKernel(gpflow.kernels.Kernel):
         if nu is None:
             nu = default_params["nu"]
 
-        if lengthscale is None:
-            lengthscale = default_params["lengthscale"]
+        if lengthscales is None:
+            lengthscales = default_params["lengthscale"]
 
-        self.lengthscale = gpflow.Parameter(lengthscale, transform=positive())
+        self.lengthscales = gpflow.Parameter(lengthscales, transform=positive())
         self.variance = gpflow.Parameter(variance, transform=positive())
 
         self.trainable_nu = trainable_nu
@@ -57,14 +105,16 @@ class GPflowGeometricKernel(gpflow.kernels.Kernel):
         return self.base_kernel.space
 
     def K(self, X, X2=None):
-        lengthscale = tf.convert_to_tensor(self.lengthscale)
+        """Evaluate the covariance matrix K(X, X2) (or K(X, X) if X2=None)."""
+        lengthscale = tf.convert_to_tensor(self.lengthscales)
         nu = tf.cast(tf.convert_to_tensor(self.nu), lengthscale.dtype)
         variance = tf.convert_to_tensor(self.variance)
         params = dict(lengthscale=lengthscale, nu=nu)
         return variance * self.base_kernel.K(params, X, X2)
 
     def K_diag(self, X):
-        lengthscale = tf.convert_to_tensor(self.lengthscale)
+        """Evaluate the diagonal of covariance matrix K(X, X)."""
+        lengthscale = tf.convert_to_tensor(self.lengthscales)
         nu = tf.cast(tf.convert_to_tensor(self.nu), lengthscale.dtype)
         variance = tf.convert_to_tensor(self.variance)
         params = dict(lengthscale=lengthscale, nu=nu)
