@@ -16,7 +16,7 @@ from geometric_kernels.spaces.base import Space
 
 
 class GPyTorchGeometricKernel(gpytorch.kernels.Kernel):
-    """
+    r"""
     GPyTorch wrapper for :class:`BaseGeometricKernel`.
 
     A tutorial on how to use this wrapper to run Gaussian process regression on
@@ -26,9 +26,11 @@ class GPyTorchGeometricKernel(gpytorch.kernels.Kernel):
     **Note**: the `base_kernel` itself does not store any of its hyperparameters
     (like `lengthscale` and `nu`), therefore you either need to pass them down to
     this wrapper explicitly or use the default values, as provided by the
-    `init_params` method of the `base_kernel`. As customary in GPyTorch, this
-    wrapper does not maintain a variance (outputscale) parameter. To add it,
-    use :code:`gpytorch.kernels.ScaleKernel(GPyTorchGeometricKernel(...))`.
+    `init_params` method of the `base_kernel`.
+
+    **Note** As customary in GPyTorch, this wrapper does not maintain a
+    variance (outputscale) parameter. To add it, use
+    :code:`gpytorch.kernels.ScaleKernel(GPyTorchGeometricKernel(...))`.
 
     :param base_kernel:
         The kernel to wrap.
@@ -42,7 +44,6 @@ class GPyTorchGeometricKernel(gpytorch.kernels.Kernel):
 
         If not given or set to None, uses the default value of the
         `base_kernel`, as provided by its `init_params` method.
-
     :param trainable_nu:
         Whether or not the parameter nu is to be optimized over.
 
@@ -122,7 +123,7 @@ class GPyTorchGeometricKernel(gpytorch.kernels.Kernel):
             self.raw_nu = torch.as_tensor(value)
 
     def forward(self, x1, x2, diag=False, last_dim_is_batch=False, **kwargs):
-        """Evaluate kernel"""
+        """Evaluate the covariance matrix K(x1, x2)."""
         params = dict(lengthscale=self.lengthscale, nu=self.nu)
         if diag:
             return self.base_kernel.K_diag(params, x1)

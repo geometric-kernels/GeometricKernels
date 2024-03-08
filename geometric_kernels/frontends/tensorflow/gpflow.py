@@ -19,7 +19,7 @@ from geometric_kernels.spaces.base import Space
 
 
 class GPflowGeometricKernel(gpflow.kernels.Kernel):
-    """
+    r"""
     GPflow wrapper for :class:`BaseGeometricKernel`.
 
     A tutorial on how to use this wrapper to run Gaussian process regression on
@@ -54,7 +54,7 @@ class GPflowGeometricKernel(gpflow.kernels.Kernel):
         `base_kernel`, as provided by its `init_params` method.
     :param variance:
         Initial value of the variance (outputscale) parameter.
-        
+
         Defaults to 1.0.
     :param trainable_nu:
         Whether or not the parameter nu is to be optimized over.
