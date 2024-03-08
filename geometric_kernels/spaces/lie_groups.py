@@ -87,8 +87,8 @@ class WeylAdditionTheorem(EigenfunctionWithAdditionTheorem):
         diff = self._difference(X, X2)
         torus_repr_diff = self._torus_representative(diff)
         values = [
-            degree**2 * B.real(chi(torus_repr_diff)[..., None])  # [a, b, 1]
-            for chi, degree in zip(self._characters, self._dimensions)
+            repr_dim * B.real(chi(torus_repr_diff)[..., None])  # [a, b, 1]
+            for chi, repr_dim in zip(self._characters, self._dimensions)
         ]
         return B.concat(*values, axis=-1)  # [a, b, L]
 
@@ -100,10 +100,10 @@ class WeylAdditionTheorem(EigenfunctionWithAdditionTheorem):
         :return: Evaluate the sum of eigenfunctions on each level. Returns
             a value for each level [a, L]
         """
-        torus_repr_X = self._torus_representative(X)  # TODO: fixme
+        ones = B.ones(B.dtype(X), *X.shape[:-2], 1)
         values = [
-            degree**2 * B.real(chi(torus_repr_X))  # [a, 1]
-            for chi, degree in zip(self._characters, self._dimensions)
+            repr_dim * repr_dim * ones  # [a, 1], because chi(X*inv(X))=repr_dim
+            for repr_dim in self._dimensions
         ]
         return B.concat(*values, axis=1)  # [a, L]
 

@@ -123,8 +123,11 @@ class AveragingAdditionTheorem(EigenfunctionWithAdditionTheorem):
         :return: Evaluate the sum of eigenfunctions on each level. Returns
             a value for each level [N, L]
         """
+        ones = B.ones(B.dtype(X), *X.shape[:-2], 1)  # assumes xs are matrices
         values = [
-            degree * self._compute_projected_character_value_at_e(signature)  # [N, 1]
+            degree
+            * self._compute_projected_character_value_at_e(signature)
+            * ones  # [N, 1]
             for signature, degree in zip(self._signatures, self._dimensions)
         ]
         return B.concat(*values, axis=1)  # [N, L]
