@@ -1,10 +1,10 @@
-from typing import List
-
 import lab as B
 from lab import dispatch
 from lab.util import abstract
 from plum import Union
 from scipy.sparse import spmatrix
+
+from geometric_kernels._typing import List
 
 
 @dispatch

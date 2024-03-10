@@ -1,10 +1,10 @@
-from typing import Any, List, Optional
-
 import lab as B
 import tensorflow as tf
 import tensorflow_probability as tfp
 from lab import dispatch
 from plum import Union
+
+from geometric_kernels._typing import Any, List, Optional
 
 _Numeric = Union[B.Number, B.TFNumeric, B.NPNumeric]
 
