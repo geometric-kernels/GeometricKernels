@@ -159,5 +159,3 @@ def __getattr__(name):
     if name not in __all__:
         raise AttributeError
     return getattr(typing, name)
-
-
