@@ -5,7 +5,6 @@ A tutorial on how to use this wrapper to run Gaussian process regression on
 a geometric space is available in the `frontends/GPJax.ipynb <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/frontends/GPJax.ipynb>`_
 notebook.
 """
-import typing as tp
 from dataclasses import dataclass
 
 import gpjax
@@ -16,9 +15,10 @@ from gpjax.kernels.computations.base import AbstractKernelComputation
 from gpjax.typing import Array, ScalarFloat
 from jaxtyping import Float, Num
 
+from geometric_kernels._typing import TypeVar, Union
 from geometric_kernels.kernels import BaseGeometricKernel
 
-Kernel = tp.TypeVar("Kernel", bound="gpjax.kernels.base.AbstractKernel")  # noqa: F821
+Kernel = TypeVar("Kernel", bound="gpjax.kernels.base.AbstractKernel")  # noqa: F821
 
 
 class GeometricKernelComputation(gpjax.kernels.computations.AbstractKernelComputation):
@@ -90,7 +90,7 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
     """
 
     nu: ScalarFloat = param_field(None, bijector=tfb.Softplus(), trainable=False)
-    lengthscale: tp.Union[ScalarFloat, Float[Array, " D"]] = param_field(
+    lengthscale: Union[ScalarFloat, Float[Array, " D"]] = param_field(
         None, bijector=tfb.Softplus()
     )
     variance: ScalarFloat = param_field(jnp.array(1.0), bijector=tfb.Softplus())

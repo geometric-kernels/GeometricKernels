@@ -1,9 +1,9 @@
-from typing import List
-
 import jax.numpy as jnp
 import lab as B
 from lab import dispatch
 from plum import Union
+
+from geometric_kernels._typing import List
 
 _Numeric = Union[B.Number, B.JAXNumeric]
 

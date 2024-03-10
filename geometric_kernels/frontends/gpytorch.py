@@ -5,12 +5,11 @@ A tutorial on how to use this wrapper to run Gaussian process regression on
 a geometric space is available in the `frontends/GPyTorch.ipynb <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/frontends/GPyTorch.ipynb>`_
 notebook.
 """
-from typing import Union
-
 import gpytorch
 import numpy as np
 import torch
 
+from geometric_kernels._typing import Union
 from geometric_kernels.kernels import BaseGeometricKernel
 from geometric_kernels.spaces.base import Space
 

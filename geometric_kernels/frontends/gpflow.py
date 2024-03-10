@@ -5,7 +5,6 @@ A tutorial on how to use this wrapper to run Gaussian process regression on
 a geometric space is available in the `frontends/GPflow.ipynb <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/frontends/GPflow.ipynb>`_
 notebook.
 """
-from typing import Optional, Union
 
 import gpflow
 import numpy as np
@@ -14,6 +13,7 @@ from gpflow.base import TensorType
 from gpflow.kernels.base import ActiveDims
 from gpflow.utilities import positive
 
+from geometric_kernels._typing import Optional, Union
 from geometric_kernels.kernels import BaseGeometricKernel
 from geometric_kernels.spaces.base import Space
 
