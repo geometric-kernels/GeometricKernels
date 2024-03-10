@@ -2,11 +2,11 @@
 Abstract base interface for compact matrix Lie groups.
 """
 import abc
-from typing import List
 
 import lab as B
 import numpy as np
 
+from geometric_kernels._typing import List
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import EigenfunctionWithAdditionTheorem
 
