@@ -1,13 +1,19 @@
 """
 Samplers.
 """
+from __future__ import annotations  # By https://stackoverflow.com/a/62136491
+
 from functools import partial
-from typing import Any, Callable, Optional, Tuple
 
 import lab as B
 
+from geometric_kernels._typing import TYPE_CHECKING, Any, Callable, Optional, Tuple
+
+# By https://stackoverflow.com/a/62136491
+if TYPE_CHECKING:
+    from geometric_kernels.kernels.feature_maps import FeatureMap
+
 from geometric_kernels.lab_extras import float_like
-from geometric_kernels.types import FeatureMap
 
 
 def sample_at(

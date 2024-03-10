@@ -1,6 +1,7 @@
 """
 Feature maps
 """
+import abc
 import warnings
 
 import lab as B
@@ -20,7 +21,17 @@ from geometric_kernels.spaces import (
 )
 
 
-class DeterministicFeatureMapCompact:
+class FeatureMap(abc.ABC):
+    """
+    Abstract base class for all feature maps.
+    """
+
+    @abc.abstractmethod
+    def __call__(self, *args, **kwargs):
+        raise NotImplementedError
+
+
+class DeterministicFeatureMapCompact(FeatureMap):
     def __init__(self, space: DiscreteSpectrumSpace, num_levels: int):
         """
         Deterministic feature map for compact spaces based on the Laplacian eigendecomposition.
@@ -67,7 +78,7 @@ class DeterministicFeatureMapCompact:
         return None, features
 
 
-class RandomPhaseFeatureMapCompact:
+class RandomPhaseFeatureMapCompact(FeatureMap):
     def __init__(
         self,
         space: DiscreteSpectrumSpace,
@@ -138,7 +149,7 @@ class RandomPhaseFeatureMapCompact:
         return key, features
 
 
-class RandomPhaseFeatureMapNoncompact:
+class RandomPhaseFeatureMapNoncompact(FeatureMap):
     def __init__(self, space: NoncompactSymmetricSpace, num_random_phases: int = 3000):
         """
         Random phase feature map for noncompact symmetric space based on naive algorithm.
@@ -206,7 +217,7 @@ class RandomPhaseFeatureMapNoncompact:
         return key, features
 
 
-class RejectionSamplingFeatureMapHyperbolic:
+class RejectionSamplingFeatureMapHyperbolic(FeatureMap):
     def __init__(self, space: Hyperbolic, num_random_phases: int = 3000):
         """
         Random phase feature map for the Hyperbolic space based on the
@@ -272,7 +283,7 @@ class RejectionSamplingFeatureMapHyperbolic:
         return key, features
 
 
-class RejectionSamplingFeatureMapSpd:
+class RejectionSamplingFeatureMapSpd(FeatureMap):
     def __init__(
         self,
         space: SymmetricPositiveDefiniteMatrices,
@@ -351,14 +362,12 @@ def deprecated(fn):
     doc = globals()[new_name].__init__.__doc__
 
     def wrapper(*args, **kwargs):
-        warnings.simplefilter("always", DeprecationWarning)  # turn off filter
         warnings.warn(
             f"Calling {fn.__name__} has been deprecated. "
             f"Please use {new_name} instead.",
             category=DeprecationWarning,
             stacklevel=2,
         )
-        warnings.simplefilter("default", DeprecationWarning)  # reset filter
         return fn(*args, **kwargs)
 
     wrapper.__doc__ = doc

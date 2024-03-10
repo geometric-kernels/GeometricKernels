@@ -1,10 +1,10 @@
 """
 Product of kernels
 """
-from typing import List, Mapping, Optional
 
 import lab as B
 
+from geometric_kernels._typing import List, Mapping, Optional
 from geometric_kernels.kernels.base import BaseGeometricKernel
 from geometric_kernels.spaces import Space
 

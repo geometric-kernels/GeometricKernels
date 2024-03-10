@@ -1,13 +1,11 @@
 """
 This module provides the :class:`Hyperbolic` space.
 """
-
-from typing import Optional
-
 import geomstats as gs
 import lab as B
 from opt_einsum import contract as einsum
 
+from geometric_kernels._typing import Optional
 from geometric_kernels.lab_extras import (
     cosh,
     create_complex,

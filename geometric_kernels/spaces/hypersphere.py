@@ -2,14 +2,13 @@
 This module provides the :class:`Hypersphere` space and the representation of
 its spectrum, the :class:`SphericalHarmonics` class.
 """
-from typing import Tuple
-
 import geomstats as gs
 import lab as B
 import numpy as np
 from spherical_harmonics import SphericalHarmonics as _SphericalHarmonics
 from spherical_harmonics.fundamental_set import num_harmonics
 
+from geometric_kernels._typing import Tuple
 from geometric_kernels.lab_extras import dtype_double
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import (

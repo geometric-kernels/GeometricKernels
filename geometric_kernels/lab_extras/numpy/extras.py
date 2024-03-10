@@ -1,10 +1,10 @@
-from typing import Any, List, Optional
-
 import lab as B
 import numpy as np
 from lab import dispatch
 from plum import Union
 from scipy.sparse import spmatrix
+
+from geometric_kernels._typing import Any, List, Optional
 
 _Numeric = Union[B.Number, B.NPNumeric]
 

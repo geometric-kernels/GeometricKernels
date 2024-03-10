@@ -2,12 +2,12 @@
 Convenience utilities.
 """
 import inspect
-from typing import List, Type
 
 import einops
 import lab as B
 from plum import Union
 
+from geometric_kernels._typing import List, Type
 from geometric_kernels.lab_extras import get_random_state, restore_random_state
 
 
