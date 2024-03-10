@@ -161,4 +161,3 @@ def __getattr__(name):
     return getattr(typing, name)
 
 
-FeatureMap = Callable[[typing.Any], typing.Any]  # alas, B.Numeric is not a type
