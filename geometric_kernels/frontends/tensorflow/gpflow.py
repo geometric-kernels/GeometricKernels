@@ -33,7 +33,7 @@ class GPflowGeometricKernel(gpflow.kernels.Kernel):
 
     **Note**: As customary in GPflow, this wrapper calls the length scale
     parameter `lengthscales` (plural), as opposed to the convention used by
-    GeometricKernels, where we call it `lengthscales` (singular).
+    GeometricKernels, where we call it `lengthscale` (singular).
 
     :param base_kernel:
         The kernel to wrap.

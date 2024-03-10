@@ -115,7 +115,7 @@ class GPyTorchGeometricKernel(gpytorch.kernels.Kernel):
         if self._trainable_nu:
             if torch.isinf(value):
                 raise ValueError(
-                    "Cannot have infinite `nu` value when trainable_nu = True"
+                    "Cannot have infinite `nu` value when trainable_nu is True"
                 )
             value = torch.as_tensor(value).to(self.raw_nu)
             self.initialize(raw_nu=self.raw_nu_constraint.inverse_transform(value))
