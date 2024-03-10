@@ -55,10 +55,10 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
     a geometric space is available in the `frontends/GPJax.ipynb <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/frontends/GPJax.ipynb>`_
     notebook.
 
-    **Note**: the `base_kernel` itself does not store any of its hyperparameters
-    (like `lengthscale` and `nu`), therefore you either need to pass them down to
-    this wrapper explicitly or use the default values, as provided by the
-    `init_params` method of the `base_kernel`.
+    **Note**: remember that the `base_kernel` itself does not store any of its
+    hyperparameters (like `lengthscale` and `nu`). If you do not set them
+    manually—when initializing the object or after, by setting the properties—
+    this wrapper will use the values provided by `base_kernel.init_params`.
 
     **Note**: unlike the frontends for GPflow and GPyTorch, GPJaxGeometricKernel
     does not have the `trainable_nu` parameter which determines whether or not

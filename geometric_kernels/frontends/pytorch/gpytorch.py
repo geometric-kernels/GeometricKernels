@@ -23,10 +23,10 @@ class GPyTorchGeometricKernel(gpytorch.kernels.Kernel):
     a geometric space is available in the `frontends/GPyTorch.ipynb <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/frontends/GPyTorch.ipynb>`_
     notebook.
 
-    **Note**: the `base_kernel` itself does not store any of its hyperparameters
-    (like `lengthscale` and `nu`), therefore you either need to pass them down to
-    this wrapper explicitly or use the default values, as provided by the
-    `init_params` method of the `base_kernel`.
+    **Note**: remember that the `base_kernel` itself does not store any of its
+    hyperparameters (like `lengthscale` and `nu`). If you do not set them
+    manually—when initializing the object or after, by setting the properties—
+    this wrapper will use the values provided by `base_kernel.init_params`.
 
     **Note** As customary in GPyTorch, this wrapper does not maintain a
     variance (outputscale) parameter. To add it, use
