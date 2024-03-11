@@ -1,6 +1,18 @@
 """
 Eigenfunctions are callable objects which evaluate the eigenfunctions
 of the Laplace-Beltrami operator on a manifold.
+
+Note: sometimes, when relations analogous to the addition theorem on the sphere
+are available, it is much more efficient to use certain sums of eigenfunctions
+instead of the eigenfunctions themselves. For this, we offer
+:class:`EigenfunctionWithAdditionTheorem`. Importantly, it is permitted to
+_only_ provide the computational routines for these "certain sums", lacking
+the actual capability to compute the eigenfunctions themselves. This is
+important because for compact Lie groups, for example, computing eigenfunctions
+is more involved and less efficient than computing the "certain sums", called
+characters in this case. This is also relevant for hyperspheres of higher
+dimension: in this case, the eigenfunctions (spherical harmonics) are much
+more cumbersome than the "certain sums" (zonal spherical harmonics).
 """
 import abc
 

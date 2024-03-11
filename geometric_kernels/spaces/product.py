@@ -1,20 +1,20 @@
 """
-Implement product spaces
+This module provides the :class:`ProductDiscreteSpectrumSpace` space and the
+representation of its spectrum, the :class:`ProductEigenfunctions` class.
 """
-
 import itertools
-from typing import List
 
 import lab as B
 import numpy as np
 
+from geometric_kernels._typing import List
 from geometric_kernels.lab_extras import from_numpy
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 from geometric_kernels.utils.utils import chain
 
 
-def find_lowest_sum_combinations(array, k):
+def _find_lowest_sum_combinations(array, k):
     """for an [N, D] array, assumed to be sorted within columns, find k smallest sums of
     one element from each row, and return the index array corresponding to this. Will
     possibly cause problems if k<D (but unlikely).
@@ -70,7 +70,7 @@ def find_lowest_sum_combinations(array, k):
     return index_array
 
 
-def total_multiplicities(eigenindices, nums_per_level):
+def _total_multiplicities(eigenindices, nums_per_level):
     """
     Given a collection of eigenindices [M, S],
     compute the total multiplicities of
@@ -92,7 +92,7 @@ def total_multiplicities(eigenindices, nums_per_level):
     return totals
 
 
-def num_per_level_to_mapping(num_per_level):
+def _num_per_level_to_mapping(num_per_level):
     mapping = []
     i = 0
     for num in num_per_level:
@@ -101,7 +101,7 @@ def num_per_level_to_mapping(num_per_level):
     return mapping
 
 
-def per_level_to_separate(eigenindices, nums_per_level):
+def _per_level_to_separate(eigenindices, nums_per_level):
     """
     Given `eigenindices` which map product space's eigenfunction index to
     the indices of subspaces' eigenlevels,
@@ -112,7 +112,7 @@ def per_level_to_separate(eigenindices, nums_per_level):
     :return: [M, S]
         `M` is the total number of eigenfunctions, `S` is the number of subspaces.
     """
-    separate = [num_per_level_to_mapping(npl) for npl in nums_per_level]
+    separate = [_num_per_level_to_mapping(npl) for npl in nums_per_level]
     # S lists of length L
 
     total_eigenindices = []
@@ -159,7 +159,7 @@ class ProductEigenfunctions(Eigenfunctions):
             eigenfunction.dim_of_eigenspaces for eigenfunction in self.eigenfunctions
         ]  # [S, L]
 
-        self._separate_eigenindices = per_level_to_separate(
+        self._separate_eigenindices = _per_level_to_separate(
             self.eigenindicies, self.nums_per_level
         )
 
@@ -254,11 +254,11 @@ class ProductEigenfunctions(Eigenfunctions):
 
     @property
     def num_eigenfunctions_per_level(self):
-        return total_multiplicities(self.eigenindicies, self.nums_per_level)
+        return _total_multiplicities(self.eigenindicies, self.nums_per_level)
 
     @property
     def dim_of_eigenspaces(self):
-        return total_multiplicities(self.eigenindicies, self.nums_per_level)
+        return _total_multiplicities(self.eigenindicies, self.nums_per_level)
 
 
 class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
@@ -279,7 +279,7 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
         .. math ::
             \lambda^{s}_{l_s} \leftrightarrow (\phi^{s}_{l_s, 1}, \ldots, \phi^{s}_{l_s, J_{l_s}})
 
-        This is reffered to as a level.
+        This is referred to as a level.
         Product-space eigenfunctions are products of factors' eigenfunctions within each level.
 
         Whenever factors' eigenfunctions are grouped in a level, this induces the product-space
@@ -311,7 +311,7 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
             axis=0,
         )  # [M, S]
 
-        self.sub_space_eigenindices = find_lowest_sum_combinations(
+        self.sub_space_eigenindices = _find_lowest_sum_combinations(
             sub_space_eigenvalues, self.num_eigen
         )
         self.sub_space_eigenvalues = sub_space_eigenvalues

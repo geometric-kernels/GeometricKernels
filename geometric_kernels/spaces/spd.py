@@ -1,5 +1,5 @@
 """
-Space of Symmetric Positive-Definite Matrices.
+This module provides the :class:`SymmetricPositiveDefiniteMatrices` space.
 """
 
 import geomstats as gs
@@ -21,7 +21,17 @@ class SymmetricPositiveDefiniteMatrices(
     NoncompactSymmetricSpace, gs.geometry.spd_matrices.SPDMatrices
 ):
     r"""
-    Manifold of symmetric positive-definite matrices.
+    The GeometricKernels space representing the manifold of symmetric positive
+    definite matrices :math:`SPD(n)` with the affine-invariant Riemannian
+    metric.
+
+    The elements of this space are represented by positive definite matrices of
+    size n x n.
+
+    **Note:** positive definite means _strictly_ positive definite here, not
+    positive semi-definite.
+
+    The class inherits the interface of geomstats's `SPDMatrices`.
     """
 
     def __init__(self, n):

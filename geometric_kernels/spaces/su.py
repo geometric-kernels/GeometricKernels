@@ -1,3 +1,7 @@
+"""
+This module provides the :class:`SUGroup` space and the representation of
+its spectrum, the :class:`SUEigenfunctions` class.
+"""
 import itertools
 import json
 import math
@@ -22,6 +26,7 @@ from geometric_kernels.spaces.lie_groups import (
     MatrixLieGroup,
     WeylAdditionTheorem,
 )
+from geometric_kernels.utils.utils import chain
 
 
 class SUEigenfunctions(WeylAdditionTheorem):
@@ -35,13 +40,6 @@ class SUEigenfunctions(WeylAdditionTheorem):
         super().__init__(n, num_levels, compute_characters)
 
     def _generate_signatures(self, num_levels):
-        """
-        Generate the signatures of irreducible representations.
-        Representations of SU(dim) can be enumerated by partitions of size dim, called signatures.
-
-        :param num_levels: number of eigenfunctions that will be returned.
-        :return signatures: signatures of representations likely having the smallest LB eigenvalues.
-        """
         sign_vals_lim = 100 if self.n in (1, 2) else 30 if self.n == 3 else 10
         signatures = list(
             itertools.combinations_with_replacement(
@@ -133,7 +131,18 @@ class SUCharacter(LieGroupCharacter):
 
 class SUGroup(MatrixLieGroup):
     r"""
-    Special Unitary Group, that is, the group of unitary matrices with unit determinant.
+    The GeometricKernels space representing the special unitary group
+    :math:`SU(n)` consisting of n by n complex unitary matrices with unit
+    determinant.
+
+    The elements of this space are represented as :math:`n \times n` unitary
+    matrices with complex entries and unit determinant.
+
+    Note: we only support n >= 2. Mathematically, SU(2) is equivalent to the
+    unit circle, which is available as the :class:`Circle` space.
+    For larger values of n, you might need to run the `compute_characters.py`
+    script to precompute the necessary mathematical quantities beyond the ones
+    provided by default.
     """
 
     def __init__(self, n):
@@ -173,15 +182,9 @@ class SUGroup(MatrixLieGroup):
         :return: [M, 1] array containing the eigenvalues
         """
         eigenfunctions = SUEigenfunctions(self.n, num)
-        eigenvalues = np.array(
-            itertools.chain(
-                [
-                    [eigenfunction] * dim**2
-                    for eigenfunction, dim in zip(
-                        eigenfunctions._eigenvalues, eigenfunctions._dimensions
-                    )
-                ]
-            )
+        eigenvalues = chain(
+            eigenfunctions._eigenvalues,
+            [dim**2 for dim in eigenfunctions._dimensions],
         )
         return B.reshape(eigenvalues, -1, 1)  # [M, 1]
 

@@ -1,8 +1,6 @@
 """
-Mesh object
+This module provides the :class:`Mesh` space.
 """
-from typing import Dict, Tuple
-
 import lab as B
 import numpy as np
 import potpourri3d as pp3d
@@ -10,6 +8,7 @@ import robust_laplacian
 import scipy.sparse.linalg as sla
 from scipy.linalg import eigh
 
+from geometric_kernels._typing import Dict, Tuple
 from geometric_kernels.lab_extras import dtype_integer
 from geometric_kernels.spaces.base import (
     ConvertEigenvectorsToEigenfunctions,
@@ -20,14 +19,25 @@ from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 
 class Mesh(DiscreteSpectrumSpace):
     """
-    A representation of a surface mesh. Mimics `PyMesh` interface. Uses
-    `potpourri3d` to read mesh files.
+    The GeometricKernels space representing the node set of any user-provided mesh.
+
+    We only support the commonly used 2-dimensional meshes (discrete counterparts
+    of surfaces, 2-dimensional manifolds in a 3-dimensional ambient space) and
+    1-dimensional meshes (discrete counterparts of curves, 1-dimensional manifolds).
+
+    We use `potpourri3d <https://github.com/nmwsharp/potpourri3d>`_ to load meshes
+    and mimic the interface of `PyMesh <https://github.com/PyMesh/PyMesh>`_.
+
+    The elements of this space are represented by node indices, integer values
+    from 0 to n-1, where n is the number of nodes in the user-provided mesh.
     """
 
     def __init__(self, vertices: np.ndarray, faces: np.ndarray):
         """
         :param vertices: A [Nv, D] array of vertex coordinates, where Nv is the number of vertices,
-            D is the dimention of the embedding space (D must be either 2 or 3).
+            D is the dimension of the embedding space (D must be either 2 or 3).
+            Note that this corresponds to a (D-1)-dimensional mesh, a discretization of some
+            assumed (D-1)-dimensional manifold.
         :param faces: A [Nf, 3] array of vertex indices that represents a
             generalized array of faces, where Nf is the number of faces.
 
@@ -94,7 +104,7 @@ class Mesh(DiscreteSpectrumSpace):
         First `num` eigenfunctions of the Laplace-Beltrami operator on the Mesh.
 
         :param num: number of eigenfunctions returned
-        :return: eigenfu [Nv, num]
+        :return: eigenfunctions [Nv, num]
         """
         eigenfunctions = ConvertEigenvectorsToEigenfunctions(self.get_eigenvectors(num))
         return eigenfunctions
@@ -111,14 +121,16 @@ class Mesh(DiscreteSpectrumSpace):
 
     @property
     def dimension(self) -> int:
-        """Dimension, D"""
-        return self._vertices.shape[1]
+        """
+        Dimension of the space. Equal to D-1, where D is the dimension of the embedding space.
+        """
+        return self._vertices.shape[1] - 1
 
     @property
     def vertices(self) -> np.ndarray:
         """
         A [Nv, D] array of vertex coordinates, where Nv is the number of vertices,
-        D is the dimention of the embedding space (D must be either 2 or 3).
+        D is the dimension of the embedding space (D must be either 2 or 3).
         """
         return self._vertices
 

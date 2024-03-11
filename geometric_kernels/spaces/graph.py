@@ -1,12 +1,10 @@
 """
-Graph object
+This module provides the :class:`Graph` space.
 """
-
-from typing import Dict, Tuple
-
 import lab as B
 import numpy as np
 
+from geometric_kernels._typing import Dict, Tuple
 from geometric_kernels.lab_extras import (
     degree,
     dtype_integer,
@@ -23,7 +21,11 @@ from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 
 class Graph(DiscreteSpectrumSpace):
     """
-    Represents an arbitrary undirected graph.
+    The GeometricKernels space representing the node set of any user-provided
+    weighted undirected graph.
+
+    The elements of this space are represented by node indices, integer values
+    from 0 to n-1, where n is the number of nodes in the user-provided graph.
     """
 
     def __init__(self, adjacency_matrix: B.Numeric, normalize_laplacian: bool = False):  # type: ignore

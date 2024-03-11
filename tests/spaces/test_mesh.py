@@ -26,7 +26,7 @@ def test_mesh_shapes():
 
 
 def test_read_mesh(mesh: Mesh):
-    assert mesh.vertices.shape == (mesh.num_vertices, mesh.dimension)
+    assert mesh.vertices.shape == (mesh.num_vertices, mesh.dimension + 1)
     assert mesh.faces.shape == (mesh.num_faces, 3)
 
 
