@@ -1,3 +1,6 @@
+"""
+Abstract base interface for compact homogeneous spaces.
+"""
 import abc
 
 import lab as B
@@ -120,8 +123,11 @@ class AveragingAdditionTheorem(EigenfunctionWithAdditionTheorem):
         :return: Evaluate the sum of eigenfunctions on each level. Returns
             a value for each level [N, L]
         """
+        ones = B.ones(B.dtype(X), *X.shape[:-2], 1)  # assumes xs are matrices
         values = [
-            degree * self._compute_projected_character_value_at_e(signature)  # [N, 1]
+            degree
+            * self._compute_projected_character_value_at_e(signature)
+            * ones  # [N, 1]
             for signature, degree in zip(self._signatures, self._dimensions)
         ]
         return B.concat(*values, axis=1)  # [N, L]
@@ -183,7 +189,8 @@ class CompactHomogeneousSpace(DiscreteSpectrumSpace):
     A compact homogeneous space `M` given as `M=G/H`,
     where G is a compact Lie group, `H` is a subgroup called the stabilizer.
 
-    Examples include Stiefel manifolds `SO(n) / SO(n-m)` and Grassmanians `SO(n)/(SO(m) x SO(n-m))`.
+    Examples include Stiefel manifolds `SO(n) / SO(n-m)`
+    and Grassmannians `SO(n)/(SO(m) x SO(n-m))`.
     """
 
     def __init__(self, G: MatrixLieGroup, H, samples_H, average_order):

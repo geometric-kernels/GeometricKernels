@@ -40,13 +40,6 @@ class SUEigenfunctions(WeylAdditionTheorem):
         super().__init__(n, num_levels, compute_characters)
 
     def _generate_signatures(self, num_levels):
-        """
-        Generate the signatures of irreducible representations.
-        Representations of SU(dim) can be enumerated by partitions of size dim, called signatures.
-
-        :param num_levels: number of eigenfunctions that will be returned.
-        :return signatures: signatures of representations likely having the smallest LB eigenvalues.
-        """
         sign_vals_lim = 100 if self.n in (1, 2) else 30 if self.n == 3 else 10
         signatures = list(
             itertools.combinations_with_replacement(

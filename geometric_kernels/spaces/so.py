@@ -36,12 +36,6 @@ class SOEigenfunctions(WeylAdditionTheorem):
         super().__init__(n, num_levels, compute_characters)
 
     def _generate_signatures(self, num_levels):
-        """
-        Generate the signatures of irreducible representations
-        Representations of SO(dim) can be enumerated by partitions of size rank, called signatures.
-
-        :return signatures: list of signatures of representations likely having the smallest LB eigenvalues
-        """
         signatures = []
         # largest LB eigenvalues correspond to partitions of smallest integers
         # IF p >> k the number of partitions of p into k parts is O(p^k)
@@ -115,7 +109,7 @@ class SOEigenfunctions(WeylAdditionTheorem):
 
     def _torus_representative(self, X):
         r"""
-        The function maps Lie Group Element X to T -- a maximal torus of the Lie group
+        The function maps Lie Group Element X to T - a maximal torus of the Lie group
         """
         gamma = None
 
