@@ -31,7 +31,7 @@ class WeylAdditionTheorem(EigenfunctionWithAdditionTheorem):
     Whether or not to actually compute the *characters*. Setting this parameter
     to False might make sense if you do not care about eigenfunctions (or sums
     of outer products thereof), but care about eigenvalues, dimensions of
-    irreducible unitary representations, etc. Dafaults to True.
+    irreducible unitary representations, etc. Defaults to True.
 
     **Note**: unlike :class:`SphericalHarmonics`, we do not expect the
     descendants of this class to compute the actual Laplace-Beltrami
