@@ -138,14 +138,16 @@ class SUGroup(MatrixLieGroup):
     The elements of this space are represented as :math:`n \times n` unitary
     matrices with complex entries and unit determinant.
 
-    Note: we only support n >= 2. Mathematically, SU(2) is equivalent to the
-    unit circle, which is available as the :class:`Circle` space.
-    For larger values of n, you might need to run the `compute_characters.py`
+    Note: we only support n >= 2. Mathematically, SU(1) is trivial, consisting
+    of a single element (the identity), chances are you do not need it.
+    For large values of n, you might need to run the `compute_characters.py`
     script to precompute the necessary mathematical quantities beyond the ones
     provided by default.
     """
 
     def __init__(self, n):
+        if n < 2:
+            raise ValueError("Only n >= 2 is supported.")
         self.n = n
         self.dim = n * (n - 1) // 2
         super().__init__()
@@ -184,7 +186,7 @@ class SUGroup(MatrixLieGroup):
         eigenfunctions = SUEigenfunctions(self.n, num)
         eigenvalues = chain(
             eigenfunctions._eigenvalues,
-            [dim**2 for dim in eigenfunctions._dimensions],
+            [rep_dim**2 for rep_dim in eigenfunctions._dimensions],
         )
         return B.reshape(eigenvalues, -1, 1)  # [M, 1]
 
