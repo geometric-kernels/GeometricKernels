@@ -11,3 +11,4 @@ plotly
 jupytext
 nbconvert
 ipykernel
+nbmake

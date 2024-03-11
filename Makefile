@@ -35,7 +35,5 @@ lint:
 
 
 test:  ## Run the tests, start with the failing ones and break on first fail.
-	pip uninstall -y spherical-harmonics
-	pip install --upgrade git+https://github.com/vdutor/SphericalHarmonics.git
-	pip install -U backends plum-dispatch
 	pytest -v -x --ff -rN -Wignore -s --tb=short --durations=10 tests
+	pytest --nbmake notebooks/*
