@@ -7,7 +7,7 @@ import warnings
 import lab as B
 
 from geometric_kernels.kernels.geometric_kernels import MaternKarhunenLoeveKernel
-from geometric_kernels.lab_extras import float_like, from_numpy
+from geometric_kernels.lab_extras import from_numpy
 from geometric_kernels.sampling.probability_densities import (
     base_density_sample,
     hyperbolic_density_sample,
@@ -72,8 +72,8 @@ class DeterministicFeatureMapCompact(FeatureMap):
         weights = B.transpose(B.power(spectrum, 0.5))  # [1, M]
         eigenfunctions = self.kernel.eigenfunctions(X, **params)  # [N, M]
 
-        features = B.cast(float_like(X), eigenfunctions) * B.cast(
-            float_like(X), weights
+        features = B.cast(B.dtype(params["lengthscale"]), eigenfunctions) * B.cast(
+            B.dtype(params["lengthscale"]), weights
         )  # [N, M]
         return None, features
 
@@ -131,14 +131,16 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
 
         weights = B.power(spectrum, 0.5)  # [L, 1]
 
-        random_phases_b = B.cast(float_like(X), from_numpy(X, random_phases))
+        random_phases_b = B.cast(
+            B.dtype(params["lengthscale"]), from_numpy(X, random_phases)
+        )
 
         phi_product = self.kernel.eigenfunctions.phi_product(
             X, random_phases_b, **params
         )  # [N, O, L]
 
-        embedding = B.cast(float_like(X), phi_product)  # [N, O, L]
-        weights_t = B.cast(float_like(X), B.transpose(weights))
+        embedding = B.cast(B.dtype(params["lengthscale"]), phi_product)  # [N, O, L]
+        weights_t = B.cast(B.dtype(params["lengthscale"]), B.transpose(weights))
 
         features = B.reshape(embedding * weights_t, B.shape(X)[0], -1)  # [N, O*L]
         normalize = normalize or (normalize is None and self.kernel.normalize)
@@ -199,10 +201,10 @@ class RandomPhaseFeatureMapNoncompact(FeatureMap):
         )  # [O, P]
 
         random_phases_b = B.expand_dims(
-            B.cast(float_like(X), from_numpy(X, random_phases))
+            B.cast(B.dtype(params["lengthscale"]), from_numpy(X, random_phases))
         )  # [1, O, <axes>]
         random_lambda_b = B.expand_dims(
-            B.cast(float_like(X), from_numpy(X, random_lambda))
+            B.cast(B.dtype(params["lengthscale"]), from_numpy(X, random_lambda))
         )  # [1, O, P]
         X_b = B.expand_dims(X, axis=-1 - self.space.num_axes)  # [N, 1, <axes>]
 
@@ -266,10 +268,10 @@ class RejectionSamplingFeatureMapHyperbolic(FeatureMap):
         )  # [O, 1]
 
         random_phases_b = B.expand_dims(
-            B.cast(float_like(X), from_numpy(X, random_phases))
+            B.cast(B.dtype(params["lengthscale"]), from_numpy(X, random_phases))
         )  # [1, O, D]
         random_lambda_b = B.expand_dims(
-            B.cast(float_like(X), from_numpy(X, random_lambda))
+            B.cast(B.dtype(params["lengthscale"]), from_numpy(X, random_lambda))
         )  # [1, O, 1]
         X_b = B.expand_dims(X, axis=-2)  # [N, 1, D]
 
@@ -333,10 +335,10 @@ class RejectionSamplingFeatureMapSpd(FeatureMap):
         )  # [O, D]
 
         random_phases_b = B.expand_dims(
-            B.cast(B.dtype(X), from_numpy(X, random_phases))
+            B.cast(B.dtype(params["lengthscale"]), from_numpy(X, random_phases))
         )  # [1, O, D, D]
         random_lambda_b = B.expand_dims(
-            B.cast(B.dtype(X), from_numpy(X, random_lambda))
+            B.cast(B.dtype(params["lengthscale"]), from_numpy(X, random_lambda))
         )  # [1, O, D]
         X_b = B.expand_dims(X, axis=-3)  # [N, 1, D, D]
 

@@ -13,8 +13,6 @@ from geometric_kernels._typing import TYPE_CHECKING, Any, Callable, Optional, Tu
 if TYPE_CHECKING:
     from geometric_kernels.kernels.feature_maps import FeatureMap
 
-from geometric_kernels.lab_extras import float_like
-
 
 def sample_at(
     feature_map, s, X: B.Numeric, params, key=None, normalize=None
@@ -33,7 +31,9 @@ def sample_at(
 
     num_features = B.shape(features)[-1]
 
-    key, random_weights = B.randn(key, float_like(X), num_features, s)  # [M, S]
+    key, random_weights = B.randn(
+        key, B.dtype(params["lengthscale"]), num_features, s
+    )  # [M, S]
 
     random_sample = B.matmul(features, random_weights)  # [N, S]
 
@@ -46,10 +46,10 @@ def sampler(
     """
     A helper wrapper around `sample_at`.
 
-    Given a `feature_map`, return a function that computes `s` samples with `key` random state at given points in space.
+    Given a `feature_map`, return a function that computes `s` samples.
     """
 
-    sample_f = partial(sample_at, feature_map, s)
+    sample_f = partial(sample_at, feature_map, s, **kwargs)
     sample_f.__doc__ == sample_at.__doc__
 
     return sample_f

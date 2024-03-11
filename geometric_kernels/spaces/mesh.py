@@ -35,7 +35,9 @@ class Mesh(DiscreteSpectrumSpace):
     def __init__(self, vertices: np.ndarray, faces: np.ndarray):
         """
         :param vertices: A [Nv, D] array of vertex coordinates, where Nv is the number of vertices,
-            D is the dimention of the embedding space (D must be either 2 or 3).
+            D is the dimension of the embedding space (D must be either 2 or 3).
+            Note that this corresponds to a (D-1)-dimensional mesh, a discretization of some
+            assumed (D-1)-dimensional manifold.
         :param faces: A [Nf, 3] array of vertex indices that represents a
             generalized array of faces, where Nf is the number of faces.
 
@@ -102,7 +104,7 @@ class Mesh(DiscreteSpectrumSpace):
         First `num` eigenfunctions of the Laplace-Beltrami operator on the Mesh.
 
         :param num: number of eigenfunctions returned
-        :return: eigenfu [Nv, num]
+        :return: eigenfunctions [Nv, num]
         """
         eigenfunctions = ConvertEigenvectorsToEigenfunctions(self.get_eigenvectors(num))
         return eigenfunctions
@@ -119,14 +121,16 @@ class Mesh(DiscreteSpectrumSpace):
 
     @property
     def dimension(self) -> int:
-        """Dimension, D"""
-        return self._vertices.shape[1]
+        """
+        Dimension of the space. Equal to D-1, where D is the dimension of the embedding space.
+        """
+        return self._vertices.shape[1] - 1
 
     @property
     def vertices(self) -> np.ndarray:
         """
         A [Nv, D] array of vertex coordinates, where Nv is the number of vertices,
-        D is the dimention of the embedding space (D must be either 2 or 3).
+        D is the dimension of the embedding space (D must be either 2 or 3).
         """
         return self._vertices
 
