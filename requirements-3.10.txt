@@ -3,7 +3,7 @@ scipy==1.12.0
 gpytorch==1.11
 torch==2.1.2
 gpflow==2.9.0
-gpjax==0.5.9
+gpjax==0.6.9
 tensorflow<2.14
 tensorflow-probability==0.20.1
 jax==0.4.23
