@@ -17,7 +17,7 @@ install:  ## Install repo for developement (Only for Linux)
 	sudo apt-get install gfortran
 	# We need to pin `pip`. See https://github.com/pypa/pip/issues/10373.
 	pip install --upgrade pip==20.2.2 setuptools numpy Cython
-	pip install --upgrade --upgrade-strategy eager --no-cache-dir -U -r requirements.txt -r dev_requirements.txt | cat
+	pip install --upgrade --upgrade-strategy eager --no-cache-dir -r requirements.txt -r dev_requirements.txt | cat
 	pip install --upgrade numpy
 	pip install -e .
 
@@ -36,4 +36,4 @@ lint:
 
 test:  ## Run the tests, start with the failing ones and break on first fail.
 	pytest -v -x --ff -rN -Wignore -s --tb=short --durations=10 tests
-	pytest --nbmake notebooks/*
+	pytest --nbmake --nbmake-kernel=python3 notebooks/*
