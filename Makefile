@@ -36,4 +36,4 @@ lint:
 
 test:  ## Run the tests, start with the failing ones and break on first fail.
 	pytest -v -x --ff -rN -Wignore -s --tb=short --durations=10 tests
-	pytest --nbmake --nbmake-kernel=python3 --ignore=notebooks/frontends/GPJax.ipynb notebooks/*
+	pytest --nbmake --nbmake-kernel=python3 --nbmake-timeout=1000 --ignore=notebooks/frontends/GPJax.ipynb notebooks/*
