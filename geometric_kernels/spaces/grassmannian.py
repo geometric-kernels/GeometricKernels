@@ -61,8 +61,8 @@ class GrassmannianEigenfunctions(AveragingAdditionTheorem):
 class Grassmannian(CompactHomogeneousSpace):
     r"""
     The GeometricKernels space representing the Grassmannian manifold
-    :math:`Gr(n, m)` as the homogeneous space
-    :math:`SO(n) / (SO(m) \times SO(n-m))` which also happens to be a symmetric
+    :math:`Gr(m, n)` as the homogeneous space
+    :math:`O(n) / (O(m) \times O(n-m))` which also happens to be a symmetric
     space.
 
     The elements of this space are represented as :math:`n \times m` matrices

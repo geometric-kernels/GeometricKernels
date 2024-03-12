@@ -49,7 +49,7 @@ class StiefelEigenfunctions(AveragingAdditionTheorem):
 class Stiefel(CompactHomogeneousSpace):
     r"""
     The GeometricKernels space representing the Stifiel manifold
-    :math:`V(n, m)` as the homogeneous space :math:`SO(n) / SO(n-m)`.
+    :math:`V(m, n)` as the homogeneous space :math:`SO(n) / SO(n-m)`.
 
     The elements of this space are represented as :math:`n \times m` matrices
     with orthogonal columns.
