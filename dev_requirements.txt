@@ -14,4 +14,3 @@ ipykernel
 nbmake
 kaleido
 botorch
-optax
