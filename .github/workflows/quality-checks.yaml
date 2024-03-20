@@ -41,10 +41,7 @@ jobs:
       #       install
       #----------------------------------------------
     - name: Install dependencies
-      run: |
-        pip install --upgrade pip
-        pip install --upgrade --upgrade-strategy eager --no-cache-dir -U -r requirements-${{ matrix.python-version }}.txt -r dev_requirements.txt | cat
-        pip install -e .
+      run: GK_REQUIREMENTS=requirements-${{ matrix.python-version }}.txt make install
       #----------------------------------------------
       #       Lint and test
       #----------------------------------------------

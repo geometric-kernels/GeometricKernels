@@ -106,7 +106,7 @@ Run these commands from the root directory of the repository.
 Install all backends and the dev requirements (Pytest, black, etc.)
 
 ```bash
-pip install -r dev_requirements.txt -r requirements.txt
+make install
 ```
 
 Run the tests

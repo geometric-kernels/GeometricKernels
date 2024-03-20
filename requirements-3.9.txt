@@ -11,5 +11,3 @@ jaxtyping==0.2.25
 backends>=1.5.4
 plum-dispatch>=2.2.0
 optax
-sparsegpax @ git+https://github.com/aterenin/SparseGPAX.git
-spherical-harmonics @ git+https://github.com/vdutor/SphericalHarmonics.git

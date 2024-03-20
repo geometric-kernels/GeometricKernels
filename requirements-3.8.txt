@@ -11,5 +11,3 @@ jaxlib==0.4.13
 backends>=1.5.4
 plum-dispatch>=2.2.0
 optax==0.1.7
-sparsegpax @ git+https://github.com/aterenin/SparseGPAX.git
-spherical-harmonics @ git+https://github.com/vdutor/SphericalHarmonics.git
