@@ -3,9 +3,9 @@ This module provides the :class:`Hyperbolic` space.
 """
 import geomstats as gs
 import lab as B
+from beartype.typing import Optional
 from opt_einsum import contract as einsum
 
-from beartype.typing import Optional
 from geometric_kernels.lab_extras import (
     cosh,
     create_complex,

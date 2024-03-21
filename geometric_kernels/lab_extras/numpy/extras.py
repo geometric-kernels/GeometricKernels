@@ -1,10 +1,9 @@
 import lab as B
 import numpy as np
+from beartype.typing import Any, List, Optional
 from lab import dispatch
 from plum import Union
 from scipy.sparse import spmatrix
-
-from beartype.typing import Any, List, Optional
 
 _Numeric = Union[B.Number, B.NPNumeric]
 

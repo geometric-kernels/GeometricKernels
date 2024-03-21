@@ -5,8 +5,8 @@ import abc
 
 import lab as B
 import numpy as np
-
 from beartype.typing import List
+
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import EigenfunctionWithAdditionTheorem
 

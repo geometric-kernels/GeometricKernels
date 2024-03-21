@@ -6,7 +6,6 @@ from __future__ import annotations  # By https://stackoverflow.com/a/62136491
 from functools import partial
 
 import lab as B
-
 from beartype.typing import TYPE_CHECKING, Any, Callable, Optional, Tuple
 
 # By https://stackoverflow.com/a/62136491

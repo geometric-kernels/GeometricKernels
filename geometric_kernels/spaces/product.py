@@ -6,8 +6,8 @@ import itertools
 
 import lab as B
 import numpy as np
-
 from beartype.typing import List
+
 from geometric_kernels.lab_extras import from_numpy
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions

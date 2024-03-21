@@ -5,10 +5,10 @@ its spectrum, the :class:`SphericalHarmonics` class.
 import geomstats as gs
 import lab as B
 import numpy as np
+from beartype.typing import Tuple
 from spherical_harmonics import SphericalHarmonics as _SphericalHarmonics
 from spherical_harmonics.fundamental_set import num_harmonics
 
-from beartype.typing import Tuple
 from geometric_kernels.lab_extras import dtype_double
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import (

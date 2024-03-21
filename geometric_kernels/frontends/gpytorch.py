@@ -8,8 +8,8 @@ notebook.
 import gpytorch
 import numpy as np
 import torch
-
 from beartype.typing import Union
+
 from geometric_kernels.kernels import BaseGeometricKernel
 from geometric_kernels.spaces.base import Space
 

@@ -5,9 +5,9 @@ import inspect
 
 import einops
 import lab as B
+from beartype.typing import List, Type
 from plum import Union
 
-from beartype.typing import List, Type
 from geometric_kernels.lab_extras import get_random_state, restore_random_state
 
 

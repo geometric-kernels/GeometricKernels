@@ -4,8 +4,8 @@ Base class for geometric kernels
 import abc
 
 import lab as B
-
 from beartype.typing import Generic, TypeVar
+
 from geometric_kernels.spaces import Space
 
 T = TypeVar("T", bound=Space)

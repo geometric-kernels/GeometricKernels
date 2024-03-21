@@ -10,12 +10,12 @@ from dataclasses import dataclass
 import gpjax
 import jax.numpy as jnp
 import tensorflow_probability.substrates.jax.bijectors as tfb
+from beartype.typing import TypeVar, Union
 from gpjax.base import param_field, static_field
 from gpjax.kernels.computations.base import AbstractKernelComputation
 from gpjax.typing import Array, ScalarFloat
 from jaxtyping import Float, Num
 
-from beartype.typing import TypeVar, Union
 from geometric_kernels.kernels import BaseGeometricKernel
 
 Kernel = TypeVar("Kernel", bound="gpjax.kernels.base.AbstractKernel")  # noqa: F821

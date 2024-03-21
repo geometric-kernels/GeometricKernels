@@ -3,8 +3,8 @@ Product of kernels
 """
 
 import lab as B
-
 from beartype.typing import List, Mapping, Optional
+
 from geometric_kernels.kernels.base import BaseGeometricKernel
 from geometric_kernels.spaces import Space
 

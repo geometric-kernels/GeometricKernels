@@ -1,10 +1,9 @@
 import lab as B
 import tensorflow as tf
 import tensorflow_probability as tfp
+from beartype.typing import Any, List, Optional
 from lab import dispatch
 from plum import Union
-
-from beartype.typing import Any, List, Optional
 
 _Numeric = Union[B.Number, B.TFNumeric, B.NPNumeric]
 

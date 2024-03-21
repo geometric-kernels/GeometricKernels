@@ -1,10 +1,9 @@
 import lab as B
+from beartype.typing import List
 from lab import dispatch
 from lab.util import abstract
 from plum import Union
 from scipy.sparse import spmatrix
-
-from beartype.typing import List
 
 
 @dispatch

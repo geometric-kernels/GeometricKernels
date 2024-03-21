@@ -9,11 +9,11 @@ notebook.
 import gpflow
 import numpy as np
 import tensorflow as tf
+from beartype.typing import Optional, Union
 from gpflow.base import TensorType
 from gpflow.kernels.base import ActiveDims
 from gpflow.utilities import positive
 
-from beartype.typing import Optional, Union
 from geometric_kernels.kernels import BaseGeometricKernel
 from geometric_kernels.spaces.base import Space
 
