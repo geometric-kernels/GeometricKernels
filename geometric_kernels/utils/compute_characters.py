@@ -6,7 +6,7 @@ import more_itertools
 import sympy
 from sympy.matrices.determinant import _det as sp_det
 
-from geometric_kernels._typing import Union
+from beartype.typing import Union
 from geometric_kernels.spaces.so import SOEigenfunctions
 from geometric_kernels.spaces.su import SUEigenfunctions  # noqa
 from geometric_kernels.utils.utils import (

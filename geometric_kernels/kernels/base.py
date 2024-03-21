@@ -5,7 +5,7 @@ import abc
 
 import lab as B
 
-from geometric_kernels._typing import Generic, TypeVar
+from beartype.typing import Generic, TypeVar
 from geometric_kernels.spaces import Space
 
 T = TypeVar("T", bound=Space)

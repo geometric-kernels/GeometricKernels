@@ -13,7 +13,7 @@ from gpflow.base import TensorType
 from gpflow.kernels.base import ActiveDims
 from gpflow.utilities import positive
 
-from geometric_kernels._typing import Optional, Union
+from beartype.typing import Optional, Union
 from geometric_kernels.kernels import BaseGeometricKernel
 from geometric_kernels.spaces.base import Space
 

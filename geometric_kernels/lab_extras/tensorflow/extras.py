@@ -4,7 +4,7 @@ import tensorflow_probability as tfp
 from lab import dispatch
 from plum import Union
 
-from geometric_kernels._typing import Any, List, Optional
+from beartype.typing import Any, List, Optional
 
 _Numeric = Union[B.Number, B.TFNumeric, B.NPNumeric]
 

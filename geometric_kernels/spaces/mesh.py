@@ -8,7 +8,7 @@ import robust_laplacian
 import scipy.sparse.linalg as sla
 from scipy.linalg import eigh
 
-from geometric_kernels._typing import Dict, Tuple
+from beartype.typing import Dict, Tuple
 from geometric_kernels.lab_extras import dtype_integer
 from geometric_kernels.spaces.base import (
     ConvertEigenvectorsToEigenfunctions,

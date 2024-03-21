@@ -4,7 +4,7 @@ from lab import dispatch
 from plum import Union
 from scipy.sparse import spmatrix
 
-from geometric_kernels._typing import Any, List, Optional
+from beartype.typing import Any, List, Optional
 
 _Numeric = Union[B.Number, B.NPNumeric]
 

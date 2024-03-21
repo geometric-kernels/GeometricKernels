@@ -15,7 +15,7 @@ from gpjax.kernels.computations.base import AbstractKernelComputation
 from gpjax.typing import Array, ScalarFloat
 from jaxtyping import Float, Num
 
-from geometric_kernels._typing import TypeVar, Union
+from beartype.typing import TypeVar, Union
 from geometric_kernels.kernels import BaseGeometricKernel
 
 Kernel = TypeVar("Kernel", bound="gpjax.kernels.base.AbstractKernel")  # noqa: F821

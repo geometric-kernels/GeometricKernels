@@ -4,7 +4,7 @@ from lab.util import abstract
 from plum import Union
 from scipy.sparse import spmatrix
 
-from geometric_kernels._typing import List
+from beartype.typing import List
 
 
 @dispatch
