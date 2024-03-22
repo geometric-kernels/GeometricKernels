@@ -41,7 +41,7 @@ jobs:
       #       install
       #----------------------------------------------
     - name: Install dependencies
-      run: GK_REQUIREMENTS=requirements-${{ matrix.python-version }}.txt make install
+      run: GK_REQUIREMENTS=test_requirements-${{ matrix.python-version }}.txt make install
       #----------------------------------------------
       #       Lint and test
       #----------------------------------------------
