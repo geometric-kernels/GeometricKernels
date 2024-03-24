@@ -15,6 +15,11 @@ allows our library to be backend-independent. This is an internal part of our
 library.
 
 """
+import logging
 
 import geometric_kernels._logging  # noqa: F401
 from geometric_kernels.lab_extras import *
+
+logging.getLogger(__name__).info(
+    "Numpy backend is enabled, as always. To enable other backends, don't forget `import geometric_kernels.*backend name*`."
+)
