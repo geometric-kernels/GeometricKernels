@@ -48,7 +48,8 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
     def _addition_theorem(self, X: B.Numeric, X2: B.Numeric, **parameters) -> B.Numeric:
         r"""
         Returns the result of applying the additional theorem when
-        summing over all the eigenfunctions within a level, for each level
+        summing over all the outer products of eigenfunctions within a level,
+        for each level.
 
         Concretely in the case for inputs on the sphere S^1:
 
@@ -60,8 +61,7 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         :param X: [N, 1]
         :param X2: [N2, 1]
         :param parameters: unused.
-        :return: Evaluate the sum of eigenfunctions on each level. Returns
-            a value for each level [N, N2, L]
+        :return: [N, N2, L]
         """
         theta1, theta2 = X, X2
         angle_between = theta1[:, None, :] - theta2[None, :, :]  # [N, N2, 1]
@@ -78,12 +78,12 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
 
     def _addition_theorem_diag(self, X: B.Numeric, **parameters) -> B.Numeric:
         """
-        Returns the sum of eigenfunctions on a level for which we have a simplified expression
+        A more efficient way of computing the diagonals of the matrices
+        `self._addition_theorem(X, X)[:, :, l]` for all l from 0 to L-1.
 
         :param X: [N, 1]
         :param parameters: unused.
-        :return: Evaluate the sum of eigenfunctions on each level. Returns
-            a value for each level [N, L]
+        :return: [N, L]
         """
         N = X.shape[0]
         ones = B.ones(B.dtype(X), N, self.num_levels)  # [N, L]

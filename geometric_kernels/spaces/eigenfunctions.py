@@ -3,8 +3,8 @@ Eigenfunctions are callable objects which evaluate the eigenfunctions
 of the Laplace-Beltrami operator on a manifold.
 
 Note: sometimes, when relations analogous to the addition theorem on the sphere
-are available, it is much more efficient to use certain sums of eigenfunctions
-instead of the eigenfunctions themselves. For this, we offer
+are available, it is much more efficient to use certain sums of outer products
+of eigenfunctions instead of the eigenfunctions themselves. For this, we offer
 :class:`EigenfunctionWithAdditionTheorem`. Importantly, it is permitted to
 _only_ provide the computational routines for these "certain sums", lacking
 the actual capability to compute the eigenfunctions themselves. This is
@@ -120,7 +120,8 @@ class Eigenfunctions(abc.ABC):
 
 class EigenfunctionWithAdditionTheorem(Eigenfunctions):
     r"""
-    Eigenfunctions for which the sum over a level has a simpler expression.
+    Eigenfunctions for which the sum of outer products over a level has a
+    simpler expression.
 
     Example 1:
     On the circle S^1 the eigenfunctions are given by :math:`{\sin(\ell \theta), \cos(\ell \theta)}`,
@@ -179,8 +180,8 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         diagonal elements of `weighted_outproduct` but they can be calculated more
         efficiently.
 
-        Makes use of the fact that eigenfunctions within a level can be summed
-        in a computationally more efficient matter.
+        Makes use of the fact that the outer products of eigenfunctions within
+        a level can be summed in a computationally more efficient matter.
 
         .. note:
             Only works if the weights within a level are equal.
@@ -219,25 +220,25 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
     @abc.abstractmethod
     def _addition_theorem(self, X: B.Numeric, X2: B.Numeric, **parameters) -> B.Numeric:
         """
-        Returns the sum of eigenfunctions on a level for which we have a simplified expression
+        Returns the sum of outer products of eigenfunctions on a level for
+        which we have a simplified expression.
 
         :param X: [N, D]
         :param X2: [N2, D]
         :param parameters: any additional parameters
-        :return: Evaluate the sum of eigenfunctions on each level. Returns
-            a value for each level [N, N2, L]
+        :return: [N, N2, L]
         """
         raise NotImplementedError
 
     @abc.abstractmethod
     def _addition_theorem_diag(self, X: B.Numeric, **parameters) -> B.Numeric:
         """
-        Returns the sum of eigenfunctions on a level for which we have a simplified expression
+        A more efficient way of computing the diagonals of the matrices
+        `self._addition_theorem(X, X)[:, :, l]` for all l from 0 to L-1.
 
         :param X: [N, D]
         :param parameters: any additional parameters
-        :return: Evaluate the sum of eigenfunctions on each level. Returns
-            a value for each level [N, L]
+        :return: [N, L]
         """
         raise NotImplementedError
 

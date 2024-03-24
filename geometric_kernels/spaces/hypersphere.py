@@ -91,8 +91,8 @@ class SphericalHarmonics(EigenfunctionWithAdditionTheorem):
         :param X: [N, dim+1]
         :param X2: [N2, dim+1]
         :param parameters: unused.
-        :return: Evaluate the sum of eigenfunctions on each level. Returns
-            a value for each level [N, N2, L]
+        :return: Evaluate the sum of outer products of eigenfunctions on each
+            level. Returns a value for each level [N, N2, L]
         """
         values = [
             level.addition(X, X2)[..., None]  # [N1, N2, 1]
@@ -102,12 +102,13 @@ class SphericalHarmonics(EigenfunctionWithAdditionTheorem):
 
     def _addition_theorem_diag(self, X: B.Numeric, **parameters) -> B.Numeric:
         """
-        Returns the sum of eigenfunctions on a level for which we have a simplified expression
+        A more efficient way of computing the diagonals of the matrices
+        `self._addition_theorem(X, X)[:, :, l]` for all l from 0 to L-1.
 
         :param X: [N, 1]
         :param parameters: unused.
-        :return: Evaluate the sum of eigenfunctions on each level. Returns
-            a value for each level [N, L]
+        :return: Evaluate the sum of outer products of eigenfunctions on each
+            level. Returns a value for each level [N, L]
         """
         values = [
             level.addition_at_1(X)  # [N, 1]

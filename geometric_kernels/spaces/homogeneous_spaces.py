@@ -14,13 +14,15 @@ from geometric_kernels.spaces.lie_groups import LieGroupCharacter, MatrixLieGrou
 
 class AveragingAdditionTheorem(EigenfunctionWithAdditionTheorem):
     r"""
-    Class corresponding to the sum of eigenfunctions
+    Class corresponding to the sum of outer products of eigenfunctions
     corresponding to the same eigenspace of Laplace-Beltrami operator
-    on a compact homogeneous space `M=G/H`.  Eigenspaces coincide with
+    on a compact homogeneous space `M=G/H`. Eigenspaces coincide with
     eigenspaces of G, and the sums might be computed via averaging of
     characters of group G w.r.t. `H`.
 
     :math:`\chi_M(x) = \int_H \chi_G(xh)dh`
+
+    **Note**: *levels* here do not necessarily correspond to full eigenspaces.
     """
 
     def __init__(self, M, num_levels: int, samples_H):
@@ -67,9 +69,9 @@ class AveragingAdditionTheorem(EigenfunctionWithAdditionTheorem):
         """
         Pairwise differences between points of the homogeneous space `M` embedded into `G`.
 
-        :param X: [N, ...] an array of points in `M`.
+        :param X: [N1, ...] an array of points in `M`.
         :param X2: [N2, ...] an array of points in `M`.
-        :return: [N, N2, ...] an array of points in `G`.
+        :return: [N1, N2, ...] an array of points in `G`.
         """
 
         g = self.M.embed_manifold(X)
@@ -79,18 +81,23 @@ class AveragingAdditionTheorem(EigenfunctionWithAdditionTheorem):
 
     def _addition_theorem(self, X: B.Numeric, X2: B.Numeric, **parameters) -> B.Numeric:
         r"""
-        Returns the result of applying the additional theorem when
-        summing over all the eigenfunctions within a level, for each level.
+        For each level (that corresponds to a unitary irreducible
+        representation of the group of symmetries), computes the sum of outer
+        products of Laplace-Beltrami eigenfunctions that correspond to this
+        level (representation). Uses the fact that such a sum is always
+        proportional to a certain integral of the character of the
+        representation over the isotropy subgroup of the homogeneous space.
+        See [1] for mathematical details.
 
         To ensure that the resulting function is positive definite, we average
-        over both the left and right shifts.
+        over both the left and right shifts (the result is an approximation):
 
         :math:`\chi_X(g1,g2) \approx \frac{1}{S^2}\sum_{i=1}^S\sum_{j=1}^S \chi_G(h_i g2^{-1} g1 h_j)`
-        :param X: [N, ...]
+
+        :param X: [N1, ...]
         :param X2: [N2, ...]
-        :param parameters: unused.
-        :return: Evaluate the sum of eigenfunctions on each level. Returns
-            a value for each level [N, N2, L]
+        :param parameters: any additional parameters
+        :return: [N1, N2, L]
         """
 
         # [N * N2, G_n, G_n]
@@ -116,12 +123,12 @@ class AveragingAdditionTheorem(EigenfunctionWithAdditionTheorem):
 
     def _addition_theorem_diag(self, X: B.Numeric, **parameters) -> B.Numeric:
         """
-        Returns the sum of eigenfunctions on a level for which we have a simplified expression.
+        A more efficient way of computing the diagonals of the matrices
+        `self._addition_theorem(X, X)[:, :, l]` for all l from 0 to L-1.
 
         :param X: [N, ...]
         :param parameters: any additional parameters
-        :return: Evaluate the sum of eigenfunctions on each level. Returns
-            a value for each level [N, L]
+        :return: [N, L]
         """
         ones = B.ones(B.dtype(X), *X.shape[:-2], 1)  # assumes xs are matrices
         values = [
@@ -158,8 +165,9 @@ class AveragingAdditionTheorem(EigenfunctionWithAdditionTheorem):
 
 class AveragedLieGroupCharacter(abc.ABC):
     r"""
-    Sum of eigenfunctions is equal to the mean value of the character averaged over subgroup H.
-    To ensure that the function is positive definite we average from the both sides.
+    Sum of outer products of eigenfunctions is equal to the mean value of the
+    character averaged over the isotropy subgroup H. To ensure that the
+    function is positive definite we average from the both sides.
 
     :math:`\chi_M(x) = \int_H\int_H (h_1 x h_2)`
     """
@@ -214,8 +222,8 @@ class CompactHomogeneousSpace(DiscreteSpectrumSpace):
     def project_to_manifold(self, g):
         r"""
         Represents map \pi: G \mapsto X projecting elements of G onto X,
-        e.g. \pi sends O \in SO(n) ([n,n] shape) to \pi(O) \in St(n,m) ([n,m] shape)
-        by taking first m columns.
+        e.g. \pi sends O \in SO(n) ([n,n] shape) to an element \pi(O) \in V(m,n)
+        ([n,m] shape) of the Stiefel manifold, by taking first m columns.
 
         :param g: [N, ...] array of points in G
         :return: [N, ...] array of points in M
@@ -225,7 +233,8 @@ class CompactHomogeneousSpace(DiscreteSpectrumSpace):
     @abc.abstractmethod
     def embed_manifold(self, x):
         r"""
-        Inverse to the function \pi, i.e. for given x \in X finds g such that \pi(g) = x.
+        Inverse to the function \pi, i.e. for given x \in X finds g (non-unique)
+        such that \pi(g) = x.
 
         :param x: [N, ...] array of points in M
         :return: [N, ...] array of points in G
