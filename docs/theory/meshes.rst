@@ -47,7 +47,7 @@ The notation here is as follows.
   * Setting $L \ll N$ can in principle allow much faster eigenpair computation because the Laplacian is usually sparse for meshes.
     Such techniques are, however, not (yet) implemented in GeometricKernels.
 
-* The constant $C_{\nu, \kappa}$ above ensures that average variance is equal to $1$, i.e. $\frac{1}{N} \sum_{n=1}^N k(n, n) = 1$.
+* The constant $C_{\nu, \kappa}$ above ensures that the average variance is equal to $1$, i.e. $\frac{1}{N} \sum_{n=1}^N k(n, n) = 1$.
   It is easy to show that $C_{\nu, \kappa} = \sum_{n=1}^L \Phi_{\nu, \kappa}(\lambda_n)$.
 
 **Note:** the "variance" $k(x, x)$ can vary from point to point.

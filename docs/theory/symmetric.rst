@@ -12,10 +12,10 @@ The theory for *non-compact symmetric spaces* (like hyperbolic spaces or manifol
 For the latter, kernels are given by a finite sum or an infinite series and are approximated using *truncation*.
 For the former, kernels are given by integrals and are approximated using *Monte Carlo*.
 
-More specifically, for non-compact symmetric spaces an analog of the *random Fourier features* technique of `Rahimi and Recht (2007) <https://papers.nips.cc/paper_files/paper/2007/file/013a006f03dbc5392effeb8f18fda755-Paper.pdf>`_ exits.
+More specifically, for non-compact symmetric spaces, there exists an analog of the *random Fourier features* technique of `Rahimi and Recht (2007) <https://papers.nips.cc/paper_files/paper/2007/file/013a006f03dbc5392effeb8f18fda755-Paper.pdf>`.
 In the Euclidean case, closed form expressions for kernels are available and random Fourier features are only used to speed up computations.
-No closed form expressions for kernel are (usually) available in general non-compact symmetric spaces.
-Because of that, random Fourier features are the basic means of computing kernels in this case.
+No closed form expressions for kernel are generally available for non-compact symmetric spaces.
+Because of that, random Fourier features are the basic means of computing the kernels in this case.
 
 A complete mathematical treatise can be found in `Azangulov et al. (2023) <https://arxiv.org/abs/2301.13088>`_.
 Here we briefly present the basics.
@@ -45,7 +45,7 @@ The notation here is as follows:
 
 Here, $r$ and $c$ can be computed exactly using algebraic-only considerations.
 On the other hand, $\pi^{(\lambda_l)}(x, x')$ are integrals that require numerical approximation.
-There is multiple ways to do this.
+There are multiple ways to do this.
 The most important one is as follows:
 $$
 \pi^{(\lambda_l)}(x, x') = \mathbb{E}_{h \sim \mu_H}
@@ -68,7 +68,7 @@ where
 
 * $a(\cdot, \cdot)$ is a function that can be computed exactly using algebraic-only considerations.
 
-The right-hand side here is obviously an inner product.
+The right-hand side here is an inner product.
 Same is true for the result of substituting this approximation of $\pi^{(\lambda_l)}(x, x')$ into the approximation of $k(x, x')$.
 More specifically, defining
 $$
