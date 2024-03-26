@@ -32,5 +32,5 @@ Each $k_j$ would usually be :class:`ProductGeometricKernel <geometric_kernels.ke
 **Importantly**, this allows you to have a separate length scale parameter for each of the factors, enabling, e.g. *automatic relevance determination* (ARD, cf. `Rasmussen and Williams (2006) <https://gaussianprocess.org/gpml/chapters/RW.pdf>`_).
 
 For Matérn kernels, even if $\nu$ and $\kappa$ are the same for all $k_j$, the product kernel turns out to be different from the Matérn kernel on the product space whenever $\nu < \infty$.
-If $\nu = \infty$, i.e. in the case of the heat (a.k.a. diffusion, squared exponential, RBF) kernel, the product of kernels with same values of $\kappa$ and the kernel on the product space with this $\kappa$ coincide.
+If $\nu = \infty$, i.e. in the case of the heat kernel (a.k.a. diffusion kernel, or squared exponential kernel, or RBF kernel), the product of kernels with same values of $\kappa$ and the kernel on the product space with this $\kappa$ coincide.
 This mirrors the standard Euclidean case.

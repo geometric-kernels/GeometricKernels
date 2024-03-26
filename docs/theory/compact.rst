@@ -44,6 +44,6 @@ The notation here is as follows.
 * $C_{\nu, \kappa}$ is the constant which ensures that average variance is equal to $1$, i.e. $\frac{1}{\lvert\mathcal{M}\rvert}\int_{\mathcal{M}} k(x, x) \mathrm{d} x = 1$ where $\lvert\mathcal{M}\rvert$ denotes the volume of the manifold $\mathcal{M}$.
   It is easy to show that $C_{\nu, \kappa} = \sum_{n=1}^N \Phi_{\nu, \kappa}(\lambda_n)$.
 
-**Note:** For general manifolds $k(x, x)$ can vary from point to point.
-You usually observe this for manifold represented by meshes, the ones which do not have a lot of symmetries.
+**Note:** For general manifolds, $k(x, x)$ can vary from point to point.
+You usually observe this for manifolds represented by meshes, the ones which do not have a lot of symmetries.
 On the other hand, for the hyperspheres $k(x, x)$ is a constant, as it is for all *homogeneous spaces* which hyperspheres are instances of, as well as for Lie groups (which are also instances of homogeneous spaces).

@@ -22,7 +22,7 @@ class AveragingAdditionTheorem(EigenfunctionWithAdditionTheorem):
 
     :math:`\chi_M(x) = \int_H \chi_G(xh)dh`
 
-    **Note**: *levels* here do not necessarily correspond to full eigenspaces.
+    .. note:: *levels* here do not necessarily correspond to full eigenspaces.
     """
 
     def __init__(self, M, num_levels: int, samples_H):

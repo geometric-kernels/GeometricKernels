@@ -147,7 +147,7 @@ class SUGroup(MatrixLieGroup):
 
     def __init__(self, n):
         if n < 2:
-            raise ValueError("Only n >= 2 is supported.")
+            raise ValueError(f"Only n >= 2 is supported. n = {n} was provided.")
         self.n = n
         self.dim = n * (n - 1) // 2
         super().__init__()

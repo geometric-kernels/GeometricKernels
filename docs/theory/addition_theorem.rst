@@ -9,7 +9,7 @@ Addition Theorem
 Theory
 ======================
 
-This builds on the general :doc:`theory on compact manifolds <compact>` and uses same notation.
+This builds on the general :doc:`theory on compact manifolds <compact>` and uses the same notation.
 
 Consider, for example, a hypersphere: $M = \mathbb{S}_d$.
 Then closed form expressions for $\lambda_n$ and $f_n$ are known (see e.g. Appendix B of `Borovitskiy et al. (2020) <https://arxiv.org/abs/2006.10160>`_).
@@ -55,7 +55,7 @@ e^{-\frac{\kappa^2}{2} \lambda}
 \end{cases}
 $$
 which is more efficient to use than the general formula above. The reason is simple: it is not harder to evaluate a Gegenbauer polynomial $\mathcal{C}^{(d-1)/2}_j$ than each single one of the respective (hyper)spherical harmonics.
-And you need much less Gegenbauer polynomials to achieve the same quality of approximation.
+And you need much fewer Gegenbauer polynomials to achieve the same quality of approximation.
 For example, for $M = \mathbb{S}_2$ and $J = 20$ the corresponding $N$ is $441$.
 
 Such addition theorems appear beyond hyperspheres, for example for Lie groups and other compact homogeneous spaces.
