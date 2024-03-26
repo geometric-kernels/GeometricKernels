@@ -131,12 +131,9 @@ def create_complex(real: _Numeric, imag: B.JAXNumeric):
     """
     Returns a complex number with the given real and imaginary parts using jax.
 
-    Args:
-    - real: float, real part of the complex number.
-    - imag: float, imaginary part of the complex number.
-
-    Returns:
-    - complex_num: complex, a complex number with the given real and imaginary parts.
+    :param real: float, real part of the complex number.
+    :param imag: float, imaginary part of the complex number.
+    :return: complex, a complex number with the given real and imaginary parts.
     """
     complex_num = real + 1j * imag
     return complex_num

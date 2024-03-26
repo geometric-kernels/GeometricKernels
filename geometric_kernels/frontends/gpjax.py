@@ -32,16 +32,15 @@ class GeometricKernelComputation(gpjax.kernels.computations.AbstractKernelComput
         x: Float[Array, "N #D1 D2"],  # noqa: F821
         y: Float[Array, "M #D1 D2"],  # noqa: F821
     ) -> Float[Array, "N M"]:
-        """Compute the cross covariance matrix between two matrices of inputs.
+        """
+        Compute the cross covariance matrix between two matrices of inputs.
 
-        Args:
-            x (Num[Array, "N #D1 D2"]): A batch of N inputs of, each of which
-            is a matrix of size D1xD2, or a vector of size D2 if D1 is absent.
-            y (Num[Array, "M #D1 D2"]): A batch of M inputs of, each of which
-            is a matrix of size D1xD2, or a vector of size D2 if D1 is absent.
+        :param x: A batch of N inputs, each of which is a matrix of size D1xD2,
+              or a vector of size D2 if D1 is absent.
+        :param y: A batch of M inputs, each of which is a matrix of size D1xD2,
+              or a vector of size D2 if D1 is absent.
 
-        Returns:
-            Float[Array, "N M"]: The N x M covariance matrix.
+        :return: The N x M covariance matrix.
         """
         return jnp.asarray(kernel(x, y))
 
@@ -115,16 +114,15 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
     def __call__(
         self, x: Num[Array, "N #D1 D2"], y: Num[Array, "M #D1 D2"]  # noqa: F821
     ) -> Float[Array, "N M"]:
-        """Compute the cross covariance matrix between two matrices of inputs.
+        """
+        Compute the cross covariance matrix between two matrices of inputs.
 
-        Args:
-            x (Num[Array, "N #D1 D2"]): A batch of N inputs of, each of which
-            is a matrix of size D1xD2, or a vector of size D2 if D1 is absent.
-            y (Num[Array, "M #D1 D2"]): A batch of M inputs of, each of which
-            is a matrix of size D1xD2, or a vector of size D2 if D1 is absent.
+        :param x: A batch of N inputs, each of which is a matrix of size D1xD2,
+              or a vector of size D2 if D1 is absent.
+        :param y: A batch of M inputs, each of which is a matrix of size D1xD2,
+              or a vector of size D2 if D1 is absent.
 
-        Returns:
-            Float[Array, "N M"]: The N x M covariance matrix.
+        :return: The N x M covariance matrix.
         """
         return self.variance * self.base_kernel.K(
             {"lengthscale": self.lengthscale, "nu": self.nu}, x, y
