@@ -55,13 +55,13 @@ class Stiefel(CompactHomogeneousSpace):
     with orthogonal columns.
     """
 
-    def __new__(cls, n: int, m: int, key, average_order: int = 1000):
+    def __new__(cls, n: int, m: int, key, average_order: int = 100):
         """
         :param n: the number of rows.
         :param m: the number of columns.
         :param key: random state used to sample from the stabilizer `SO(n-m)`.
         :param average_order: the number of random samples from the stabilizer `SO(n-m)`.
-        :return: a tuple (new random state, a realization of `V(n, m)`).
+        :return: a tuple (new random state, a realization of `V(m, n)`).
         """
 
         assert n > m, "n should be greater than m"
@@ -80,7 +80,7 @@ class Stiefel(CompactHomogeneousSpace):
         Take first m columns of an orthogonal matrix.
 
         :param g: [..., n, n] array of points in SO(n)
-        :return: [..., n, m] array of points in V(n, m)
+        :return: [..., n, m] array of points in V(m, n)
         """
 
         return g[..., : self.m]
@@ -89,7 +89,7 @@ class Stiefel(CompactHomogeneousSpace):
         """
         Complete [n, m] matrix with orthogonal columns to an orthogonal [n, n] one using QR algorithm.
 
-        :param x: [..., n, m] array of points in V(n, m)
+        :param x: [..., n, m] array of points in V(m, n)
         :return g: [..., n, n] array of points in SO(n)
         """
 

@@ -61,7 +61,7 @@ class GrassmannianEigenfunctions(AveragingAdditionTheorem):
 class Grassmannian(CompactHomogeneousSpace):
     r"""
     The GeometricKernels space representing the Grassmannian manifold
-    :math:`Gr(m, n)` as the homogeneous space
+    :math:`Gr(n, m)` as the homogeneous space
     :math:`O(n) / (O(m) \times O(n-m))` which also happens to be a symmetric
     space.
 
@@ -71,13 +71,13 @@ class Grassmannian(CompactHomogeneousSpace):
     matrices can represent the same element of the Grassmannian manifold.
     """
 
-    def __new__(cls, n, m, key, average_order=1000):
+    def __new__(cls, n, m, key, average_order=100):
         """
         :param n: the number of rows.
-        :param m: the number of coluns.
+        :param m: the number of columns.
         :param key: random state used to sample from the stabilizer.
         :param average_order: the number of random samples from the stabilizer.
-        :return: a tuple (new random state, a realization of `Gr(n, m)`).
+        :return: a tuple (new random state, a realization of `Gr(m, n)`).
         """
 
         assert n > m, "n should be greater than m"
