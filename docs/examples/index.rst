@@ -4,9 +4,40 @@
 
 .. toctree::
    :maxdepth: 2
+   :caption: Spaces
+
+   Graph <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/Graph.ipynb>
+   Grassmannian <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/Grassmannian.ipynb>
+   Hyperbolic <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/Hyperbolic.ipynb>
+   Hypersphere <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/Hypersphere.ipynb>
+   Mesh <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/Mesh.ipynb>
+   SOGroup <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/SOGroup.ipynb>
+   SPD <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/SPD.ipynb>
+   Stiefel <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/Stiefel.ipynb>
+   SUGroup <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/SUGroup.ipynb>
+   Torus <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/Torus.ipynb>
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Backends
+
+   JAX (Graph space) <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/backends/JAX_Graph.ipynb>
+   PyTorch (Graph space) <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/backends/PyTorch_Graph.ipynb>
+   TensorFlow (Graph space) <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/backends/TensorFlow_Graph_Graph.ipynb>
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Frontends
+
+   GPFlow (Mesh space) <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/frontends/GPflow.ipynb>
+   GPJax (Mesh space) <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/frontends/GPJax.ipynb>
+   GPyTorch (Mesh space) <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/frontends/GPyTorch.ipynb>
+
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Other
     
-   Bayesian optimization on a sphere <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/bo_sphere.ipynb>
-   GP regression in GPJax <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/gpr_gpjax.ipynb>
-   GP regression on a mesh using GPflow <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/mesh_gpr_gpflow.ipynb>
-   Matérn kernels on hyperbolic space <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/hyperbolic_space.ipynb>
-   Product kernels and kernels on product manifolds <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/product.ipynb>
+   Bayesian optimization on a sphere <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/other/Bayesian Optimization.ipynb>
+   Comparing approximations on Hyperbolic <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/other/Hyperbolic Approximations.ipynb>
+   Comparing approximations on SPD <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/other/SPD Approximations.ipynb>

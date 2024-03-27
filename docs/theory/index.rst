@@ -3,7 +3,7 @@
 #########
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
     
    Kernels on compact manifolds <compact>
    Addition theorem <addition_theorem>
