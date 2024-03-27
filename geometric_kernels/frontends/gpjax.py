@@ -68,24 +68,29 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
 
     :param base_kernel:
         The kernel to wrap.
+    :type base_kernel: BaseGeometricKernel
     :param name:
         Optional kernel name (inherited from `gpjax.kernels.AbstractKernel`).
 
         Defaults to "Geometric Kernel".
+    :type name: str
     :param lengthscale:
         Initial value of the length scale.
 
         If not given or set to None, uses the default value of the
         `base_kernel`, as provided by its `init_params` method.
+    :type lengthscale: Union[ScalarFloat, Float[Array, " D"]]
     :param nu:
         Initial value of the smoothness parameter nu.
 
         If not given or set to None, uses the default value of the
         `base_kernel`, as provided by its `init_params` method.
+    :type nu: ScalarFloat
     :param variance:
         Initial value of the variance (outputscale) parameter.
 
         Defaults to 1.0.
+    :type variance: ScalarFloat
     """
 
     nu: ScalarFloat = param_field(None, bijector=tfb.Softplus(), trainable=False)

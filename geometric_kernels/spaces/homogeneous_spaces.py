@@ -28,8 +28,8 @@ class AveragingAdditionTheorem(EigenfunctionWithAdditionTheorem):
     def __init__(self, M, num_levels: int, samples_H):
         """
         :param M: CompactHomogeneousSpace.
-        :param num_levels int: number of eigenspaces.
-        :param samples_H: samples from the uniform distribution on the stabilizer `H`.
+        :param num_levels int: Number of eigenspaces.
+        :param samples_H: Samples from the uniform distribution on the stabilizer `H`.
         """
         self.M = M
         self.dim = M.G.dim - M.H.dim
@@ -96,7 +96,7 @@ class AveragingAdditionTheorem(EigenfunctionWithAdditionTheorem):
 
         :param X: [N1, ...]
         :param X2: [N2, ...]
-        :param parameters: any additional parameters
+        :param parameters: Any additional parameters
         :return: [N1, N2, L]
         """
 
@@ -127,7 +127,7 @@ class AveragingAdditionTheorem(EigenfunctionWithAdditionTheorem):
         `self._addition_theorem(X, X)[:, :, l]` for all l from 0 to L-1.
 
         :param X: [N, ...]
-        :param parameters: any additional parameters
+        :param parameters: Any additional parameters
         :return: [N, L]
         """
         ones = B.ones(B.dtype(X), *X.shape[:-2], 1)  # assumes xs are matrices
@@ -174,8 +174,8 @@ class AveragedLieGroupCharacter(abc.ABC):
 
     def __init__(self, average_order: int, character: LieGroupCharacter):
         """
-        :param average_order: the number of points sampled from `H`.
-        param character: a character of a Lie group `G`.
+        :param average_order: The number of points sampled from `H`.
+        :param character: A character of a Lie group `G`.
         """
         self.character = character
         self.average_order = average_order
@@ -204,9 +204,9 @@ class CompactHomogeneousSpace(DiscreteSpectrumSpace):
     def __init__(self, G: MatrixLieGroup, H, samples_H, average_order):
         """
         :param G: A Lie group.
-        :param H: stabilizer subgroup.
-        :param samples_H: random samples from the stabilizer.
-        :param average_order: average order.
+        :param H: Stabilizer subgroup.
+        :param samples_H: Random samples from the stabilizer.
+        :param average_order: Average order.
         """
         self.G = G
         self.H = H
@@ -251,17 +251,13 @@ class CompactHomogeneousSpace(DiscreteSpectrumSpace):
         """
         raise NotImplementedError
 
-    @property
-    def dimension(self) -> int:
-        return self.dim
-
     def random(self, key, number: int):
         """
         Samples random points from the uniform distribution on `M`.
 
-        :param key: a random state
-        :param number: a number of random to generate
-        :return [number, ...] an array of randomly generated points
+        :param key: A random state.
+        :param number: A number of random to generate.
+        :return: [number, ...] an array of randomly generated points.
         """
         key, raw_samples = self.G.random(key, number)
         return key, self.project_to_manifold(raw_samples)

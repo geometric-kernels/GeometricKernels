@@ -5,10 +5,11 @@ import logging
 class DisableLogging:
     """
     Adapted from https://stackoverflow.com/a/20251235. Use as
-    ```python
-    with DisableLogging():
-        do your stuff
-    ```
+
+    .. code-block:: python
+
+        with DisableLogging():
+            do_your_stuff
     """
 
     def __enter__(self):
@@ -32,7 +33,7 @@ class FirstPartFilter(logging.Filter):
 
 class NoUsingBackendFilter(logging.Filter):
     """
-    A filter that removes the "Using *** backend" log record of geomstats.
+    A filter that removes the "Using ... backend" log record of geomstats.
     """
 
     def filter(self, record):

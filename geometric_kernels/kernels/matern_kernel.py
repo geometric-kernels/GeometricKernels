@@ -149,10 +149,11 @@ def default_num(space: NoncompactSymmetricSpace):
 
 class MaternGeometricKernel:
     """
-    This class represents a Matérn geometric kernel that "just works".
+    This class represents a Matérn geometric kernel that "just works". Unless
+    you really know what you are doing, you should always use this kernel class.
 
-    Upon creation, this class unpacks into a specific geometric kernel based
-    on the provided Space, and the associated feature map.
+    Upon creation, this class unpacks into a specific geometric kernel based on
+    the provided space, and, optionally, the associated (approximate) feature map.
     """
 
     _DEFAULT_NUM_EIGENFUNCTIONS = 1000
@@ -163,9 +164,9 @@ class MaternGeometricKernel:
     def __new__(
         cls,
         space: Space,
-        num=None,
-        normalize=True,
-        return_feature_map=False,
+        num: int = None,
+        normalize: bool = True,
+        return_feature_map: bool = False,
         **kwargs,
     ):
         r"""
@@ -173,22 +174,32 @@ class MaternGeometricKernel:
         feature map on `space`.
 
         :param space: space to construct the kernel on.
-        :param num: if provided, controls the "order of approximation"
-            of the kernel. For the discrete spectrum spaces, this means
-            the number of "levels" that go into the truncated series that
-            defines the kernel (for example, these are unique eigenvalues
-            for the `Hypersphere` or eigenvalues with repetitions for
-            the `Graph` or for the `Mesh`). For the noncompact symmetric
-            spaces, this is the number of random phases to construct the
-            kernel.
-        :param normalize: normalize kernel variance. The exact normalization
-            technique varies from space to space.
-        :param return_feature_map: if `True`, return a feature map (needed
-            e.g. for efficient sampling from Gaussian processes) along with
-            the kernel. Default is `False`.
-        :param ``**kwargs``: any additional keyword arguments to be passed to
-            the kernel (like `key`). **Important:** for non-compact symmetric
-            spaces (Hyperbolic, SPD) the `key` **must** be provided in kwargs.
+        :param num:
+            If provided, controls the "order of approximation" of the kernel.
+            For the discrete spectrum spaces, this means the number of "levels"
+            that go into the truncated series that defines the kernel (for
+            example, these are unique eigenvalues for the `Hypersphere` or
+            eigenvalues with repetitions for the `Graph` or for the `Mesh`).
+            For the noncompact symmetric spaces, this is the number of random
+            phases to construct the kernel.
+
+            The default is space-dependent.
+        :param normalize:
+            Normalize kernel variance. The exact normalization technique
+            varies from space to space.
+
+            Defaults to True.
+        :param return_feature_map:
+            If `True`, return a feature map (needed e.g. for efficient sampling
+            from Gaussian processes) along with the kernel.
+
+            Default is False.
+        :param ``**kwargs``:
+            Any additional keyword arguments to be passed to the kernel (like `key`).
+
+        .. note::
+           For non-compact symmetric spaces (Hyperbolic, SPD) the `key`
+           **must** be provided in kwargs.
         """
 
         if isinstance(space, DiscreteSpectrumSpace):

@@ -16,7 +16,7 @@ from geometric_kernels.utils.utils import Optional, make_deterministic
 
 class MaternKarhunenLoeveKernel(BaseGeometricKernel):
     r"""This class approximates a kernel by the finite feature decomposition using
-    its Laplace-Beltrami eigenfunctions and eigenvalues [1, 2].
+    its Laplace-Beltrami eigenfunctions and eigenvalues.
 
     .. math:: k(x, x') = \sum_{i=0}^{M-1} S(\sqrt\lambda_i) \sum_{j=0}^{K_i} \phi_{ij}(x) \phi_{ij}(x'),
 
@@ -38,14 +38,14 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
     necessarily correspond to full eigenspaces. A level may even correspond
     to a single eigenfunction.
 
-    References:
+    .. note::
+        A brief introduction into the theory behind MaternKarhunenLoeveKernel
+        can be found in :doc:`this </theory/compact>` and
+        :doc:`this </theory/addition_theorem>` documentation pages.
 
-    [1] Viacheslav Borovitskiy, Alexander Terenin, Peter Mostowsky, and Marc Peter Deisenroth,
-        Matern Gaussian processes on Riemannian manifolds
-
-    [2] Arno Solin, and Simo Särkkä, Hilbert Space Methods for Reduced-Rank
-        Gaussian Process Regression
-
+    :param space: The space to define the kernel upon.
+    :param num_levels: Number of levels to include in the summation.
+    :param normalize: Whether to normalize kernel to have unit average variance.
     """
 
     def __init__(
@@ -54,15 +54,6 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         num_levels: int,
         normalize: bool = True,
     ):
-        r"""
-        :param space: Space providing the eigenvalues and eigenfunctions of
-            the Laplace-Beltrami operator.
-        :param nu: Determines continuity of the Mat\'ern kernel. Typical values
-            include 1/2 (i.e., the Exponential kernel), 3/2, 5/2 and +\infty
-            `np.inf` which corresponds to the Squared Exponential kernel.
-        :param num_levels: number of levels to include in the summation.
-        :param normalize: whether to normalize to have unit average variance.
-        """
         super().__init__(space)
         self.num_levels = num_levels  # in code referred to as `M`.
         self._eigenvalues_laplacian = self.space.get_eigenvalues(self.num_levels)
@@ -71,11 +62,15 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
 
     def init_params(self):
         """
-        Get initial params.
+        :return: The initial `params` dict containing the length scale
+        parameter `lengthscale` and the smoothness parameter `nu`.
 
-        params contains the lengthscale and the smoothness parameter `nu`.
+        .. note::
+           `nu` determines the smoothness of the Matérn kernel. Typical values
+           include 1/2 (in R^n, gives the exponential kernel), 3/2, 5/2, and
+           `np.inf` which corresponds to the heat kernel (in R^n, a.k.a. squared
+           exponential kernel, RBF kernel, diffusion kernel, Gaussian kernel).
 
-        :return: params
         """
         params = dict(lengthscale=np.array(1.0), nu=np.array(np.inf))
 
@@ -174,13 +169,18 @@ class MaternFeatureMapKernel(BaseGeometricKernel):
 
     .. math :: k(x, y) = \langle \phi(x), \phi(y) \rangle_{\mathcal{H}}
 
-    where :math:`\langle \cdot , \rangle_{\mathcal{H}}` means inner product.
+    where :math:`\langle \cdot , \cdot \rangle_{\mathcal{H}}` means inner
+    product in :math:`\mathcal{H}`.
 
     One can approximate the kernel using a finite-dimensional approximation to
     :math:`\phi` which we call a `feature map`.
 
     What makes this kernel specifically Matérn is that it has
     a smoothness parameter `nu` and a lengthscale parameter `lengthscale`.
+
+    .. note::
+        A brief introduction into feature maps and related kernels can be found
+        on :doc:`this page </theory/feature_maps>`.
     """
 
     def __init__(self, space: Space, feature_map, key, normalize=True):
@@ -215,7 +215,8 @@ class MaternFeatureMapKernel(BaseGeometricKernel):
 
 class MaternIntegratedKernel(BaseGeometricKernel):
     r"""
-    This class computes a Matérn kernel by integrating over the heat kernel [1].
+    This class computes a Matérn kernel as a weighted integral of the heat
+    kernel with respect to its length scale (time) parameter [1].
 
     For non-compact manifolds:
 

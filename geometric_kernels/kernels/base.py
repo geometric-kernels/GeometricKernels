@@ -32,8 +32,10 @@ class BaseGeometricKernel(abc.ABC, Generic[T]):
     @abc.abstractmethod
     def init_params(self):
         """
-        Returns initial parameters and state of the kernels.
-        params is a dict of trainable parameters of the kernel, such as lengthscale.
+        Initializes the dict of the trainable parameters of the kernel. In
+        (almost) all cases, it contains two keys: `"nu"` and `"lengthscale"`.
+        This dict can be modified and is passed around into such methods as `K`
+        or `K_diag`, as the `params` argument.
         """
         raise NotImplementedError
 
@@ -41,12 +43,20 @@ class BaseGeometricKernel(abc.ABC, Generic[T]):
     def K(self, params, X, X2=None, **kwargs) -> B.Numeric:
         """
         Returns pairwise covariance between `X` and `X2`.
+
+        .. note::
+           The types of values in the `params` dict determine the backend
+           used for internal computations and the output type.
         """
         raise NotImplementedError
 
     @abc.abstractmethod
     def K_diag(self, params, X, **kwargs) -> B.Numeric:
         """
-        Returns covariance between elements in `X`.
+        Returns the diagonal of `self.K(params, X, X)`.
+
+        .. note::
+           The types of values in the `params` dict determine the backend
+           used for internal computations and the output type.
         """
         raise NotImplementedError

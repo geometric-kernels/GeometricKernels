@@ -9,6 +9,10 @@ wrapper classes compatible with Gaussian process libraries like
 `GPFlow <https://www.gpflow.org/>`_, `GPyTorch <https://gpytorch.ai/>`_,
 and `GPJax <https://github.com/JaxGaussianProcesses/GPJax>`_.
 
+The :py:mod:`sampling <geometric_kernels.sampling>` package contains routines
+that allow efficient (approximate) sampling of functions from geometric Gaussian
+process priors. It also contains utilities for sampling spectral densities.
+
 The :py:mod:`lab_extras <geometric_kernels.lab_extras>` package contains our
 custom additions to `LAB <https://github.com/wesselb/lab>`_, the framework that
 allows our library to be backend-independent. This is an internal part of our

@@ -23,15 +23,15 @@ class WeylAdditionTheorem(EigenfunctionWithAdditionTheorem):
     character formula*. See [1] for the mathematical details behind this class.
 
     :param n:
-    The order of the Lie group, e.g. for SO(5) this is 5, for SU(3) this is 3.
+        The order of the Lie group, e.g. for SO(5) this is 5, for SU(3) this is 3.
     :param num_levels:
-    The number of levels used for kernel approximation. Here, each level
-    corresponds to an irreducible unitary representation of the group.
+        The number of levels used for kernel approximation. Here, each level
+        corresponds to an irreducible unitary representation of the group.
     :param compute_characters:
-    Whether or not to actually compute the *characters*. Setting this parameter
-    to False might make sense if you do not care about eigenfunctions (or sums
-    of outer products thereof), but care about eigenvalues, dimensions of
-    irreducible unitary representations, etc. Defaults to True.
+        Whether or not to actually compute the *characters*. Setting this parameter
+        to False might make sense if you do not care about eigenfunctions (or sums
+        of outer products thereof), but care about eigenvalues, dimensions of
+        irreducible unitary representations, etc. Defaults to True.
 
     **Note**: unlike :class:`SphericalHarmonics`, we do not expect the
     descendants of this class to compute the actual Laplace-Beltrami
