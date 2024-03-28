@@ -27,3 +27,6 @@ from geometric_kernels.lab_extras import *
 logging.getLogger(__name__).info(
     "Numpy backend is enabled. To enable other backends, don't forget to `import geometric_kernels.*backend name*`."
 )
+logging.getLogger(__name__).info(
+    "We may be suppressing some logging of external libraries. To override the logging policy, call `logging.basicConfig`."
+)
