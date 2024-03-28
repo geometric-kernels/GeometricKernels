@@ -1,7 +1,6 @@
 """
 This module provides the :class:`MaternFeatureMapKernel` kernel, the basic
-kernel for non-compact symmetric spaces, like :class:`Hyperbolic`
-and :class:`SymmetricPositiveDefiniteMatrices`.
+kernel for non-compact symmetric spaces, subclasses of :class:`NoncompactSymmetricSpace`.
 """
 import lab as B
 import numpy as np
