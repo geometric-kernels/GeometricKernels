@@ -2,12 +2,14 @@
   Kernels on Product Spaces
 ################################################
 
-Kernels on product spaces are not the same as product kernels, for the latter see :doc:`the respective page <product_kernels>`.
+To work on a product space (i.e. a space which is itself a product of spaces), one can use either *product Matérn kernels* or *Matérn kernels on product spaces*.
+These are generally not the same.
+On this page we discuss the Matérn kernels on product spaces.
+For a discussion on product Matérn kernels, see :doc:`the respective page <product_kernels>`.
 For a brief demonstration of the difference, see the example notebook `on the torus <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/Torus.ipynb>`_.
 
-
 **Warning:** this is optional material meant to explain the basic theory and based mainly on `Borovitskiy et al. (2020) <https://arxiv.org/abs/2006.10160>`_.
-You can get by fine without reading this page for almost all use cases, either
+you can get by fine without reading this page for almost all use cases involving product spaces, either
 
 * by using the standard :class:`MaternGeometricKernel <geometric_kernels.kernels.MaternGeometricKernel>` with :class:`ProductDiscreteSpectrumSpace <geometric_kernels.spaces.ProductDiscreteSpectrumSpace>` (only works for discrete spectrum spaces),
 
