@@ -2,7 +2,6 @@
 Feature maps
 """
 import abc
-import warnings
 
 import lab as B
 
@@ -287,7 +286,7 @@ class RejectionSamplingFeatureMapHyperbolic(FeatureMap):
         return key, features
 
 
-class RejectionSamplingFeatureMapSpd(FeatureMap):
+class RejectionSamplingFeatureMapSPD(FeatureMap):
     def __init__(
         self,
         space: SymmetricPositiveDefiniteMatrices,
@@ -352,53 +351,3 @@ class RejectionSamplingFeatureMapSpd(FeatureMap):
             features = features / normalizer
 
         return key, features
-
-
-# compatibility layer
-def deprecated(fn):
-    """
-    Ad-hoc decorator that suggests using new camel-cased classes instead of
-    old snake-cased functions.
-    """
-    fn_name = fn.__name__
-    new_name = "".join(word.title() for word in fn_name.split("_"))
-
-    doc = globals()[new_name].__init__.__doc__
-
-    def wrapper(*args, **kwargs):
-        warnings.warn(
-            f"Calling {fn.__name__} has been deprecated. "
-            f"Please use {new_name} instead.",
-            category=DeprecationWarning,
-            stacklevel=2,
-        )
-        return fn(*args, **kwargs)
-
-    wrapper.__doc__ = doc
-    wrapper.__name__ = fn_name
-    return wrapper
-
-
-@deprecated
-def deterministic_feature_map_compact(*args, **kwargs):
-    return DeterministicFeatureMapCompact(*args, **kwargs)
-
-
-@deprecated
-def random_phase_feature_map_compact(*args, **kwargs):
-    return RandomPhaseFeatureMapCompact(*args, **kwargs)
-
-
-@deprecated
-def random_phase_feature_map_noncompact(*args, **kwargs):
-    return RandomPhaseFeatureMapNoncompact(*args, **kwargs)
-
-
-@deprecated
-def rejection_sampling_feature_map_hyperbolic(*args, **kwargs):
-    return RejectionSamplingFeatureMapHyperbolic(*args, **kwargs)
-
-
-@deprecated
-def rejection_sampling_feature_map_spd(*args, **kwargs):
-    return RejectionSamplingFeatureMapSpd(*args, **kwargs)
