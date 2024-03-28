@@ -4,6 +4,7 @@ A wrapper around different kernels and feature maps that dispatches on space.
 from plum import dispatch
 
 from geometric_kernels.kernels.base import BaseGeometricKernel
+from geometric_kernels.kernels.feature_map import MaternFeatureMapKernel
 from geometric_kernels.kernels.feature_maps import (
     deterministic_feature_map_compact,
     random_phase_feature_map_compact,
@@ -11,10 +12,7 @@ from geometric_kernels.kernels.feature_maps import (
     rejection_sampling_feature_map_hyperbolic,
     rejection_sampling_feature_map_spd,
 )
-from geometric_kernels.kernels.geometric_kernels import (
-    MaternFeatureMapKernel,
-    MaternKarhunenLoeveKernel,
-)
+from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import (
     CompactHomogeneousSpace,
     DiscreteSpectrumSpace,

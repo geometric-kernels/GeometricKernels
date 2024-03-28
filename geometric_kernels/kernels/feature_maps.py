@@ -6,7 +6,7 @@ import warnings
 
 import lab as B
 
-from geometric_kernels.kernels.geometric_kernels import MaternKarhunenLoeveKernel
+from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
 from geometric_kernels.lab_extras import from_numpy
 from geometric_kernels.sampling.probability_densities import (
     base_density_sample,
