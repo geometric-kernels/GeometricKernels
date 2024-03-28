@@ -1,9 +1,8 @@
 import lab as B
 import torch
+from beartype.typing import Any, List, Optional
 from lab import dispatch
 from plum import Union
-
-from geometric_kernels._typing import Any, List, Optional
 
 _Numeric = Union[B.Number, B.TorchNumeric]
 
@@ -147,12 +146,9 @@ def create_complex(real: _Numeric, imag: B.TorchNumeric):
     """
     Returns a complex number with the given real and imaginary parts using pytorch.
 
-    Args:
-    - real: float, real part of the complex number.
-    - imag: float, imaginary part of the complex number.
-
-    Returns:
-    - complex_num: complex, a complex number with the given real and imaginary parts.
+    :param real: float, real part of the complex number.
+    :param imag: float, imaginary part of the complex number.
+    :return: complex, a complex number with the given real and imaginary parts.
     """
     complex_num = real + 1j * imag
     return complex_num

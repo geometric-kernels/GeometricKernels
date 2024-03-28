@@ -55,7 +55,7 @@ class DeterministicFeatureMapCompact(FeatureMap):
         :param normalize: normalize to have unit average variance (if omitted
                           or None, follows the standard behavior of
                           MaternKarhunenLoeveKernel).
-        :param **kwargs: unused.
+        :param ``**kwargs``: unused.
 
         :return: `Tuple(None, features)` where `features` is [N, O] features.
         """
@@ -102,7 +102,9 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
     ) -> B.Numeric:
         """
         :param X: [N, D] points in the space to evaluate the map on.
+
         :param params: parameters of the kernel (lengthscale and smoothness).
+
         :param key: random state, either `np.random.RandomState`, `tf.random.Generator`,
                     `torch.Generator` or `jax.tensor` (representing random state).
 
@@ -114,7 +116,7 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
         :param normalize: normalize to have unit average variance (if omitted
                           or None, follows the standard behavior of
                           MaternKarhunenLoeveKernel).
-        :param **kwargs: unused.
+        :param ``**kwargs``: unused.
 
         :return: `Tuple(key, features)` where `features` is [N, O] features,
                  and `key` is the new key for `jax`, and the same random
@@ -177,7 +179,7 @@ class RandomPhaseFeatureMapNoncompact(FeatureMap):
                      One either has to recreate/restore the state each time or
                      make use of `geometric_kernels.utils.make_deterministic`.
         :param normalize: normalize to have unit average variance (`True` by default).
-        :param **kwargs: unused.
+        :param ``**kwargs``: unused.
 
         :return: `Tuple(key, features)` where `features` is [N, O] features,
                  and `key` is the new key for `jax`, and the same random
@@ -246,7 +248,7 @@ class RejectionSamplingFeatureMapHyperbolic(FeatureMap):
                      One either has to recreate/restore the state each time or
                      make use of `geometric_kernels.utils.make_deterministic`.
         :param normalize: normalize to have unit average variance (`True` by default).
-        :param **kwargs: unused.
+        :param ``**kwargs``: unused.
 
         :return: `Tuple(key, features)` where `features` is [N, O] features,
                  and `key` is the new key for `jax`, and the same random
@@ -316,7 +318,7 @@ class RejectionSamplingFeatureMapSpd(FeatureMap):
                      One either has to recreate/restore the state each time or
                      make use of `geometric_kernels.utils.make_deterministic`.
         :param normalize: normalize to have unit average variance (`True` by default).
-        :param **kwargs: unused.
+        :param ``**kwargs``: unused.
 
         :return: `Tuple(key, features)` where `features` is [N, O] features,
                  and `key` is the new key for `jax`, and the same random

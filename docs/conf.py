@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.abspath('..'))  # Source code dir relative to this fi
 # -- Project information -----------------------------------------------------
 
 project = 'GeometricKernels'
-copyright = '2022, the GeometricKernels contributors'
+copyright = '2022-2024, the GeometricKernels Contributors'
 author = 'The GeometricKernels Contributors'
 
 
@@ -31,15 +31,18 @@ extensions = [
     'sphinx.ext.duration',
     'sphinx.ext.doctest',
     'sphinx.ext.autodoc',
+    'sphinx_math_dollar',
+    'sphinx.ext.mathjax',
 ]
 
 # autoapi
 extensions.append("autoapi.extension")
 autoapi_dirs = ["../geometric_kernels"]
 autodoc_typehints = 'description'
+autodoc_default_options = {"special-members": "__init__",}
 autoapi_add_toctree_entry = False
 autoapi_keep_files = True
-autoapi_python_class_content = "both"
+autoapi_python_class_content = "class"  # we handle __init__ and __new__ below
 autoapi_member_order = "groupwise"
 # ignore these files to surpress warning multiple dispatch
 autoapi_ignore = [f'**/lab_extras/{b}**' for b in ["torch", "jax", "tensorflow", "numpy"]]
@@ -50,6 +53,14 @@ autoapi_options = [
     "imported-members",
     "show-inheritance",
 ]
+
+# Never skip __init__ or __new__
+def never_skip_init_or_new(app, what, name, obj, would_skip, options):
+    if "__init__" in name or "__new__":
+        return False
+    return would_skip
+def setup(sphinx):
+    sphinx.connect("autoapi-skip-member", never_skip_init_or_new)
 
 
 # Add any paths that contain templates here, relative to this directory.
@@ -91,4 +102,13 @@ html_context = {
   'github_user': 'GPflow',
   'github_repo': 'GeometricKernels',
   'github_version': 'main/docs/'
+}
+
+# For sphinx_math_dollar (see https://www.sympy.org/sphinx-math-dollar/)
+
+mathjax3_config = {
+  "tex": {
+    "inlineMath": [['\\(', '\\)']],
+    "displayMath": [["\\[", "\\]"]],
+  }
 }

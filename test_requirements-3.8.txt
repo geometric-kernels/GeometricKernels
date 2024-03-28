@@ -4,12 +4,10 @@ gpytorch==1.11
 scikit-learn==1.3.2
 torch==2.1.2
 gpflow==2.9.0
-gpjax==0.5.9
-tensorflow==2.13.1
+tensorflow==2.13.0
 tensorflow-probability==0.20.1
 jax==0.4.13
 jaxlib==0.4.13
 backends>=1.5.4
 plum-dispatch>=2.2.0
-sparsegpax @ git+https://github.com/aterenin/SparseGPAX.git
-spherical-harmonics @ git+https://github.com/vdutor/SphericalHarmonics.git
+optax==0.1.7

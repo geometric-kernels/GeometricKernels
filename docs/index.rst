@@ -1,46 +1,73 @@
-.. Copyright 2020 The Geometric Kernels Contributors
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-
-.. Geometric Kernels documentation master file, created by sphinx-quickstart.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. Geometric Kernels documentation master file, should contain the root
+   `toctree` directive.
 
 
 Overview
 ========
 
-Geometric Kernels is a library that implements natural kernels (Heat, Matérn) on such non-Euclidean spaces as **Riemannian manifolds**, **graphs** and **meshes**.
+Geometric Kernels is a library that implements natural kernels (heat, Matérn) on such non-Euclidean spaces as **Riemannian manifolds**, **graphs** and **meshes**.
 
 The main projected application is within the Gaussian process framework.
 
 Installation and Requirements
 =============================
 
-This is a **Python 3** library. To install it (together with the dependencies) follow the steps below.
+This is a **Python 3** library.
 
-Before doing anything, you might want to create and activate a new virtualenv environment:
+Before doing anything, you might want to create and activate a new virtual environment:
+
+
+.. raw:: html
+
+   <div class="bootstrap">
+   <div class="accordion" id="virtualenvs">
+     <div class="accordion-item">
+       <h2 class="accordion-header mb-0" id="virtualenvsHeadingOne">
+         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#virtualenvsCollapseOne" aria-expanded="true" aria-controls="virtualenvsCollapseOne">
+           Conda
+         </button>
+       </h2>
+       <div id="virtualenvsCollapseOne" class="accordion-collapse collapse show" aria-labelledby="virtualenvsHeadingOne" data-bs-parent="#virtualenvs">
+         <div class="accordion-body pb-0">
 
 .. code::
 
-   pip install virtualenv
+   conda create -n [env_name] python=3.10
+   conda activate [env_name]
+
+.. raw:: html
+
+         </div>
+       </div>
+     </div>
+
+.. raw:: html
+
+     <div class="accordion-item">
+       <h2 class="accordion-header mb-0" id="virtualenvsHeadingTwo">
+         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#virtualenvsCollapseTwo" aria-expanded="false" aria-controls="virtualenvsCollapseTwo">
+           Virtualenv
+         </button>
+       </h2>
+       <div id="virtualenvsCollapseTwo" class="accordion-collapse collapse" aria-labelledby="virtualenvsHeadingTwo" data-bs-parent="#virtualenvs">
+         <div class="accordion-body pb-0">
+
+.. code::
+
    virtualenv [env_name]
    source [env_name]/bin/activate
 
+.. raw:: html
 
-First of all, you will need to install `LAB <https://github.com/wesselb/lab>`_, the library that makes it possible for GeometricKernels to be backend-independent. To do this, follow `the instructions <https://gist.github.com/wesselb/4b44bf87f3789425f96e26c4308d0adc>`_.
+         </div>
+       </div>
+     </div>
+   </div>
+   </div>
+   <br>
 
-After getting ``LAB``, to install GeometricKernels, run
+
+To install GeometricKernels, run
 
 .. code::
 
@@ -49,11 +76,11 @@ After getting ``LAB``, to install GeometricKernels, run
 The kernels are compatible with several backends, namely
 
 - `NumPy <https://numpy.org/>`_,
-- `TensorFlow <https://www.tensorflow.org/>`_ (can be used together with the GP library `GPflow <https://github.com/GPflow/GPflow>`_),
+- `TensorFlow <https://www.tensorflow.org/>`_ (can be used together with the GP library `GPflow <https://www.gpflow.org/>`_),
 - `PyTorch <https://pytorch.org/>`_ (can be used together with the GP library `GPyTorch <https://gpytorch.ai/>`_),
-- `JAX <https://github.com/google/jax/>`_. (can be used together with the GP library `GPJax <https://github.com/JaxGaussianProcesses/GPJax>`_)
+- `JAX <https://jax.readthedocs.io/>`_ (can be used together with the GP library `GPJax <https://jaxgaussianprocesses.com/>`_).
 
-Any backend, except for ``NumPy``, should be installed.
+Any backend, except for ``NumPy``, should be manually installed.
 
 .. raw:: html
 
@@ -179,17 +206,17 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> # Generate 3 random points on the sphere.
    >>> xs = np.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
 
-   >>> # Initialize kernel, use 10 levels to approximate the infinite series.
+   >>> # Initialize kernel.
    >>> kernel = MaternGeometricKernel(hypersphere)
-   >>> params, state = kernel.init_params_and_state()
+   >>> params = kernel.init_params()
    >>> params["nu"] = np.array([5/2])
    >>> params["lengthscale"] = np.array([1.])
 
    >>> # Compute and print out the 3x3 kernel matrix.
-   >>> print(kernel.K(params, state, xs))
-   [[0.00855706 0.0030498  0.0030498 ]
-    [0.0030498  0.00855706 0.0030498 ]
-    [0.0030498  0.0030498  0.00855706]]
+   >>> print(np.around(kernel.K(params, xs), 2))
+   [[1.   0.36 0.36]
+    [0.36 1.   0.36]
+    [0.36 0.36 1.  ]]
 
 .. raw:: html
 
@@ -225,17 +252,18 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> # Generate 3 random points on the sphere.
    >>> xs = np.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
 
-   >>> # Initialize kernel, use 10 levels to approximate the infinite series.
+   >>> # Initialize kernel.
    >>> kernel = MaternGeometricKernel(hypersphere)
-   >>> params, state = kernel.init_params_and_state()
+   >>> params = kernel.init_params()
    >>> params["nu"] = tf.convert_to_tensor(5/2)
    >>> params["lengthscale"] = tf.convert_to_tensor(1.)
 
    >>> # Compute and print out the 3x3 kernel matrix.
-   >>> print(kernel.K(params, state, tf.convert_to_tensor(xs)).numpy())
-   [[0.00855706 0.0030498  0.0030498 ]
-    [0.0030498  0.00855706 0.0030498 ]
-    [0.0030498  0.0030498  0.00855706]]
+   >>> print(np.around(kernel.K(params, tf.convert_to_tensor(xs)).numpy(), 2))
+   [[1.   0.36 0.36]
+    [0.36 1.   0.36]
+    [0.36 0.36 1.  ]]
+
 
 .. raw:: html
 
@@ -271,17 +299,17 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> # Generate 3 random points on the sphere.
    >>> xs = np.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
 
-   >>> # Initialize kernel, use 10 terms to approximate the infinite series.
+   >>> # Initialize kernel.
    >>> kernel = MaternGeometricKernel(hypersphere)
-   >>> params, state = kernel.init_params_and_state()
+   >>> params = kernel.init_params()
    >>> params["nu"] = torch.tensor(5/2)
    >>> params["lengthscale"] = torch.tensor(1.)
 
    >>> # Compute and print out the 3x3 kernel matrix.
-   >>> print(kernel.K(params, state, torch.from_numpy(xs)).detach().cpu().numpy())
-   [[0.00855706 0.0030498  0.0030498 ]
-    [0.0030498  0.00855706 0.0030498 ]
-    [0.0030498  0.0030498  0.00855706]]
+   >>> print(np.around(kernel.K(params, torch.from_numpy(xs)).detach().cpu().numpy(), 2))
+   [[1.   0.36 0.36]
+    [0.36 1.   0.36]
+    [0.36 0.36 1.  ]]
 
 .. raw:: html
 
@@ -317,17 +345,17 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> # Generate 3 random points on the sphere.
    >>> xs = np.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
 
-   >>> # Initialize kernel, use 10 levels to approximate the infinite series.
+   >>> # Initialize kernel.
    >>> kernel = MaternGeometricKernel(hypersphere)
-   >>> params, state = kernel.init_params_and_state()
+   >>> params = kernel.init_params()
    >>> params["nu"] = jnp.r_[5/2]
    >>> params["lengthscale"] = jnp.r_[1.]
 
    >>> # Compute and print out the 3x3 kernel matrix.
-   >>> print(kernel.K(params, state, jnp.array(xs)))
-   [[0.00855482 0.0030498  0.0030498 ]
-    [0.0030498  0.00855482 0.0030498 ]
-    [0.0030498  0.0030498  0.00855482]]
+   >>> print(np.around(kernel.K(params, jnp.array(xs)), 2))
+   [[1.   0.36 0.36]
+    [0.36 1.   0.36]
+    [0.36 0.36 1.  ]]
 
 
 .. raw:: html
@@ -339,7 +367,7 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    </div>
    <br>
 
-You can find more examples in our `example notebooks <https://github.com/GPflow/GeometricKernels/tree/main/notebooks>`_.
+You can find more examples :doc:`here <examples/index>`.
 
 .. toctree::
    :hidden:
@@ -352,6 +380,7 @@ You can find more examples in our `example notebooks <https://github.com/GPflow/
    :hidden:
 
    Examples <examples/index>
+   Theory <theory/index>
    API reference <autoapi/geometric_kernels/index>
    GitHub <https://github.com/GPflow/GeometricKernels>
 

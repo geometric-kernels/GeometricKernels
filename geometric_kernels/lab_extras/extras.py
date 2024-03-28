@@ -1,10 +1,9 @@
 import lab as B
+from beartype.typing import List
 from lab import dispatch
 from lab.util import abstract
 from plum import Union
 from scipy.sparse import spmatrix
-
-from geometric_kernels._typing import List
 
 
 @dispatch
@@ -143,12 +142,9 @@ def create_complex(real: B.Numeric, imag: B.Numeric):
     """
     Returns a complex number with the given real and imaginary parts.
 
-    Args:
-    - real: float, real part of the complex number.
-    - imag: float, imaginary part of the complex number.
-
-    Returns:
-    - complex_num: complex, a complex number with the given real and imaginary parts.
+    :param real: float, real part of the complex number.
+    :param imag: float, imaginary part of the complex number.
+    :return: complex, a complex number with the given real and imaginary parts.
     """
 
 

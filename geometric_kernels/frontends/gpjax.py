@@ -10,12 +10,12 @@ from dataclasses import dataclass
 import gpjax
 import jax.numpy as jnp
 import tensorflow_probability.substrates.jax.bijectors as tfb
+from beartype.typing import TypeVar, Union
 from gpjax.base import param_field, static_field
 from gpjax.kernels.computations.base import AbstractKernelComputation
 from gpjax.typing import Array, ScalarFloat
 from jaxtyping import Float, Num
 
-from geometric_kernels._typing import TypeVar, Union
 from geometric_kernels.kernels import BaseGeometricKernel
 
 Kernel = TypeVar("Kernel", bound="gpjax.kernels.base.AbstractKernel")  # noqa: F821
@@ -32,16 +32,15 @@ class GeometricKernelComputation(gpjax.kernels.computations.AbstractKernelComput
         x: Float[Array, "N #D1 D2"],  # noqa: F821
         y: Float[Array, "M #D1 D2"],  # noqa: F821
     ) -> Float[Array, "N M"]:
-        """Compute the cross covariance matrix between two matrices of inputs.
+        """
+        Compute the cross covariance matrix between two matrices of inputs.
 
-        Args:
-            x (Num[Array, "N #D1 D2"]): A batch of N inputs of, each of which
-            is a matrix of size D1xD2, or a vector of size D2 if D1 is absent.
-            y (Num[Array, "M #D1 D2"]): A batch of M inputs of, each of which
-            is a matrix of size D1xD2, or a vector of size D2 if D1 is absent.
+        :param x: A batch of N inputs, each of which is a matrix of size D1xD2,
+              or a vector of size D2 if D1 is absent.
+        :param y: A batch of M inputs, each of which is a matrix of size D1xD2,
+              or a vector of size D2 if D1 is absent.
 
-        Returns:
-            Float[Array, "N M"]: The N x M covariance matrix.
+        :return: The N x M covariance matrix.
         """
         return jnp.asarray(kernel(x, y))
 
@@ -69,24 +68,29 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
 
     :param base_kernel:
         The kernel to wrap.
+    :type base_kernel: BaseGeometricKernel
     :param name:
         Optional kernel name (inherited from `gpjax.kernels.AbstractKernel`).
 
         Defaults to "Geometric Kernel".
+    :type name: str
     :param lengthscale:
         Initial value of the length scale.
 
         If not given or set to None, uses the default value of the
         `base_kernel`, as provided by its `init_params` method.
+    :type lengthscale: Union[ScalarFloat, Float[Array, " D"]]
     :param nu:
         Initial value of the smoothness parameter nu.
 
         If not given or set to None, uses the default value of the
         `base_kernel`, as provided by its `init_params` method.
+    :type nu: ScalarFloat
     :param variance:
         Initial value of the variance (outputscale) parameter.
 
         Defaults to 1.0.
+    :type variance: ScalarFloat
     """
 
     nu: ScalarFloat = param_field(None, bijector=tfb.Softplus(), trainable=False)
@@ -115,16 +119,15 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
     def __call__(
         self, x: Num[Array, "N #D1 D2"], y: Num[Array, "M #D1 D2"]  # noqa: F821
     ) -> Float[Array, "N M"]:
-        """Compute the cross covariance matrix between two matrices of inputs.
+        """
+        Compute the cross covariance matrix between two matrices of inputs.
 
-        Args:
-            x (Num[Array, "N #D1 D2"]): A batch of N inputs of, each of which
-            is a matrix of size D1xD2, or a vector of size D2 if D1 is absent.
-            y (Num[Array, "M #D1 D2"]): A batch of M inputs of, each of which
-            is a matrix of size D1xD2, or a vector of size D2 if D1 is absent.
+        :param x: A batch of N inputs, each of which is a matrix of size D1xD2,
+              or a vector of size D2 if D1 is absent.
+        :param y: A batch of M inputs, each of which is a matrix of size D1xD2,
+              or a vector of size D2 if D1 is absent.
 
-        Returns:
-            Float[Array, "N M"]: The N x M covariance matrix.
+        :return: The N x M covariance matrix.
         """
         return self.variance * self.base_kernel.K(
             {"lengthscale": self.lengthscale, "nu": self.nu}, x, y

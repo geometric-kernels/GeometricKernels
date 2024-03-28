@@ -197,7 +197,7 @@ class SOGroup(MatrixLieGroup):
 
     Note: we only support n >= 3. Mathematically, SO(2) is equivalent to the
     unit circle, which is available as the :class:`Circle` space.
-    For larger values of n, you might need to run the `compute_characters.py`
+    For large values of n, you might need to run the `compute_characters.py`
     script to precompute the necessary mathematical quantities beyond the ones
     provided by default.
     """
@@ -240,7 +240,7 @@ class SOGroup(MatrixLieGroup):
         eigenfunctions = SOEigenfunctions(self.n, num)
         eigenvalues = chain(
             eigenfunctions._eigenvalues,
-            [dim**2 for dim in eigenfunctions._dimensions],
+            [rep_dim**2 for rep_dim in eigenfunctions._dimensions],
         )
         return B.reshape(eigenvalues, -1, 1)  # [M, 1]
 

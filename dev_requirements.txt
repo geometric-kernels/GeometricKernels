@@ -11,3 +11,6 @@ plotly
 jupytext
 nbconvert
 ipykernel
+nbmake
+kaleido
+botorch
