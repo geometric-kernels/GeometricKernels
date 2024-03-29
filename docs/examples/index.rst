@@ -11,7 +11,7 @@
    Hyperbolic <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/Hyperbolic.ipynb>
    Hypersphere <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/Hypersphere.ipynb>
    Mesh <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/Mesh.ipynb>
-   SOGroup <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/SOGroup.ipynb>
+   SpecialOrthogonal <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/SpecialOrthogonal.ipynb>
    SPD <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/SPD.ipynb>
    Stiefel <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/Stiefel.ipynb>
    SUGroup <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/SUGroup.ipynb>

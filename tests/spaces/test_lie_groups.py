@@ -8,14 +8,14 @@ from opt_einsum import contract as einsum
 
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.kernels.feature_maps import RandomPhaseFeatureMapCompact
-from geometric_kernels.spaces.so import SOGroup
+from geometric_kernels.spaces.so import SpecialOrthogonal
 from geometric_kernels.spaces.su import SUGroup
 
 
 @pytest.fixture(name="group_cls", params=["so", "su"])
 def _group_cls(request):
     if request.param == "so":
-        return SOGroup
+        return SpecialOrthogonal
     elif request.param == "su":
         return SUGroup
 
@@ -33,7 +33,7 @@ def _group_and_eigf(group, request):
 
 
 def get_dtype(group):
-    if isinstance(group, SOGroup):
+    if isinstance(group, SpecialOrthogonal):
         return np.double
     elif isinstance(group, SUGroup):
         return np.cdouble

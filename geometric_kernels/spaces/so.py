@@ -1,6 +1,6 @@
 """
-This module provides the :class:`SOGroup` space and the representation of
-its spectrum, the :class:`SOEigenfunctions` class.
+This module provides the :class:`SpecialOrthogonal` space and the representation
+of its spectrum, the :class:`SOEigenfunctions` class.
 """
 import itertools
 import json
@@ -186,7 +186,7 @@ class SOCharacter(LieGroupCharacter):
         return char_val
 
 
-class SOGroup(MatrixLieGroup):
+class SpecialOrthogonal(MatrixLieGroup):
     r"""
     The GeometricKernels space representing the special orthogonal group
     :math:`SO(n)` consisting of n by n orthogonal matrices with unit

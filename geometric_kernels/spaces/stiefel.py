@@ -11,7 +11,7 @@ from geometric_kernels.spaces.homogeneous_spaces import (
     AveragingAdditionTheorem,
     CompactHomogeneousSpace,
 )
-from geometric_kernels.spaces.so import SOGroup
+from geometric_kernels.spaces.so import SpecialOrthogonal
 
 
 def _hook_content_formula(lmd, n):
@@ -65,8 +65,8 @@ class Stiefel(CompactHomogeneousSpace):
         """
 
         assert n > m, "n should be greater than m"
-        H = SOGroup(n - m)
-        G = SOGroup(n)
+        H = SpecialOrthogonal(n - m)
+        G = SpecialOrthogonal(n)
         key, samples_H = H.random(key, average_order)
         new_space = super().__new__(cls)
         new_space.__init__(G=G, H=H, samples_H=samples_H, average_order=average_order)

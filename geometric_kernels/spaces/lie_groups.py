@@ -228,8 +228,8 @@ class MatrixLieGroup(DiscreteSpectrumSpace):
     inverse is the standard matrix inverse. Despite this, we make the
     subclasses implement their own inverse routine, because in special cases
     it can typically be implemented much more efficient. For example, for the
-    special orthogonal group :class:`SOGroup`, the inverse is equivalent to a
-    simple transposition.
+    special orthogonal group :class:`SpecialOrthogonal`, the inverse is
+    equivalent to a simple transposition.
     """
 
     @property
