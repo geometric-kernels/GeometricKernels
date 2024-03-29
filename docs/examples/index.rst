@@ -14,7 +14,7 @@
    SpecialOrthogonal <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/SpecialOrthogonal.ipynb>
    SPD <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/SPD.ipynb>
    Stiefel <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/Stiefel.ipynb>
-   SUGroup <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/SUGroup.ipynb>
+   SpecialUnitary <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/SpecialUnitary.ipynb>
    Torus <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/Torus.ipynb>
 
 .. toctree::

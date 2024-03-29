@@ -19,4 +19,4 @@ from geometric_kernels.spaces.product import ProductDiscreteSpectrumSpace
 from geometric_kernels.spaces.so import SpecialOrthogonal
 from geometric_kernels.spaces.spd import SymmetricPositiveDefiniteMatrices
 from geometric_kernels.spaces.stiefel import Stiefel
-from geometric_kernels.spaces.su import SUGroup
+from geometric_kernels.spaces.su import SpecialUnitary
