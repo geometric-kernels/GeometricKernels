@@ -3,7 +3,7 @@ import numpy as np
 import torch
 
 import geometric_kernels.torch  # noqa
-from geometric_kernels.kernels.geometric_kernels import MaternKarhunenLoeveKernel
+from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces.hypersphere import Hypersphere
 from geometric_kernels.utils.manifold_utils import manifold_laplacian
 

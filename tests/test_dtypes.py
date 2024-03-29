@@ -8,21 +8,20 @@ import tensorflow as tf
 import torch
 
 from geometric_kernels.kernels.feature_maps import (
-    deterministic_feature_map_compact,
-    random_phase_feature_map_compact,
-    random_phase_feature_map_noncompact,
-    rejection_sampling_feature_map_hyperbolic,
-    rejection_sampling_feature_map_spd,
+    DeterministicFeatureMapCompact,
+    RandomPhaseFeatureMapCompact,
+    RandomPhaseFeatureMapNoncompact,
+    RejectionSamplingFeatureMapHyperbolic,
+    RejectionSamplingFeatureMapSPD,
 )
-from geometric_kernels.kernels.geometric_kernels import (
-    MaternIntegratedKernel,
-    MaternKarhunenLoeveKernel,
+from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
+from geometric_kernels.spaces import (
+    Circle,
+    Hyperbolic,
+    Hypersphere,
+    Mesh,
+    SymmetricPositiveDefiniteMatrices,
 )
-from geometric_kernels.spaces.circle import Circle
-from geometric_kernels.spaces.hyperbolic import Hyperbolic
-from geometric_kernels.spaces.hypersphere import Hypersphere
-from geometric_kernels.spaces.mesh import Mesh
-from geometric_kernels.spaces.spd import SymmetricPositiveDefiniteMatrices
 
 
 def to_typed_ndarray(value, dtype):
@@ -153,29 +152,6 @@ def test_karhunen_loeve_dtype(kl_spacepoint, dtype, backend):
 
 @pytest.mark.parametrize("dtype", ["float32", "float64"])
 @pytest.mark.parametrize("backend", ["numpy", "jax", "torch", "tensorflow"])
-def test_integrated_matern_dtype(noncompact_spacepoint, dtype, backend):
-    space, point = noncompact_spacepoint
-
-    if not isinstance(space, Hyperbolic):
-        return
-
-    point = to_typed_ndarray(point, dtype)
-    point = to_typed_tensor(point, backend)
-
-    kernel = MaternIntegratedKernel(space, 30)
-
-    params = kernel.init_params()
-    params["nu"] = to_typed_tensor(to_typed_ndarray(np.r_[0.5], dtype), backend)
-    params["lengthscale"] = to_typed_tensor(
-        to_typed_ndarray(np.r_[0.5], dtype), backend
-    )
-
-    # make sure that it just runs
-    kernel.K(params, point)
-
-
-@pytest.mark.parametrize("dtype", ["float32", "float64"])
-@pytest.mark.parametrize("backend", ["numpy", "jax", "torch", "tensorflow"])
 def test_feature_map_dtype(kl_spacepoint, dtype, backend):
     space, point = kl_spacepoint
     point = to_typed_ndarray(point, dtype)
@@ -191,12 +167,12 @@ def test_feature_map_dtype(kl_spacepoint, dtype, backend):
     )
 
     # make sure it runs
-    feature_map = deterministic_feature_map_compact(space, num_levels)
+    feature_map = DeterministicFeatureMapCompact(space, num_levels)
     feature_map(point, params)
 
     # make sure it runs
     key = B.create_random_state(B.dtype(point), seed=1234)
-    feature_map = random_phase_feature_map_compact(space, num_levels)
+    feature_map = RandomPhaseFeatureMapCompact(space, num_levels)
     feature_map(point, params, key=key)
 
 
@@ -204,11 +180,11 @@ def test_feature_map_dtype(kl_spacepoint, dtype, backend):
 def feature_map_on_noncompact(request, noncompact_spacepoint):
     space = noncompact_spacepoint[0]
     if request.param == "naive":
-        feature_map = random_phase_feature_map_noncompact(space, 10)
+        feature_map = RandomPhaseFeatureMapNoncompact(space, 10)
     elif request.param == "rs" and isinstance(space, Hyperbolic):
-        feature_map = rejection_sampling_feature_map_hyperbolic(space, 10)
+        feature_map = RejectionSamplingFeatureMapHyperbolic(space, 10)
     elif request.param == "rs" and isinstance(space, SymmetricPositiveDefiniteMatrices):
-        feature_map = rejection_sampling_feature_map_spd(space, 10)
+        feature_map = RejectionSamplingFeatureMapSPD(space, 10)
     else:
         raise ValueError(f"Unknown feature map {request.param}")
     return noncompact_spacepoint + (feature_map,)

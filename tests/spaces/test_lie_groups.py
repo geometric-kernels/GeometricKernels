@@ -6,8 +6,8 @@ import pytest
 from numpy.testing import assert_allclose
 from opt_einsum import contract as einsum
 
-from geometric_kernels.kernels.feature_maps import random_phase_feature_map_compact
-from geometric_kernels.kernels.geometric_kernels import MaternKarhunenLoeveKernel
+from geometric_kernels.kernels import MaternKarhunenLoeveKernel
+from geometric_kernels.kernels.feature_maps import RandomPhaseFeatureMapCompact
 from geometric_kernels.spaces.so import SOGroup
 from geometric_kernels.spaces.su import SUGroup
 
@@ -122,7 +122,7 @@ def test_feature_map(group_and_eigf):
     param = dict(lengthscale=np.array(10), nu=np.array(1.5))
 
     feature_order = 5000
-    feature_map = random_phase_feature_map_compact(group, order, feature_order)
+    feature_map = RandomPhaseFeatureMapCompact(group, order, feature_order)
 
     key, x = group.random(key, 10)
 

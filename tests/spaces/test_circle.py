@@ -6,7 +6,7 @@ import torch
 from opt_einsum import contract as einsum
 from plum import Tuple
 
-from geometric_kernels.kernels.geometric_kernels import MaternKarhunenLoeveKernel
+from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.lab_extras import from_numpy
 from geometric_kernels.spaces.circle import Circle, SinCosEigenfunctions
 from geometric_kernels.spaces.eigenfunctions import EigenfunctionWithAdditionTheorem
