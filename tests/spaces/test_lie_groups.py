@@ -8,8 +8,7 @@ from opt_einsum import contract as einsum
 
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.kernels.feature_maps import RandomPhaseFeatureMapCompact
-from geometric_kernels.spaces import SpecialOrthogonal
-from geometric_kernels.spaces import SpecialUnitary
+from geometric_kernels.spaces import SpecialOrthogonal, SpecialUnitary
 
 
 @pytest.fixture(name="group_cls", params=["so", "su"])
