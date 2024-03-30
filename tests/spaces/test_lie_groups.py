@@ -6,8 +6,8 @@ import pytest
 from numpy.testing import assert_allclose
 from opt_einsum import contract as einsum
 
+from geometric_kernels.feature_maps import RandomPhaseFeatureMapCompact
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
-from geometric_kernels.kernels.feature_maps import RandomPhaseFeatureMapCompact
 from geometric_kernels.spaces import SpecialOrthogonal, SpecialUnitary
 
 

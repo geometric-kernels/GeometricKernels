@@ -3,15 +3,15 @@ A wrapper around different kernels and feature maps that dispatches on space.
 """
 from plum import dispatch
 
-from geometric_kernels.kernels.base import BaseGeometricKernel
-from geometric_kernels.kernels.feature_map import MaternFeatureMapKernel
-from geometric_kernels.kernels.feature_maps import (
+from geometric_kernels.feature_maps import (
     DeterministicFeatureMapCompact,
     RandomPhaseFeatureMapCompact,
     RandomPhaseFeatureMapNoncompact,
     RejectionSamplingFeatureMapHyperbolic,
     RejectionSamplingFeatureMapSPD,
 )
+from geometric_kernels.kernels.base import BaseGeometricKernel
+from geometric_kernels.kernels.feature_map import MaternFeatureMapKernel
 from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import (
     CompactHomogeneousSpace,

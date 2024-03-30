@@ -7,7 +7,7 @@ import pytest
 import tensorflow as tf
 import torch
 
-from geometric_kernels.kernels.feature_maps import (
+from geometric_kernels.feature_maps import (
     DeterministicFeatureMapCompact,
     RandomPhaseFeatureMapCompact,
     RandomPhaseFeatureMapNoncompact,

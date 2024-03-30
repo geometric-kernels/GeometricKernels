@@ -3,8 +3,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from geometric_kernels.feature_maps import RandomPhaseFeatureMapNoncompact
 from geometric_kernels.kernels import MaternFeatureMapKernel, MaternKarhunenLoeveKernel
-from geometric_kernels.kernels.feature_maps import RandomPhaseFeatureMapNoncompact
 from geometric_kernels.spaces.circle import Circle
 from geometric_kernels.spaces.graph import Graph
 from geometric_kernels.spaces.hyperbolic import Hyperbolic

@@ -10,7 +10,7 @@ from beartype.typing import TYPE_CHECKING, Any, Callable, Optional, Tuple
 
 # By https://stackoverflow.com/a/62136491
 if TYPE_CHECKING:
-    from geometric_kernels.kernels.feature_maps import FeatureMap
+    from geometric_kernels.feature_maps import FeatureMap
 
 
 def sample_at(

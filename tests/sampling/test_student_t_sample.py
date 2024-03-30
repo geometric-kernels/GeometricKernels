@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 import scipy.stats
 
-from geometric_kernels.sampling.probability_densities import student_t_sample
+from geometric_kernels.feature_maps.probability_densities import student_t_sample
 
 
 @pytest.mark.parametrize("deg_freedom", [2, 5, 42])
