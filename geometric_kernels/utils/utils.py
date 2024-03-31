@@ -2,6 +2,9 @@
 Convenience utilities.
 """
 import inspect
+import sys
+from contextlib import contextmanager
+from importlib import resources as impresources
 
 import einops
 import lab as B
@@ -9,6 +12,7 @@ from beartype.typing import List, Type
 from plum import Union
 
 from geometric_kernels.lab_extras import get_random_state, restore_random_state
+from geometric_kernels import resources
 
 
 class OptionalMeta(type):
@@ -206,3 +210,13 @@ def partition_dominance_or_subpartition_cone(partition):
         cone.update(new_partitions)
         prev_partitions = new_partitions
     return cone
+
+
+@contextmanager
+def get_resource_file_path(filename):
+    if sys.version_info > (3, 9):
+        with impresources.as_file(impresources.files(resources) / filename) as path:
+            yield path
+    else:
+        with impresources.path(resources, filename) as path:
+            yield path

@@ -26,7 +26,7 @@ from geometric_kernels.spaces.lie_groups import (
     MatrixLieGroup,
     WeylAdditionTheorem,
 )
-from geometric_kernels.utils.utils import chain
+from geometric_kernels.utils.utils import chain, get_resource_file_path
 
 
 class SUEigenfunctions(WeylAdditionTheorem):
@@ -106,21 +106,22 @@ class SUCharacter(LieGroupCharacter):
 
     def _load(self):
         group_name = "SU({})".format(self.n)
-        file_path = Path(__file__).with_name("precomputed_characters.json")
-        with file_path.open("r") as file:
-            character_formulas = json.load(file)
-            try:
-                cs, ms = character_formulas[group_name][str(self.signature)]
-                coeffs, monoms = (np.array(data) for data in (cs, ms))
-                return coeffs, monoms
-            except KeyError as e:
-                raise KeyError(
-                    "Unable to retrieve character parameters for signature {} of {}, "
-                    "perhaps it is not precomputed."
-                    "Run compute_characters.py with changed parameters.".format(
-                        e.args[0], group_name
-                    )
-                ) from None
+        file_path = Path(__file__).with_name()
+        with get_resource_file_path("precomputed_characters.json") as file_path:
+            with file_path.open("r") as file:
+                character_formulas = json.load(file)
+                try:
+                    cs, ms = character_formulas[group_name][str(self.signature)]
+                    coeffs, monoms = (np.array(data) for data in (cs, ms))
+                    return coeffs, monoms
+                except KeyError as e:
+                    raise KeyError(
+                        "Unable to retrieve character parameters for signature {} of {}, "
+                        "perhaps it is not precomputed."
+                        "Run compute_characters.py with changed parameters.".format(
+                            e.args[0], group_name
+                        )
+                    ) from None
 
     def __call__(self, gammas):
         char_val = B.zeros(B.dtype(gammas), *gammas.shape[:-1])
