@@ -1,13 +1,20 @@
-scikit-learn==1.4.0
+# Version-independent requirements
+##################################
+-r test_requirements.txt
+
+# Version-dependent requirements
+################################
+
+# Base
 scipy==1.12.0
-gpytorch==1.11
-torch==2.1.2
+
+# TensorFlow
 gpflow==2.9.0
 tensorflow==2.13.1
 tensorflow-probability==0.20.1
+
+# JAX
 jax==0.4.13
 jaxlib==0.4.13
 jaxtyping==0.2.25
-backends>=1.5.4
-plum-dispatch>=2.2.0
 optax
