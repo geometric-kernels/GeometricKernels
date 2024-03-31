@@ -214,7 +214,7 @@ def partition_dominance_or_subpartition_cone(partition):
 
 @contextmanager
 def get_resource_file_path(filename):
-    if sys.version_info > (3, 9):
+    if sys.version_info >= (3, 9):
         with impresources.as_file(impresources.files(resources) / filename) as path:
             yield path
     else:
