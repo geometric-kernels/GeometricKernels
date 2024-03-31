@@ -11,8 +11,8 @@ import lab as B
 from beartype.typing import List, Type
 from plum import Union
 
-from geometric_kernels.lab_extras import get_random_state, restore_random_state
 from geometric_kernels import resources
+from geometric_kernels.lab_extras import get_random_state, restore_random_state
 
 
 class OptionalMeta(type):

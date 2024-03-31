@@ -7,7 +7,6 @@ import json
 import math
 import operator
 from functools import reduce
-from pathlib import Path
 
 import lab as B
 import numpy as np
@@ -106,7 +105,6 @@ class SUCharacter(LieGroupCharacter):
 
     def _load(self):
         group_name = "SU({})".format(self.n)
-        file_path = Path(__file__).with_name()
         with get_resource_file_path("precomputed_characters.json") as file_path:
             with file_path.open("r") as file:
                 character_formulas = json.load(file)
