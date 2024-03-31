@@ -3,6 +3,7 @@ This module provides the :class:`DeterministicFeatureMapCompact`, a Karhunen-Lo√
 expansion-based feature map for those :class:`DiscreteSpectrumSpace`s, for
 which the eigenpairs are explicitly known.
 """
+
 import lab as B
 
 from geometric_kernels.feature_maps.base import FeatureMap

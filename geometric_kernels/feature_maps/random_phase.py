@@ -11,6 +11,7 @@ phase-based feature map for :class:`NoncompactSymmetricSpace`s. It should be
 used unless a more specialized per-space implementation is available, like the
 ones in the module :module:`geometric_kernels.rejection_sampling`.
 """
+
 import lab as B
 
 from geometric_kernels.feature_maps.base import FeatureMap

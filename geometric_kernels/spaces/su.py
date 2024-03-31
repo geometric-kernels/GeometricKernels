@@ -2,6 +2,7 @@
 This module provides the :class:`SpecialUnitary` space and the representation
 of its spectrum, the :class:`SUEigenfunctions` class.
 """
+
 import itertools
 import json
 import math

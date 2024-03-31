@@ -2,6 +2,7 @@
 This module provides the abstract base class :class:`FeatureMap` that all
 feature maps inherit from. It can be used for type hinting.
 """
+
 import abc
 
 

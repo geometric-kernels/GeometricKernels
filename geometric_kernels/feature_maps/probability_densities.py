@@ -4,6 +4,7 @@ probability densities in a backend-agnostic way. It also provides the routines
 for sampling the non-standard probability densities that arise in relation to
 the :class:`Hyperbolic` and :class:`SymmetricPositiveDefiniteMatrices` spaces.
 """
+
 import operator
 from functools import reduce
 

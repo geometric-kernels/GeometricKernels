@@ -14,6 +14,7 @@ characters in this case. This is also relevant for hyperspheres of higher
 dimension: in this case, the eigenfunctions (spherical harmonics) are much
 more cumbersome than the "certain sums" (zonal spherical harmonics).
 """
+
 import abc
 
 import lab as B

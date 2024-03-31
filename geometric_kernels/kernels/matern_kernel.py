@@ -1,6 +1,7 @@
 """
 A wrapper around different kernels and feature maps that dispatches on space.
 """
+
 from plum import dispatch
 
 from geometric_kernels.feature_maps import (

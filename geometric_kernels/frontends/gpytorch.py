@@ -5,6 +5,7 @@ A tutorial on how to use this wrapper to run Gaussian process regression on
 a geometric space is available in the `frontends/GPyTorch.ipynb <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/frontends/GPyTorch.ipynb>`_
 notebook.
 """
+
 import gpytorch
 import numpy as np
 import torch

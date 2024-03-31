@@ -5,6 +5,7 @@ Load Jax backend in lab, spherical_harmonics and geometric_kernels using:
 
     import geometric_kernels.jax
 """
+
 import logging
 
 import lab.jax  # noqa

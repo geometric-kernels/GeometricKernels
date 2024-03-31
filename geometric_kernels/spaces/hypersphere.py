@@ -2,6 +2,7 @@
 This module provides the :class:`Hypersphere` space and the representation of
 its spectrum, the :class:`SphericalHarmonics` class.
 """
+
 import geomstats as gs
 import lab as B
 import numpy as np

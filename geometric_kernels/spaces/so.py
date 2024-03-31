@@ -2,6 +2,7 @@
 This module provides the :class:`SpecialOrthogonal` space and the representation
 of its spectrum, the :class:`SOEigenfunctions` class.
 """
+
 import itertools
 import json
 import math

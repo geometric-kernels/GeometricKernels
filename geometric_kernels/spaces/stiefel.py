@@ -2,6 +2,7 @@
 This module provides the :class:`Stiefel` space and the representation of
 its spectrum, the :class:`StiefelEigenfunctions` class.
 """
+
 import lab as B
 import numpy as np
 from opt_einsum import contract as einsum

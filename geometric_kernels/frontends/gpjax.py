@@ -5,6 +5,7 @@ A tutorial on how to use this wrapper to run Gaussian process regression on
 a geometric space is available in the `frontends/GPJax.ipynb <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/frontends/GPJax.ipynb>`_
 notebook.
 """
+
 from dataclasses import dataclass
 
 import gpjax

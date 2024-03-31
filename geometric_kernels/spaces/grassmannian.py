@@ -2,6 +2,7 @@
 This module provides the :class:`Grassmannian` space and the representation of
 its spectrum, the :class:`GrassmannianEigenfunctions` class.
 """
+
 import lab as B
 import numpy as np
 from opt_einsum import contract as einsum

@@ -2,6 +2,7 @@
 This module provides the :class:`MaternFeatureMapKernel` kernel, the basic
 kernel for non-compact symmetric spaces, subclasses of :class:`NoncompactSymmetricSpace`.
 """
+
 import lab as B
 import numpy as np
 from opt_einsum import contract as einsum

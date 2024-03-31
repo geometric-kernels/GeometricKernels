@@ -2,6 +2,7 @@
 This module provides the :class:`Circle` space and the representation of its
 spectrum, the :class:`SinCosEigenfunctions` class.
 """
+
 import geomstats as gs
 import lab as B
 

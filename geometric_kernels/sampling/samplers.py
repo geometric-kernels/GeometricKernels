@@ -1,6 +1,7 @@
 """
 Samplers.
 """
+
 from __future__ import annotations  # By https://stackoverflow.com/a/62136491
 
 from functools import partial

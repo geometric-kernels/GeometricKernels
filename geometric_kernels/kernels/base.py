@@ -1,6 +1,7 @@
 """
 Base class for geometric kernels
 """
+
 import abc
 
 import lab as B

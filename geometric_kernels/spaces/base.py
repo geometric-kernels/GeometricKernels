@@ -1,6 +1,7 @@
 """
 Abstract base interface for GeometricKernels spaces.
 """
+
 import abc
 
 import lab as B

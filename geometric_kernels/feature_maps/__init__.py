@@ -3,6 +3,7 @@
 
 A brief introduction can be found on :doc:`this page </theory/feature_maps>`.
 """
+
 # noqa: F401
 from geometric_kernels.feature_maps.base import FeatureMap
 from geometric_kernels.feature_maps.deterministic import DeterministicFeatureMapCompact

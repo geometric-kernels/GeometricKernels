@@ -1,6 +1,7 @@
 """
 Abstract base interface for compact matrix Lie groups.
 """
+
 import abc
 
 import lab as B
