@@ -1,20 +1,19 @@
 """
 A wrapper around different kernels and feature maps that dispatches on space.
 """
+
 from plum import dispatch
 
+from geometric_kernels.feature_maps import (
+    DeterministicFeatureMapCompact,
+    RandomPhaseFeatureMapCompact,
+    RandomPhaseFeatureMapNoncompact,
+    RejectionSamplingFeatureMapHyperbolic,
+    RejectionSamplingFeatureMapSPD,
+)
 from geometric_kernels.kernels.base import BaseGeometricKernel
-from geometric_kernels.kernels.feature_maps import (
-    deterministic_feature_map_compact,
-    random_phase_feature_map_compact,
-    random_phase_feature_map_noncompact,
-    rejection_sampling_feature_map_hyperbolic,
-    rejection_sampling_feature_map_spd,
-)
-from geometric_kernels.kernels.geometric_kernels import (
-    MaternFeatureMapKernel,
-    MaternKarhunenLoeveKernel,
-)
+from geometric_kernels.kernels.feature_map import MaternFeatureMapKernel
+from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import (
     CompactHomogeneousSpace,
     DiscreteSpectrumSpace,
@@ -69,13 +68,13 @@ def feature_map_from_kernel(kernel: MaternKarhunenLoeveKernel):
         # Because `MatrixLieGroup` and `CompactHomogeneousSpace` do not
         # currently support explicit eigenfunction computation (they
         # only support addition theorem).
-        return random_phase_feature_map_compact(
+        return RandomPhaseFeatureMapCompact(
             kernel.space,
             kernel.num_levels,
             MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES,
         )
     else:
-        return deterministic_feature_map_compact(kernel.space, kernel.num_levels)
+        return DeterministicFeatureMapCompact(kernel.space, kernel.num_levels)
 
 
 @dispatch
@@ -85,36 +84,36 @@ def feature_map_from_kernel(kernel: MaternFeatureMapKernel):
 
 @dispatch
 def feature_map_from_space(space: DiscreteSpectrumSpace, num: int):
-    return deterministic_feature_map_compact(space, num)
+    return DeterministicFeatureMapCompact(space, num)
 
 
 @dispatch
 def feature_map_from_space(space: MatrixLieGroup, num: int):
-    return random_phase_feature_map_compact(
+    return RandomPhaseFeatureMapCompact(
         space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
     )
 
 
 @dispatch
 def feature_map_from_space(space: CompactHomogeneousSpace, num: int):
-    return random_phase_feature_map_compact(
+    return RandomPhaseFeatureMapCompact(
         space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
     )
 
 
 @dispatch
 def feature_map_from_space(space: NoncompactSymmetricSpace, num: int):
-    return random_phase_feature_map_noncompact(space, num)
+    return RandomPhaseFeatureMapNoncompact(space, num)
 
 
 @dispatch
 def feature_map_from_space(space: Hyperbolic, num: int):
-    return rejection_sampling_feature_map_hyperbolic(space, num)
+    return RejectionSamplingFeatureMapHyperbolic(space, num)
 
 
 @dispatch
 def feature_map_from_space(space: SymmetricPositiveDefiniteMatrices, num: int):
-    return rejection_sampling_feature_map_spd(space, num)
+    return RejectionSamplingFeatureMapSPD(space, num)
 
 
 @dispatch

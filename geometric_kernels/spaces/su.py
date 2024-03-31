@@ -1,7 +1,8 @@
 """
-This module provides the :class:`SUGroup` space and the representation of
-its spectrum, the :class:`SUEigenfunctions` class.
+This module provides the :class:`SpecialUnitary` space and the representation
+of its spectrum, the :class:`SUEigenfunctions` class.
 """
+
 import itertools
 import json
 import math
@@ -129,7 +130,7 @@ class SUCharacter(LieGroupCharacter):
         return char_val
 
 
-class SUGroup(MatrixLieGroup):
+class SpecialUnitary(MatrixLieGroup):
     r"""
     The GeometricKernels space representing the special unitary group
     :math:`SU(n)` consisting of n by n complex unitary matrices with unit

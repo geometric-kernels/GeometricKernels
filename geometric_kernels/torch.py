@@ -5,6 +5,7 @@ Load PyTorch backend in lab, spherical_harmonics and geometric_kernels using
 
     import geometric_kernels.torch
 """
+
 import logging
 
 import lab.torch  # noqa

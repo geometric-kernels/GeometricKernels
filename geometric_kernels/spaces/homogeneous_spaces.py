@@ -1,6 +1,7 @@
 """
 Abstract base interface for compact homogeneous spaces.
 """
+
 import abc
 
 import lab as B

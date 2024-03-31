@@ -1,0 +1,23 @@
+# Base
+ipykernel
+backends>=1.5.4
+plum-dispatch>=2.2.0
+
+# Plotting
+plotly
+kaleido
+
+# Torch
+torch==2.1.2
+gpytorch
+botorch
+
+# Tests and style checks
+black==24.3.0
+flake8==7.0.0
+isort==5.13.2
+autoflake
+pytest
+# pytest-cov
+nbmake
+# mypy

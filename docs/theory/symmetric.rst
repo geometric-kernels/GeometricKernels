@@ -90,4 +90,4 @@ $$
 
 For non-compact symmetric spaces, :class:`MaternGeometricKernel <geometric_kernels.kernels.MaternGeometricKernel>` is an alias to :class:`MaternFeatureMapKernel <geometric_kernels.kernels.MaternFeatureMapKernel>`.
 The latter is a kernel defined in terms of feature map just like in the equation above.
-The feature map is exactly the $\phi(\cdot)$ above, implemented as :func:`rejection_sampling_feature_map_hyperbolic <geometric_kernels.kernels.feature_maps.rejection_sampling_feature_map_hyperbolic>` for hyperbolic spaces and as :func:`rejection_sampling_feature_map_spd <geometric_kernels.kernels.feature_maps.rejection_sampling_feature_map_spd>` for manifolds of symmetric positive definite matrices.
+The feature map is exactly the $\phi(\cdot)$ above, implemented as :class:`RejectionSamplingFeatureMapHyperbolic <geometric_kernels.kernels.feature_maps.RejectionSamplingFeatureMapHyperbolic>` for hyperbolic spaces and as :class:`RejectionSamplingFeatureMapSPD <geometric_kernels.kernels.feature_maps.RejectionSamplingFeatureMapSPD>` for manifolds of symmetric positive definite matrices.

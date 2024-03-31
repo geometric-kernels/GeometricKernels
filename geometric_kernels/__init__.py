@@ -19,6 +19,7 @@ allows our library to be backend-independent. This is an internal part of our
 library.
 
 """
+
 import logging
 
 import geometric_kernels._logging  # noqa: F401

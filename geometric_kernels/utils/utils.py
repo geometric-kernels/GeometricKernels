@@ -1,6 +1,7 @@
 """
 Convenience utilities.
 """
+
 import inspect
 
 import einops

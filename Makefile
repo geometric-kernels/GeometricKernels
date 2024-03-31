@@ -4,7 +4,7 @@ SUCCESS='\033[0;32m'
 
 SHELL=/bin/bash
 PYVERSION:=$(shell python -c "import sys;t='{v[0]}.{v[1]}'.format(v=list(sys.version_info[:2]));sys.stdout.write(t)")
-GK_REQUIREMENTS?=requirements-$(PYVERSION).txt
+GK_REQUIREMENTS?=test_requirements-$(PYVERSION).txt
 
 help: ## Shows this help message
 	# $(MAKEFILE_LIST) is set by make itself; the following parses the `target:  ## help line` format and adds color highlighting
@@ -18,7 +18,7 @@ docs:
 install:  ## Install repo for developement (Only for Linux)
 	@echo "\n=== pip install package with dev requirements (using $(GK_REQUIREMENTS)) =============="
 	pip install --upgrade pip
-	pip install --upgrade --upgrade-strategy eager --no-cache-dir -r $(GK_REQUIREMENTS) -r dev_requirements.txt | cat
+	pip install --upgrade --upgrade-strategy eager --no-cache-dir -r $(GK_REQUIREMENTS) | cat
 	pip install -e .
 
 format:  ## Formats code with `autoflake`, `black` and `isort`
