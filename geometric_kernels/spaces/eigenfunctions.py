@@ -20,7 +20,7 @@ import abc
 import lab as B
 from opt_einsum import contract as einsum
 
-from geometric_kernels.lab_extras import is_complex, dtype_complex
+from geometric_kernels.lab_extras import dtype_complex, is_complex
 from geometric_kernels.utils.utils import Optional
 
 

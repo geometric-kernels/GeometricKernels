@@ -17,7 +17,7 @@ import lab as B
 from geometric_kernels.feature_maps.base import FeatureMap
 from geometric_kernels.feature_maps.probability_densities import base_density_sample
 from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
-from geometric_kernels.lab_extras import from_numpy, is_complex, dtype_complex
+from geometric_kernels.lab_extras import dtype_complex, from_numpy, is_complex
 from geometric_kernels.spaces import DiscreteSpectrumSpace, NoncompactSymmetricSpace
 
 
