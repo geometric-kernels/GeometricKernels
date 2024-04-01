@@ -166,6 +166,14 @@ def dtype_complex(reference: B.TorchNumeric):
 
 
 @dispatch
+def is_complex(reference: B.TorchNumeric):
+    """
+    Return True if reference of `complex` dtype.
+    """
+    return (B.dtype(reference) == torch.cfloat) or (B.dtype(reference) == torch.cdouble)
+
+
+@dispatch
 def cumsum(x: B.TorchNumeric, axis=None):
     """
     Return cumulative sum (optionally along axis)

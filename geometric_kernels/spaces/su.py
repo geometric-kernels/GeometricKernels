@@ -88,17 +88,6 @@ class SUEigenfunctions(WeylAdditionTheorem):
     def inverse(self, X: B.Numeric) -> B.Numeric:
         return B.transpose(X).conj()
 
-    @property
-    def num_levels(self) -> int:
-        """Number of levels, L"""
-        return self._num_levels
-
-    @property
-    def num_eigenfunctions_per_level(self) -> int:
-        """Number of eigenfunctions per level"""
-        return self._dimensions
-
-
 class SUCharacter(LieGroupCharacter):
     def __init__(self, n, signature):
         self.signature = signature

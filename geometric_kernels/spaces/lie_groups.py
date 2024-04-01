@@ -167,7 +167,7 @@ class WeylAdditionTheorem(EigenfunctionWithAdditionTheorem):
         diff = self._difference(X, X2)
         torus_repr_diff = self._torus_representative(diff)
         values = [
-            repr_dim * B.real(chi(torus_repr_diff)[..., None])  # [N1, N2, 1]
+            repr_dim * chi(torus_repr_diff)[..., None]  # [N1, N2, 1]
             for chi, repr_dim in zip(self._characters, self._dimensions)
         ]
         return B.concat(*values, axis=-1)  # [N1, N2, L]
