@@ -155,8 +155,9 @@ def is_complex(reference: B.JAXNumeric):
     """
     Return True if reference of `complex` dtype.
     """
-    return (B.dtype(reference) == jnp.complex64) or (B.dtype(reference) == jnp.complex128)
-
+    return (B.dtype(reference) == jnp.complex64) or (
+        B.dtype(reference) == jnp.complex128
+    )
 
 
 @dispatch

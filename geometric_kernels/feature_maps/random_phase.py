@@ -88,7 +88,7 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
         features = B.reshape(embedding * weights_t, B.shape(X)[0], -1)  # [N, O*L]
         if is_complex(features):
             features = B.concat(B.real(features), B.imag(features), axis=1)
-        
+
         normalize = normalize or (normalize is None and self.kernel.normalize)
         if normalize:
             normalizer = B.sqrt(B.sum(features**2, axis=-1, squeeze=False))

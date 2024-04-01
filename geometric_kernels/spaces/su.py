@@ -88,6 +88,7 @@ class SUEigenfunctions(WeylAdditionTheorem):
     def inverse(self, X: B.Numeric) -> B.Numeric:
         return B.transpose(X).conj()
 
+
 class SUCharacter(LieGroupCharacter):
     def __init__(self, n, signature):
         self.signature = signature

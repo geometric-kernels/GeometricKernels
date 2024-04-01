@@ -149,7 +149,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         """Compute the mesh kernel via Laplace eigendecomposition"""
         weights = B.cast(B.dtype(params["nu"]), self.eigenvalues(params))  # [M, 1]
         Phi = self.eigenfunctions
-        K = Phi.weighted_outerproduct(weights, X, X2, **params) # [N, N2]
+        K = Phi.weighted_outerproduct(weights, X, X2, **params)  # [N, N2]
         if is_complex(K):
             return B.real(K)
         else:
