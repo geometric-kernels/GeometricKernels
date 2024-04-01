@@ -77,10 +77,10 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
         if is_complex(X):
             dtype = dtype_complex(params["lengthscale"])
         else:
-             dtype = B.dtype(params["lengthscale"])
+            dtype = B.dtype(params["lengthscale"])
 
         weights = B.power(spectrum, 0.5)  # [L, 1]
-        
+
         random_phases_b = B.cast(dtype, from_numpy(X, random_phases))
 
         phi_product = self.kernel.eigenfunctions.phi_product(
