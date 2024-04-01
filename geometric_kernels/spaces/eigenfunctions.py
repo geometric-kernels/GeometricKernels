@@ -172,7 +172,9 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         )  # [N, N2, L]
 
         if is_complex(sum_phi_phi_for_level):
-            sum_phi_phi_for_level = B.cast(dtype_complex(weights), sum_phi_phi_for_level)
+            sum_phi_phi_for_level = B.cast(
+                dtype_complex(weights), sum_phi_phi_for_level
+                )
         else:
             sum_phi_phi_for_level = B.cast(B.dtype(weights), sum_phi_phi_for_level)
 
