@@ -1,16 +1,10 @@
 # Base
 ipykernel
 backends>=1.5.4
-plum-dispatch>=2.2.0
 
 # Plotting
 plotly
 kaleido
-
-# Torch
-torch==2.1.2
-gpytorch
-botorch
 
 # Tests and style checks
 black==24.3.0
