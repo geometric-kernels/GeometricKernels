@@ -6,12 +6,18 @@
 ################################
 
 # Base
+typing_extensions>=4.6
 scipy==1.12.0
 
+# Torch
+torch==2.1.2
+gpytorch==1.11
+botorch>=0.9
+
 # TensorFlow
-gpflow==2.9.0
-tensorflow<2.14
-tensorflow-probability==0.20.1
+gpflow==2.9
+tensorflow==2.15
+tensorflow-probability==0.23
 
 # JAX
 jax==0.4.23
