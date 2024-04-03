@@ -1,6 +1,4 @@
 """Adds __version__"""
+import importlib.metadata
 
-from pathlib import Path
-
-with open(str(Path(__file__).parent.parent / "VERSION"), "r") as file:
-    __version__ = file.read().strip()
+__version__ = importlib.metadata.version(__package__ or __name__)
