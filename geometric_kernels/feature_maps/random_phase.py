@@ -17,7 +17,7 @@ import lab as B
 from geometric_kernels.feature_maps.base import FeatureMap
 from geometric_kernels.feature_maps.probability_densities import base_density_sample
 from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
-from geometric_kernels.lab_extras import from_numpy
+from geometric_kernels.lab_extras import dtype_complex, from_numpy, is_complex
 from geometric_kernels.spaces import DiscreteSpectrumSpace, NoncompactSymmetricSpace
 
 
@@ -74,20 +74,26 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
             lengthscale=params["lengthscale"],
         )
 
+        if is_complex(X):
+            dtype = dtype_complex(params["lengthscale"])
+        else:
+            dtype = B.dtype(params["lengthscale"])
+
         weights = B.power(spectrum, 0.5)  # [L, 1]
 
-        random_phases_b = B.cast(
-            B.dtype(params["lengthscale"]), from_numpy(X, random_phases)
-        )
+        random_phases_b = B.cast(dtype, from_numpy(X, random_phases))
 
         phi_product = self.kernel.eigenfunctions.phi_product(
             X, random_phases_b, **params
         )  # [N, O, L]
 
-        embedding = B.cast(B.dtype(params["lengthscale"]), phi_product)  # [N, O, L]
-        weights_t = B.cast(B.dtype(params["lengthscale"]), B.transpose(weights))
+        embedding = B.cast(dtype, phi_product)  # [N, O, L]
+        weights_t = B.cast(dtype, B.transpose(weights))
 
         features = B.reshape(embedding * weights_t, B.shape(X)[0], -1)  # [N, O*L]
+        if is_complex(features):
+            features = B.concat(B.real(features), B.imag(features), axis=1)
+
         normalize = normalize or (normalize is None and self.kernel.normalize)
         if normalize:
             normalizer = B.sqrt(B.sum(features**2, axis=-1, squeeze=False))
