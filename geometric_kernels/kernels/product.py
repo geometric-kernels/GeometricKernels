@@ -53,8 +53,8 @@ class ProductGeometricKernel(BaseGeometricKernel):
         return [kernel.space for kernel in self.kernels]
 
     def init_params(self) -> List[Mapping]:
-        """
-        Returns the list of `kernel.init_params()` for all factor `kernel`s.
+        r"""
+        Returns the list of `kernel.init_params()` for all factor `kernel`\ s.
         """
         params = [kernel.init_params() for kernel in self.kernels]
         return params

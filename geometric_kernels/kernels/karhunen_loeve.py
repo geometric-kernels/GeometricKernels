@@ -62,7 +62,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
     def init_params(self):
         """
         :return: The initial `params` dict containing the length scale
-        parameter `lengthscale` and the smoothness parameter `nu`.
+            parameter `lengthscale` and the smoothness parameter `nu`.
 
         .. note::
            `nu` determines the smoothness of the Matérn kernel. Typical values

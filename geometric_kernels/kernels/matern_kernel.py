@@ -2,7 +2,7 @@
 A wrapper around different kernels and feature maps that dispatches on space.
 """
 
-from plum import dispatch
+from plum import dispatch, overload
 
 from geometric_kernels.feature_maps import (
     DeterministicFeatureMapCompact,
@@ -60,7 +60,7 @@ def default_feature_map(
         )
 
 
-@dispatch
+@overload
 def feature_map_from_kernel(kernel: MaternKarhunenLoeveKernel):
     if isinstance(kernel.space, MatrixLieGroup) or isinstance(
         kernel.space, CompactHomogeneousSpace
@@ -77,73 +77,160 @@ def feature_map_from_kernel(kernel: MaternKarhunenLoeveKernel):
         return DeterministicFeatureMapCompact(kernel.space, kernel.num_levels)
 
 
-@dispatch
+@overload
 def feature_map_from_kernel(kernel: MaternFeatureMapKernel):
     return kernel.feature_map
 
 
 @dispatch
+def feature_map_from_kernel(kernel: BaseGeometricKernel):
+    """
+    Return the default feature map for the specified kernel `kernel`.
+
+    .. note::
+       This function is organized as an abstract dispatcher plus a set of
+       @overload-decorated implementations, one for each type of kernels.
+
+       When followed by an "empty" @dispatch-decorated function of the same
+       name, plum-dispatch changes the default behavior of the `@overload`
+       decorator, allowing the implementations inside the preceding
+       @overload-decorated functions. This is opposed to the standard behavior
+       when @overload-decorated functions can only provide type signature,
+       while the general implementation should be contained in the function
+       of the same name without an `@overload` decorator.
+
+       The trick is taken from https://beartype.github.io/plum/integration.html.
+
+    .. note::
+       For dispatching to work, the empty @dispatch-decorated function should
+       follow (not precede) the @overload-decorated implementations in the code.
+    """
+    raise NotImplementedError(
+        "feature_map_from_kernel is not implemented for the kernel of type %s."
+        % str(type(kernel))
+    )
+
+
+@overload
 def feature_map_from_space(space: DiscreteSpectrumSpace, num: int):
     return DeterministicFeatureMapCompact(space, num)
 
 
-@dispatch
+@overload
 def feature_map_from_space(space: MatrixLieGroup, num: int):
     return RandomPhaseFeatureMapCompact(
         space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
     )
 
 
-@dispatch
+@overload
 def feature_map_from_space(space: CompactHomogeneousSpace, num: int):
     return RandomPhaseFeatureMapCompact(
         space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
     )
 
 
-@dispatch
+@overload
 def feature_map_from_space(space: NoncompactSymmetricSpace, num: int):
     return RandomPhaseFeatureMapNoncompact(space, num)
 
 
-@dispatch
+@overload
 def feature_map_from_space(space: Hyperbolic, num: int):
     return RejectionSamplingFeatureMapHyperbolic(space, num)
 
 
-@dispatch
+@overload
 def feature_map_from_space(space: SymmetricPositiveDefiniteMatrices, num: int):
     return RejectionSamplingFeatureMapSPD(space, num)
 
 
 @dispatch
+def feature_map_from_space(space: Space, num: int):
+    """
+    Return the default feature map for the specified space `space` and
+    approximation level `num`.
+
+    .. note::
+       This function is organized as an abstract dispatcher plus a set of
+       @overload-decorated implementations, one for each type of spaces.
+
+       When followed by an "empty" @dispatch-decorated function of the same
+       name, plum-dispatch changes the default behavior of the `@overload`
+       decorator, allowing the implementations inside the preceding
+       @overload-decorated functions. This is opposed to the standard behavior
+       when @overload-decorated functions can only provide type signature,
+       while the general implementation should be contained in the function
+       of the same name without an `@overload` decorator.
+
+       The trick is taken from https://beartype.github.io/plum/integration.html.
+
+    .. note::
+       For dispatching to work, the empty @dispatch-decorated function should
+       follow (not precede) the @overload-decorated implementations in the code.
+    """
+    raise NotImplementedError(
+        "feature_map_from_space is not implemented for the space of type %s."
+        % str(type(space))
+    )
+
+
+@overload
 def default_num(space: Mesh):
     return min(MaternGeometricKernel._DEFAULT_NUM_EIGENFUNCTIONS, space.num_vertices)
 
 
-@dispatch
+@overload
 def default_num(space: Graph):
     return min(MaternGeometricKernel._DEFAULT_NUM_EIGENFUNCTIONS, space.num_vertices)
 
 
-@dispatch
+@overload
 def default_num(space: DiscreteSpectrumSpace):
     return MaternGeometricKernel._DEFAULT_NUM_LEVELS
 
 
-@dispatch
+@overload
 def default_num(space: MatrixLieGroup):
     return MaternGeometricKernel._DEFAULT_NUM_LEVELS_LIE_GROUP
 
 
-@dispatch
+@overload
 def default_num(space: CompactHomogeneousSpace):
     return MaternGeometricKernel._DEFAULT_NUM_LEVELS_LIE_GROUP
 
 
-@dispatch
+@overload
 def default_num(space: NoncompactSymmetricSpace):
     return MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
+
+
+@dispatch
+def default_num(space: Space):
+    """
+    Return the default approximation level for the `space`.
+
+    .. note::
+       This function is organized as an abstract dispatcher plus a set of
+       @overload-decorated implementations, one for each type of spaces.
+
+       When followed by an "empty" @dispatch-decorated function of the same
+       name, plum-dispatch changes the default behavior of the `@overload`
+       decorator, allowing the implementations inside the preceding
+       @overload-decorated functions. This is opposed to the standard behavior
+       when @overload-decorated functions can only provide type signature,
+       while the general implementation should be contained in the function
+       of the same name without an `@overload` decorator.
+
+       The trick is taken from https://beartype.github.io/plum/integration.html.
+
+    .. note::
+       For dispatching to work, the empty @dispatch-decorated function should
+       follow (not precede) the @overload-decorated implementations in the code.
+    """
+    raise NotImplementedError(
+        "default_num is not implemented for the space of type %s." % str(type(space))
+    )
 
 
 class MaternGeometricKernel:

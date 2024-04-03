@@ -1,5 +1,5 @@
 """
-GPJax wrapper for `BaseGeometricKernel`
+GPJax kernel wrapper.
 
 A tutorial on how to use this wrapper to run Gaussian process regression on
 a geometric space is available in the `frontends/GPJax.ipynb <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/frontends/GPJax.ipynb>`_
@@ -69,7 +69,7 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
 
     :param base_kernel:
         The kernel to wrap.
-    :type base_kernel: BaseGeometricKernel
+    :type base_kernel: geometric_kernels.kernels.BaseGeometricKernel
     :param name:
         Optional kernel name (inherited from `gpjax.kernels.AbstractKernel`).
 

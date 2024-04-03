@@ -1,6 +1,7 @@
-"""
+r"""
 This module provides the :class:`DeterministicFeatureMapCompact`, a Karhunen-Loève
-expansion-based feature map for those :class:`DiscreteSpectrumSpace`s, for
+expansion-based feature map for those :class:`DiscreteSpectrumSpace
+<geometric_kernels.spaces.base.DiscreteSpectrumSpace>`\ s, for
 which the eigenpairs are explicitly known.
 """
 

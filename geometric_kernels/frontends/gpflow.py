@@ -1,5 +1,5 @@
 """
-GPflow kernel wrapper
+GPflow kernel wrapper.
 
 A tutorial on how to use this wrapper to run Gaussian process regression on
 a geometric space is available in the `frontends/GPflow.ipynb <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/frontends/GPflow.ipynb>`_

@@ -44,7 +44,7 @@ autoapi_add_toctree_entry = False
 autoapi_keep_files = True
 autoapi_python_class_content = "class"  # we handle __init__ and __new__ below
 autoapi_member_order = "groupwise"
-# ignore these files to surpress warning multiple dispatch
+# ignore these files to suppress warning multiple dispatch
 autoapi_ignore = [f'**/lab_extras/{b}**' for b in ["torch", "jax", "tensorflow", "numpy"]]
 autoapi_options = [
     "members",
@@ -70,7 +70,7 @@ templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store', '**.ipynb_checkpoints']
 
 
 
