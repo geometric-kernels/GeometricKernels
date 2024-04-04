@@ -14,11 +14,13 @@ characters in this case. This is also relevant for hyperspheres of higher
 dimension: in this case, the eigenfunctions (spherical harmonics) are much
 more cumbersome than the "certain sums" (zonal spherical harmonics).
 """
+
 import abc
 
 import lab as B
 from opt_einsum import contract as einsum
 
+from geometric_kernels.lab_extras import dtype_complex, is_complex
 from geometric_kernels.utils.utils import Optional
 
 
@@ -168,7 +170,13 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         sum_phi_phi_for_level = self._addition_theorem(
             X, X2, **parameters
         )  # [N, N2, L]
-        sum_phi_phi_for_level = B.cast(B.dtype(weights), sum_phi_phi_for_level)
+
+        if is_complex(sum_phi_phi_for_level):
+            sum_phi_phi_for_level = B.cast(
+                dtype_complex(weights), sum_phi_phi_for_level
+            )
+        else:
+            sum_phi_phi_for_level = B.cast(B.dtype(weights), sum_phi_phi_for_level)
 
         return einsum("id,...nki->...nk", weights, sum_phi_phi_for_level)  # [N, N2]
 

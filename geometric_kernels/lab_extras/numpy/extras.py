@@ -141,6 +141,14 @@ def dtype_complex(reference: B.NPNumeric):
 
 
 @dispatch
+def is_complex(reference: B.NPNumeric):
+    """
+    Return True if reference of `complex` dtype.
+    """
+    return (B.dtype(reference) == np.complex64) or (B.dtype(reference) == np.complex128)
+
+
+@dispatch
 def cumsum(a: _Numeric, axis=None):
     """
     Return cumulative sum (optionally along axis)

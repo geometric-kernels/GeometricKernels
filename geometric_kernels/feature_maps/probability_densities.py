@@ -1,7 +1,10 @@
 """
-Sampling from the Gaussian and Student-t probability densities,
-backend-agnostic.
+This module provide the routines for sampling from the Gaussian and Student-t
+probability densities in a backend-agnostic way. It also provides the routines
+for sampling the non-standard probability densities that arise in relation to
+the :class:`Hyperbolic` and :class:`SymmetricPositiveDefiniteMatrices` spaces.
 """
+
 import operator
 from functools import reduce
 
@@ -57,7 +60,7 @@ def student_t_sample(key, size, deg_freedom, dtype=None):
 
 def base_density_sample(key, size, params, dim, rho):
     r"""
-    The Matern kernel's spectral density is of the form
+    The Matérn kernel's spectral density is of the form
     :math:`p_{\nu,\kappa}(\lambda)`,
     where :math:`\nu` is the smoothness parameter, :math:`\kappa`
     is the lengthscale and :math:`p_{\nu,\kappa}` is the Student-t
@@ -175,7 +178,7 @@ def sample_mixture_matern(key, alpha, lengthscale, nu, dim):
                 `torch.Generator` or `jax.tensor` (representing random state).
     :param alpha: unnormalized coefficients of the mixture.
     :param lengthscale: length scale (kappa).
-    :param nu: smoothness parameter of Matern kernels.
+    :param nu: smoothness parameter of Matérn kernels.
     :param dim: dimension of the hyperbolic space.
 
     TODO: reparameterization trick.

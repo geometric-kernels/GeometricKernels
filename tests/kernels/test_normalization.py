@@ -3,8 +3,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from geometric_kernels.feature_maps import RandomPhaseFeatureMapNoncompact
 from geometric_kernels.kernels import MaternFeatureMapKernel, MaternKarhunenLoeveKernel
-from geometric_kernels.kernels.feature_maps import random_phase_feature_map_noncompact
 from geometric_kernels.spaces.circle import Circle
 from geometric_kernels.spaces.graph import Graph
 from geometric_kernels.spaces.hyperbolic import Hyperbolic
@@ -76,7 +76,7 @@ def test_normalization_feature_map_kernel(space_name):
 
     params = dict(nu=np.r_[2.5], lengthscale=np.r_[1.0])
 
-    feature_map = random_phase_feature_map_noncompact(space, num_features)
+    feature_map = RandomPhaseFeatureMapNoncompact(space, num_features)
 
     kernel = MaternFeatureMapKernel(space, feature_map, key)
 

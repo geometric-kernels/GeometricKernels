@@ -2,6 +2,7 @@
 This module provides the :class:`ProductDiscreteSpectrumSpace` space and the
 representation of its spectrum, the :class:`ProductEigenfunctions` class.
 """
+
 import itertools
 
 import lab as B

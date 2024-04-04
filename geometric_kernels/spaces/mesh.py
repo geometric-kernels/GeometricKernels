@@ -1,6 +1,7 @@
 """
 This module provides the :class:`Mesh` space.
 """
+
 import lab as B
 import numpy as np
 import potpourri3d as pp3d

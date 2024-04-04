@@ -1,6 +1,7 @@
 """
 This module provides the :class:`Graph` space.
 """
+
 import lab as B
 import numpy as np
 from beartype.typing import Dict, Tuple

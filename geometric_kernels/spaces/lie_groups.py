@@ -1,6 +1,7 @@
 """
 Abstract base interface for compact matrix Lie groups.
 """
+
 import abc
 
 import lab as B
@@ -166,7 +167,7 @@ class WeylAdditionTheorem(EigenfunctionWithAdditionTheorem):
         diff = self._difference(X, X2)
         torus_repr_diff = self._torus_representative(diff)
         values = [
-            repr_dim * B.real(chi(torus_repr_diff)[..., None])  # [N1, N2, 1]
+            repr_dim * chi(torus_repr_diff)[..., None]  # [N1, N2, 1]
             for chi, repr_dim in zip(self._characters, self._dimensions)
         ]
         return B.concat(*values, axis=-1)  # [N1, N2, L]
@@ -228,8 +229,8 @@ class MatrixLieGroup(DiscreteSpectrumSpace):
     inverse is the standard matrix inverse. Despite this, we make the
     subclasses implement their own inverse routine, because in special cases
     it can typically be implemented much more efficient. For example, for the
-    special orthogonal group :class:`SOGroup`, the inverse is equivalent to a
-    simple transposition.
+    special orthogonal group :class:`SpecialOrthogonal`, the inverse is
+    equivalent to a simple transposition.
     """
 
     @property

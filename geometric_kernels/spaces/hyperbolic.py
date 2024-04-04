@@ -1,6 +1,7 @@
 """
 This module provides the :class:`Hyperbolic` space.
 """
+
 import geomstats as gs
 import lab as B
 from beartype.typing import Optional

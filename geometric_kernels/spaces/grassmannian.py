@@ -2,6 +2,7 @@
 This module provides the :class:`Grassmannian` space and the representation of
 its spectrum, the :class:`GrassmannianEigenfunctions` class.
 """
+
 import lab as B
 import numpy as np
 from opt_einsum import contract as einsum
@@ -11,7 +12,7 @@ from geometric_kernels.spaces.homogeneous_spaces import (
     AveragingAdditionTheorem,
     CompactHomogeneousSpace,
 )
-from geometric_kernels.spaces.so import SOGroup
+from geometric_kernels.spaces.so import SpecialOrthogonal
 
 
 class _SOxSO:
@@ -21,8 +22,8 @@ class _SOxSO:
 
     def __init__(self, n: int, m: int):
         self.n, self.m = n, m
-        self.so_n = SOGroup(n)
-        self.so_m = SOGroup(m)
+        self.so_n = SpecialOrthogonal(n)
+        self.so_m = SpecialOrthogonal(m)
         self.dim = self.so_n.dim + self.so_m.dim
 
     def random(self, key, number):
@@ -82,7 +83,7 @@ class Grassmannian(CompactHomogeneousSpace):
 
         assert n > m, "n should be greater than m"
         H = _SOxSO(m, n - m)
-        G = SOGroup(n)
+        G = SpecialOrthogonal(n)
         key, samples_H = H.random(key, average_order)
         new_space = super().__new__(cls)
         new_space.__init__(G=G, H=H, samples_H=samples_H, average_order=average_order)

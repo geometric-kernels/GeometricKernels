@@ -1,7 +1,8 @@
 """
-This module provides the :class:`SUGroup` space and the representation of
-its spectrum, the :class:`SUEigenfunctions` class.
+This module provides the :class:`SpecialUnitary` space and the representation
+of its spectrum, the :class:`SUEigenfunctions` class.
 """
+
 import itertools
 import json
 import math
@@ -86,16 +87,6 @@ class SUEigenfunctions(WeylAdditionTheorem):
     def inverse(self, X: B.Numeric) -> B.Numeric:
         return B.transpose(X).conj()
 
-    @property
-    def num_levels(self) -> int:
-        """Number of levels, L"""
-        return self._num_levels
-
-    @property
-    def num_eigenfunctions_per_level(self) -> int:
-        """Number of eigenfunctions per level"""
-        return self._dimensions
-
 
 class SUCharacter(LieGroupCharacter):
     def __init__(self, n, signature):
@@ -128,7 +119,7 @@ class SUCharacter(LieGroupCharacter):
         return char_val
 
 
-class SUGroup(MatrixLieGroup):
+class SpecialUnitary(MatrixLieGroup):
     r"""
     The GeometricKernels space representing the special unitary group
     :math:`SU(n)` consisting of n by n complex unitary matrices with unit
