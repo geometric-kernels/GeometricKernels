@@ -7,7 +7,7 @@ import lab as B
 import numpy as np
 
 from geometric_kernels.kernels.base import BaseGeometricKernel
-from geometric_kernels.lab_extras import from_numpy
+from geometric_kernels.lab_extras import from_numpy, is_complex
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 from geometric_kernels.utils.utils import Optional
@@ -149,11 +149,17 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         """Compute the mesh kernel via Laplace eigendecomposition"""
         weights = B.cast(B.dtype(params["nu"]), self.eigenvalues(params))  # [M, 1]
         Phi = self.eigenfunctions
-
-        return Phi.weighted_outerproduct(weights, X, X2, **params)  # [N, N2]
+        K = Phi.weighted_outerproduct(weights, X, X2, **params)  # [N, N2]
+        if is_complex(K):
+            return B.real(K)
+        else:
+            return K
 
     def K_diag(self, params, X: B.Numeric, **kwargs) -> B.Numeric:
         weights = self.eigenvalues(params)  # [M, 1]
         Phi = self.eigenfunctions
-
-        return Phi.weighted_outerproduct_diag(weights, X, **params)  # [N,]
+        K_diag = Phi.weighted_outerproduct_diag(weights, X, **params)  # [N,]
+        if is_complex(K_diag):
+            return B.real(K_diag)
+        else:
+            return K_diag

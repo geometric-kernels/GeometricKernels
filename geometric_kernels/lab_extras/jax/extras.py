@@ -151,6 +151,16 @@ def dtype_complex(reference: B.JAXNumeric):
 
 
 @dispatch
+def is_complex(reference: B.JAXNumeric):
+    """
+    Return True if reference of `complex` dtype.
+    """
+    return (B.dtype(reference) == jnp.complex64) or (
+        B.dtype(reference) == jnp.complex128
+    )
+
+
+@dispatch
 def cumsum(x: B.JAXNumeric, axis=None):
     """
     Return cumulative sum (optionally along axis)

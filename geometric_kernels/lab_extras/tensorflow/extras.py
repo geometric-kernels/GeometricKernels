@@ -160,6 +160,14 @@ def dtype_complex(reference: B.TFNumeric):
 
 
 @dispatch
+def is_complex(reference: B.TFNumeric):
+    """
+    Return True if reference of `complex` dtype.
+    """
+    return (B.dtype(reference) == tf.complex64) or (B.dtype(reference) == tf.complex128)
+
+
+@dispatch
 def cumsum(x: B.TFNumeric, axis=None):
     """
     Return cumulative sum (optionally along axis)
