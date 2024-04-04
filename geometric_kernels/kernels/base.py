@@ -17,7 +17,7 @@ Type bounding `Space`, used as Generic type in `BaseGeometricKernel`.
 
 class BaseGeometricKernel(abc.ABC, Generic[T]):
     """
-    Abstract base class for Geometric kernels.
+    Abstract base class for geometric kernels.
     """
 
     def __init__(self, space: T):

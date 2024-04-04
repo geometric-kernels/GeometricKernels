@@ -1,9 +1,5 @@
 """
-Load TensorFlow backend in lab, spherical_harmonics and geometric_kernels using
-
-.. code-block::
-
-    import geometric_kernels.tensorflow
+Loads TensorFlow backend in lab, spherical_harmonics and geometric_kernels.
 """
 
 import logging

@@ -5,6 +5,7 @@ import logging
 
 class DisableLogging:
     """
+    Temporarily disable logging (except for the `CRITICAL` level messages).
     Adapted from https://stackoverflow.com/a/20251235. Use as
 
     .. code-block:: python
