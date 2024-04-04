@@ -1,7 +1,8 @@
 """
 (Approximate) finite-dimensional feature maps for geometric kernels.
 
-A brief introduction can be found on :doc:`this page </theory/feature_maps>`.
+A brief introduction into the theory can be found on :doc:`this page
+</theory/feature_maps>`.
 """
 
 # noqa: F401

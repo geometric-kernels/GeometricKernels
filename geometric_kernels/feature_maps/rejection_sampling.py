@@ -1,10 +1,13 @@
 """
 This module provides the :class:`RejectionSamplingFeatureMapHyperbolic` and the
 :class:`RejectionSamplingFeatureMapSPD`, rejection sampling-based feature maps
-for :class:`Hyperbolic` and :class:`SymmetricPositiveDefiniteMatrices`, resp.
+for :class:`Hyperbolic <geometric_kernels.spaces.Hyperbolic>` and
+:class:`SymmetricPositiveDefiniteMatrices
+<geometric_kernels.spaces.SymmetricPositiveDefiniteMatrices>`, respectively.
 """
 
 import lab as B
+from beartype.typing import Dict, Optional, Tuple
 
 from geometric_kernels.feature_maps.base import FeatureMap
 from geometric_kernels.feature_maps.probability_densities import (
@@ -16,37 +19,53 @@ from geometric_kernels.spaces import Hyperbolic, SymmetricPositiveDefiniteMatric
 
 
 class RejectionSamplingFeatureMapHyperbolic(FeatureMap):
-    def __init__(self, space: Hyperbolic, num_random_phases: int = 3000):
-        """
-        Random phase feature map for the Hyperbolic space based on the
-        rejection sampling algorithm.
+    """
+    Random phase feature map for the :class:`Hyperbolic
+    <geometric_kernels.spaces.Hyperbolic>` space based on the
+    rejection sampling algorithm.
 
-        :param space: Hyperbolic space.
-        :param num_random_phases: number of random phases to use.
-        """
+    :param space: a :class:`Hyperbolic <geometric_kernels.spaces.Hyperbolic>`
+        space.
+    :param num_random_phases: number of random phases to use.
+    """
+
+    def __init__(self, space: Hyperbolic, num_random_phases: int = 3000):
         self.space = space
         self.num_random_phases = num_random_phases
 
     def __call__(
-        self, X: B.Numeric, params, *, key, normalize=True, **kwargs
-    ) -> B.Numeric:
+        self,
+        X: B.Numeric,
+        params: Dict[str, B.Numeric],
+        *,
+        key: B.RandomState,
+        normalize: Optional[bool] = True,
+        **kwargs,
+    ) -> Tuple[B.RandomState, B.Numeric]:
         """
         :param X: [N, D] points in the space to evaluate the map on.
-        :param params: parameters of the feature map (lengthscale and smoothness).
-        :param key: random state, either `np.random.RandomState`, `tf.random.Generator`,
-                    `torch.Generator` or `jax.tensor` (representing random state).
+        :param params: parameters of the feature map (length scale and smoothness).
+        :param key: random state, either `np.random.RandomState`,
+            `tf.random.Generator`, `torch.Generator` or `jax.tensor` (which
+            represents a random state).
 
-                     Note that for any backend other than `jax`, passing the same `key`
-                     twice does not guarantee that the feature map will be the same each time.
-                     This is because these backends' random state has... a state.
-                     One either has to recreate/restore the state each time or
-                     make use of `geometric_kernels.utils.make_deterministic`.
+            .. note::
+                For any backend other than `jax`, passing the same `key` twice
+                does not guarantee that the feature map will be the same each
+                time. This is because these backends' random state has... a
+                state. To evaluate the same (including randomness) feature map
+                on different inputs, you can either save/restore state manually
+                each time or use the helper function
+                :func:`geometric_kernels.utils.utils.make_deterministic` which
+                does this for you.
+
         :param normalize: normalize to have unit average variance (`True` by default).
         :param ``**kwargs``: unused.
 
-        :return: `Tuple(key, features)` where `features` is [N, O] features,
-                 and `key` is the new key for `jax`, and the same random
-                 state (generator) for all other backends.
+        :return: `Tuple(key, features)` where `features` is an [N, O] array, N
+            is the number of inputs and O is the dimension of the feature map;
+            `key` is the updated random key for `jax`, or the similar random
+            state (generator) for any other backends.
         """
         # Default behavior
         if normalize is None:
@@ -82,41 +101,57 @@ class RejectionSamplingFeatureMapHyperbolic(FeatureMap):
 
 
 class RejectionSamplingFeatureMapSPD(FeatureMap):
+    """
+    Random phase feature map for the :class:`SymmetricPositiveDefiniteMatrices
+    <geometric_kernels.spaces.SymmetricPositiveDefiniteMatrices>` space
+    based on the rejection sampling algorithm.
+
+    :param space: a :class:`SymmetricPositiveDefiniteMatrices
+        <geometric_kernels.spaces.SymmetricPositiveDefiniteMatrices>` space.
+    :param num_random_phases: number of random phases to use.
+    """
+
     def __init__(
         self,
         space: SymmetricPositiveDefiniteMatrices,
         num_random_phases: int = 3000,
     ):
-        """
-        Random phase feature map for the SPD (Symmetric Positive Definite) space based on the
-        rejection sampling algorithm.
-
-        :param space: SymmetricPositiveDefiniteMatrices space.
-        :param num_random_phases: number of random phases to use.
-        """
         self.space = space
         self.num_random_phases = num_random_phases
 
     def __call__(
-        self, X: B.Numeric, params, *, key, normalize=True, **kwargs
-    ) -> B.Numeric:
+        self,
+        X: B.Numeric,
+        params: Dict[str, B.Numeric],
+        *,
+        key: B.RandomState,
+        normalize: Optional[bool] = True,
+        **kwargs,
+    ) -> Tuple[B.RandomState, B.Numeric]:
         """
         :param X: [N, D, D] points in the space to evaluate the map on.
-        :param params: parameters of the feature map (lengthscale and smoothness).
-        :param key: random state, either `np.random.RandomState`, `tf.random.Generator`,
-                    `torch.Generator` or `jax.tensor` (representing random state).
+        :param params: parameters of the feature map (length scale and smoothness).
+        :param key: random state, either `np.random.RandomState`,
+            `tf.random.Generator`, `torch.Generator` or `jax.tensor` (which
+            represents a random state).
 
-                     Note that for any backend other than `jax`, passing the same `key`
-                     twice does not guarantee that the feature map will be the same each time.
-                     This is because these backends' random state has... a state.
-                     One either has to recreate/restore the state each time or
-                     make use of `geometric_kernels.utils.make_deterministic`.
+            .. note::
+                For any backend other than `jax`, passing the same `key` twice
+                does not guarantee that the feature map will be the same each
+                time. This is because these backends' random state has... a
+                state. To evaluate the same (including randomness) feature map
+                on different inputs, you can either save/restore state manually
+                each time or use the helper function
+                :func:`geometric_kernels.utils.utils.make_deterministic` which
+                does this for you.
+
         :param normalize: normalize to have unit average variance (`True` by default).
         :param ``**kwargs``: unused.
 
-        :return: `Tuple(key, features)` where `features` is [N, O] features,
-                 and `key` is the new key for `jax`, and the same random
-                 state (generator) for all other backends.
+        :return: `Tuple(key, features)` where `features` is an [N, O] array, N
+            is the number of inputs and O is the dimension of the feature map;
+            `key` is the updated random key for `jax`, or the similar random
+            state (generator) for any other backends.
         """
         # Default behavior for normalization
         if normalize is None:

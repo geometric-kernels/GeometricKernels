@@ -6,6 +6,7 @@ which the eigenpairs are explicitly known.
 """
 
 import lab as B
+from beartype.typing import Dict, Optional, Tuple
 
 from geometric_kernels.feature_maps.base import FeatureMap
 from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
@@ -13,13 +14,17 @@ from geometric_kernels.spaces import DiscreteSpectrumSpace
 
 
 class DeterministicFeatureMapCompact(FeatureMap):
-    def __init__(self, space: DiscreteSpectrumSpace, num_levels: int):
-        """
-        Deterministic feature map for compact spaces based on the Laplacian eigendecomposition.
+    r"""
+    Deterministic feature map for :class:`DiscreteSpectrumSpace
+    <geometric_kernels.spaces.base.DiscreteSpectrumSpace>`\ s for which the
+    actual eigenpairs are explicitly available.
 
-        :param space: space.
-        :param num_levels: number of levels in the kernel approximation.
-        """
+    :param space: a :class:`DiscreteSpectrumSpace
+        <geometric_kernels.spaces.base.DiscreteSpectrumSpace>` space.
+    :param num_levels: number of levels in the kernel approximation.
+    """
+
+    def __init__(self, space: DiscreteSpectrumSpace, num_levels: int):
         self.space = space
         self.num_levels = num_levels
         self.kernel = MaternKarhunenLoeveKernel(space, num_levels)
@@ -27,18 +32,30 @@ class DeterministicFeatureMapCompact(FeatureMap):
             self.kernel.num_levels
         )
 
-    def __call__(self, X: B.Numeric, params, normalize=None, **kwargs) -> B.Numeric:
+    def __call__(
+        self,
+        X: B.Numeric,
+        params: Dict[str, B.Numeric],
+        normalize: Optional[bool] = None,
+        **kwargs,
+    ) -> Tuple[None, B.Numeric]:
         """
-        Feature map of the Matérn kernel defined on DiscreteSpectrumSpace.
-
-        :param X: points in the space to evaluate the map on.
-        :param params: parameters of the kernel (lengthscale and smoothness).
+        :param X: [N, ...] points in the space to evaluate the map on.
+        :param params: parameters of the kernel (length scale and smoothness).
         :param normalize: normalize to have unit average variance (if omitted
-                          or None, follows the standard behavior of
-                          MaternKarhunenLoeveKernel).
+            or None, follows the standard behavior of
+            :class:`MaternKarhunenLoeveKernel
+            <geometric_kernels.kernels.MaternKarhunenLoeveKernel>`).
         :param ``**kwargs``: unused.
 
-        :return: `Tuple(None, features)` where `features` is [N, O] features.
+        :return: `Tuple(None, features)` where `features` is an [N, O] array, N
+            is the number of inputs and O is the dimension of the feature map.
+
+        .. note::
+           The first element of the returned tuple is the simple None and
+           should be ignored. It is only there to support the abstract
+           interface: for some other subclasses of :class:`FeatureMap`, this
+           first element may be an updated random key.
         """
         spectrum = self.kernel._spectrum(
             self.repeated_eigenvalues**0.5,

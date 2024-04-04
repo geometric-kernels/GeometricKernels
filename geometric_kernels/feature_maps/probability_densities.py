@@ -2,7 +2,9 @@
 This module provide the routines for sampling from the Gaussian and Student-t
 probability densities in a backend-agnostic way. It also provides the routines
 for sampling the non-standard probability densities that arise in relation to
-the :class:`Hyperbolic` and :class:`SymmetricPositiveDefiniteMatrices` spaces.
+the :class:`Hyperbolic <geometric_kernels.spaces.Hyperbolic>` and
+:class:`SymmetricPositiveDefiniteMatrices
+<geometric_kernels.spaces.SymmetricPositiveDefiniteMatrices>` spaces.
 """
 
 import operator
@@ -10,6 +12,7 @@ from functools import reduce
 
 import lab as B
 import numpy as np
+from beartype.typing import Dict, Optional, Tuple
 from sympy import Poly, Product, symbols
 
 from geometric_kernels.lab_extras import (
@@ -22,24 +25,32 @@ from geometric_kernels.lab_extras import (
 from geometric_kernels.utils.utils import ordered_pairwise_differences
 
 
-def student_t_sample(key, size, deg_freedom, dtype=None):
+def student_t_sample(
+    key: B.RandomState,
+    size: B.Numeric,
+    deg_freedom: B.Numeric,
+    dtype: Optional[B.DType] = None,
+) -> Tuple[B.RandomState, B.Numeric]:
     r"""
-    Sample from the Student-t distribution with `deg_freedom` degrees of freedom,
-    using `key` random state, returning sample of the shape `size`.
+    Sample from the Student-t distribution with `deg_freedom` degrees of
+    freedom, using `key` random state, returning sample of shape `size`.
 
-    Student-t random variable with `nu` degrees of freedom can be represented as
-    :math:`T=\frac{Z}{\sqrt{V/\nu}}`, where `Z` is the standard normal r.v. and
-    `V` is :math:`\chi^2(\nu)` r.v. The :math:`\chi^2(\nu)` distribution is the
-    same as `\Gamma(\nu / 2, 2)` distribution, and therefore
-    :math:`V/\nu \sim \Gamma(\nu / 2, 2 / \nu)`
-
-    We use these properties to sample the student-t random variable.
+    Student-t random variable with `nu` degrees of freedom can be represented
+    as $T=\frac{Z}{\sqrt{V/\nu}}$, where `Z` is the standard Gaussian random
+    variable and `V` is a $\chi^2(\nu)$ random variable. The $\chi^2(\nu)$
+    distribution is the same as $\Gamma(\nu / 2, 2)$ distribution, and
+    therefore $V/\nu \sim \Gamma(\nu / 2, 2 / \nu)$. We use these properties
+    to sample the Student-t random variable.
 
     :param key: either `np.random.RandomState`, `tf.random.Generator`,
-                `torch.Generator` or `jax.tensor` (representing random state).
+        `torch.Generator` or `jax.tensor` (representing random state).
     :param size: shape of the returned sample.
-    :param deg_freedom: degrees of freedom of the student-t distribution.
+    :param deg_freedom: the number of degrees of freedom of the Student-t
+        distribution.
     :param dtype: dtype of the returned tensor.
+    :return: `Tuple(key, samples)` where `samples` is a `size`-shaped array of
+        samples of type `dtype`, and `key` is the updated random key for `jax`,
+        or the similar random state (generator) for any other backend.
     """
     assert B.shape(deg_freedom) == (1,), "deg_freedom must be a 1-vector."
     dtype = dtype or dtype_double(key)
@@ -58,22 +69,30 @@ def student_t_sample(key, size, deg_freedom, dtype=None):
     return key, u
 
 
-def base_density_sample(key, size, params, dim, rho):
+def base_density_sample(
+    key: B.RandomState,
+    size: B.Numeric,
+    params: Dict[str, B.Numeric],
+    dim: int,
+    rho: B.Numeric,
+) -> Tuple[B.RandomState, B.Numeric]:
     r"""
-    The Matérn kernel's spectral density is of the form
-    :math:`p_{\nu,\kappa}(\lambda)`,
-    where :math:`\nu` is the smoothness parameter, :math:`\kappa`
-    is the lengthscale and :math:`p_{\nu,\kappa}` is the Student-t
-    or Normal density, depending on the smoothness.
+    The Matérn kernel's spectral density is $p_{\nu,\kappa}(\lambda)$, where
+    $\nu$ is the smoothness parameter, $\kappa$ is the length scale and
+    $p_{\nu,\kappa}$ is the Student-t or Gaussian density, depending on the
+    smoothness.
 
     We call it "base density" and this function returns a sample from it.
 
     :param key: either `np.random.RandomState`, `tf.random.Generator`,
-                `torch.Generator` or `jax.tensor` (representing random state).
+        `torch.Generator` or `jax.tensor` (representing random state).
     :param size: shape of the returned sample.
     :param params: params of the kernel.
     :param dim: dimensionality of the space the kernel is defined on.
     :param rho: `rho` vector of the space.
+    :return: `Tuple(key, samples)` where `samples` is a `size`-shaped array of
+        samples, and `key` is the updated random key for `jax`, or the similar
+        random state (generator) for any other backend.
     """
     assert "nu" in params
     assert "lengthscale" in params
@@ -88,7 +107,7 @@ def base_density_sample(key, size, params, dim, rho):
     # sample from Gaussian
     key, u_nu_infinite = B.randn(key, B.dtype(L), *size)
     # for nu < np.inf
-    # sample from the student-t with 2\nu + dim(space) - dim(rho)  degrees of freedom
+    # sample from the Student-t with 2\nu + dim(space) - dim(rho)  degrees of freedom
     deg_freedom = 2 * safe_nu + dim - B.rank(rho)
     key, u_nu_finite = student_t_sample(key, size, deg_freedom, B.dtype(L))
 
@@ -105,9 +124,21 @@ def base_density_sample(key, size, params, dim, rho):
     return key, u / scale
 
 
-def randcat_fix(key, dtype, size, p):
+def _randcat_fix(
+    key: B.RandomState, dtype: B.DType, size: B.Numeric, p: B.Numeric
+) -> Tuple[B.RandomState, B.Numeric]:
     """
     Sample from the categorical variable with probabilities `p`.
+
+    :param key: either `np.random.RandomState`, `tf.random.Generator`,
+        `torch.Generator` or `jax.tensor` (representing random state).
+    :param dtype: dtype of the returned tensor.
+    :param size: shape of the returned sample.
+    :param p: vector of (potentially unnormalized) probabilities
+        defining the discrete distribution to sample from.
+    :return: `Tuple(key, samples)` where `samples` is a `size`-shaped array of
+        samples of type `dtype`, and `key` is the updated random key for `jax`,
+        or the similar random state (generator) for any other backend.
     """
     p = p / B.sum(p, axis=-1, squeeze=False)
     # Perform sampling routine.
@@ -117,13 +148,17 @@ def randcat_fix(key, dtype, size, p):
     return key, B.cast(dtype, inds)
 
 
-def alphas(n):
+def _alphas(n: int) -> B.Numeric:
     r"""
-    Compute alphas for Prop. 16 & 17 for the hyperbolic space of dimension `n`.
+    Compute alphas for Prop. 16 & 17 of https://arxiv.org/pdf/2301.13088.pdf
+    for the hyperbolic space of dimension `n`.
 
     :param n: dimension of the hyperbolic space, n >= 2.
+    :return: array of alphas.
 
-    TODO: precompute these, rather than computing in runtime.
+    .. todo:: precompute these, rather than computing in runtime.
+
+    .. todo:: update proposition numbers when the paper gets published.
     """
     assert n >= 2
     x, j = symbols("x, j")
@@ -136,7 +171,9 @@ def alphas(n):
     return np.array(Poly(prod, x).all_coeffs()).astype(np.float64)[::-1]
 
 
-def sample_mixture_heat(key, alpha, lengthscale):
+def _sample_mixture_heat(
+    key: B.RandomState, alpha: B.Numeric, lengthscale: B.Numeric
+) -> Tuple[B.RandomState, B.Numeric]:
     r"""
     Sample from the mixture distribution from Prop. 16 for specific alphas
     `alpha` and length scale (kappa) `lengthscale` using `key` random state.
@@ -145,8 +182,14 @@ def sample_mixture_heat(key, alpha, lengthscale):
                 `torch.Generator` or `jax.tensor` (representing random state).
     :param alpha: unnormalized coefficients of the mixture.
     :param lengthscale: length scale (kappa).
+    :return: `Tuple(key, sample)` where `sample` is a single sample from the
+        distribution, and `key` is the updated random key for `jax`, or the
+        similar random state (generator) for any other backend.
 
-    TODO: reparameterization trick.
+    .. todo::
+       do we need reparameterization trick for hyperparameter optimization?
+
+    .. todo:: update proposition numbers when the paper gets published.
     """
     assert B.rank(alpha) == 1
     m = B.shape(alpha)[0] - 1
@@ -160,7 +203,7 @@ def sample_mixture_heat(key, alpha, lengthscale):
     alpha = B.cast(dtype, from_numpy(beta, alpha))
     cs_unnorm = alpha / beta
     cs = cs_unnorm / B.sum(cs_unnorm)
-    key, ind = randcat_fix(key, dtype, 1, cs)
+    key, ind = _randcat_fix(key, dtype, 1, cs)
 
     # Gamma(nu/2, 2) distribution is the same as chi2(nu) distribution
     key, s = B.randgamma(key, dtype, 1, alpha=(ind + 1) / 2, scale=2)
@@ -168,11 +211,18 @@ def sample_mixture_heat(key, alpha, lengthscale):
     return key, s
 
 
-def sample_mixture_matern(key, alpha, lengthscale, nu, dim):
+def _sample_mixture_matern(
+    key: B.RandomState,
+    alpha: B.Numeric,
+    lengthscale: B.Numeric,
+    nu: B.Numeric,
+    dim: int,
+) -> Tuple[B.RandomState, B.Numeric]:
     r"""
-    Sample from the mixture distribution from Prop. 17 for specific alphas
-    `alpha`, length scale (kappa) `lengthscale`, smoothness `nu` and dimnesion
-    `dim`, using `key` random state.
+    Sample from the mixture distribution from Prop. 17 of
+    https://arxiv.org/pdf/2301.13088.pdf for specific alphas `alpha`, length
+    scale (kappa) `lengthscale`, smoothness `nu` and dimension `dim`, using
+    `key` random state.
 
     :param key: either `np.random.RandomState`, `tf.random.Generator`,
                 `torch.Generator` or `jax.tensor` (representing random state).
@@ -180,8 +230,14 @@ def sample_mixture_matern(key, alpha, lengthscale, nu, dim):
     :param lengthscale: length scale (kappa).
     :param nu: smoothness parameter of Matérn kernels.
     :param dim: dimension of the hyperbolic space.
+    :return: `Tuple(key, sample)` where `sample` is a single sample from the
+        distribution, and `key` is the updated random key for `jax`, or the
+        similar random state (generator) for any other backend.
 
-    TODO: reparameterization trick.
+    .. todo::
+       do we need reparameterization trick for hyperparameter optimization?
+
+    .. todo:: update proposition numbers when the paper gets published.
     """
     assert B.rank(alpha) == 1
     m = B.shape(alpha)[0] - 1
@@ -203,7 +259,7 @@ def sample_mixture_matern(key, alpha, lengthscale, nu, dim):
     cs_unnorm = alpha / beta
     cs = cs_unnorm / B.sum(cs_unnorm)
 
-    key, ind = randcat_fix(key, dtype, 1, cs)
+    key, ind = _randcat_fix(key, dtype, 1, cs)
     key, p = B.randbeta(
         key, dtype, 1, alpha=(ind + 1) / 2, beta=nu + (dim - ind - 1) / 2
     )
@@ -212,13 +268,22 @@ def sample_mixture_matern(key, alpha, lengthscale, nu, dim):
     return key, s
 
 
-def hyperbolic_density_sample(key, size, params, dim):
+def hyperbolic_density_sample(
+    key: B.RandomState, size: B.Numeric, params: Dict[str, B.Numeric], dim: int
+) -> Tuple[B.RandomState, B.Numeric]:
     r"""
+    This function samples from the full (i.e., including the $c(\lambda)^{-2}$
+    factor, where $c$ is the Harish-Chandra's $c$-function) spectral density of
+    the heat/Matérn kernel on the hyperbolic space, using rejection sampling.
+
     :param key: either `np.random.RandomState`, `tf.random.Generator`,
                 `torch.Generator` or `jax.tensor` (representing random state).
     :param size: shape of the returned sample.
     :param params: params of the kernel.
     :param dim: dimensionality of the space the kernel is defined on.
+    :return: `Tuple(key, samples)` where `samples` is a `size`-shaped array of
+        samples, and `key` is the updated random key for `jax`, or the similar
+        random state (generator) for any other backend.
     """
     assert "nu" in params
     assert "lengthscale" in params
@@ -226,16 +291,16 @@ def hyperbolic_density_sample(key, size, params, dim):
     nu = params["nu"]
     L = params["lengthscale"]
 
-    alpha = alphas(dim)
+    alpha = _alphas(dim)
 
     def base_sampler(key):
         # Note: 1.0 in safe_nu can be replaced by any finite positive value
         safe_nu = B.where(nu == np.inf, B.cast(B.dtype(L), np.r_[1.0]), nu)
 
         # for nu == np.inf
-        key, sample_mixture_nu_infinite = sample_mixture_heat(key, alpha, L)
+        key, sample_mixture_nu_infinite = _sample_mixture_heat(key, alpha, L)
         # for nu < np.inf
-        key, sample_mixture_nu_finite = sample_mixture_matern(
+        key, sample_mixture_nu_finite = _sample_mixture_matern(
             key, alpha, L, safe_nu, dim
         )
 
@@ -259,7 +324,28 @@ def hyperbolic_density_sample(key, size, params, dim):
     return key, B.cast(B.dtype(L), samples)
 
 
-def spd_density_sample(key, size, params, degree, rho):
+def spd_density_sample(
+    key: B.RandomState,
+    size: B.Numeric,
+    params: Dict[str, B.Numeric],
+    degree: int,
+    rho: B.Numeric,
+) -> Tuple[B.RandomState, B.Numeric]:
+    r"""
+    This function samples from the full (i.e., including the $c(\lambda)^{-2}$
+    factor, where $c$ is the Harish-Chandra's $c$-function) spectral density
+    of the heat/Matérn kernel on the manifold of symmetric positive definite
+    matrices, using rejection sampling.
+
+    :param key: either `np.random.RandomState`, `tf.random.Generator`,
+                `torch.Generator` or `jax.tensor` (representing random state).
+    :param size: shape of the returned sample.
+    :param params: params of the kernel.
+    :param dim: dimensionality of the space the kernel is defined on.
+    :return: `Tuple(key, samples)` where `samples` is a `size`-shaped array of
+        samples, and `key` is the updated random key for `jax`, or the similar
+        random state (generator) for any other backend.
+    """
     nu = params["nu"]
     L = params["lengthscale"]
 
