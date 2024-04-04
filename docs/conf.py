@@ -33,13 +33,13 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx_math_dollar',
     'sphinx.ext.mathjax',
+    'sphinx.ext.todo',
 ]
 
 # autoapi
 extensions.append("autoapi.extension")
 autoapi_dirs = ["../geometric_kernels"]
 autodoc_typehints = 'description'
-autodoc_default_options = {"special-members": "__init__",}
 autoapi_add_toctree_entry = False
 autoapi_keep_files = True
 autoapi_python_class_content = "class"  # we handle __init__ and __new__ below
@@ -48,16 +48,17 @@ autoapi_member_order = "groupwise"
 autoapi_ignore = [f'**/lab_extras/{b}**' for b in ["torch", "jax", "tensorflow", "numpy"]]
 autoapi_options = [
     "members",
-    "private-members",
-    "special-members",
+    # "private-members",
+    # "special-members",
     "imported-members",
     "show-inheritance",
 ]
 
-# Never skip __init__ or __new__
+# Only skip certain special members if they have an empty docstring.
+privileged_special_members = ["__init__", "__new__", "__call__"]
 def never_skip_init_or_new(app, what, name, obj, would_skip, options):
-    if "__init__" in name or "__new__":
-        return False
+    if any(psm in name for psm in privileged_special_members):
+        return not bool(obj._docstring)  # skip only if the docstring is empty
     return would_skip
 def setup(sphinx):
     sphinx.connect("autoapi-skip-member", never_skip_init_or_new)
