@@ -74,7 +74,8 @@ def pinv(a: Union[SparseArray]):
         return a
 
 
-_SparseArray = Signature(SparseArray)
+# putting "ignore" here for now, seems like some plum/typing issue
+_SparseArray = Signature(SparseArray)  # type: ignore
 
 B.T.register(lambda a: a.T, _SparseArray)
 B.shape.register(lambda a: a.shape, _SparseArray)
