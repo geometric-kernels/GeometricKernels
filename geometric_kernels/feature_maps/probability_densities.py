@@ -12,7 +12,7 @@ from functools import reduce
 
 import lab as B
 import numpy as np
-from beartype.typing import Dict, Optional, Tuple
+from beartype.typing import Dict, List, Optional, Tuple
 from sympy import Poly, Product, symbols
 
 from geometric_kernels.lab_extras import (
@@ -308,7 +308,7 @@ def hyperbolic_density_sample(
             nu == np.inf, sample_mixture_nu_infinite, sample_mixture_nu_finite
         )
 
-    samples = []
+    samples: List[B.Numeric] = []
     while len(samples) < reduce(operator.mul, size, 1):
         key, proposal = base_sampler(key)
 
@@ -349,7 +349,7 @@ def spd_density_sample(
     nu = params["nu"]
     L = params["lengthscale"]
 
-    samples = []
+    samples: List[B.Numeric] = []
     while len(samples) < reduce(operator.mul, size, 1):
         key, X = B.randn(key, B.dtype(L), degree, degree)
         M = (X + B.transpose(X)) / 2
