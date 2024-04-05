@@ -119,6 +119,11 @@ class Eigenfunctions(abc.ABC):
         """Dimension of eigenspaces. For generic Eigenfunctions, it is an array of ones. For Eigenfunctions with addition theorem, it is the number of eigenfunctions in each level."""
         return B.ones(self.num_eigenfunctions)
 
+    @abc.abstractproperty
+    def num_eigenfunctions_per_level(self) -> B.Numeric:
+        """Number of eigenfunctions per level."""
+        raise NotImplementedError
+
 
 class EigenfunctionWithAdditionTheorem(Eigenfunctions):
     r"""

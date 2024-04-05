@@ -192,7 +192,7 @@ def reciprocal_no_nan(x: B.NPNumeric):
     return np.where(x_is_zero, 0.0, np.reciprocal(safe_x))
 
 
-@dispatch
+@dispatch  # type: ignore[no-redef]
 def reciprocal_no_nan(x: spmatrix):
     """
     Return element-wise reciprocal (1/x). Whenever x = 0 puts 1/x = 0.

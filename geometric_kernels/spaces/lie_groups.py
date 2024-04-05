@@ -64,7 +64,7 @@ class WeylAdditionTheorem(EigenfunctionWithAdditionTheorem):
         )
         if compute_characters:
             self._characters = [
-                self._compute_character(n, signature) for signature in self._signatures
+                self._compute_character(signature) for signature in self._signatures
             ]
 
     @abc.abstractmethod
@@ -195,14 +195,14 @@ class WeylAdditionTheorem(EigenfunctionWithAdditionTheorem):
     @property
     def num_eigenfunctions(self) -> int:
         """Number of eigenfunctions, M."""
-        return self._num_eigenfunctions
+        return B.sum(self.num_eigenfunctions_per_level)
 
     @property
     def num_eigenfunctions_per_level(self) -> B.Numeric:
         """Number of eigenfunctions per level."""
         return self._dimensions**2
 
-    def __call__(self, X: B.Numeric):
+    def __call__(self, X: B.Numeric, **parameters):
         raise NotImplementedError
 
 
@@ -233,9 +233,9 @@ class MatrixLieGroup(DiscreteSpectrumSpace):
     equivalent to a simple transposition.
     """
 
-    @property
+    @abc.abstractproperty
     def dimension(self) -> int:
-        return self.dim
+        raise NotImplementedError
 
     @abc.abstractmethod
     def inverse(self, X: B.Numeric) -> B.Numeric:
