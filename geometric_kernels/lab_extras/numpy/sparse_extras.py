@@ -1,8 +1,9 @@
 import lab as B
 import scipy
 import scipy.sparse as sp
+from beartype.typing import Union
 from lab import dispatch
-from plum import Signature, Union
+from plum import Signature
 
 from .extras import _Numeric
 
