@@ -148,7 +148,7 @@ class AveragingAdditionTheorem(EigenfunctionWithAdditionTheorem):
     @property
     def num_eigenfunctions(self) -> int:
         """Number of eigenfunctions, M"""
-        return self._num_eigenfunctions
+        return self._num_levels
 
     @property
     def num_eigenfunctions_per_level(self) -> B.Numeric:
@@ -212,7 +212,7 @@ class CompactHomogeneousSpace(DiscreteSpectrumSpace):
         self.G = G
         self.H = H
         self.samples_H = samples_H
-        self.dim = self.G.dimemsion - self.H.dimension
+        self.dim = self.G.dimension - self.H.dimension
         self.average_order = average_order
 
     @property
