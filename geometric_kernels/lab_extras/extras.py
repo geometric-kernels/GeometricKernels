@@ -158,6 +158,14 @@ def dtype_complex(reference: B.Numeric):
 
 @dispatch
 @abstract()
+def is_complex(reference: B.Numeric):
+    """
+    Return True if reference of `complex` dtype.
+    """
+
+
+@dispatch
+@abstract()
 def cumsum(a: B.Numeric, axis=None):
     """
     Return cumulative sum (optionally along axis)
