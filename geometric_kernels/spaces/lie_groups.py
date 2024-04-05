@@ -64,7 +64,7 @@ class WeylAdditionTheorem(EigenfunctionWithAdditionTheorem):
         )
         if compute_characters:
             self._characters = [
-                self._compute_character(signature) for signature in self._signatures
+                self._compute_character(n, signature) for signature in self._signatures
             ]
 
     @abc.abstractmethod
@@ -105,7 +105,7 @@ class WeylAdditionTheorem(EigenfunctionWithAdditionTheorem):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _compute_character(self, signature: List[List[int]]):
+    def _compute_character(self, n: int, signature: List[List[int]]):
         """
         Compute character of the representation corresponding to `signature`.
         """
