@@ -375,7 +375,7 @@ You can find more examples :doc:`here <examples/index>`.
    Geometric Kernels <self>
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :titlesonly:
    :hidden:
 

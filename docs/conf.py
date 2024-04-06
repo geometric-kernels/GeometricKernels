@@ -9,8 +9,13 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
+
+
 import os
 import sys
+
+from inspect import getsourcefile
+
 
 sys.path.insert(0, os.path.abspath('..'))  # Source code dir relative to this file
 
@@ -34,6 +39,8 @@ extensions = [
     'sphinx_math_dollar',
     'sphinx.ext.mathjax',
     'sphinx.ext.todo',
+    'nbsphinx',
+    'nbsphinx_link',
 ]
 
 # autoapi
@@ -60,8 +67,6 @@ def never_skip_init_or_new(app, what, name, obj, would_skip, options):
     if any(psm in name for psm in privileged_special_members):
         return not bool(obj._docstring)  # skip only if the docstring is empty
     return would_skip
-def setup(sphinx):
-    sphinx.connect("autoapi-skip-member", never_skip_init_or_new)
 
 
 # Add any paths that contain templates here, relative to this directory.
@@ -113,3 +118,33 @@ mathjax3_config = {
     "displayMath": [["\\[", "\\]"]],
   }
 }
+
+# -- nbsphinx ----------------------------------------------------------------
+
+nbsphinx_execute = 'never'
+
+# -- pandoc (required by nbsphinx) -------------------------------------------
+
+# Get path to directory containing this file, conf.py.
+DOCS_DIRECTORY = os.path.dirname(os.path.abspath(getsourcefile(lambda: 0)))
+
+def ensure_pandoc_installed(_):
+    import pypandoc
+
+    # Download pandoc if necessary. If pandoc is already installed and on
+    # the PATH, the installed version will be used. Otherwise, we will
+    # download a copy of pandoc into docs/bin/ and add that to our PATH.
+    pandoc_dir = os.path.join(DOCS_DIRECTORY, "bin")
+    # Add dir containing pandoc binary to the PATH environment variable
+    if pandoc_dir not in os.environ["PATH"].split(os.pathsep):
+        os.environ["PATH"] += os.pathsep + pandoc_dir
+    pypandoc.ensure_pandoc_installed(
+        targetfolder=pandoc_dir,
+        delete_installer=True,
+    )
+
+# -- Connect stuff -----------------------------------------------------------
+
+def setup(sphinx):
+    sphinx.connect("builder-inited", ensure_pandoc_installed)
+    sphinx.connect("autoapi-skip-member", never_skip_init_or_new)
