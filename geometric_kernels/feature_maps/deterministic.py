@@ -1,8 +1,8 @@
 r"""
-This module provides the :class:`DeterministicFeatureMapCompact`, a Karhunen-Loève
-expansion-based feature map for those :class:`DiscreteSpectrumSpace
-<geometric_kernels.spaces.base.DiscreteSpectrumSpace>`\ s, for
-which the eigenpairs are explicitly known.
+This module provides the :class:`DeterministicFeatureMapCompact`, a
+Karhunen-Loève expansion-based feature map for those
+:class:`~.spaces.DiscreteSpectrumSpace`\ s, for which the eigenpairs
+are explicitly known.
 """
 
 import lab as B
@@ -15,12 +15,10 @@ from geometric_kernels.spaces import DiscreteSpectrumSpace
 
 class DeterministicFeatureMapCompact(FeatureMap):
     r"""
-    Deterministic feature map for :class:`DiscreteSpectrumSpace
-    <geometric_kernels.spaces.base.DiscreteSpectrumSpace>`\ s for which the
-    actual eigenpairs are explicitly available.
+    Deterministic feature map for :class:`~.spaces.DiscreteSpectrumSpace`\ s
+    for which the actual eigenpairs are explicitly available.
 
-    :param space: a :class:`DiscreteSpectrumSpace
-        <geometric_kernels.spaces.base.DiscreteSpectrumSpace>` space.
+    :param space: a :class:`~.spaces.DiscreteSpectrumSpace` space.
     :param num_levels: number of levels in the kernel approximation.
     """
 
@@ -44,8 +42,7 @@ class DeterministicFeatureMapCompact(FeatureMap):
         :param params: parameters of the kernel (length scale and smoothness).
         :param normalize: normalize to have unit average variance (if omitted
             or None, follows the standard behavior of
-            :class:`MaternKarhunenLoeveKernel
-            <geometric_kernels.kernels.MaternKarhunenLoeveKernel>`).
+            :class:`~.kernels.MaternKarhunenLoeveKernel`).
         :param ``**kwargs``: unused.
 
         :return: `Tuple(None, features)` where `features` is an [N, O] array, N

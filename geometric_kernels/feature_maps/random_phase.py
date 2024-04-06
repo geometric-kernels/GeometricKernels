@@ -2,15 +2,14 @@ r"""
 This module provides the random phase-based feature maps.
 
 Specifically, it provides a random phase-based feature map for
-:class:`DiscreteSpectrumSpace <geometric_kernels.spaces.DiscreteSpectrumSpace>`\ s
-for which the :doc:`addition theorem </theory/addition_theorem>`-like basis
-functions are explicitly available while the actual eigenpairs may remain
-implicit.
+:class:`~.spaces.DiscreteSpectrumSpace`\ s for which the
+:doc:`addition theorem </theory/addition_theorem>`-like basis functions
+are explicitly available while the actual eigenpairs may remain implicit.
 
 It also provides a basic random phase-based feature map for
-:class:`NoncompactSymmetricSpace <geometric_kernels.spaces.NoncompactSymmetricSpace>`\ s.
-It should be used unless a more specialized per-space implementation is
-available, like the ones in the module :mod:`geometric_kernels.feature_maps.rejection_sampling`.
+:class:`~.spaces.NoncompactSymmetricSpace`\ s. It should be used unless a more
+specialized per-space implementation is available, like the ones in the module
+:mod:`geometric_kernels.feature_maps.rejection_sampling`.
 """
 
 import lab as B
@@ -25,13 +24,11 @@ from geometric_kernels.spaces import DiscreteSpectrumSpace, NoncompactSymmetricS
 
 class RandomPhaseFeatureMapCompact(FeatureMap):
     r"""
-    Random phase feature map for :class:`DiscreteSpectrumSpace
-    <geometric_kernels.spaces.base.DiscreteSpectrumSpace>`\ s for which the
-    :doc:`addition theorem </theory/addition_theorem>`-like basis functions are
-    explicitly available while the actual eigenpairs may remain implicit.
+    Random phase feature map for :class:`~.spaces.DiscreteSpectrumSpace`\ s for
+    which the :doc:`addition theorem </theory/addition_theorem>`-like basis
+    functions are explicitly available while actual eigenpairs may be implicit.
 
-    :param space: a :class:`DiscreteSpectrumSpace
-        <geometric_kernels.spaces.base.DiscreteSpectrumSpace>` space.
+    :param space: a :class:`~.spaces.DiscreteSpectrumSpace` space.
     :param num_levels: number of levels in the kernel approximation.
     :param num_random_phases: number of random phases used in the generalized
         random phase Fourier features technique.
@@ -73,13 +70,12 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
                 state. To evaluate the same (including randomness) feature map
                 on different inputs, you can either save/restore state manually
                 each time or use the helper function
-                :func:`geometric_kernels.utils.utils.make_deterministic` which
+                :func:`~.utils.make_deterministic` which
                 does this for you.
 
         :param normalize: normalize to have unit average variance (if omitted
             or None, follows the standard behavior of
-            :class:`MaternKarhunenLoeveKernel
-            <geometric_kernels.kernels.MaternKarhunenLoeveKernel>`).
+            :class:`kernels.MaternKarhunenLoeveKernel`).
         :param ``**kwargs``: unused.
 
         :return: `Tuple(key, features)` where `features` is an [N, O] array, N
@@ -126,14 +122,12 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
 
 class RandomPhaseFeatureMapNoncompact(FeatureMap):
     r"""
-    Basic random phase feature map for :class`NoncompactSymmetricSpace
-    <geometric_kernels.spaces.NoncompactSymmetricSpace>`\ s (based on
-    the importance sampling).
+    Basic random phase feature map for :class:`~.spaces.NoncompactSymmetricSpace`\ s
+    (based on the importance sampling).
 
     This feature map should not be used if a space-specific alternative exists.
 
-    :param space: a :class:`NoncompactSymmetricSpace
-        <geometric_kernels.spaces.base.NoncompactSymmetricSpace>` space.
+    :param space: a :class:`~.spaces.NoncompactSymmetricSpace` space.
     :param num_random_phases: number of random phases to use.
     """
 
@@ -164,7 +158,7 @@ class RandomPhaseFeatureMapNoncompact(FeatureMap):
                 state. To evaluate the same (including randomness) feature map
                 on different inputs, you can either save/restore state manually
                 each time or use the helper function
-                :func:`geometric_kernels.utils.utils.make_deterministic` which
+                :func:`~.utils.make_deterministic` which
                 does this for you.
 
         :param normalize: normalize to have unit average variance (`True` by default).

@@ -2,9 +2,8 @@
 This module provide the routines for sampling from the Gaussian and Student-t
 probability densities in a backend-agnostic way. It also provides the routines
 for sampling the non-standard probability densities that arise in relation to
-the :class:`Hyperbolic <geometric_kernels.spaces.Hyperbolic>` and
-:class:`SymmetricPositiveDefiniteMatrices
-<geometric_kernels.spaces.SymmetricPositiveDefiniteMatrices>` spaces.
+the :class:`~.spaces.Hyperbolic` and
+:class:`~.spaces.SymmetricPositiveDefiniteMatrices` spaces.
 """
 
 import operator

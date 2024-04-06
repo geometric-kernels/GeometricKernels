@@ -1,9 +1,8 @@
 """
 This module provides the :class:`RejectionSamplingFeatureMapHyperbolic` and the
 :class:`RejectionSamplingFeatureMapSPD`, rejection sampling-based feature maps
-for :class:`Hyperbolic <geometric_kernels.spaces.Hyperbolic>` and
-:class:`SymmetricPositiveDefiniteMatrices
-<geometric_kernels.spaces.SymmetricPositiveDefiniteMatrices>`, respectively.
+for :class:`~.spaces.Hyperbolic` and
+:class:`~.spaces.SymmetricPositiveDefiniteMatrices`, respectively.
 """
 
 import lab as B
@@ -20,12 +19,10 @@ from geometric_kernels.spaces import Hyperbolic, SymmetricPositiveDefiniteMatric
 
 class RejectionSamplingFeatureMapHyperbolic(FeatureMap):
     """
-    Random phase feature map for the :class:`Hyperbolic
-    <geometric_kernels.spaces.Hyperbolic>` space based on the
-    rejection sampling algorithm.
+    Random phase feature map for the :class:`~.spaces.Hyperbolic` space based
+    on the rejection sampling algorithm.
 
-    :param space: a :class:`Hyperbolic <geometric_kernels.spaces.Hyperbolic>`
-        space.
+    :param space: a :class:`~.spaces.Hyperbolic` space.
     :param num_random_phases: number of random phases to use.
     """
 
@@ -56,8 +53,7 @@ class RejectionSamplingFeatureMapHyperbolic(FeatureMap):
                 state. To evaluate the same (including randomness) feature map
                 on different inputs, you can either save/restore state manually
                 each time or use the helper function
-                :func:`geometric_kernels.utils.utils.make_deterministic` which
-                does this for you.
+                :func:`~.utils.make_deterministic` which does this for you.
 
         :param normalize: normalize to have unit average variance (`True` by default).
         :param ``**kwargs``: unused.
@@ -102,12 +98,11 @@ class RejectionSamplingFeatureMapHyperbolic(FeatureMap):
 
 class RejectionSamplingFeatureMapSPD(FeatureMap):
     """
-    Random phase feature map for the :class:`SymmetricPositiveDefiniteMatrices
-    <geometric_kernels.spaces.SymmetricPositiveDefiniteMatrices>` space
-    based on the rejection sampling algorithm.
+    Random phase feature map for the
+    :class:`~.spaces.SymmetricPositiveDefiniteMatrices` space based on the
+    rejection sampling algorithm.
 
-    :param space: a :class:`SymmetricPositiveDefiniteMatrices
-        <geometric_kernels.spaces.SymmetricPositiveDefiniteMatrices>` space.
+    :param space: a :class:`~.spaces.SymmetricPositiveDefiniteMatrices` space.
     :param num_random_phases: number of random phases to use.
     """
 
@@ -142,8 +137,7 @@ class RejectionSamplingFeatureMapSPD(FeatureMap):
                 state. To evaluate the same (including randomness) feature map
                 on different inputs, you can either save/restore state manually
                 each time or use the helper function
-                :func:`geometric_kernels.utils.utils.make_deterministic` which
-                does this for you.
+                :func:`~.utils.make_deterministic` which does this for you.
 
         :param normalize: normalize to have unit average variance (`True` by default).
         :param ``**kwargs``: unused.

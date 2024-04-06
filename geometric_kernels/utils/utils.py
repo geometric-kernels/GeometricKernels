@@ -49,10 +49,20 @@ def make_deterministic(f, key):
 
     :return: a function representing the deterministic version of the input function.
 
-        .. Note:
-            This function assumes that the input function has a 'key' argument
-            or keyword-only argument that is used to generate random numbers.
-            Otherwise, the function is returned as is.
+        .. note::
+           This function assumes that the input function has a 'key' argument
+           or keyword-only argument that is used to generate random numbers.
+           Otherwise, the function is returned as is.
+
+    EXAMPLE:
+
+    .. code-block:: python
+
+        key = tf.random.Generator.from_seed(1234)
+        feature_map = default_feature_map(kernel=base_kernel)
+        sample_paths = make_deterministic(sampler(feature_map), key)
+        _, ys_train  = sample_paths(xs_train, params)
+        key, ys_test = sample_paths(xs_test,  params)
     """
     f_argspec = inspect.getfullargspec(f)
     f_varnames = f_argspec.args
