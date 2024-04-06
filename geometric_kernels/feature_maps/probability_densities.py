@@ -58,7 +58,7 @@ def student_t_sample(key, size, deg_freedom, dtype=None):
     return key, u
 
 
-def base_density_sample(key, size, params, dim, rho):
+def base_density_sample(key, size, params, dim, rho, shift_laplacian=True):
     r"""
     The Matérn kernel's spectral density is of the form
     :math:`p_{\nu,\kappa}(\lambda)`,
@@ -74,6 +74,8 @@ def base_density_sample(key, size, params, dim, rho):
     :param params: params of the kernel.
     :param dim: dimensionality of the space the kernel is defined on.
     :param rho: `rho` vector of the space.
+    :param shift_laplacian: if true redefines kernel by shifting Laplacian,
+                this makes the Matern's kernels more flexible.
     """
     assert "nu" in params
     assert "lengthscale" in params
@@ -95,7 +97,12 @@ def base_density_sample(key, size, params, dim, rho):
     u = B.where(nu == np.inf, u_nu_infinite, u_nu_finite)
 
     scale_nu_infinite = L
-    scale_nu_finite = B.sqrt(deg_freedom) / B.sqrt(2 * safe_nu / L**2 + B.sum(rho**2))
+    if shift_laplacian:
+        scale_nu_finite = L / B.sqrt(safe_nu / deg_freedom)
+    else:
+        scale_nu_finite = L / B.sqrt(
+            safe_nu / deg_freedom + B.sum(rho**2) * L**2 / (2 * deg_freedom)
+        )
 
     scale = B.where(nu == np.inf, scale_nu_infinite, scale_nu_finite)
 
@@ -166,7 +173,7 @@ def sample_mixture_heat(key, alpha, lengthscale):
     return key, s
 
 
-def sample_mixture_matern(key, alpha, lengthscale, nu, dim):
+def sample_mixture_matern(key, alpha, lengthscale, nu, dim, shift_laplacian=True):
     r"""
     Sample from the mixture distribution from Prop. 17 for specific alphas
     `alpha`, length scale (kappa) `lengthscale`, smoothness `nu` and dimnesion
@@ -178,7 +185,8 @@ def sample_mixture_matern(key, alpha, lengthscale, nu, dim):
     :param lengthscale: length scale (kappa).
     :param nu: smoothness parameter of Matérn kernels.
     :param dim: dimension of the hyperbolic space.
-
+    :param shift_laplacian: if true redefines kernel by shifting Laplacian,
+                this makes the Matern's kernels more flexible.
     TODO: reparameterization trick.
     """
     assert B.rank(alpha) == 1
@@ -186,7 +194,10 @@ def sample_mixture_matern(key, alpha, lengthscale, nu, dim):
     assert m >= 0
     dtype = B.dtype(lengthscale)
     js = B.range(dtype, 0, m + 1)
-    gamma = 2 * nu / lengthscale**2 + ((dim - 1) / 2) ** 2
+    if shift_laplacian:
+        gamma = 2 * nu / lengthscale**2
+    else:
+        gamma = 2 * nu / lengthscale**2 + ((dim - 1) / 2) ** 2
 
     # B(x, y) = Gamma(x) Gamma(y) / Gamma(x+y)
     beta = B.exp(
@@ -210,13 +221,15 @@ def sample_mixture_matern(key, alpha, lengthscale, nu, dim):
     return key, s
 
 
-def hyperbolic_density_sample(key, size, params, dim):
+def hyperbolic_density_sample(key, size, params, dim, shift_laplacian=True):
     r"""
     :param key: either `np.random.RandomState`, `tf.random.Generator`,
                 `torch.Generator` or `jax.tensor` (representing random state).
     :param size: shape of the returned sample.
     :param params: params of the kernel.
     :param dim: dimensionality of the space the kernel is defined on.
+    :param shift_laplacian: if true redefines kernel by shifting Laplacian,
+                this makes the Matern's kernels more flexible.
     """
     assert "nu" in params
     assert "lengthscale" in params
@@ -234,7 +247,7 @@ def hyperbolic_density_sample(key, size, params, dim):
         key, sample_mixture_nu_infinite = sample_mixture_heat(key, alpha, L)
         # for nu < np.inf
         key, sample_mixture_nu_finite = sample_mixture_matern(
-            key, alpha, L, safe_nu, dim
+            key, alpha, L, safe_nu, dim, shift_laplacian
         )
 
         return key, B.where(
@@ -257,7 +270,17 @@ def hyperbolic_density_sample(key, size, params, dim):
     return key, B.cast(B.dtype(L), samples)
 
 
-def spd_density_sample(key, size, params, degree, rho):
+def spd_density_sample(key, size, params, degree, rho, shift_laplacian=True):
+    r"""
+    :param key: either `np.random.RandomState`, `tf.random.Generator`,
+                `torch.Generator` or `jax.tensor` (representing random state).
+    :param size: shape of the returned sample.
+    :param params: params of the kernel.
+    :param degree: size of spd matrices.
+    :param rho: `rho` vector of the space.
+    :param shift_laplacian: if true redefines kernel by shifting Laplacian,
+                this makes the Matern's kernels more flexible.
+    """
     nu = params["nu"]
     L = params["lengthscale"]
 
@@ -275,7 +298,10 @@ def spd_density_sample(key, size, params, degree, rho):
         proposal_nu_infinite = eigv / L
 
         # for nu < np.inf
-        eigv_nu_finite = eigv * B.sqrt(2 * safe_nu / L**2 + B.sum(rho**2))
+        if shift_laplacian:
+            eigv_nu_finite = eigv * B.sqrt(2 * safe_nu) / L
+        else:
+            eigv_nu_finite = eigv * B.sqrt(2 * safe_nu / L**2 + B.sum(rho**2))
         # Gamma(nu, 2) distribution is the same as chi2(2nu) distribution
         key, chi2_sample = B.randgamma(key, B.dtype(L), 1, alpha=safe_nu, scale=2)
         chi_sample = B.sqrt(chi2_sample)
