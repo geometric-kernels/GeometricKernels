@@ -72,6 +72,7 @@ instance/
 docs/_build/
 docs/generated/
 docs/autoapi/
+docs/bin
 
 # PyBuilder
 target/
