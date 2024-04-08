@@ -210,3 +210,11 @@ def complex_conj(x: B.Numeric):
     """
     Return complex conjugate
     """
+
+
+@dispatch
+@abstract()
+def is_complex(reference: B.NPNumeric):
+    """
+    Return True if reference of `complex` dtype.
+    """

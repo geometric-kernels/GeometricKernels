@@ -94,6 +94,7 @@ class GPflowGeometricKernel(gpflow.kernels.Kernel):
         if self.trainable_nu and tf.math.is_inf(nu):
             raise ValueError("Cannot have trainable `nu` parameter with infinite value")
 
+        self.nu: Union[float, TensorType, np.ndarray, gpflow.Parameter]
         if self.trainable_nu:
             self.nu = gpflow.Parameter(nu, transform=positive())
         else:

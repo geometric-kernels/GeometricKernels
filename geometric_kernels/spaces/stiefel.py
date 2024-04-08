@@ -70,11 +70,21 @@ class Stiefel(CompactHomogeneousSpace):
         G = SpecialOrthogonal(n)
         key, samples_H = H.random(key, average_order)
         new_space = super().__new__(cls)
-        new_space.__init__(G=G, H=H, samples_H=samples_H, average_order=average_order)
-        new_space.n = n
-        new_space.m = m
-        new_space.dim = G.dim - H.dim
+        new_space.__init__(G=G, H=H, samples_H=samples_H, average_order=average_order, n=n, m=m)  # type: ignore
         return key, new_space
+
+    def __init__(
+        self,
+        G: SpecialOrthogonal,
+        H: SpecialOrthogonal,
+        samples_H: B.Numeric,
+        average_order: int,
+        n: int,
+        m: int,
+    ):
+        super().__init__(G=G, H=H, samples_H=samples_H, average_order=average_order)
+        self.n = n
+        self.m = m
 
     def project_to_manifold(self, g):
         """

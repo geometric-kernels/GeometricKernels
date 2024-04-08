@@ -288,6 +288,7 @@ class MaternGeometricKernel:
            **must** be provided in kwargs.
         """
 
+        kernel: BaseGeometricKernel
         if isinstance(space, DiscreteSpectrumSpace):
             num = num or default_num(space)
             kernel = MaternKarhunenLoeveKernel(space, num, normalize=normalize)

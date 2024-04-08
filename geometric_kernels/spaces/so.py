@@ -8,7 +8,6 @@ import json
 import math
 import operator
 from functools import reduce
-from pathlib import Path
 
 import lab as B
 import numpy as np
@@ -20,7 +19,11 @@ from geometric_kernels.spaces.lie_groups import (
     MatrixLieGroup,
     WeylAdditionTheorem,
 )
-from geometric_kernels.utils.utils import chain, fixed_length_partitions
+from geometric_kernels.utils.utils import (
+    chain,
+    fixed_length_partitions,
+    get_resource_file_path,
+)
 
 
 class SOEigenfunctions(WeylAdditionTheorem):
@@ -164,21 +167,21 @@ class SOCharacter(LieGroupCharacter):
 
     def _load(self):
         group_name = "SO({})".format(self.n)
-        file_path = Path(__file__).with_name("precomputed_characters.json")
-        with file_path.open("r") as file:
-            character_formulas = json.load(file)
-            try:
-                cs, ms = character_formulas[group_name][str(self.signature)]
-                coeffs, monoms = (np.array(data) for data in (cs, ms))
-                return coeffs, monoms
-            except KeyError as e:
-                raise KeyError(
-                    "Unable to retrieve character parameters for signature {} of {}, "
-                    "perhaps it is not precomputed."
-                    "Run compute_characters.py with changed parameters.".format(
-                        e.args[0], group_name
-                    )
-                ) from None
+        with get_resource_file_path("precomputed_characters.json") as file_path:
+            with file_path.open("r") as file:
+                character_formulas = json.load(file)
+                try:
+                    cs, ms = character_formulas[group_name][str(self.signature)]
+                    coeffs, monoms = (np.array(data) for data in (cs, ms))
+                    return coeffs, monoms
+                except KeyError as e:
+                    raise KeyError(
+                        "Unable to retrieve character parameters for signature {} of {}, "
+                        "perhaps it is not precomputed."
+                        "Run compute_characters.py with changed parameters.".format(
+                            e.args[0], group_name
+                        )
+                    ) from None
 
     def __call__(self, gammas):
         char_val = B.zeros(B.dtype(gammas), *gammas.shape[:-1])
@@ -210,6 +213,10 @@ class SpecialOrthogonal(MatrixLieGroup):
         self.dim = n * (n - 1) // 2
         self.rank = n // 2
         super().__init__()
+
+    @property
+    def dimension(self) -> int:
+        return self.dim
 
     def inverse(self, X: B.Numeric) -> B.Numeric:
         return B.transpose(X)
