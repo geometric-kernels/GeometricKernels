@@ -2,8 +2,8 @@
 GPJax kernel wrapper.
 
 A tutorial on how to use this wrapper to run Gaussian process regression on
-a geometric space is available in the `frontends/GPJax.ipynb <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/frontends/GPJax.ipynb>`_
-notebook.
+a geometric space is available in the
+:doc:`frontends/GPJax.ipynb </examples/frontends/GPJax>` notebook.
 """
 
 from dataclasses import dataclass
@@ -18,11 +18,12 @@ from gpjax.typing import Array, ScalarFloat
 from jaxtyping import Float, Num
 
 from geometric_kernels.kernels import BaseGeometricKernel
+from geometric_kernels.spaces import Space
 
 Kernel = TypeVar("Kernel", bound="gpjax.kernels.base.AbstractKernel")  # noqa: F821
 
 
-class GeometricKernelComputation(gpjax.kernels.computations.AbstractKernelComputation):
+class _GeometricKernelComputation(gpjax.kernels.computations.AbstractKernelComputation):
     """
     A class for computing the covariance matrix of a geometric kernel.
     """
@@ -34,7 +35,8 @@ class GeometricKernelComputation(gpjax.kernels.computations.AbstractKernelComput
         y: Float[Array, "M #D1 D2"],  # noqa: F821
     ) -> Float[Array, "N M"]:
         """
-        Compute the cross covariance matrix between two matrices of inputs.
+        Compute the cross covariance matrix between two batches of vectors (or
+        batches of matrices) of inputs.
 
         :param x: A batch of N inputs, each of which is a matrix of size D1xD2,
               or a vector of size D2 if D1 is absent.
@@ -49,11 +51,11 @@ class GeometricKernelComputation(gpjax.kernels.computations.AbstractKernelComput
 @dataclass
 class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
     r"""
-    GPJax wrapper for :class:`BaseGeometricKernel`.
+    GPJax wrapper for :class:`~.kernels.BaseGeometricKernel`.
 
     A tutorial on how to use this wrapper to run Gaussian process regression on
-    a geometric space is available in the `frontends/GPJax.ipynb <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/frontends/GPJax.ipynb>`_
-    notebook.
+    a geometric space is available in the
+    :doc:`frontends/GPJax.ipynb </examples/frontends/GPJax>` notebook.
 
     **Note**: remember that the `base_kernel` itself does not store any of its
     hyperparameters (like `lengthscale` and `nu`). If you do not set them
@@ -101,7 +103,7 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
     variance: ScalarFloat = param_field(jnp.array(1.0), bijector=tfb.Softplus())
     base_kernel: BaseGeometricKernel = static_field(None)
     compute_engine: AbstractKernelComputation = static_field(
-        GeometricKernelComputation(), repr=False
+        _GeometricKernelComputation(), repr=False
     )
     name: str = "Geometric Kernel"
 
@@ -117,11 +119,17 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
         if self.lengthscale is None:
             self.lengthscale = jnp.array(default_params["lengthscale"])
 
+    @property
+    def space(self) -> Space:
+        r"""Alias to the `base_kernel`\ s space property."""
+        return self.base_kernel.space
+
     def __call__(
         self, x: Num[Array, "N #D1 D2"], y: Num[Array, "M #D1 D2"]  # noqa: F821
     ) -> Float[Array, "N M"]:
         """
-        Compute the cross covariance matrix between two matrices of inputs.
+        Compute the cross covariance matrix between two batches of vectors (or
+        batches of matrices) of inputs.
 
         :param x: A batch of N inputs, each of which is a matrix of size D1xD2,
               or a vector of size D2 if D1 is absent.
