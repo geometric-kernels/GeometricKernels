@@ -49,11 +49,11 @@ def default_feature_map(
             raise ValueError(
                 "When kernel is provided, space and num must be omitted or set to None"
             )
-        return feature_map_from_kernel(kernel)
+        return feature_map_from_kernel(kernel)  # type: ignore[call-overload]
     elif space is not None:
         if num is None:
-            num = default_num(space)
-        return feature_map_from_space(space, num)
+            num = default_num(space)  # type: ignore[call-overload]
+        return feature_map_from_space(space, num)  # type: ignore[call-overload]
     else:
         raise ValueError(
             "Either kernel or space must be provided and be different from None"
@@ -62,9 +62,7 @@ def default_feature_map(
 
 @overload
 def feature_map_from_kernel(kernel: MaternKarhunenLoeveKernel):
-    if isinstance(kernel.space, MatrixLieGroup) or isinstance(
-        kernel.space, CompactHomogeneousSpace
-    ):
+    if isinstance(kernel.space, (MatrixLieGroup, CompactHomogeneousSpace)):
         # Because `MatrixLieGroup` and `CompactHomogeneousSpace` do not
         # currently support explicit eigenfunction computation (they
         # only support addition theorem).
@@ -113,36 +111,22 @@ def feature_map_from_kernel(kernel: BaseGeometricKernel):
 
 @overload
 def feature_map_from_space(space: DiscreteSpectrumSpace, num: int):
-    return DeterministicFeatureMapCompact(space, num)
-
-
-@overload
-def feature_map_from_space(space: MatrixLieGroup, num: int):
-    return RandomPhaseFeatureMapCompact(
-        space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
-    )
-
-
-@overload
-def feature_map_from_space(space: CompactHomogeneousSpace, num: int):
-    return RandomPhaseFeatureMapCompact(
-        space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
-    )
+    if isinstance(space, (MatrixLieGroup, CompactHomogeneousSpace)):
+        return RandomPhaseFeatureMapCompact(
+            space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
+        )
+    else:
+        return DeterministicFeatureMapCompact(space, num)
 
 
 @overload
 def feature_map_from_space(space: NoncompactSymmetricSpace, num: int):
-    return RandomPhaseFeatureMapNoncompact(space, num)
-
-
-@overload
-def feature_map_from_space(space: Hyperbolic, num: int):
-    return RejectionSamplingFeatureMapHyperbolic(space, num)
-
-
-@overload
-def feature_map_from_space(space: SymmetricPositiveDefiniteMatrices, num: int):
-    return RejectionSamplingFeatureMapSPD(space, num)
+    if isinstance(space, Hyperbolic):
+        return RejectionSamplingFeatureMapHyperbolic(space, num)
+    elif isinstance(space, SymmetricPositiveDefiniteMatrices):
+        return RejectionSamplingFeatureMapSPD(space, num)
+    else:
+        return RandomPhaseFeatureMapNoncompact(space, num)
 
 
 @dispatch
@@ -176,28 +160,15 @@ def feature_map_from_space(space: Space, num: int):
 
 
 @overload
-def default_num(space: Mesh):
-    return min(MaternGeometricKernel._DEFAULT_NUM_EIGENFUNCTIONS, space.num_vertices)
-
-
-@overload
-def default_num(space: Graph):
-    return min(MaternGeometricKernel._DEFAULT_NUM_EIGENFUNCTIONS, space.num_vertices)
-
-
-@overload
 def default_num(space: DiscreteSpectrumSpace):
-    return MaternGeometricKernel._DEFAULT_NUM_LEVELS
-
-
-@overload
-def default_num(space: MatrixLieGroup):
-    return MaternGeometricKernel._DEFAULT_NUM_LEVELS_LIE_GROUP
-
-
-@overload
-def default_num(space: CompactHomogeneousSpace):
-    return MaternGeometricKernel._DEFAULT_NUM_LEVELS_LIE_GROUP
+    if isinstance(space, (MatrixLieGroup, CompactHomogeneousSpace)):
+        return MaternGeometricKernel._DEFAULT_NUM_LEVELS_LIE_GROUP
+    elif isinstance(space, (Graph, Mesh)):
+        return min(
+            MaternGeometricKernel._DEFAULT_NUM_EIGENFUNCTIONS, space.num_vertices
+        )
+    else:
+        return MaternGeometricKernel._DEFAULT_NUM_LEVELS
 
 
 @overload
