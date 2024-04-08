@@ -1,8 +1,9 @@
 import lab as B
 import scipy
 import scipy.sparse as sp
+from beartype.typing import Union
 from lab import dispatch
-from plum import Signature, Union
+from plum import Signature
 
 from .extras import _Numeric
 
@@ -73,7 +74,8 @@ def pinv(a: Union[SparseArray]):
         return a
 
 
-_SparseArray = Signature(SparseArray)
+# putting "ignore" here for now, seems like some plum/typing issue
+_SparseArray = Signature(SparseArray)  # type: ignore
 
 B.T.register(lambda a: a.T, _SparseArray)
 B.shape.register(lambda a: a.shape, _SparseArray)

@@ -5,12 +5,12 @@ kernel for discrete spectrum spaces, subclasses of :class:`DiscreteSpectrumSpace
 
 import lab as B
 import numpy as np
+from beartype.typing import Optional
 
 from geometric_kernels.kernels.base import BaseGeometricKernel
 from geometric_kernels.lab_extras import from_numpy, is_complex
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
-from geometric_kernels.utils.utils import Optional
 
 
 class MaternKarhunenLoeveKernel(BaseGeometricKernel):

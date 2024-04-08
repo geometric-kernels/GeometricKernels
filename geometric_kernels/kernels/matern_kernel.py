@@ -60,7 +60,7 @@ def default_feature_map(
         )
 
 
-@dispatch
+@dispatch  # type: ignore[no-redef]
 def feature_map_from_kernel(kernel: MaternKarhunenLoeveKernel):
     if isinstance(kernel.space, MatrixLieGroup) or isinstance(
         kernel.space, CompactHomogeneousSpace
@@ -77,71 +77,71 @@ def feature_map_from_kernel(kernel: MaternKarhunenLoeveKernel):
         return DeterministicFeatureMapCompact(kernel.space, kernel.num_levels)
 
 
-@dispatch
+@dispatch  # type: ignore[no-redef]
 def feature_map_from_kernel(kernel: MaternFeatureMapKernel):
     return kernel.feature_map
 
 
-@dispatch
+@dispatch  # type: ignore[no-redef]
 def feature_map_from_space(space: DiscreteSpectrumSpace, num: int):
     return DeterministicFeatureMapCompact(space, num)
 
 
-@dispatch
+@dispatch  # type: ignore[no-redef]
 def feature_map_from_space(space: MatrixLieGroup, num: int):
     return RandomPhaseFeatureMapCompact(
         space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
     )
 
 
-@dispatch
+@dispatch  # type: ignore[no-redef]
 def feature_map_from_space(space: CompactHomogeneousSpace, num: int):
     return RandomPhaseFeatureMapCompact(
         space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
     )
 
 
-@dispatch
+@dispatch  # type: ignore[no-redef]
 def feature_map_from_space(space: NoncompactSymmetricSpace, num: int):
     return RandomPhaseFeatureMapNoncompact(space, num)
 
 
-@dispatch
+@dispatch  # type: ignore[no-redef]
 def feature_map_from_space(space: Hyperbolic, num: int):
     return RejectionSamplingFeatureMapHyperbolic(space, num)
 
 
-@dispatch
+@dispatch  # type: ignore[no-redef]
 def feature_map_from_space(space: SymmetricPositiveDefiniteMatrices, num: int):
     return RejectionSamplingFeatureMapSPD(space, num)
 
 
-@dispatch
+@dispatch  # type: ignore[no-redef]
 def default_num(space: Mesh):
     return min(MaternGeometricKernel._DEFAULT_NUM_EIGENFUNCTIONS, space.num_vertices)
 
 
-@dispatch
+@dispatch  # type: ignore[no-redef]
 def default_num(space: Graph):
     return min(MaternGeometricKernel._DEFAULT_NUM_EIGENFUNCTIONS, space.num_vertices)
 
 
-@dispatch
+@dispatch  # type: ignore[no-redef]
 def default_num(space: DiscreteSpectrumSpace):
     return MaternGeometricKernel._DEFAULT_NUM_LEVELS
 
 
-@dispatch
+@dispatch  # type: ignore[no-redef]
 def default_num(space: MatrixLieGroup):
     return MaternGeometricKernel._DEFAULT_NUM_LEVELS_LIE_GROUP
 
 
-@dispatch
+@dispatch  # type: ignore[no-redef]
 def default_num(space: CompactHomogeneousSpace):
     return MaternGeometricKernel._DEFAULT_NUM_LEVELS_LIE_GROUP
 
 
-@dispatch
+@dispatch  # type: ignore[no-redef]
 def default_num(space: NoncompactSymmetricSpace):
     return MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
 
@@ -201,6 +201,7 @@ class MaternGeometricKernel:
            **must** be provided in kwargs.
         """
 
+        kernel: BaseGeometricKernel
         if isinstance(space, DiscreteSpectrumSpace):
             num = num or default_num(space)
             kernel = MaternKarhunenLoeveKernel(space, num, normalize=normalize)
