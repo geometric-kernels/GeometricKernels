@@ -128,7 +128,7 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
         self, x: Num[Array, "N #D1 D2"], y: Num[Array, "M #D1 D2"]  # noqa: F821
     ) -> Float[Array, "N M"]:
         """
-        Compute the cross covariance matrix between two batches of vectors (or
+        Compute the cross-covariance matrix between two batches of vectors (or
         batches of matrices) of inputs.
 
         :param x: A batch of N inputs, each of which is a matrix of size D1xD2,
@@ -136,7 +136,7 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
         :param y: A batch of M inputs, each of which is a matrix of size D1xD2,
               or a vector of size D2 if D1 is absent.
 
-        :return: The N x M covariance matrix.
+        :return: The N x M cross-covariance matrix.
         """
         return self.variance * self.base_kernel.K(
             {"lengthscale": self.lengthscale, "nu": self.nu}, x, y
