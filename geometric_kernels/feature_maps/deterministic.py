@@ -55,7 +55,7 @@ class DeterministicFeatureMapCompact(FeatureMap):
            first element may be an updated random key.
         """
         spectrum = self.kernel._spectrum(
-            self.repeated_eigenvalues**0.5,
+            self.repeated_eigenvalues,
             nu=params["nu"],
             lengthscale=params["lengthscale"],
         )

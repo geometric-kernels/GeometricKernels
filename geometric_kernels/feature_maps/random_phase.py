@@ -87,7 +87,7 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
         eigenvalues = self.kernel.eigenvalues_laplacian
 
         spectrum = self.kernel._spectrum(
-            eigenvalues**0.5,
+            eigenvalues,
             nu=params["nu"],
             lengthscale=params["lengthscale"],
         )
