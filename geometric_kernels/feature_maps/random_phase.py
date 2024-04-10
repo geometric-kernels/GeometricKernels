@@ -18,7 +18,7 @@ from beartype.typing import Dict, Optional, Tuple
 from geometric_kernels.feature_maps.base import FeatureMap
 from geometric_kernels.feature_maps.probability_densities import base_density_sample
 from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
-from geometric_kernels.lab_extras import dtype_complex, from_numpy, is_complex
+from geometric_kernels.lab_extras import complex_like, from_numpy, is_complex
 from geometric_kernels.spaces import DiscreteSpectrumSpace, NoncompactSymmetricSpace
 
 
@@ -93,7 +93,7 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
         )
 
         if is_complex(X):
-            dtype = dtype_complex(params["lengthscale"])
+            dtype = complex_like(params["lengthscale"])
         else:
             dtype = B.dtype(params["lengthscale"])
 

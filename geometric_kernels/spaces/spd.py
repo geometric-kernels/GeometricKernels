@@ -6,8 +6,8 @@ import geomstats as gs
 import lab as B
 
 from geometric_kernels.lab_extras import (
+    complex_like,
     create_complex,
-    dtype_complex,
     dtype_double,
     from_numpy,
     qr,
@@ -90,11 +90,11 @@ class SymmetricPositiveDefiniteMatrices(
         Q, R = qr(gh)
 
         u = B.abs(B.diag_extract(R))
-        logu = B.cast(dtype_complex(R), B.log(u))
+        logu = B.cast(complex_like(R), B.log(u))
         exponent = create_complex(from_numpy(lam, self.rho), lam)  # [..., D]
         logpower = logu * exponent  # [..., D]
         logproduct = B.sum(logpower, axis=-1)  # [...,]
-        logproduct = B.cast(dtype_complex(lam), logproduct)
+        logproduct = B.cast(complex_like(lam), logproduct)
         return B.exp(logproduct)
 
     def random(self, key, number):

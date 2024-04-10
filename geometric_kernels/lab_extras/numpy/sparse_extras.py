@@ -37,7 +37,8 @@ def degree(a: SparseArray):  # type: ignore
 @dispatch
 def eigenpairs(L: Union[SparseArray, _Numeric], k: int):
     """
-    Obtain the k highest eigenpairs of a symmetric PSD matrix L.
+    Obtain the eigenpairs that correspond to the `k` lowest eigenvalues
+    of a symmetric positive semi-definite matrix `L`.
     """
     if sp.issparse(L) and (k == L.shape[0]):
         L = L.toarray()

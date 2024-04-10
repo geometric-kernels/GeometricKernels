@@ -20,7 +20,7 @@ import abc
 import lab as B
 from opt_einsum import contract as einsum
 
-from geometric_kernels.lab_extras import dtype_complex, is_complex
+from geometric_kernels.lab_extras import complex_like, is_complex
 from geometric_kernels.utils.utils import Optional
 
 
@@ -177,9 +177,7 @@ class EigenfunctionWithAdditionTheorem(Eigenfunctions):
         )  # [N, N2, L]
 
         if is_complex(sum_phi_phi_for_level):
-            sum_phi_phi_for_level = B.cast(
-                dtype_complex(weights), sum_phi_phi_for_level
-            )
+            sum_phi_phi_for_level = B.cast(complex_like(weights), sum_phi_phi_for_level)
         else:
             sum_phi_phi_for_level = B.cast(B.dtype(weights), sum_phi_phi_for_level)
 

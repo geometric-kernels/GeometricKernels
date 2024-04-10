@@ -64,7 +64,8 @@ def degree(a: B.TFNumeric):  # type: ignore
 @dispatch
 def eigenpairs(L: B.TFNumeric, k: int):
     """
-    Obtain the k highest eigenpairs of a symmetric PSD matrix L.
+    Obtain the eigenpairs that correspond to the `k` lowest eigenvalues
+    of a symmetric positive semi-definite matrix `L`.
     """
     l, u = tf.linalg.eigh(L)
     return l[:k], u[:, :k]
@@ -115,8 +116,6 @@ def get_random_state(key: B.TFRandomState):
     Return the random state of a random generator.
 
     :param key: the random generator of type `B.TFRandomState`.
-
-    :return: the random state of the random generator.
     """
     return tf.identity(key.state), key.algorithm
 
@@ -124,12 +123,11 @@ def get_random_state(key: B.TFRandomState):
 @dispatch
 def restore_random_state(key: B.TFRandomState, state):
     """
-    Set the random state of a random generator.
+    Set the random state of a random generator. Return the new random
+    generator with state `state`.
 
     :param key: the random generator.
     :param state: the new random state of the random generator of type `B.TFRandomState`.
-
-    :return: the new random generator with state `state`.
     """
     gen = tf.random.Generator.from_state(state=tf.identity(state[0]), alg=state[1])
     return gen
@@ -138,18 +136,17 @@ def restore_random_state(key: B.TFRandomState, state):
 @dispatch
 def create_complex(real: _Numeric, imag: B.TFNumeric):
     """
-    Returns a complex number with the given real and imaginary parts using tensorflow.
+    Return a complex number with the given real and imaginary parts using tensorflow.
 
     :param real: float, real part of the complex number.
     :param imag: float, imaginary part of the complex number.
-    :return: complex, a complex number with the given real and imaginary parts.
     """
     complex_num = tf.complex(B.cast(B.dtype(imag), from_numpy(imag, real)), imag)
     return complex_num
 
 
 @dispatch
-def dtype_complex(reference: B.TFNumeric):
+def complex_like(reference: B.TFNumeric):
     """
     Return `complex` dtype of a backend based on the reference.
     """

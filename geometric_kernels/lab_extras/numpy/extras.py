@@ -95,8 +95,6 @@ def get_random_state(key: B.NPRandomState):
     Return the random state of a random generator.
 
     :param key: the random generator of type `B.NPRandomState`.
-
-    :return: the random state of the random generator.
     """
     return key.get_state()
 
@@ -104,12 +102,11 @@ def get_random_state(key: B.NPRandomState):
 @dispatch
 def restore_random_state(key: B.NPRandomState, state):
     """
-    Set the random state of a random generator.
+    Set the random state of a random generator. Return the new random
+    generator with state `state`.
 
     :param key: the random generator of type `B.NPRandomState`.
     :param state: the new random state of the random generator.
-
-    :return: the new random generator with state `state`.
     """
     gen = np.random.RandomState()
     gen.set_state(state)
@@ -119,18 +116,17 @@ def restore_random_state(key: B.NPRandomState, state):
 @dispatch
 def create_complex(real: _Numeric, imag: _Numeric):
     """
-    Returns a complex number with the given real and imaginary parts using numpy.
+    Return a complex number with the given real and imaginary parts using numpy.
 
     :param real: float, real part of the complex number.
     :param imag: float, imaginary part of the complex number.
-    :return: complex, a complex number with the given real and imaginary parts.
     """
     complex_num = real + 1j * imag
     return complex_num
 
 
 @dispatch
-def dtype_complex(reference: B.NPNumeric):
+def complex_like(reference: B.NPNumeric):
     """
     Return `complex` dtype of a backend based on the reference.
     """

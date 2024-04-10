@@ -8,14 +8,10 @@ from beartype.typing import Optional
 from opt_einsum import contract as einsum
 
 from geometric_kernels.lab_extras import (
-    cosh,
+    complex_like,
     create_complex,
-    dtype_complex,
     dtype_double,
     from_numpy,
-    logspace,
-    sinh,
-    trapz,
 )
 from geometric_kernels.spaces.base import NoncompactSymmetricSpace
 
@@ -133,7 +129,7 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
         numerator = B.log(1.0 - B.sum(g_poincare**2, axis=-1))
         exponent = create_complex(self.rho[0], -1 * B.abs(lam))  # rho is 1-d
         log_out = (
-            B.cast(dtype_complex(lam), (numerator - denominator)) * exponent
+            B.cast(complex_like(lam), (numerator - denominator)) * exponent
         )  # [N1, ..., Nk]
         out = B.exp(log_out)
         return out
@@ -161,77 +157,6 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
         key, x = B.randn(key, dtype_double(key), *num, self.dimension)
         x = x / B.sqrt(B.sum(x**2, axis=-1, squeeze=False))
         return key, x
-
-    def heat_kernel(
-        self, distance: B.Numeric, t: B.Numeric, num_points: int = 100
-    ) -> B.Numeric:
-        """
-        Compute the heat kernel associated with the space.
-
-        We use Millson's formula for the heat kernel.
-
-        References:
-            [1] A. Grigoryan and M. Noguchi,
-            The heat kernel on hyperbolic space.
-            Bulletin of the London Mathematical Society, 30(6):643–650, 1998.
-
-        :param distance: precomputed distance between the inputs
-        :param t: heat kernel lengthscale
-        :param num_points: number of points in the integral
-        :return: heat kernel values
-        """
-        if self.dimension == 1:
-            heat_kernel = B.exp(
-                -B.power(distance[..., None], 2) / (4 * t)
-            )  # (..., N1, N2, T)
-
-        elif self.dimension == 2:
-            expanded_distance = B.expand_dims(
-                B.expand_dims(distance, -1), -1
-            )  # (... N1, N2) -> (..., N1, N2, 1, 1)
-
-            # TODO: the behavior of this kernel is not so stable around zero distance
-            # due to the division in the computation of the integral value and
-            # depends on the start of the s_vals interval
-            s_vals = (
-                B.cast(
-                    B.dtype(expanded_distance),
-                    from_numpy(
-                        expanded_distance,
-                        logspace(
-                            B.log(1e-2), B.log(100.0), num_points, base=B.exp(1.0)
-                        ),
-                    ),
-                )
-                + expanded_distance
-            )  # (..., N1, N2, 1, S)
-            reshape = [1] * B.rank(s_vals)
-            reshape[-2] = B.shape(t)[-1]
-            s_vals = B.tile(s_vals, *reshape)  # (N1, N2, T, S)
-            integral_vals = (
-                s_vals
-                * B.exp(-(s_vals**2) / (4 * t[:, None]))
-                / B.sqrt(cosh(s_vals) - cosh(expanded_distance))
-            )  # (..., N1, N2, T, S)
-
-            integral_vals = B.cast(B.dtype(s_vals), integral_vals)
-
-            heat_kernel = trapz(integral_vals, s_vals, axis=-1)  # (..., N1, N2, T)
-
-        elif self.dimension == 3:
-            heat_kernel = B.exp(
-                -B.power(distance[..., None], 2) / (4 * t)
-            )  # (..., N1, N2, T)
-            heat_kernel = (
-                heat_kernel
-                * (distance[..., None] + 1e-8)
-                / sinh(distance[..., None] + 1e-8)
-            )  # Adding 1e-8 avoids numerical issues around d=0
-
-        else:
-            raise NotImplementedError
-
-        return heat_kernel
 
     def random(self, key, number):
         """

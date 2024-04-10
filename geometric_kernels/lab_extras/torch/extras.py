@@ -68,8 +68,11 @@ def degree(a: B.TorchNumeric):  # type: ignore
 @dispatch
 def eigenpairs(L: B.TorchNumeric, k: int):
     """
-    Obtain the k highest eigenpairs of a symmetric PSD matrix L.
-    TODO(AR): Replace with torch.lobpcg after sparse matrices are supported by torch.
+    Obtain the eigenpairs that correspond to the `k` lowest eigenvalues
+    of a symmetric positive semi-definite matrix `L`.
+
+    TODO(AR): Replace with torch.lobpcg after sparse matrices are supported
+    by torch.
     """
     l, u = torch.linalg.eigh(L)
     return l[:k], u[:, :k]
@@ -120,8 +123,6 @@ def get_random_state(key: B.TorchRandomState):
     Return the random state of a random generator.
 
     :param key: the random generator of type `B.TorchRandomState`.
-
-    :return: the random state of the random generator.
     """
     return key.get_state()
 
@@ -129,12 +130,11 @@ def get_random_state(key: B.TorchRandomState):
 @dispatch
 def restore_random_state(key: B.TorchRandomState, state):
     """
-    Set the random state of a random generator.
+    Set the random state of a random generator. Return the new random
+    generator with state `state`.
 
     :param key: the random generator of type `B.TorchRandomState`.
     :param state: the new random state of the random generator.
-
-    :return: the new random generator with state `state`.
     """
     gen = torch.Generator()
     gen.set_state(state)
@@ -144,18 +144,17 @@ def restore_random_state(key: B.TorchRandomState, state):
 @dispatch
 def create_complex(real: _Numeric, imag: B.TorchNumeric):
     """
-    Returns a complex number with the given real and imaginary parts using pytorch.
+    Return a complex number with the given real and imaginary parts using pytorch.
 
     :param real: float, real part of the complex number.
     :param imag: float, imaginary part of the complex number.
-    :return: complex, a complex number with the given real and imaginary parts.
     """
     complex_num = real + 1j * imag
     return complex_num
 
 
 @dispatch
-def dtype_complex(reference: B.TorchNumeric):
+def complex_like(reference: B.TorchNumeric):
     """
     Return `complex` dtype of a backend based on the reference.
     """
