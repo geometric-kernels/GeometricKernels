@@ -11,7 +11,6 @@ from plum import dispatch, overload
 
 from geometric_kernels.feature_maps import (
     DeterministicFeatureMapCompact,
-    FeatureMap,
     RandomPhaseFeatureMapCompact,
     RandomPhaseFeatureMapNoncompact,
     RejectionSamplingFeatureMapHyperbolic,
