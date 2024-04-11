@@ -95,8 +95,8 @@ def base_density_sample(key, size, params, dim, rho):
     u = B.where(nu == np.inf, u_nu_infinite, u_nu_finite)
 
     scale_nu_infinite = L
-    scale_nu_finite = L / B.sqrt(
-        safe_nu / deg_freedom + B.sum(rho**2) * L**2 / (2 * deg_freedom)
+    scale_nu_finite = B.sqrt(deg_freedom) / B.sqrt(
+        2*safe_nu/L**2 + B.sum(rho**2)
     )
 
     scale = B.where(nu == np.inf, scale_nu_infinite, scale_nu_finite)
