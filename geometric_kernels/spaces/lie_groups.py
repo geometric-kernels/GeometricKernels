@@ -9,10 +9,10 @@ import numpy as np
 from beartype.typing import List
 
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
-from geometric_kernels.spaces.eigenfunctions import EigenfunctionWithAdditionTheorem
+from geometric_kernels.spaces.eigenfunctions import EigenfunctionsWithAdditionTheorem
 
 
-class WeylAdditionTheorem(EigenfunctionWithAdditionTheorem):
+class WeylAdditionTheorem(EigenfunctionsWithAdditionTheorem):
     r"""
     This implements the abstract base class for computing the sums of outer
     products of certain groups (we generally call "levels") of Laplace-Beltrami
@@ -59,9 +59,9 @@ class WeylAdditionTheorem(EigenfunctionWithAdditionTheorem):
         self._eigenvalues = np.array(
             [self._compute_eigenvalue(signature) for signature in self._signatures]
         )
-        self._dimensions = np.array(
-            [self._compute_dimension(signature) for signature in self._signatures]
-        )
+        self._dimensions = [
+            self._compute_dimension(signature) for signature in self._signatures
+        ]
         if compute_characters:
             self._characters = [
                 self._compute_character(n, signature) for signature in self._signatures
@@ -198,9 +198,9 @@ class WeylAdditionTheorem(EigenfunctionWithAdditionTheorem):
         return B.sum(self.num_eigenfunctions_per_level)
 
     @property
-    def num_eigenfunctions_per_level(self) -> B.Numeric:
+    def num_eigenfunctions_per_level(self) -> List[int]:
         """Number of eigenfunctions per level."""
-        return self._dimensions**2
+        return [d**2 for d in self._dimensions]
 
     def __call__(self, X: B.Numeric, **parameters):
         raise NotImplementedError

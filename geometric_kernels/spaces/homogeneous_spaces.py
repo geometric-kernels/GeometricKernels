@@ -9,11 +9,11 @@ import numpy as np
 from opt_einsum import contract as einsum
 
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
-from geometric_kernels.spaces.eigenfunctions import EigenfunctionWithAdditionTheorem
+from geometric_kernels.spaces.eigenfunctions import EigenfunctionsWithAdditionTheorem
 from geometric_kernels.spaces.lie_groups import LieGroupCharacter, MatrixLieGroup
 
 
-class AveragingAdditionTheorem(EigenfunctionWithAdditionTheorem):
+class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
     r"""
     Class corresponding to the sum of outer products of eigenfunctions
     corresponding to the same eigenspace of Laplace-Beltrami operator
@@ -43,7 +43,7 @@ class AveragingAdditionTheorem(EigenfunctionWithAdditionTheorem):
 
         self._signatures = G_eigenfunctions._signatures.copy()
         self._eigenvalues = np.copy(G_eigenfunctions._eigenvalues)
-        self._dimensions = np.copy(G_eigenfunctions._dimensions)
+        self._dimensions = G_eigenfunctions._dimensions.copy()
         self._characters = [
             AveragedLieGroupCharacter(self.average_order, character)
             for character in G_eigenfunctions._characters

@@ -1,5 +1,5 @@
 """
-Spaces on which to define kernels
+Various spaces supported by the library as input domains for kernels.
 """
 
 # noqa: F401

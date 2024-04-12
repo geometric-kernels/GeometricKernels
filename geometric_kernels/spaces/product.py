@@ -7,7 +7,7 @@ import itertools
 
 import lab as B
 import numpy as np
-from beartype.typing import List
+from beartype.typing import List, Optional
 
 from geometric_kernels.lab_extras import from_numpy
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
@@ -157,7 +157,8 @@ class ProductEigenfunctions(Eigenfunctions):
         self.eigenfunctions = eigenfunctions
 
         self.nums_per_level = [
-            eigenfunction.dim_of_eigenspaces for eigenfunction in self.eigenfunctions
+            eigenfunction.num_eigenfunctions_per_level
+            for eigenfunction in self.eigenfunctions
         ]  # [S, L]
 
         self._separate_eigenindices = _per_level_to_separate(
@@ -201,15 +202,15 @@ class ProductEigenfunctions(Eigenfunctions):
         """
         return self.eigenindicies.shape[0]
 
-    def weighted_outerproduct(self, weights, X, X2=None, **parameters):
-        if X2 is None:
-            X2 = X
+    def phi_product(
+        self, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs
+    ) -> B.Numeric:
         Xs = [B.take(X, inds, axis=-1) for inds in self.dimension_indices]
         Xs2 = [B.take(X2, inds, axis=-1) for inds in self.dimension_indices]
 
         phis = B.stack(
             *[
-                eigenfunction.phi_product(X1, X2, **parameters)
+                eigenfunction.phi_product(X1, X2, **kwargs)
                 for eigenfunction, X1, X2 in zip(self.eigenfunctions, Xs, Xs2)
             ],
             axis=-1,
@@ -224,19 +225,14 @@ class ProductEigenfunctions(Eigenfunctions):
             axis=-1
         )  # [N, M, L, S] -> [N, M, L]
 
-        # weights [L, 1]
-        out = B.sum(B.flatten(weights) * prod_phis, axis=-1)  # [N, M, L] -> [N, M]
+        return prod_phis
 
-        return out
-
-    def weighted_outerproduct_diag(
-        self, weights: B.Numeric, X: B.Numeric, **parameters
-    ) -> B.Numeric:
+    def phi_product_diag(self, X: B.Numeric, **kwargs):
         Xs = [B.take(X, inds, axis=-1) for inds in self.dimension_indices]
 
         phis = B.stack(
             *[
-                eigenfunction.phi_product_diag(X1, **parameters)
+                eigenfunction.phi_product_diag(X1, **kwargs)
                 for eigenfunction, X1 in zip(self.eigenfunctions, Xs)
             ],
             axis=-1,
@@ -250,15 +246,10 @@ class ProductEigenfunctions(Eigenfunctions):
             axis=-1
         )  # [N, L, S] -> [N, L]
 
-        out = B.sum(B.flatten(weights) * prod_phis, axis=-1)  # [N, L] -> [N,]
-        return out
+        return prod_phis
 
     @property
-    def num_eigenfunctions_per_level(self):
-        return _total_multiplicities(self.eigenindicies, self.nums_per_level)
-
-    @property
-    def dim_of_eigenspaces(self):
+    def num_eigenfunctions_per_level(self) -> List[int]:
         return _total_multiplicities(self.eigenindicies, self.nums_per_level)
 
 
@@ -278,7 +269,7 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
         Each factor's eigenvalue corresponds to the factor's eigenfunctions (perhaps multiple eigenfunctions):
 
         .. math ::
-            \lambda^{s}_{l_s} \leftrightarrow (\phi^{s}_{l_s, 1}, \ldots, \phi^{s}_{l_s, J_{l_s}})
+            \lambda^{s}_{l_s} \leftrightarrow (f^{s}_{l_s, 1}, \ldots, f^{s}_{l_s, J_{l_s}})
 
         This is referred to as a level.
         Product-space eigenfunctions are products of factors' eigenfunctions within each level.
@@ -359,7 +350,7 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
 
         eigenfunctions = self.get_eigenfunctions(num)
         eigenvalues = self._eigenvalues[:num]
-        multiplicities = eigenfunctions.dim_of_eigenspaces
+        multiplicities = eigenfunctions.num_eigenfunctions_per_level
 
         repeated_eigenvalues = chain(eigenvalues, multiplicities)
         return B.reshape(repeated_eigenvalues, -1, 1)  # [M, 1]

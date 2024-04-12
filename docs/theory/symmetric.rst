@@ -8,13 +8,13 @@
 Theory
 =======
 
-The theory for *non-compact symmetric spaces* (like hyperbolic spaces or manifolds of symmetric positive definite matrices) is quite different from the theory for *discrete spectrum spaces* such as compact manifolds, graphs or meshes.
+The theory for *non-compact symmetric spaces*—like hyperbolic spaces or manifolds of symmetric positive definite matrices (endowed with the affine-invariant metric)—is quite different from the theory for *discrete spectrum spaces* such as compact manifolds, graphs or meshes.
 For the latter, kernels are given by a finite sum or an infinite series and are approximated using *truncation*.
 For the former, kernels are given by integrals and are approximated using *Monte Carlo*.
 
-More specifically, for non-compact symmetric spaces, there exists an analog of the *random Fourier features* technique of `Rahimi and Recht (2007) <https://papers.nips.cc/paper_files/paper/2007/file/013a006f03dbc5392effeb8f18fda755-Paper.pdf>`.
+More specifically, for non-compact symmetric spaces, there exists an analog of the *random Fourier features* technique of `Rahimi and Recht (2007) <https://papers.nips.cc/paper_files/paper/2007/file/013a006f03dbc5392effeb8f18fda755-Paper.pdf>`_.
 In the Euclidean case, closed form expressions for kernels are available and random Fourier features are only used to speed up computations.
-No closed form expressions for kernel are generally available for non-compact symmetric spaces.
+No closed form expressions for kernels are usually available on non-compact symmetric spaces.
 Because of that, random Fourier features are the basic means of computing the kernels in this case.
 
 A complete mathematical treatise can be found in `Azangulov et al. (2023) <https://arxiv.org/abs/2301.13088>`_.
@@ -27,7 +27,7 @@ k(x, x') = \int_{\mathbb{R}^d} S(\lambda) e^{2 \pi i \langle x - x', \rangle} \m
 \lambda_l \sim S(\lambda)
 $$
 where $S(\cdot)$ is the spectral density of the kernel $k$.
-For Matérn kernels, $S(\cdot)$ coincides with the Gaussian density if $\nu = \infty$ and Student $t$ density with $\nu$ degrees of freedom if $\nu < \infty$.
+For Matérn kernels, $S(\cdot)$ coincides with the Gaussian density if $\nu = \infty$ and with the Student's $t$ density with $\nu$ degrees of freedom if $\nu < \infty$.
 
 On a non-compact symmetric space the following holds instead:
 $$
@@ -37,11 +37,11 @@ k(x, x') = \int_{\mathbb{R}^r} S(\lambda) \pi^{(\lambda)}(x, x') c(\lambda)^{-2}
 $$
 The notation here is as follows:
 
-* $r$ is the *rank* of the symmetric space,
+* $r$ is called the *rank* of the symmetric space,
 
 * $\pi^{(\lambda)}$ are called *zonal spherical functions*,
 
-* $c(\lambda)$ is the *Harish-Chandra $c$ function*.
+* $c(\lambda)$ is called the *Harish-Chandra's $c$ function*.
 
 Here, $r$ and $c$ can be computed exactly using algebraic-only considerations.
 On the other hand, $\pi^{(\lambda_l)}(x, x')$ are integrals that require numerical approximation.
@@ -57,10 +57,10 @@ e^{\langle i \lambda + \rho, \,a(h, x')\rangle}}
 e^{\langle i \lambda + \rho, \,a(h_p, x)\rangle}
 \overline{
 e^{\langle i \lambda + \rho, \,a(h_p, x')\rangle}}
-\qquad \qquad
+\qquad
 h_p \sim \mu_H
 $$
-where
+where, this time,
 
 * $\mu_H$ is some measure which is usually easy to sample from,
 
@@ -88,6 +88,9 @@ $$
 k(x, x') \approx \langle \phi(x), \phi(x') \rangle.
 $$
 
-For non-compact symmetric spaces, :class:`MaternGeometricKernel <geometric_kernels.kernels.MaternGeometricKernel>` is an alias to :class:`MaternFeatureMapKernel <geometric_kernels.kernels.MaternFeatureMapKernel>`.
+.. note::
+   Typically, in practice we set $P = 1$.
+
+For non-compact symmetric spaces, :class:`~.kernels.MaternGeometricKernel` is an alias to :class:`~.kernels.MaternFeatureMapKernel`.
 The latter is a kernel defined in terms of feature map just like in the equation above.
-The feature map is exactly the $\phi(\cdot)$ above, implemented as :class:`RejectionSamplingFeatureMapHyperbolic <geometric_kernels.kernels.feature_maps.RejectionSamplingFeatureMapHyperbolic>` for hyperbolic spaces and as :class:`RejectionSamplingFeatureMapSPD <geometric_kernels.kernels.feature_maps.RejectionSamplingFeatureMapSPD>` for manifolds of symmetric positive definite matrices.
+The feature map is exactly the $\phi(\cdot)$ above, implemented as :class:`~.feature_maps.RejectionSamplingFeatureMapHyperbolic` for hyperbolic spaces and as :class:`~.feature_maps.RejectionSamplingFeatureMapSPD` for manifolds of symmetric positive definite matrices.

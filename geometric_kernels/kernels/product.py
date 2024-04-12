@@ -3,7 +3,7 @@ Product of kernels
 """
 
 import lab as B
-from beartype.typing import List, Mapping, Optional
+from beartype.typing import Dict, List, Optional
 
 from geometric_kernels.kernels.base import BaseGeometricKernel
 from geometric_kernels.spaces import Space
@@ -13,11 +13,13 @@ class ProductGeometricKernel(BaseGeometricKernel):
     """
     Basic implementation of product kernels.
 
-    :param kernels: Kernels to compute the product for.
-    :param dimension_indices: List of indices the correspond to the indices of
-        the input that should be fed to each kernel. If None, assume the each
-        kernel takes kernel.space.dimension inputs, and that the input will
-        be a stack of this size.
+    :param kernels:
+        Kernels to construct the product of.
+    :param dimension_indices:
+        List of indices the correspond to the indices of the input that
+        should be fed to each kernel. If None, assume the each kernel
+        takes kernel.space.dimension inputs, and that the input will be
+        a stack of this size.
 
         Defaults to None.
     """
@@ -48,18 +50,18 @@ class ProductGeometricKernel(BaseGeometricKernel):
     @property
     def space(self) -> List[Space]:
         """
-        Returns the list of spaces upon which the factor kernels are defined.
+        The list of spaces upon which the factor kernels are defined.
         """
         return [kernel.space for kernel in self.kernels]
 
-    def init_params(self) -> List[Mapping]:
+    def init_params(self) -> List[Dict[str, B.Numeric]]:
         r"""
         Returns the list of `kernel.init_params()` for all factor `kernel`\ s.
         """
         params = [kernel.init_params() for kernel in self.kernels]
         return params
 
-    def K(self, params: List[Mapping], X, X2=None, **kwargs) -> B.Numeric:
+    def K(self, params: List[Dict[str, B.Numeric]], X, X2=None, **kwargs) -> B.Numeric:
         if X2 is None:
             X2 = X
 

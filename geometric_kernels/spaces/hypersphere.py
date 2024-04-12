@@ -6,7 +6,7 @@ its spectrum, the :class:`SphericalHarmonics` class.
 import geomstats as gs
 import lab as B
 import numpy as np
-from beartype.typing import Tuple
+from beartype.typing import List, Tuple
 from spherical_harmonics import SphericalHarmonics as _SphericalHarmonics
 from spherical_harmonics.fundamental_set import num_harmonics
 
@@ -14,12 +14,12 @@ from geometric_kernels.lab_extras import dtype_double
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import (
     Eigenfunctions,
-    EigenfunctionWithAdditionTheorem,
+    EigenfunctionsWithAdditionTheorem,
 )
 from geometric_kernels.utils.utils import chain
 
 
-class SphericalHarmonics(EigenfunctionWithAdditionTheorem):
+class SphericalHarmonics(EigenfunctionsWithAdditionTheorem):
     """
     Eigenfunctions Laplace-Beltrami operator on the sphere correspond to the
     spherical harmonics.
@@ -133,7 +133,7 @@ class SphericalHarmonics(EigenfunctionWithAdditionTheorem):
         return self._num_levels
 
     @property
-    def num_eigenfunctions_per_level(self) -> B.Numeric:
+    def num_eigenfunctions_per_level(self) -> List[int]:
         """Number of eigenfunctions per level, [N_l]_{l=0}^{L-1}"""
         return [num_harmonics(self.dim + 1, level) for level in range(self.num_levels)]
 

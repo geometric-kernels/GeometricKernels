@@ -9,7 +9,7 @@ from plum import Tuple
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.lab_extras import from_numpy
 from geometric_kernels.spaces.circle import Circle, SinCosEigenfunctions
-from geometric_kernels.spaces.eigenfunctions import EigenfunctionWithAdditionTheorem
+from geometric_kernels.spaces.eigenfunctions import EigenfunctionsWithAdditionTheorem
 from geometric_kernels.utils.utils import chain
 
 
@@ -48,20 +48,20 @@ def _eigenfunctions_fixture():
 
 def test_call_eigenfunctions(
     inputs: Tuple[B.Numeric, B.Numeric],
-    eigenfunctions: EigenfunctionWithAdditionTheorem,
+    eigenfunctions: EigenfunctionsWithAdditionTheorem,
 ):
     inputs, _ = inputs
     output = B.to_numpy(eigenfunctions(inputs))
     assert output.shape == (Consts.num_data, eigenfunctions.num_eigenfunctions)
 
 
-def test_eigenfunctions_shape(eigenfunctions: EigenfunctionWithAdditionTheorem):
+def test_eigenfunctions_shape(eigenfunctions: EigenfunctionsWithAdditionTheorem):
     num_eigenfunctions_manual = np.sum(eigenfunctions.num_eigenfunctions_per_level)
     assert num_eigenfunctions_manual == eigenfunctions.num_eigenfunctions
     assert len(eigenfunctions.num_eigenfunctions_per_level) == eigenfunctions.num_levels
 
 
-def test_orthonormality(eigenfunctions: EigenfunctionWithAdditionTheorem):
+def test_orthonormality(eigenfunctions: EigenfunctionsWithAdditionTheorem):
     theta = np.linspace(-np.pi, np.pi, 5_000).reshape(-1, 1)  # [N, 1]
     phi = B.to_numpy(eigenfunctions(theta))
     phiT_phi = (phi.T @ phi) * 2 * np.pi / phi.shape[0]
@@ -72,17 +72,8 @@ def test_orthonormality(eigenfunctions: EigenfunctionWithAdditionTheorem):
     )
 
 
-def test_filter_weights(eigenfunctions: EigenfunctionWithAdditionTheorem):
-    weights_per_level = np.random.randn(eigenfunctions.num_levels)
-    weights = chain(weights_per_level, eigenfunctions.num_eigenfunctions_per_level)
-    assert len(B.to_numpy(weights)) == eigenfunctions.num_eigenfunctions
-    np.testing.assert_array_equal(
-        weights_per_level, B.to_numpy(eigenfunctions._filter_weights(weights)).flatten()
-    )
-
-
 def test_weighted_outerproduct_with_addition_theorem(
-    inputs, eigenfunctions: EigenfunctionWithAdditionTheorem
+    inputs, eigenfunctions: EigenfunctionsWithAdditionTheorem
 ):
     """
     Eigenfunction will use addition theorem to compute outerproduct. We compare against the
@@ -103,7 +94,7 @@ def test_weighted_outerproduct_with_addition_theorem(
 
 
 def test_weighted_outerproduct_with_addition_theorem_same_input(
-    inputs, eigenfunctions: EigenfunctionWithAdditionTheorem
+    inputs, eigenfunctions: EigenfunctionsWithAdditionTheorem
 ):
     """
     Eigenfunction will use addition theorem to compute outerproduct. We compare against the
@@ -118,7 +109,7 @@ def test_weighted_outerproduct_with_addition_theorem_same_input(
 
 
 def test_weighted_outerproduct_diag_with_addition_theorem(
-    inputs, eigenfunctions: EigenfunctionWithAdditionTheorem
+    inputs, eigenfunctions: EigenfunctionsWithAdditionTheorem
 ):
     """
     Eigenfunction will use addition theorem to compute outerproduct. We compare against the

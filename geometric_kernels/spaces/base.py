@@ -1,75 +1,130 @@
 """
-Abstract base interface for GeometricKernels spaces.
+Abstract base classes for all spaces (input domains) in the library.
 """
 
 import abc
 
 import lab as B
 
-from geometric_kernels.lab_extras import take_along_axis
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 
 
 class Space(abc.ABC):
     """
-    Object representing a space on which a kernel can be defined.
+    A space (input domain) on which a geometric kernel can be defined.
     """
 
     @abc.abstractproperty
     def dimension(self) -> int:
         """
-        Dimension of the manifold
+        Geometric dimension of the space.
 
         Examples:
 
-        * circle: 1 dimensional
-        * sphere: 2 dimensional
-        * torus: 2 dimensional
+        * :class:`~.spaces.Graph`: 0-dimensional.
+        * :class:`~.spaces.Circle`: 1-dimensional.
+        * :class:`~.spaces.Hypersphere`: d-dimensional, with d >= 2.
+        * :class:`~.spaces.Hyperbolic`: d-dimensional, with d >= 2.
         """
         raise NotImplementedError
 
 
 class DiscreteSpectrumSpace(Space):
     r"""
-    A Space for which we can obtain the eigenvalues and eigenfunctions of
-    the Laplace-Beltrami operator.
+    A Space with discrete spectrum (of the Laplacian operator).
 
-    Examples includes `Graph`\s, `Manifold`\s and `Mesh`\es.
+    This includes, for instance, compact Riemannian manifolds, graphs & meshes.
+
+    Subclasses implement routines for computing the eigenvalues and
+    eigenfunctions of the Laplacian operator, or certain combinations thereof.
+    Since there is often an infinite or a prohibitively large number of those,
+    they only compute a finite subset, consisting of the ones that are most
+    important for approximating the intractable Matérn kernel best.
+
+    .. note::
+        See a brief introduction into the theory behind the geometric
+        kernels on discrete spectrum spaces on the documentation pages devoted
+        to :doc:`compact Riemannian manifolds </theory/compact>` (also
+        :doc:`this </theory/addition_theorem>`), :doc:`graphs
+        </theory/graphs>` and :doc:`meshes </theory/meshes>`.
+
+    .. note::
+        Typically used with :class:`~.kernels.MaternKarhunenLoeveKernel`.
+
     """
+
+    @abc.abstractproperty
+    def dimension(self) -> int:
+        """
+        Geometric dimension of the space.
+
+        Examples:
+
+        * :class:`~.spaces.Graph`: 0-dimensional.
+        * :class:`~.spaces.Circle`: 1-dimensional.
+        * :class:`~.spaces.Hypersphere`: d-dimensional, with d >= 2.
+        """
+        raise NotImplementedError
 
     @abc.abstractmethod
     def get_eigenfunctions(self, num: int) -> Eigenfunctions:
         """
-        Eigenfunctions of the Laplace-Beltrami operator corresponding
-        to the first `num` levels.
+        Returns the :class:`~.Eigenfunctions` object with `num` levels.
+
+        :param num:
+            Number of levels.
+
+        .. note::
+            The *levels* are defined in the documentation of the
+            :class:`~.kernels.MaternKarhunenLoeveKernel`.
         """
         raise NotImplementedError
 
     @abc.abstractmethod
     def get_eigenvalues(self, num: int) -> B.Numeric:
         """
-        Eigenvalues of the Laplace-Beltrami operator corresponding
-        to the first `num` levels.
+        Eigenvalues of the Laplacian corresponding to the first `num` levels.
 
-        :return: [num, 1] array containing the eigenvalues.
+        :param num:
+            Number of levels.
+        :return:
+            (num, 1)-shaped array containing the eigenvalues.
+
+        .. note::
+            The *levels* are defined in the documentation of the
+            :class:`~.kernels.MaternKarhunenLoeveKernel`.
         """
         raise NotImplementedError
 
     @abc.abstractmethod
     def get_repeated_eigenvalues(self, num: int) -> B.Numeric:
-        """Eigenvalues of the Laplace-Beltrami operator that
-        correspond to the first `num` levels, repeated according to
-        the number of eigenfunctions within a level.
+        """
+        Eigenvalues of the Laplacian corresponding to the first `num` levels,
+        repeated according to their multiplicity within levels.
 
-        :return: [M, 1] array containing the eigenvalues
+        :param num:
+            Number of levels.
+        :return:
+            (M, 1)-shaped array containing the repeated eigenvalues, M is
+            the resulting number of the repeated eigenvalues.
 
+        .. note::
+            The *levels* are defined in the documentation of the
+            :class:`~.kernels.MaternKarhunenLoeveKernel`.
         """
         raise NotImplementedError
 
     @abc.abstractmethod
-    def random(self, key, number: int) -> B.Numeric:
+    def random(self, key: B.RandomState, number: int) -> B.Numeric:
         """
-        Return randomly sampled points in the space
+        Sample uniformly random points in the space.
+
+        :param key:
+            Either `np.random.RandomState`, `tf.random.Generator`,
+            `torch.Generator` or `jax.tensor` (representing random state).
+        :param number:
+            Number of samples to draw.
+        :return: `number` uniformly random samples on the space.
         """
         raise NotImplementedError
 
@@ -78,81 +133,147 @@ class NoncompactSymmetricSpace(Space):
     """
     Non-compact symmetric space.
 
-    Examples include the `Hyperbolic` space and `SPD` space.
+    This includes, for instance, hyperbolic spaces and manifolds of symmetric
+    positive definite matrices (endowed with the affine-invariant metric).
+
+    .. note::
+        See a brief introduction into the theory behind the geometric
+        kernels on non-compact symmetric spaces on the
+        :doc:`respective documentation page </theory/symmetric>`.
+
+    .. note::
+        Typically used with :class:`~.kernels.MaternFeatureMapKernel` that
+        builds on a space-specific feature map like the
+        :class:`~.feature_maps.RejectionSamplingFeatureMapHyperbolic` and the
+        :class:`~.feature_maps.RejectionSamplingFeatureMapSPD`, or, in the
+        absence of a space-specific feature map, on the general (typically less
+        effective) map :class:`~.feature_maps.RandomPhaseFeatureMapNoncompact`.
+
+    .. note::
+
+        Mathematically, any non-compact symmetric space can be represented as
+        a quotient $G/H$ of some _`Lie group $G$` and its _`subgroup $H$`. We
+        sometimes refer to these $G$ and $H$ in the documentation.
     """
 
-    @abc.abstractmethod
-    def inv_harish_chandra(self, X: B.Numeric) -> B.Numeric:
+    @abc.abstractproperty
+    def dimension(self) -> int:
         """
-        (Multiplicative) inverse of the Harish-Chandra function.
+        Geometric dimension of the space.
+
+        Examples:
+
+        * :class:`~.spaces.Hyperbolic`: d-dimensional, with d >= 2.
+        * :class:`~.spaces.SymmetricPositiveDefiniteMatrices`: d-dimensional,
+            with d >= 2.
         """
         raise NotImplementedError
 
     @abc.abstractmethod
-    def power_function(self, lam, g, h) -> B.Numeric:
-        r"""
-        Power function :math:`p^{\lambda)(g, h) = \exp(i \lambda + \rho) a(h \cdot g)`.
+    def inv_harish_chandra(self, X: B.Numeric) -> B.Numeric:
+        """
+        Implements $c^{-1}(x)$, where $c$ is the Harish-Chandra's $c$ function.
 
-        Zonal spherical functions are defined as :math:`\pi^{\lambda}(g) = \int_{H} p^{\lambda}(g, h) d\mu_H(h)`
+        This is one of the computational primitives required to (approximately)
+        compute the :class:`~.feature_maps.RandomPhaseFeatureMapNoncompact`
+        feature map and :class:`~.kernels.MaternFeatureMapKernel` on top of it.
+
+        :param X:
+            A batch of elements in the space.
+        :returns:
+            $c^{-1}(x)$ evaluated at every element $x$ in the batch `X`.
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def power_function(self, lam: B.Numeric, g: B.Numeric, h: B.Numeric) -> B.Numeric:
+        r"""
+        Implements the *power function* $p^{\lambda}(g, h)$, the integrand
+        appearing in the definition of the zonal spherical function
+
+        .. math:: \pi^{\lambda}(g) = \int_{H} \underbrace{p^{\lambda}(g, h)}_{= e^{(i \lambda + \rho) a(h \cdot g)}} d h,
+
+        where $\lambda \in i \cdot \mathbb{R}^r$, with $r$ denoting the rank of
+        the symmetric space and $i$ the imaginary unit, is a sort of frequency,
+        $g$ is an element of the `Lie group $G$`_, $h$ is an element of its
+        `subgroup $H$`_, $\rho \in \mathbb{R}^r$ is as in :meth:`~.rho`, and
+        the function $a$ is a certain space-dependent algebraic operation.
+
+        This is one of the computational primitives required to (approximately)
+        compute the :class:`~.feature_maps.RandomPhaseFeatureMapNoncompact`
+        feature map and :class:`~.kernels.MaternFeatureMapKernel` on top of it.
+
+        :param lam:
+            A batch of L vectors of dimension `rank`, the rank of the
+            symmetric space, representing the "sort of frequencies".
+
+            Typically of shape [1, L, rank].
+        :param g:
+            A batch of N elements of the space (these can always be thought of
+            as elements of the `Lie group $G$`_ since the symmetric space $G/H$
+            can be trivially embedded into the group $G$).
+
+            Typically of shape [N, 1, <axes>], where <axes> is the shape of
+            the elements of the space.
+        :param h:
+            A batch of L elements of the `subgroup $H$`_.
+
+            Typically of shape [1, L, <axes_p>], where <axes_p> is the shape
+            of the arrays representing the elements of the `subgroup $H$`_.
+        :returns:
+            An array of shape [N, L] with complex number entries, representing
+            the value of the values of $p^{\lambda_l}(g_n, h_l)$ for all
+            $1 \leq n \leq N$ and $1 \leq l \leq L$.
+
+        .. note::
+            Actually, $a$ may be a more appropriate primitive than the power
+            function $p^{\lambda}$: everything but $a$ in the definition of
+            the latter is either standard or available as other primitives.
+            Us using $p^{\lambda}$ as a primitive is quite arbitrary.
         """
         raise NotImplementedError
 
     @abc.abstractproperty
     def rho(self):
         r"""
-        `rho` vector.
+        `rho` vector of dimension equal to the rank of the symmetric space.
+
+        Algebraically, weighted sum of *roots*, depends only on the space.
+
+        This is one of the computational primitives required to (approximately)
+        compute the :class:`~.feature_maps.RandomPhaseFeatureMapNoncompact`
+        feature map and :class:`~.kernels.MaternFeatureMapKernel` on top of it.
         """
         raise NotImplementedError
 
     @abc.abstractmethod
-    def random_phases(self, key, num) -> B.Numeric:
+    def random_phases(self, key: B.RandomState, num: int) -> B.Numeric:
         r"""
-        Random samples from Haar measure on the isotropy group of the symmetric space.
+        Sample uniformly random points on the `subgroup $H$`_.
+
+        This is one of the computational primitives required to (approximately)
+        compute the :class:`~.feature_maps.RandomPhaseFeatureMapNoncompact`
+        feature map and :class:`~.kernels.MaternFeatureMapKernel` on top of it.
+
+        :param key:
+            Either `np.random.RandomState`, `tf.random.Generator`,
+            `torch.Generator` or `jax.tensor` (representing random state).
+        :param num:
+            Number of samples to draw.
+        :return: `num` uniformly random samples on the `subgroup $H$`_.
+
+        .. warning::
+            This does not sample random points on the space itself. Since the
+            space itself is non-compact, uniform sampling on it is in
+            principle impossible. However, the `subgroup $H$`_ is always
+            compact and thus allows uniform sampling needed to approximate the
+            zonal spherical functions $\pi^{\lambda}(\cdot)$ via Monte Carlo.
         """
 
     @abc.abstractproperty
     def num_axes(self):
         """
         Number of axes in an array representing a point in the space.
-        Ususally 1 for vectors and 2 for matrices.
+
+        Usually 1 for vectors or 2 for matrices.
         """
-
-
-class ConvertEigenvectorsToEigenfunctions(Eigenfunctions):
-    """
-    Converts the array of eigenvectors to callable objects,
-    where inputs are given by the indices. Based on
-    from geometric_kernels.spaces.mesh import ConvertEigenvectorsToEigenfunctions.
-    """
-
-    def __init__(self, eigenvectors: B.Numeric):
-        """
-        :param eigenvectors: [Nv, M]
-        """
-        self.eigenvectors = eigenvectors
-
-    def __call__(self, X: B.Numeric, **parameters) -> B.Numeric:
-        """
-        Selects `N` locations from the `M` eigenvectors.
-
-        :param X: indices [N, 1]
-        :param parameters: unused
-        :return: [N, M]
-        """
-        indices = B.cast(B.dtype_int(X), X)
-        Phi = take_along_axis(self.eigenvectors, indices, axis=0)
-        return Phi
-
-    @property
-    def num_eigenfunctions(self) -> int:
-        """Number of eigenvectors, M"""
-        return B.shape(self.eigenvectors)[-1]
-
-    @property
-    def num_levels(self) -> int:
-        """Number of levels, L"""
-        return self.num_eigenfunctions
-
-    @property
-    def num_eigenfunctions_per_level(self) -> B.Numeric:
-        return [1] * self.num_levels

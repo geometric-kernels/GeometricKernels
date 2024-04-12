@@ -176,7 +176,7 @@ class RandomPhaseFeatureMapNoncompact(FeatureMap):
 
         key, random_phases = self.space.random_phases(
             key, self.num_random_phases
-        )  # [O, <axes>]
+        )  # [O, <axes_p>]
 
         key, random_lambda = base_density_sample(
             key,
@@ -188,7 +188,7 @@ class RandomPhaseFeatureMapNoncompact(FeatureMap):
 
         random_phases_b = B.expand_dims(
             B.cast(B.dtype(params["lengthscale"]), from_numpy(X, random_phases))
-        )  # [1, O, <axes>]
+        )  # [1, O, <axes_p>]
         random_lambda_b = B.expand_dims(
             B.cast(B.dtype(params["lengthscale"]), from_numpy(X, random_lambda))
         )  # [1, O, P]

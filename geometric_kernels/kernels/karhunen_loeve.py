@@ -18,21 +18,21 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
     This class approximates a kernel by the finite feature decomposition
     using its Laplace-Beltrami eigenfunctions and eigenvalues.
 
-    .. math:: k(x, x') = \sum_{i=0}^{M-1} S(\sqrt\lambda_i) \sum_{j=0}^{K_i} \phi_{ij}(x) \phi_{ij}(x'),
+    .. math:: k(x, x') = \sum_{l=0}^{L-1} S(\sqrt\lambda_l) \sum_{s=1}^{d_l} f_{ls}(x) f_{ls}(x'),
 
-    where $\lambda_i$ and $\phi_{ij}(\cdot)$ are the eigenvalues and
+    where $\lambda_l$ and $f_{ls}(\cdot)$ are the eigenvalues and
     eigenfunctions of the Laplace-Beltrami operator uch that
-    $\Delta \phi_{ij} = \lambda_i \phi_{ij}$, and $S(\cdot)$ is the spectrum
+    $\Delta f_{ls} = \lambda_l f_{ls}$, and $S(\cdot)$ is the spectrum
     of the stationary kernel. The eigenvalues and eigenfunctions belong to the
     :class:`~.spaces.DiscreteSpectrumSpace` instance.
 
-    We refer to the pairs $(\lambda_i, G_i(\cdot, \cdot'))$ where
-    $G_i(\cdot, \cdot') = \sum_{j=0}^{K_i} \phi_{ij}(\cdot) \phi_{ij}(\cdot')$
+    We refer to the pairs $(\lambda_l, G_l(\cdot, \cdot'))$ where
+    $G_l(\cdot, \cdot') = \sum_{s=1}^{d_l} f_{ls}(\cdot) f_{ls}(\cdot')$
     as "levels". For many spaces, like the sphere, we can employ addition
-    theorems to efficiently compute $G_i(\cdot, \cdot')$ without calculating
-    the individual $\phi_{ij}$. Note that $\lambda_i$ are not required to be
-    unique: it is possible that for some $i,j$, $\lambda_i = \lambda_j$. In
-    other words, the "levels" do not necessarily correspond to full
+    theorems to efficiently compute $G_l(\cdot, \cdot')$ without calculating
+    the individual $f_{ls}(\cdot)$. Note that $\lambda_l$ are not required to
+    be unique: it is possible that for some $l,l'$, $\lambda_l = \lambda_{l'}$.
+    In other words, the "levels" do not necessarily correspond to full
     eigenspaces. A level may even correspond to a single eigenfunction.
 
     .. note::
@@ -56,7 +56,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         normalize: bool = True,
     ):
         super().__init__(space)
-        self.num_levels = num_levels  # in code referred to as `M`.
+        self.num_levels = num_levels  # in code referred to as `L`.
         self._eigenvalues_laplacian = self.space.get_eigenvalues(self.num_levels)
         self._eigenfunctions = self.space.get_eigenfunctions(self.num_levels)
         self.normalize = normalize
@@ -143,7 +143,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         """
         Eigenvalues of the kernel.
 
-        :return: [M, 1]
+        :return: [L, 1]
         """
         assert "lengthscale" in params
         assert "nu" in params
@@ -171,7 +171,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
     def K(
         self, params, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs  # type: ignore
     ) -> B.Numeric:
-        weights = B.cast(B.dtype(params["nu"]), self.eigenvalues(params))  # [M, 1]
+        weights = B.cast(B.dtype(params["nu"]), self.eigenvalues(params))  # [L, 1]
         Phi = self.eigenfunctions
         K = Phi.weighted_outerproduct(weights, X, X2, **params)  # [N, N2]
         if is_complex(K):
@@ -180,7 +180,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             return K
 
     def K_diag(self, params, X: B.Numeric, **kwargs) -> B.Numeric:
-        weights = self.eigenvalues(params)  # [M, 1]
+        weights = self.eigenvalues(params)  # [L, 1]
         Phi = self.eigenfunctions
         K_diag = Phi.weighted_outerproduct_diag(weights, X, **params)  # [N,]
         if is_complex(K_diag):

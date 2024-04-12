@@ -11,11 +11,11 @@ from beartype.typing import Dict, Tuple
 from scipy.linalg import eigh
 
 from geometric_kernels.lab_extras import dtype_integer
-from geometric_kernels.spaces.base import (
-    ConvertEigenvectorsToEigenfunctions,
-    DiscreteSpectrumSpace,
+from geometric_kernels.spaces.base import DiscreteSpectrumSpace
+from geometric_kernels.spaces.eigenfunctions import (
+    Eigenfunctions,
+    EigenfunctionsFromEigenvectors,
 )
-from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 
 
 class Mesh(DiscreteSpectrumSpace):
@@ -107,7 +107,7 @@ class Mesh(DiscreteSpectrumSpace):
         :param num: number of eigenfunctions returned
         :return: eigenfunctions [Nv, num]
         """
-        eigenfunctions = ConvertEigenvectorsToEigenfunctions(self.get_eigenvectors(num))
+        eigenfunctions = EigenfunctionsFromEigenvectors(self.get_eigenvectors(num))
         return eigenfunctions
 
     @property

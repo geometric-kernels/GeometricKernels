@@ -9,20 +9,10 @@ from importlib import resources as impresources
 
 import einops
 import lab as B
-from beartype.typing import List, Type
-from plum import Union
+from beartype.typing import List
 
 from geometric_kernels import resources
 from geometric_kernels.lab_extras import get_random_state, restore_random_state
-
-
-class OptionalMeta(type):
-    def __getitem__(cls, args: Type):
-        return Union[(None,) + (args,)]
-
-
-class Optional(metaclass=OptionalMeta):
-    pass
 
 
 def chain(elements: B.Numeric, repetitions: List[int]) -> B.Numeric:

@@ -13,11 +13,11 @@ from geometric_kernels.lab_extras import (
     reciprocal_no_nan,
     set_value,
 )
-from geometric_kernels.spaces.base import (
-    ConvertEigenvectorsToEigenfunctions,
-    DiscreteSpectrumSpace,
+from geometric_kernels.spaces.base import DiscreteSpectrumSpace
+from geometric_kernels.spaces.eigenfunctions import (
+    Eigenfunctions,
+    EigenfunctionsFromEigenvectors,
 )
-from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 
 
 class Graph(DiscreteSpectrumSpace):
@@ -97,7 +97,7 @@ class Graph(DiscreteSpectrumSpace):
         :param num: number of eigenfunctions returned
         :return: eigenfu [n, num]
         """
-        eigenfunctions = ConvertEigenvectorsToEigenfunctions(self.get_eigenvectors(num))
+        eigenfunctions = EigenfunctionsFromEigenvectors(self.get_eigenvectors(num))
         return eigenfunctions
 
     def get_eigenvectors(self, num: int) -> B.Numeric:

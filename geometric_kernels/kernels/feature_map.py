@@ -115,7 +115,7 @@ class MaternFeatureMapKernel(BaseGeometricKernel):
         if X2 is not None:
             _, features_X2 = self.feature_map(
                 X2, params, normalize=self.normalize, **kwargs
-            )  # [M, O]
+            )  # [N2, O]
         else:
             features_X2 = features_X
 

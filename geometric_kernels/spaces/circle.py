@@ -5,17 +5,18 @@ spectrum, the :class:`SinCosEigenfunctions` class.
 
 import geomstats as gs
 import lab as B
+from beartype.typing import List
 
 from geometric_kernels.lab_extras import dtype_double, from_numpy
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import (
     Eigenfunctions,
-    EigenfunctionWithAdditionTheorem,
+    EigenfunctionsWithAdditionTheorem,
 )
-from geometric_kernels.utils.utils import Optional, chain
+from geometric_kernels.utils.utils import chain
 
 
-class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
+class SinCosEigenfunctions(EigenfunctionsWithAdditionTheorem):
     """
     Eigenfunctions Laplace-Beltrami operator on the circle correspond
     to the Fourier basis, i.e. sines and cosines.
@@ -109,69 +110,45 @@ class SinCosEigenfunctions(EigenfunctionWithAdditionTheorem):
         return self._num_levels
 
     @property
-    def num_eigenfunctions_per_level(self) -> B.Numeric:
+    def num_eigenfunctions_per_level(self) -> List[int]:
         """Number of eigenfunctions per level, [N_l]_{l=0}^{L-1}"""
         return [1 if level == 0 else 2 for level in range(self.num_levels)]
 
 
 class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
     r"""
-    The GeometricKernels space representing the standard unit
-    circle :math:`\mathbb{S}^1`.
+    The GeometricKernels space representing the standard unit circle, denoted
+    by $\mathbb{S}_1$ (as the one-dimensional hypersphere) or $\mathbb{T}$ (as
+    the one-dimensional torus).
 
     The elements of this space are represented by angles,
-    scalars from 0 to 2*pi.
+    scalars from $0$ to $2 \pi$.
     """
 
     def __init__(self):
         super().__init__(dim=1)
 
-    def is_tangent(
-        self,
-        vector: B.Numeric,
-        base_point: Optional[B.Numeric] = None,  # type: ignore
-        atol: float = gs.backend.atol,
-    ) -> bool:
-        """
-        Check whether the `vector` is tangent at `base_point`.
-
-        :param vector: shape=[..., dim]
-            Vector to evaluate.
-        :param base_point: shape=[..., dim]
-            Point on the manifold. Defaults to `None`.
-        :param atol: float
-            Absolute tolerance.
-            Optional, default: 1e-6.
-        :return: Boolean denoting if vector is a tangent vector at the base point.
-        """
-        raise NotImplementedError("`is_tangent` is not implemented for `Hypersphere`")
-
     @property
     def dimension(self) -> int:
+        """
+        :return: 1.
+        """
         return 1
 
     def get_eigenfunctions(self, num: int) -> Eigenfunctions:
         """
-        :param num: number of eigenlevels returned.
+        Returns the :class:`~.SinCosEigenfunctions` object with `num` levels.
+
+        :param num: number of levels.
         """
         return SinCosEigenfunctions(num)
 
     def get_eigenvalues(self, num: int) -> B.Numeric:
-        """
-        Eigenvalues of the Laplace-Beltrami operator corresponding to the first `num` levels.
-
-        :return: [M, 1] array containing the eigenvalues
-        """
         eigenvalues = B.range(num) ** 2  # [num,]
-        return B.reshape(eigenvalues, -1, 1)  # [M, 1]
+        return B.reshape(eigenvalues, -1, 1)  # [num, 1]
 
     def get_repeated_eigenvalues(self, num: int) -> B.Numeric:
-        """First `num` eigenvalues of the Laplace-Beltrami operator,
-        repeated according to their multiplicity.
-
-        :return: [M, 1] array containing the eigenvalues
-        """
-        eigenfunctions = SinCosEigenfunctions(num)
+        eigenfunctions = self.get_eigenfunctions(num)
         eigenvalues_per_level = B.range(num) ** 2  # [num,]
         eigenvalues = chain(
             eigenvalues_per_level,
@@ -179,7 +156,7 @@ class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
         )  # [M,]
         return B.reshape(eigenvalues, -1, 1)  # [M, 1]
 
-    def random(self, key, number):
+    def random(self, key: B.RandomState, number: int):
         key, random_points = B.random.rand(key, dtype_double(key), number, 1)  # (N, 1)
         random_points *= 2 * B.pi
         return key, random_points
