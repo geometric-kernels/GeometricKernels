@@ -135,7 +135,7 @@ class RejectionSamplingFeatureMapSPD(FeatureMap):
         )  # [O, D, D]
 
         key, random_lambda = spd_density_sample(
-            key, (self.num_random_phases,), params, 
+            key, (self.num_random_phases,), params,
             self.space.degree, self.space.rho, self.shift_laplacian
         )  # [O, D]
 
