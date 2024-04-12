@@ -98,10 +98,10 @@ def base_density_sample(key, size, params, dim, rho, shift_laplacian=True):
 
     scale_nu_infinite = L
     if shift_laplacian:
-        scale_nu_finite = L / B.sqrt(safe_nu / deg_freedom)
+        scale_nu_finite = B.sqrt(deg_freedom / (2*safe_nu/L**2))
     else:
-        scale_nu_finite = L / B.sqrt(
-            safe_nu / deg_freedom + B.sum(rho**2) * L**2 / (2 * deg_freedom)
+        scale_nu_finite = B.sqrt(
+            deg_freedom/ (2*safe_nu/L**2 + B.sum(rho**2))
         )
 
     scale = B.where(nu == np.inf, scale_nu_infinite, scale_nu_finite)
@@ -312,7 +312,7 @@ def spd_density_sample(key, size, params, degree, rho, shift_laplacian=True):
         diffp = ordered_pairwise_differences(proposal)
         diffp = B.pi * B.abs(diffp)
         logprod = B.sum(B.log(B.tanh(diffp)), axis=-1)
-        prod = B.exp(0.5 * logprod)
+        prod = B.exp(logprod)
         assert B.all(prod > 0)
 
         # accept with probability `prod`
