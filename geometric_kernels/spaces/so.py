@@ -289,3 +289,7 @@ class SpecialOrthogonal(MatrixLieGroup):
             q_det_sign = B.sign(B.det(q))
             q[:, :, 0] *= q_det_sign[:, None]
             return key, q
+
+    @property
+    def element_shape(self):
+        return [self.n, self.n]

@@ -242,3 +242,7 @@ class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
             B.sum(random_points**2, axis=1, squeeze=False)
         )  # (N, D+1)
         return key, random_points
+
+    @property
+    def element_shape(self):
+        return [self.dimension + 1]

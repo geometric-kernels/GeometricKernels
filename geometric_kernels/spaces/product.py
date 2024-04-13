@@ -4,6 +4,7 @@ representation of its spectrum, the :class:`ProductEigenfunctions` class.
 """
 
 import itertools
+import math
 
 import lab as B
 import numpy as np
@@ -130,7 +131,7 @@ def _per_level_to_separate(eigenindices, nums_per_level):
 class ProductEigenfunctions(Eigenfunctions):
     def __init__(
         self,
-        dimensions: List[int],
+        element_shapes: List[List[int]],
         eigenindicies: B.Numeric,
         *eigenfunctions: Eigenfunctions,
         dimension_indices: B.Numeric = None,
@@ -146,6 +147,8 @@ class ProductEigenfunctions(Eigenfunctions):
         :param eigenfunctions: the eigenfunctions
 
         """
+        self.element_shapes = element_shapes
+        dimensions = [math.prod(element_shape) for element_shape in self.element_shapes]
         if dimension_indices is None:
             self.dimension_indices = []
             i = 0
@@ -167,7 +170,11 @@ class ProductEigenfunctions(Eigenfunctions):
         assert self.eigenindicies.shape[-1] == len(self.eigenfunctions)
 
     def __call__(self, X: B.Numeric, **parameters) -> B.Numeric:
-        Xs = [B.take(X, inds, axis=-1) for inds in self.dimension_indices]
+        N = B.shape(X)[0]
+        Xs = [
+            B.reshape(B.take(X, inds, axis=-1), N, *shape)
+            for inds, shape in zip(self.dimension_indices, self.element_shapes)
+        ]
 
         eigenfunctions = B.stack(
             *[
@@ -204,8 +211,16 @@ class ProductEigenfunctions(Eigenfunctions):
     def weighted_outerproduct(self, weights, X, X2=None, **parameters):
         if X2 is None:
             X2 = X
-        Xs = [B.take(X, inds, axis=-1) for inds in self.dimension_indices]
-        Xs2 = [B.take(X2, inds, axis=-1) for inds in self.dimension_indices]
+        N = B.shape(X)[0]
+        M = B.shape(X2)[0]
+        Xs = [
+            B.reshape(B.take(X, inds, axis=-1), N, *shape)
+            for inds, shape in zip(self.dimension_indices, self.element_shapes)
+        ]
+        Xs2 = [
+            B.reshape(B.take(X2, inds, axis=-1), M, *shape)
+            for inds, shape in zip(self.dimension_indices, self.element_shapes)
+        ]
 
         phis = B.stack(
             *[
@@ -232,7 +247,11 @@ class ProductEigenfunctions(Eigenfunctions):
     def weighted_outerproduct_diag(
         self, weights: B.Numeric, X: B.Numeric, **parameters
     ) -> B.Numeric:
-        Xs = [B.take(X, inds, axis=-1) for inds in self.dimension_indices]
+        N = B.shape(X)[0]
+        Xs = [
+            B.reshape(B.take(X, inds, axis=-1), N, *shape)
+            for inds, shape in zip(self.dimension_indices, self.element_shapes)
+        ]
 
         phis = B.stack(
             *[
@@ -326,13 +345,18 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
     def dimension(self) -> int:
         return sum([space.dimension for space in self.sub_spaces])
 
+    @staticmethod
+    def make_product(self, xs: List[B.Numeric]) -> B.Numeric:
+        flat_xs = [B.reshape(x, B.shape(x)[0], -1) for x in xs]
+        return B.concat(*flat_xs, axis=-1)
+
     def random(self, key, number):
         random_points = []
         for factor in self.sub_spaces:
             key, factor_random_points = factor.random(key, number)
             random_points.append(factor_random_points)
 
-        return key, B.concat(*random_points, axis=1)
+        return key, self.make_product(random_points)
 
     def get_eigenfunctions(self, num: int) -> Eigenfunctions:
         assert num <= self.num_eigen
@@ -344,7 +368,7 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
         ]
 
         return ProductEigenfunctions(
-            [space.dimension for space in self.sub_spaces],
+            [space.element_shape for space in self.sub_spaces],
             self.sub_space_eigenindices,
             *sub_space_eigenfunctions,
         )
@@ -363,3 +387,7 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
 
         repeated_eigenvalues = chain(eigenvalues, multiplicities)
         return B.reshape(repeated_eigenvalues, -1, 1)  # [M, 1]
+
+    @property
+    def element_shape(self):
+        return [sum(space.element_size) for space in self.sub_spaces]
