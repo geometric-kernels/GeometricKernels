@@ -150,11 +150,11 @@ class NoncompactSymmetricSpace(Space):
         absence of a space-specific feature map, on the general (typically less
         effective) map :class:`~.feature_maps.RandomPhaseFeatureMapNoncompact`.
 
-    .. note::
+    .. note:: .. _quotient note:
 
         Mathematically, any non-compact symmetric space can be represented as
-        a quotient $G/H$ of a Lie _`group of symmetries $G$` and its compact
-        _`isotropy subgroup $H$`. We sometimes refer to these $G$ and $H$ in
+        a quotient $G/H$ of a Lie group of symmetries $G$ and its compact
+        isotropy subgroup $H$. We sometimes refer to these $G$ and $H$ in
         the documentation.
     """
 
@@ -197,10 +197,10 @@ class NoncompactSymmetricSpace(Space):
 
         where $\lambda \in i \cdot \mathbb{R}^r$, with $r$ denoting the rank of
         the symmetric space and $i$ the imaginary unit, is a sort of frequency,
-        $g$ is an element of the `group of symmetries $G$`_, $h$ is an element
-        of its `isotropy subgroup $H$`_, $\rho \in \mathbb{R}^r$ is as in
-        :meth:`~.rho`, and the function $a$ is a certain space-dependent
-        algebraic operation.
+        $g$ is an element of the group of symmetries $G$, $h$ is an element
+        of its isotropy subgroup $H$ ($G$ and $H$ are defined :ref:`here
+        <quotient note>`), $\rho \in \mathbb{R}^r$ is as in :meth:`rho`, and
+        the function $a$ is a certain space-dependent algebraic operation.
 
         This is one of the computational primitives required to (approximately)
         compute the :class:`~.feature_maps.RandomPhaseFeatureMapNoncompact`
@@ -213,16 +213,16 @@ class NoncompactSymmetricSpace(Space):
             Typically of shape [1, L, rank].
         :param g:
             A batch of N elements of the space (these can always be thought of
-            as elements of the `group of symmetries $G$`_ since the symmetric
+            as elements of the group of symmetries $G$ since the symmetric
             space $G/H$ can be trivially embedded into the group $G$).
 
             Typically of shape [N, 1, <axes>], where <axes> is the shape of
             the elements of the space.
         :param h:
-            A batch of L elements of the `isotropy subgroup $H$`_.
+            A batch of L elements of the isotropy subgroup $H$.
 
             Typically of shape [1, L, <axes_p>], where <axes_p> is the shape of
-            arrays representing the elements of the `isotropy subgroup $H$`_.
+            arrays representing the elements of the isotropy subgroup $H$.
         :returns:
             An array of shape [N, L] with complex number entries, representing
             the value of the values of $p^{\lambda_l}(g_n, h_l)$ for all
@@ -252,7 +252,8 @@ class NoncompactSymmetricSpace(Space):
     @abc.abstractmethod
     def random_phases(self, key: B.RandomState, num: int) -> B.Numeric:
         r"""
-        Sample uniformly random points on the `isotropy subgroup $H$`_.
+        Sample uniformly random points on the isotropy subgroup $H$ (defined
+        :ref:`here <quotient note>`).
 
         This is one of the computational primitives required to (approximately)
         compute the :class:`~.feature_maps.RandomPhaseFeatureMapNoncompact`
@@ -264,13 +265,13 @@ class NoncompactSymmetricSpace(Space):
         :param num:
             Number of samples to draw.
         :return:
-            An array of `num` uniformly random samples in the
-            `isotropy subgroup $H$`_.
+            An array of `num` uniformly random samples in the isotropy
+            subgroup $H$.
 
         .. warning::
             This does not sample random points on the space itself. Since the
             space itself is non-compact, uniform sampling on it is in principle
-            impossible. However, the `isotropy subgroup $H$`_ is always
+            impossible. However, the isotropy subgroup $H$ is always
             compact and thus allows uniform sampling needed to approximate the
             zonal spherical functions $\pi^{\lambda}(\cdot)$ via Monte Carlo.
         """

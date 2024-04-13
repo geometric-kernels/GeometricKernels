@@ -22,16 +22,21 @@ class SymmetricPositiveDefiniteMatrices(
 ):
     r"""
     The GeometricKernels space representing the manifold of symmetric positive
-    definite matrices :math:`SPD(n)` with the affine-invariant Riemannian
-    metric.
+    definite matrices $SPD(n)$ with the affine-invariant Riemannian metric.
 
     The elements of this space are represented by positive definite matrices of
-    size n x n.
-
-    **Note:** positive definite means _strictly_ positive definite here, not
+    size n x n. Positive definite means _strictly_ positive definite here, not
     positive semi-definite.
 
     The class inherits the interface of geomstats's `SPDMatrices`.
+
+    .. note::
+        As mentioned in :ref:`this note <quotient note>`, any symmetric space
+        is a quotient G/H. For the manifold of symmetric positive definite
+        matrices $SPD(n)$, the group of symmetries $G$ is the identity component
+        $GL(n)_+$ of the general linear group $GL(n)$, while the isotropy
+        subgroup $H$ is the special orthogonal group $SO(n)$. See the
+        mathematical details in https://arxiv.org/abs/2301.13088.
     """
 
     def __init__(self, n):
@@ -39,6 +44,9 @@ class SymmetricPositiveDefiniteMatrices(
 
     @property
     def dimension(self) -> int:
+        """
+        Returns n(n+1)/2 where `n` was passed down to `__init__`.
+        """
         dim = self.n * (self.n + 1) / 2
         return dim
 
@@ -52,6 +60,12 @@ class SymmetricPositiveDefiniteMatrices(
 
     @property
     def num_axes(self):
+        """
+        Number of axes in an array representing a point in the space.
+
+        :return:
+            2.
+        """
         return 2
 
     def random_phases(self, key, num):
@@ -69,9 +83,6 @@ class SymmetricPositiveDefiniteMatrices(
         return key, Q
 
     def inv_harish_chandra(self, X):
-        """
-        X shape [B, D]
-        """
         diffX = ordered_pairwise_differences(X)
         diffX = B.abs(diffX)
         logprod = B.sum(
@@ -80,11 +91,6 @@ class SymmetricPositiveDefiniteMatrices(
         return B.exp(0.5 * logprod)
 
     def power_function(self, lam, g, h):
-        """
-        :param lam: [N1, ..., Nk, D] eigenvalues.
-        :param g: [N1, ..., Nk, D, D] matrices.
-        :param h: [N1, ..., Nk, D, D] phases (orhogonal matrices).
-        """
         g = B.cholesky(g)
         gh = B.matmul(g, h)
         Q, R = qr(gh)
@@ -99,12 +105,17 @@ class SymmetricPositiveDefiniteMatrices(
 
     def random(self, key, number):
         """
-        Random points on the SPD space. Calls the respective routine of
-        geomstats.
+        Geomstats-based non-uniform random sampling.
 
-        TODO: implement in a way that actually uses key for randomness.
+        Always returns [N, n, n] float64 array of the `key`'s backend.
 
-        Always returns [N, D, D] float64 array of the `key`'s backend.
+        :param key:
+            Either `np.random.RandomState`, `tf.random.Generator`,
+            `torch.Generator` or `jax.tensor` (representing random state).
+        :param number:
+            Number of samples to draw.
+
+        :return:
+            An array of `number` uniformly random samples on the space.
         """
-
         return key, B.cast(dtype_double(key), self.random_point(number))
