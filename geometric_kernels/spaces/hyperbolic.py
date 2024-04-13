@@ -32,8 +32,6 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
     :param dim:
         Dimension of the hyperbolic space, denoted by n in docstrings.
 
-    .. _my label:
-
     .. note::
         As mentioned in :ref:`this note <quotient note>`, any symmetric space
         is a quotient G/H. For the hyperbolic space $\mathbb{H}_n$, the group
