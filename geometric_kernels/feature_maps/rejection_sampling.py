@@ -18,7 +18,7 @@ from geometric_kernels.spaces import Hyperbolic, SymmetricPositiveDefiniteMatric
 class RejectionSamplingFeatureMapHyperbolic(FeatureMap):
     def __init__(
             self, space: Hyperbolic, num_random_phases: int = 3000, shift_laplacian=True
-        ):
+    ):
         """
         Random phase feature map for the Hyperbolic space based on the
         rejection sampling algorithm.
