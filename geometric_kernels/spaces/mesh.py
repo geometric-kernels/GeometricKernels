@@ -20,32 +20,38 @@ from geometric_kernels.spaces.eigenfunctions import (
 
 class Mesh(DiscreteSpectrumSpace):
     """
-    The GeometricKernels space representing the node set of any user-provided mesh.
-
-    We only support the commonly used 2-dimensional meshes (discrete counterparts
-    of surfaces, 2-dimensional manifolds in a 3-dimensional ambient space) and
-    1-dimensional meshes (discrete counterparts of curves, 1-dimensional manifolds).
-
-    We use `potpourri3d <https://github.com/nmwsharp/potpourri3d>`_ to load meshes
-    and mimic the interface of `PyMesh <https://github.com/PyMesh/PyMesh>`_.
+    The GeometricKernels space representing the node set of any
+    user-provided mesh.
 
     The elements of this space are represented by node indices, integer values
-    from 0 to n-1, where n is the number of nodes in the user-provided mesh.
+    from 0 to Nv-1, where Nv is the number of nodes in the user-provided mesh.
+
+    Each individual eigenfunction constitutes a *level*.
+
+    .. note::
+        We only support the commonly used 2-dimensional meshes (discrete
+        counterparts of surfaces, 2-dimensional manifolds in a 3-dimensional
+        ambient space).
+
+    .. note::
+        We use `potpourri3d <https://github.com/nmwsharp/potpourri3d>`_ to
+        load meshes and mimic the interface of
+        `PyMesh <https://github.com/PyMesh/PyMesh>`_.
+
+    :param vertices:
+        A [Nv, 3] array of vertex coordinates, Nv is the number of vertices.
+    :param faces:
+        A [Nf, 3] array of vertex indices that represents a
+        generalized array of faces, where Nf is the number of faces.
+
+        .. Note:
+            Only 3 vertex indices per face are supported, i.e. mesh must be
+            triangulated.
     """
 
     def __init__(self, vertices: np.ndarray, faces: np.ndarray):
-        """
-        :param vertices: A [Nv, D] array of vertex coordinates, where Nv is the number of vertices,
-            D is the dimension of the embedding space (D must be either 2 or 3).
-            Note that this corresponds to a (D-1)-dimensional mesh, a discretization of some
-            assumed (D-1)-dimensional manifold.
-        :param faces: A [Nf, 3] array of vertex indices that represents a
-            generalized array of faces, where Nf is the number of faces.
-
-            .. Note:
-                Only 3 vertex indices per face are supported
-        """
         self._vertices = vertices
+        assert self._vertices.shape[1] == 3  # make sure we all is in R^3.
         self._faces = faces
         self._eigenvalues = None
         self._eigenfunctions = None
@@ -53,16 +59,27 @@ class Mesh(DiscreteSpectrumSpace):
 
     def get_eigensystem(self, num: int) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Returns the first `num` eigenvalues and eigenfunctions of the Laplace-Beltrami
-        operator on the space. Makes use of Nick Sharp's robust laplacian package
-        and Scipy's sparse linear algebra.
-
+        Returns the first `num` eigenvalues and eigenvectors of the `robust
+        Laplacian <https://github.com/nmwsharp/nonmanifold-laplacian>`_.
         Caches the solution to prevent re-computing the same values.
 
-        TODO(VD): Make sure this is the optimal way to compute this!
+        .. note::
+            If the `adjacency_matrix` was a sparse SciPy array, requesting
+            **all** eigenpairs will lead to a conversion of the sparse matrix
+            to a dense one due to scipy.sparse.linalg.eigsh limitations.
 
-        :param num: number of eigenvalues and functions to return.
-        :return: A Tuple of eigenvectors [Nv, num], eigenvalues [num, 1]
+        .. warning::
+            Always uses SciPy (thus CPU) for internal computations. We will
+            need to fix this in the future.
+
+        .. todo::
+            See warning above.
+
+        :param num:
+            Number of eigenpairs to return. Performs the computation at the
+            first call. Afterwards, fetches the result from cache.
+        :return:
+            A tuple of eigenvectors [nv, num], eigenvalues [num, 1].
         """
         if num not in self.cache:
             L, M = robust_laplacian.mesh_laplacian(self.vertices, self.faces)
@@ -81,57 +98,68 @@ class Mesh(DiscreteSpectrumSpace):
 
     def get_eigenvectors(self, num: int) -> B.Numeric:
         """
-        :param num: number of eigenvectors returned
-        :return: eigenvectors [Nv, num]
+        :param num:
+            number of eigenvectors to return.
+        :return:
+            array of eigenvectors, with shape [Nv, num].
         """
         return self.get_eigensystem(num)[0]
 
     def get_eigenvalues(self, num: int) -> B.Numeric:
         """
-        :param num: number of eigenvalues returned
-        :return: eigenvalues [num, 1]
+        :param num:
+            Number of eigenvalues to return.
+        :return:
+            Array of eigenvalues, with shape [num, 1].
         """
         return self.get_eigensystem(num)[1]
 
     def get_repeated_eigenvalues(self, num: int) -> B.Numeric:
         """
-        :param num: number of eigenvalues returned
-        :return: eigenvalues [num, 1]
+        Same as :meth:`get_eigenvalues`.
+
+        :param num:
+            Same as :meth:`get_eigenvalues`.
         """
         return self.get_eigenvalues(num)
 
     def get_eigenfunctions(self, num: int) -> Eigenfunctions:
         """
-        First `num` eigenfunctions of the Laplace-Beltrami operator on the Mesh.
+        Returns the :class:`~.EigenfunctionsFromEigenvectors` object with
+        `num` levels (i.e., in this case, `num` eigenpairs).
 
-        :param num: number of eigenfunctions returned
-        :return: eigenfunctions [Nv, num]
+        :param num:
+            Number of levels.
         """
         eigenfunctions = EigenfunctionsFromEigenvectors(self.get_eigenvectors(num))
         return eigenfunctions
 
     @property
     def num_vertices(self) -> int:
-        """Number of vertices, Nv"""
+        """
+        Number of vertices in the mesh, Nv.
+        """
         return len(self._vertices)
 
     @property
     def num_faces(self) -> int:
-        """Number of faces, Nf"""
+        """
+        Number of faces in the mesh, Nf.
+        """
         return len(self._faces)
 
     @property
     def dimension(self) -> int:
         """
-        Dimension of the space. Equal to D-1, where D is the dimension of the embedding space.
+        :return:
+            2.
         """
-        return self._vertices.shape[1] - 1
+        return 2
 
     @property
     def vertices(self) -> np.ndarray:
         """
-        A [Nv, D] array of vertex coordinates, where Nv is the number of vertices,
-        D is the dimension of the embedding space (D must be either 2 or 3).
+        A [Nv, 3] array of vertex coordinates, Nv is the number of vertices.
         """
         return self._vertices
 
@@ -146,9 +174,14 @@ class Mesh(DiscreteSpectrumSpace):
     @classmethod
     def load_mesh(cls, filename: str) -> "Mesh":
         """
-        :param filename: path to read the file from. Supported formats: `obj`,
-            `ply`, `off`, and `stl`. Format inferred automatically from the path
-            extension.
+        Construct :class:`Mesh` by loading a mesh from the file at `filename`.
+
+        :param filename:
+            Path to read the file from. Supported formats: `obj`,
+            `ply`, `off`, and `stl`. Format inferred automatically from the
+            file extension.
+        :return:
+            And object of class :class:`Mesh` representing the loaded mesh.
         """
         # load vertices and faces using potpourri3d
         vertices, faces = pp3d.read_mesh(filename)

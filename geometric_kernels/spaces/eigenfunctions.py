@@ -169,8 +169,6 @@ class Eigenfunctions(abc.ABC):
         Computes the diagonals of the matrices
         ``phi_product(X, X, **kwargs)[:, :, l]``, $0 \leq l < L$.
 
-        :param weights:
-            As in :meth:`phi_product`.
         :param X:
             As in :meth:`phi_product`.
         :param ``**kwargs``:
@@ -228,14 +226,18 @@ class EigenfunctionsWithAdditionTheorem(Eigenfunctions):
         :doc:`respective documentation page </theory/addition_theorem>`.
     """
 
-    def phi_product(self, X, X2, **kwargs):
+    def phi_product(
+        self, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs
+    ) -> B.Numeric:
         return self._addition_theorem(X, X2, **kwargs)
 
-    def phi_product_diag(self, X, **kwargs):
+    def phi_product_diag(self, X: B.Numeric, **kwargs) -> B.Numeric:
         return self._addition_theorem_diag(X, **kwargs)
 
     @abc.abstractmethod
-    def _addition_theorem(self, X: B.Numeric, X2: B.Numeric, **kwargs) -> B.Numeric:
+    def _addition_theorem(
+        self, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs
+    ) -> B.Numeric:
         """
         Basically, an implementation of :meth:`phi_product`.
         """

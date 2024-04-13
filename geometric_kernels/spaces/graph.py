@@ -28,6 +28,8 @@ class Graph(DiscreteSpectrumSpace):
     The elements of this space are represented by node indices, integer values
     from 0 to n-1, where n is the number of nodes in the user-provided graph.
 
+    Each individual eigenfunction constitutes a *level*.
+
     :param adjacency_matrix:
         An n-dimensional square, symmetric matrix, where
         adjacency_matrix[i, j] is non-zero if there is an edge
@@ -149,6 +151,9 @@ class Graph(DiscreteSpectrumSpace):
     def get_repeated_eigenvalues(self, num: int) -> B.Numeric:
         """
         Same as :meth:`get_eigenvalues`.
+
+        :param num:
+            Same as :meth:`get_eigenvalues`.
         """
         return self.get_eigenvalues(num)
 

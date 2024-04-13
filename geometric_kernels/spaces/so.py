@@ -1,6 +1,7 @@
 """
-This module provides the :class:`SpecialOrthogonal` space and the representation
-of its spectrum, the :class:`SOEigenfunctions` class.
+This module provides the :class:`SpecialOrthogonal` space, the respective
+:class:`~.eigenfunctions.Eigenfunctions` subclass :class:`SOEigenfunctions`,
+and a class :class:`SOCharacter` for representing characters of the group.
 """
 
 import itertools
@@ -11,12 +12,14 @@ from functools import reduce
 
 import lab as B
 import numpy as np
+from beartype.typing import List, Tuple
 from opt_einsum import contract as einsum
 
 from geometric_kernels.lab_extras import dtype_double, from_numpy, qr, take_along_axis
+from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 from geometric_kernels.spaces.lie_groups import (
+    CompactMatrixLieGroup,
     LieGroupCharacter,
-    MatrixLieGroup,
     WeylAdditionTheorem,
 )
 from geometric_kernels.utils.utils import (
@@ -39,7 +42,7 @@ class SOEigenfunctions(WeylAdditionTheorem):
 
         super().__init__(n, num_levels, compute_characters)
 
-    def _generate_signatures(self, num_levels):
+    def _generate_signatures(self, num_levels: int) -> List[Tuple[int]]:
         signatures = []
         # largest LB eigenvalues correspond to partitions of smallest integers
         # IF p >> k the number of partitions of p into k parts is O(p^k)
@@ -66,7 +69,7 @@ class SOEigenfunctions(WeylAdditionTheorem):
         signatures = [signatures[i] for i in min_ind]
         return signatures
 
-    def _compute_dimension(self, signature):
+    def _compute_dimension(self, signature: Tuple[int]) -> int:
         if self.n % 2 == 1:
             qs = [pk + self.rank - k - 1 / 2 for k, pk in enumerate(signature)]
             rep_dim = reduce(
@@ -102,19 +105,16 @@ class SOEigenfunctions(WeylAdditionTheorem):
             )
             return int(round(rep_dim))
 
-    def _compute_eigenvalue(self, signature):
+    def _compute_eigenvalue(self, signature: Tuple[int]) -> B.Float:
         np_sgn = np.array(signature)
         rho = self.rho
         eigenvalue = np.linalg.norm(rho + np_sgn) ** 2 - np.linalg.norm(rho) ** 2
         return eigenvalue
 
-    def _compute_character(self, n, signature):
+    def _compute_character(self, n: int, signature: Tuple[int]) -> LieGroupCharacter:
         return SOCharacter(n, signature)
 
-    def _torus_representative(self, X):
-        r"""
-        The function maps Lie Group Element X to T - a maximal torus of the Lie group
-        """
+    def _torus_representative(self, X: B.Numeric) -> B.Numeric:
         gamma = None
 
         if self.n == 3:
@@ -156,11 +156,27 @@ class SOEigenfunctions(WeylAdditionTheorem):
         return gamma
 
     def inverse(self, X: B.Numeric) -> B.Numeric:
-        return B.transpose(X)
+        return SpecialOrthogonal.inverse(X)
 
 
 class SOCharacter(LieGroupCharacter):
-    def __init__(self, n, signature):
+    """
+    The class that represents a character of the SO(n) group.
+
+    These characters are always real-valued.
+
+    These are polynomials whose coefficients are precomputed and stored in a
+    file. By default, there are 20 precomputed characters for n from 3 to 8.
+    If you want more, use the `utils/compute_characters.py` script.
+
+    :param n:
+        The order n of the SO(n) group.
+    :param signature:
+        The signature that determines a particular character (and an
+        irreducible unitary representation along with it).
+    """
+
+    def __init__(self, n: int, signature: Tuple[int]):
         self.signature = signature
         self.n = n
         self.coeffs, self.monoms = self._load()
@@ -183,30 +199,35 @@ class SOCharacter(LieGroupCharacter):
                         )
                     ) from None
 
-    def __call__(self, gammas):
+    def __call__(self, gammas: B.Numeric) -> B.Numeric:
         char_val = B.zeros(B.dtype(gammas), *gammas.shape[:-1])
         for coeff, monom in zip(self.coeffs, self.monoms):
             char_val += coeff * B.prod(gammas ** from_numpy(gammas, monom), axis=-1)
         return char_val
 
 
-class SpecialOrthogonal(MatrixLieGroup):
+class SpecialOrthogonal(CompactMatrixLieGroup):
     r"""
-    The GeometricKernels space representing the special orthogonal group
-    :math:`SO(n)` consisting of n by n orthogonal matrices with unit
-    determinant.
+    The GeometricKernels space representing the special orthogonal group SO(n)
+    consisting of n by n orthogonal matrices with unit determinant.
 
-    The elements of this space are represented as :math:`n \times n` orthogonal
+    The elements of this space are represented as n x n orthogonal
     matrices with real entries and unit determinant.
 
-    Note: we only support n >= 3. Mathematically, SO(2) is equivalent to the
-    unit circle, which is available as the :class:`Circle` space.
-    For large values of n, you might need to run the `compute_characters.py`
-    script to precompute the necessary mathematical quantities beyond the ones
-    provided by default.
+    :param n:
+        The order n of the group SO(n).
+
+    .. note::
+        We only support n >= 3. Mathematically, SO(2) is equivalent to the
+        unit circle, which is available as the :class:`~.spaces.Circle` space.
+
+        For larger values of n, you might need to run the
+        `utils/compute_characters.py` script to precompute the necessary
+        mathematical quantities beyond the ones provided by default. Same
+        can be required for larger numbers of levels.
     """
 
-    def __init__(self, n):
+    def __init__(self, n: int):
         if n < 3:
             raise ValueError("Only n >= 3 is supported. For n = 2, use Circle.")
         self.n = n
@@ -216,23 +237,29 @@ class SpecialOrthogonal(MatrixLieGroup):
 
     @property
     def dimension(self) -> int:
+        """
+        The dimension of the space, as that of a Riemannian manifold.
+
+        :return:
+            floor(n(n-1)/2) where n is the order of the group SO(n).
+        """
         return self.dim
 
-    def inverse(self, X: B.Numeric) -> B.Numeric:
-        return B.transpose(X)
+    @staticmethod
+    def inverse(X: B.Numeric) -> B.Numeric:
+        return B.transpose(X)  # B.transpose only inverses the last two dims.
 
-    def get_eigenfunctions(self, num: int) -> SOEigenfunctions:
+    def get_eigenfunctions(self, num: int) -> Eigenfunctions:
         """
-        :param num: number of eigenfunctions returned.
+        Returns the :class:`~.SOEigenfunctions` object with `num` levels
+        and order n.
+
+        :param num:
+            Number of levels.
         """
         return SOEigenfunctions(self.n, num)
 
     def get_eigenvalues(self, num: int) -> B.Numeric:
-        """
-        Eigenvalues of first 'num' levels of the Laplace-Beltrami operator.
-
-        :return: [num, 1] array containing the eigenvalues
-        """
         eigenfunctions = SOEigenfunctions(self.n, num)
         eigenvalues = np.array(
             [eigenvalue for eigenvalue in eigenfunctions._eigenvalues]
@@ -240,20 +267,15 @@ class SpecialOrthogonal(MatrixLieGroup):
         return B.reshape(eigenvalues, -1, 1)  # [num, 1]
 
     def get_repeated_eigenvalues(self, num: int) -> B.Numeric:
-        """Eigenvalues of first 'num' levels of the Laplace-Beltrami operator,
-        repeated according to their multiplicity.
-
-        :return: [M, 1] array containing the eigenvalues
-        """
         eigenfunctions = SOEigenfunctions(self.n, num)
         eigenvalues = chain(
             eigenfunctions._eigenvalues,
             [rep_dim**2 for rep_dim in eigenfunctions._dimensions],
         )
-        return B.reshape(eigenvalues, -1, 1)  # [M, 1]
+        return B.reshape(eigenvalues, -1, 1)  # [J, 1]
 
-    def random(self, key, number):
-        if self.n == 2:
+    def random(self, key: B.RandomState, number: int):
+        if self.n == 2:  # for the bright future where we support SO(2).
             # SO(2) = S^1
             key, thetas = B.random.randn(key, dtype_double(key), number, 1)
             thetas = 2 * math.pi * thetas

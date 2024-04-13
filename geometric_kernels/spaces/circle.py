@@ -4,7 +4,7 @@ This module provides the :class:`Circle` space and the respective
 """
 
 import lab as B
-from beartype.typing import List
+from beartype.typing import List, Optional
 
 from geometric_kernels.lab_extras import dtype_double, from_numpy
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
@@ -48,7 +48,9 @@ class SinCosEigenfunctions(EigenfunctionsWithAdditionTheorem):
 
         return B.concat(*values, axis=1)[:, : self._num_eigenfunctions]  # [N, M]
 
-    def _addition_theorem(self, X: B.Numeric, X2: B.Numeric, **kwargs) -> B.Numeric:
+    def _addition_theorem(
+        self, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs
+    ) -> B.Numeric:
         r"""
         Returns the result of applying the addition theorem to sum over all
         the outer products of eigenfunctions within a level, for each level.
@@ -111,6 +113,8 @@ class SinCosEigenfunctions(EigenfunctionsWithAdditionTheorem):
     @property
     def num_eigenfunctions_per_level(self) -> List[int]:
         """
+        The number of eigenfunctions per level.
+
         :return:
             List `result`, such that result[l] = 1 if l = 0 or 2 otherwise.
         """

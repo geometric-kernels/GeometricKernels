@@ -47,7 +47,9 @@ class SphericalHarmonics(EigenfunctionsWithAdditionTheorem):
     def __call__(self, X: B.Numeric, **parameters) -> B.Numeric:
         return self._spherical_harmonics(X)
 
-    def _addition_theorem(self, X: B.Numeric, X2: B.Numeric, **parameters) -> B.Numeric:
+    def _addition_theorem(
+        self, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs
+    ) -> B.Numeric:
         r"""
         Returns the result of applying the addition theorem to sum over all
         the outer products of eigenfunctions within a level, for each level.
@@ -80,7 +82,7 @@ class SphericalHarmonics(EigenfunctionsWithAdditionTheorem):
         ]
         return B.concat(*values, axis=-1)  # [N, N2, L]
 
-    def _addition_theorem_diag(self, X: B.Numeric, **parameters) -> B.Numeric:
+    def _addition_theorem_diag(self, X: B.Numeric, **kwargs) -> B.Numeric:
         """
         These are certain easy to compute constants.
         """

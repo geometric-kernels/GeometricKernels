@@ -6,11 +6,12 @@ import abc
 
 import lab as B
 import numpy as np
+from beartype.typing import Optional
 from opt_einsum import contract as einsum
 
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import EigenfunctionsWithAdditionTheorem
-from geometric_kernels.spaces.lie_groups import LieGroupCharacter, MatrixLieGroup
+from geometric_kernels.spaces.lie_groups import CompactMatrixLieGroup, LieGroupCharacter
 
 
 class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
@@ -80,7 +81,9 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         diff = self.G_difference(g, g2)
         return diff
 
-    def _addition_theorem(self, X: B.Numeric, X2: B.Numeric, **parameters) -> B.Numeric:
+    def _addition_theorem(
+        self, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs
+    ) -> B.Numeric:
         r"""
         For each level (that corresponds to a unitary irreducible
         representation of the group of symmetries), computes the sum of outer
@@ -97,7 +100,7 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
 
         :param X: [N1, ...]
         :param X2: [N2, ...]
-        :param parameters: Any additional parameters
+        :param ``**kwargs``: Any additional parameters
         :return: [N1, N2, L]
         """
 
@@ -202,7 +205,7 @@ class CompactHomogeneousSpace(DiscreteSpectrumSpace):
     and Grassmannians `SO(n)/(SO(m) x SO(n-m))`.
     """
 
-    def __init__(self, G: MatrixLieGroup, H, samples_H, average_order):
+    def __init__(self, G: CompactMatrixLieGroup, H, samples_H, average_order):
         """
         :param G: A Lie group.
         :param H: Stabilizer subgroup.
