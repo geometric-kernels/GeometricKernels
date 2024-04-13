@@ -32,7 +32,7 @@ dependencies = [
     "opt-einsum",
     "geomstats",
     "einops",
-    # "spherical-harmonics @ git+https://github.com/vdutor/SphericalHarmonics.git",
+    "SphericalHarmonics @ git+https://github.com/vdutor/SphericalHarmonics.git",
 ]
 version="0.2a0"
 
