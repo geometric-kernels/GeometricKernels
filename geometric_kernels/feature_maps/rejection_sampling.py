@@ -16,7 +16,9 @@ from geometric_kernels.spaces import Hyperbolic, SymmetricPositiveDefiniteMatric
 
 
 class RejectionSamplingFeatureMapHyperbolic(FeatureMap):
-    def __init__(self, space: Hyperbolic, num_random_phases: int = 3000, shift_laplacian=True):
+    def __init__(
+            self, space: Hyperbolic, num_random_phases: int = 3000, shift_laplacian=True
+        ):
         """
         Random phase feature map for the Hyperbolic space based on the
         rejection sampling algorithm.
@@ -64,7 +66,7 @@ class RejectionSamplingFeatureMapHyperbolic(FeatureMap):
             (self.num_random_phases, B.rank(self.space.rho)),
             params,
             self.space.dimension,
-            self.shift_laplacian
+            self.shift_laplacian,
         )  # [O, 1]
 
         random_phases_b = B.expand_dims(
@@ -90,7 +92,7 @@ class RejectionSamplingFeatureMapSPD(FeatureMap):
         self,
         space: SymmetricPositiveDefiniteMatrices,
         num_random_phases: int = 3000,
-        shift_laplacian: bool = True
+        shift_laplacian: bool = True,
     ):
         """
         Random phase feature map for the SPD (Symmetric Positive Definite) space based on the
@@ -135,8 +137,12 @@ class RejectionSamplingFeatureMapSPD(FeatureMap):
         )  # [O, D, D]
 
         key, random_lambda = spd_density_sample(
-            key, (self.num_random_phases,), params,
-            self.space.degree, self.space.rho, self.shift_laplacian
+            key,
+            (self.num_random_phases,),
+            params,
+            self.space.degree,
+            self.space.rho,
+            self.shift_laplacian,
         )  # [O, D]
 
         random_phases_b = B.expand_dims(

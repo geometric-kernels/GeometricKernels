@@ -98,11 +98,9 @@ def base_density_sample(key, size, params, dim, rho, shift_laplacian=True):
 
     scale_nu_infinite = L
     if shift_laplacian:
-        scale_nu_finite = B.sqrt(deg_freedom / (2*safe_nu/L**2))
+        scale_nu_finite = B.sqrt(deg_freedom / (2 * safe_nu / L**2))
     else:
-        scale_nu_finite = B.sqrt(
-            deg_freedom / (2*safe_nu/L**2 + B.sum(rho**2))
-        )
+        scale_nu_finite = B.sqrt(deg_freedom / (2 * safe_nu / L**2 + B.sum(rho**2)))
 
     scale = B.where(nu == np.inf, scale_nu_infinite, scale_nu_finite)
 
