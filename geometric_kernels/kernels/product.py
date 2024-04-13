@@ -33,7 +33,7 @@ class ProductGeometricKernel(BaseGeometricKernel):
         self.element_shapes = [kernel.space.element_shape for kernel in self.kernels]
 
         if dimension_indices is None:
-            dimensions = [math.product(shape) for shape in self.element_shapes]
+            dimensions = [math.prod(shape) for shape in self.element_shapes]
             self.dimension_indices: List[B.Numeric] = []
             i = 0
             inds = B.linspace(0, sum(dimensions) - 1, sum(dimensions)).astype(int)
