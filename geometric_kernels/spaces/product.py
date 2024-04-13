@@ -306,7 +306,7 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
         The number of levels to pre-compute for this product space.
     """
 
-    def __init__(self, *spaces: DiscreteSpectrumSpace, num_levels: int = 20):
+    def __init__(self, *spaces: DiscreteSpectrumSpace, num_levels: int = 25):
         for space in spaces:
             assert isinstance(
                 space, DiscreteSpectrumSpace
