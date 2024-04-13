@@ -346,7 +346,7 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
         return sum([space.dimension for space in self.sub_spaces])
 
     @staticmethod
-    def make_product(self, xs: List[B.Numeric]) -> B.Numeric:
+    def make_product(xs: List[B.Numeric]) -> B.Numeric:
         flat_xs = [B.reshape(x, B.shape(x)[0], -1) for x in xs]
         return B.concat(*flat_xs, axis=-1)
 
