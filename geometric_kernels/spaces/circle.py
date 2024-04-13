@@ -1,9 +1,8 @@
 """
-This module provides the :class:`Circle` space and the representation of its
-spectrum, the :class:`SinCosEigenfunctions` class.
+This module provides the :class:`Circle` space and the respective
+:class:`~.eigenfunctions.Eigenfunctions` subclass :class:`SinCosEigenfunctions`.
 """
 
-import geomstats as gs
 import lab as B
 from beartype.typing import List
 
@@ -18,21 +17,23 @@ from geometric_kernels.utils.utils import chain
 
 class SinCosEigenfunctions(EigenfunctionsWithAdditionTheorem):
     """
-    Eigenfunctions Laplace-Beltrami operator on the circle correspond
+    Eigenfunctions of the Laplace-Beltrami operator on the circle correspond
     to the Fourier basis, i.e. sines and cosines.
+
+    Levels are the whole eigenspaces. The zeroth eigenspace is
+    one-dimensional, all the other eigenspaces are of dimension 2.
+
+    :param num_levels:
+        The number of levels.
     """
 
-    def __init__(self, num_levels: int) -> None:
+    def __init__(self, num_levels: int):
         assert num_levels >= 1
 
         self._num_eigenfunctions = num_levels * 2 - 1
         self._num_levels = num_levels
 
-    def __call__(self, X: B.Numeric, **parameters) -> B.Numeric:
-        """
-        :param X: polar coordinates on the circle, [N, 1].
-        :param parameters: unused.
-        """
+    def __call__(self, X: B.Numeric, **kwargs) -> B.Numeric:
         N = B.shape(X)[0]
         theta = X
         const = 2.0**0.5
@@ -47,23 +48,32 @@ class SinCosEigenfunctions(EigenfunctionsWithAdditionTheorem):
 
         return B.concat(*values, axis=1)[:, : self._num_eigenfunctions]  # [N, M]
 
-    def _addition_theorem(self, X: B.Numeric, X2: B.Numeric, **parameters) -> B.Numeric:
+    def _addition_theorem(self, X: B.Numeric, X2: B.Numeric, **kwargs) -> B.Numeric:
         r"""
-        Returns the result of applying the additional theorem when
-        summing over all the outer products of eigenfunctions within a level,
-        for each level.
+        Returns the result of applying the addition theorem to sum over all
+        the outer products of eigenfunctions within a level, for each level.
 
-        Concretely in the case for inputs on the sphere S^1:
+        .. math:: \sin(l \theta_1) \sin(l \theta_2) + \cos(l \theta_1) \cos(l \theta_2 = N_l \cos(l (\theta_1 - \theta_2)),
 
-        .. math:
-            \sin(l \theta_1) \sin(l \theta_2) + \cos(l \theta_1) \cos(l \theta_2)
-                = N_l \cos(l (\theta_1 - \theta_2)),
-            where N_l = 1 for l = 0, else N_l = 2.
+        where $N_l = 1$ for $l = 0$, else $N_l = 2$.
 
-        :param X: [N, 1]
-        :param X2: [N2, 1]
-        :param parameters: unused.
-        :return: [N, N2, L]
+        :param X:
+            The first of the two batches of points to evaluate the phi
+            product at. An array of shape [N, <axis>], where N is the
+            number of points and <axis> is the shape of the arrays that
+            represent the points in a given space.
+        :param X2:
+            The second of the two batches of points to evaluate the phi
+            product at. An array of shape [N2, <axis>], where N2 is the
+            number of points and <axis> is the shape of the arrays that
+            represent the points in a given space.
+
+            Defaults to None, in which case X is used for X2.
+        :param ``**kwargs``:
+            Any additional parameters.
+
+        :return:
+            An array of shape [N, N2, L].
         """
         theta1, theta2 = X, X2
         angle_between = theta1[:, None, :] - theta2[None, :, :]  # [N, N2, 1]
@@ -78,14 +88,10 @@ class SinCosEigenfunctions(EigenfunctionsWithAdditionTheorem):
         )
         return values  # [N, N2, L]
 
-    def _addition_theorem_diag(self, X: B.Numeric, **parameters) -> B.Numeric:
+    def _addition_theorem_diag(self, X: B.Numeric, **kwargs) -> B.Numeric:
         """
-        A more efficient way of computing the diagonals of the matrices
-        `self._addition_theorem(X, X)[:, :, l]` for all l from 0 to L-1.
-
-        :param X: [N, 1]
-        :param parameters: unused.
-        :return: [N, L]
+        :return:
+            Array `result`, such that result[n, l] = 1 if l = 0 or 2 otherwise.
         """
         N = X.shape[0]
         ones = B.ones(B.dtype(X), N, self.num_levels)  # [N, L]
@@ -96,26 +102,22 @@ class SinCosEigenfunctions(EigenfunctionsWithAdditionTheorem):
 
     @property
     def num_eigenfunctions(self) -> int:
-        """Number of eigenfunctions, M"""
         return self._num_eigenfunctions
 
     @property
     def num_levels(self) -> int:
-        """
-        Number of levels, L
-
-        For each level except the first where there is just one, there are two
-        eigenfunctions.
-        """
         return self._num_levels
 
     @property
     def num_eigenfunctions_per_level(self) -> List[int]:
-        """Number of eigenfunctions per level, [N_l]_{l=0}^{L-1}"""
+        """
+        :return:
+            List `result`, such that result[l] = 1 if l = 0 or 2 otherwise.
+        """
         return [1 if level == 0 else 2 for level in range(self.num_levels)]
 
 
-class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
+class Circle(DiscreteSpectrumSpace):
     r"""
     The GeometricKernels space representing the standard unit circle, denoted
     by $\mathbb{S}_1$ (as the one-dimensional hypersphere) or $\mathbb{T}$ (as
@@ -123,15 +125,16 @@ class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
 
     The elements of this space are represented by angles,
     scalars from $0$ to $2 \pi$.
-    """
 
-    def __init__(self):
-        super().__init__(dim=1)
+    Levels are the whole eigenspaces. The zeroth eigenspace is
+    one-dimensional, all the other eigenspaces are of dimension 2.
+    """
 
     @property
     def dimension(self) -> int:
         """
-        :return: 1.
+        :return:
+            1.
         """
         return 1
 
@@ -139,7 +142,8 @@ class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
         """
         Returns the :class:`~.SinCosEigenfunctions` object with `num` levels.
 
-        :param num: number of levels.
+        :param num:
+            Number of levels.
         """
         return SinCosEigenfunctions(num)
 
@@ -157,6 +161,6 @@ class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
         return B.reshape(eigenvalues, -1, 1)  # [M, 1]
 
     def random(self, key: B.RandomState, number: int):
-        key, random_points = B.random.rand(key, dtype_double(key), number, 1)  # (N, 1)
+        key, random_points = B.random.rand(key, dtype_double(key), number, 1)  # [N, 1]
         random_points *= 2 * B.pi
         return key, random_points

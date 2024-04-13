@@ -26,9 +26,13 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
     of the stationary kernel. The eigenvalues and eigenfunctions belong to the
     :class:`~.spaces.DiscreteSpectrumSpace` instance.
 
-    We refer to the pairs $(\lambda_l, G_l(\cdot, \cdot'))$ where
-    $G_l(\cdot, \cdot') = \sum_{s=1}^{d_l} f_{ls}(\cdot) f_{ls}(\cdot')$
-    as "levels". For many spaces, like the sphere, we can employ addition
+    We denote
+
+    .. math:: G_l(\cdot, \cdot') = \sum_{s=1}^{d_l} f_{ls}(\cdot) f_{ls}(\cdot')
+
+    and term the sets $[f_{ls}]_{s=1}^{d_l}$  *"levels"*.
+
+    For many spaces, like the sphere, we can employ addition
     theorems to efficiently compute $G_l(\cdot, \cdot')$ without calculating
     the individual $f_{ls}(\cdot)$. Note that $\lambda_l$ are not required to
     be unique: it is possible that for some $l,l'$, $\lambda_l = \lambda_{l'}$.

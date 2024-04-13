@@ -3,9 +3,10 @@ This module provides base classes for storing or evaluating eigenfunctions of
 the Laplacian, or certain combinations thereof (see the note below).
 
 .. note::
-    Sometimes, when relations analogous to the addition theorem on the sphere
-    are available, it is much more efficient to use certain sums of outer products
-    of eigenfunctions instead of the eigenfunctions themselves. For this, we offer
+    Sometimes, when relations analogous to the :doc:`addition theorem
+    </theory/addition_theorem>` on the sphere are available, it is much more
+    efficient to use certain sums of outer products of eigenfunctions instead
+    of the eigenfunctions themselves. For this, we offer
     :class:`EigenfunctionsWithAdditionTheorem`. Importantly, it is permitted to
     _only_ provide the computational routines for these "certain sums", lacking
     the actual capability to compute the eigenfunctions themselves. This is
@@ -42,11 +43,12 @@ class Eigenfunctions(abc.ABC):
     $l,l'$, $\lambda_l = \lambda_{l'}$.
 
     .. note::
-        There is often more than one way to choose the partition into levels.
+        There is often more than one way to choose a partition into levels.
         Trivially, you can always correspond a level to each individual
         eigenfunction. Alternatively, you can partition $[f_j]_{j=0}^{J-1}$
-        into the maximal subsets corresponding to the same eigenvalue. There
-        are also often plenty of possibilities in between these two extremes.
+        into the maximal subsets corresponding to the same eigenvalue (into
+        the *full eigenspaces*). There are also often plenty of possibilities
+        in between these two extremes.
 
     Importantly, subclasses of this class do not necessarily have to allow
     computing the individual eigenfunctions (i.e. implement the method
@@ -178,15 +180,9 @@ class Eigenfunctions(abc.ABC):
         """
         raise NotImplementedError
 
-    @abc.abstractmethod
     def __call__(self, X: B.Numeric, **kwargs) -> B.Numeric:
         """
         Evaluate the individual eigenfunctions at a batch of input locations.
-
-        .. note::
-            This method can stay unimplemented in subclasses that do
-            not wish to allow direct access to individual eigenfunctions (as
-            opposed to evaluating sums of outer products over levels).
 
         :param X:
             Points to evaluate the eigenfunctions at, an array of

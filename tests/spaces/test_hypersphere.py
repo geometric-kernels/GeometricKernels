@@ -40,7 +40,7 @@ def _inputs_fixure(request) -> Tuple[B.Numeric]:
 )
 def test_shape_eigenfunctions(dim, num, expected_num, expected_num_levels):
     sph_harmonics = SphericalHarmonics(dim, num)
-    assert len(sph_harmonics._spherical_harmonics) == sph_harmonics._num_eigenfunctions
+    assert len(sph_harmonics._spherical_harmonics) == sph_harmonics.num_eigenfunctions
     assert sph_harmonics.num_eigenfunctions == expected_num
     assert sph_harmonics.num_levels == expected_num_levels
 
