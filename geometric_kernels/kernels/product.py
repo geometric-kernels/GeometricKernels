@@ -2,6 +2,8 @@
 Product of kernels
 """
 
+import math
+
 import lab as B
 from beartype.typing import List, Mapping, Optional
 
@@ -28,9 +30,10 @@ class ProductGeometricKernel(BaseGeometricKernel):
         dimension_indices: Optional[List[B.Numeric]] = None,
     ):
         self.kernels = kernels
+        self.element_shapes = [kernel.space.element_shape for kernel in self.kernels]
 
         if dimension_indices is None:
-            dimensions = [kernel.space.dimension for kernel in self.kernels]
+            dimensions = [math.product(shape) for shape in self.element_shapes]
             self.dimension_indices: List[B.Numeric] = []
             i = 0
             inds = B.linspace(0, sum(dimensions) - 1, sum(dimensions)).astype(int)
@@ -63,8 +66,16 @@ class ProductGeometricKernel(BaseGeometricKernel):
         if X2 is None:
             X2 = X
 
-        Xs = [B.take(X, inds, axis=-1) for inds in self.dimension_indices]
-        X2s = [B.take(X2, inds, axis=-1) for inds in self.dimension_indices]
+        N = B.shape(X)[0]
+        M = B.shape(X2)[0]
+        Xs = [
+            B.reshape(B.take(X, inds, axis=-1), N, *shape)
+            for inds, shape in zip(self.dimension_indices, self.element_shapes)
+        ]
+        X2s = [
+            B.reshape(B.take(X2, inds, axis=-1), M, *shape)
+            for inds, shape in zip(self.dimension_indices, self.element_shapes)
+        ]
 
         return B.prod(
             B.stack(
@@ -78,7 +89,11 @@ class ProductGeometricKernel(BaseGeometricKernel):
         )
 
     def K_diag(self, params, X):
-        Xs = [B.take(X, inds, axis=-1) for inds in self.dimension_indices]
+        N = B.shape(X)[0]
+        Xs = [
+            B.reshape(B.take(X, inds, axis=-1), N, *shape)
+            for inds, shape in zip(self.dimension_indices, self.element_shapes)
+        ]
 
         return B.prod(
             B.stack(
