@@ -125,23 +125,23 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
         diagonal = B.cast(B.dtype(vector_a), diagonal)
         return einsum("...i,...i->...", diagonal * vector_a, vector_b)
 
-    def inv_harish_chandra(self, X: B.Numeric) -> B.Numeric:
-        X = B.squeeze(X, -1)
+    def inv_harish_chandra(self, lam: B.Numeric) -> B.Numeric:
+        lam = B.squeeze(lam, -1)
         if self.dimension == 2:
-            c = B.abs(X) * B.tanh(B.pi * B.abs(X))
+            c = B.abs(lam) * B.tanh(B.pi * B.abs(lam))
             return B.sqrt(c)
 
         if self.dimension % 2 == 0:
             m = self.dimension // 2
-            js = B.range(B.dtype(X), 0, m - 1)
+            js = B.range(B.dtype(lam), 0, m - 1)
             addenda = ((js * 2 + 1.0) ** 2) / 4  # [M]
         elif self.dimension % 2 == 1:
             m = self.dimension // 2
-            js = B.range(B.dtype(X), 0, m)
+            js = B.range(B.dtype(lam), 0, m)
             addenda = js**2  # [M]
-        log_c = B.sum(B.log(X[..., None] ** 2 + addenda), axis=-1)  # [N, M] --> [N, ]
+        log_c = B.sum(B.log(lam[..., None] ** 2 + addenda), axis=-1)  # [N, M] --> [N, ]
         if self.dimension % 2 == 0:
-            log_c += B.log(B.abs(X)) + B.log(B.tanh(B.pi * B.abs(X)))
+            log_c += B.log(B.abs(lam)) + B.log(B.tanh(B.pi * B.abs(lam)))
 
         return B.exp(0.5 * log_c)
 

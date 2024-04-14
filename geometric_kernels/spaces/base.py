@@ -172,18 +172,20 @@ class NoncompactSymmetricSpace(Space):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def inv_harish_chandra(self, X: B.Numeric) -> B.Numeric:
-        """
-        Implements $c^{-1}(x)$, where $c$ is the Harish-Chandra's $c$ function.
+    def inv_harish_chandra(self, lam: B.Numeric) -> B.Numeric:
+        r"""
+        Implements $c^{-1}(\lambda)$, where $c$ is the Harish-Chandra's $c$
+        function.
 
         This is one of the computational primitives required to (approximately)
         compute the :class:`~.feature_maps.RandomPhaseFeatureMapNoncompact`
         feature map and :class:`~.kernels.MaternFeatureMapKernel` on top of it.
 
-        :param X:
-            A batch of elements in the space.
+        :param lam:
+            A batch of frequencies, vectors of dimension equal to the rank of
+            symmetric space.
         :returns:
-            $c^{-1}(x)$ evaluated at every element $x$ in the batch `X`.
+            $c^{-1}(\lambda)$ evaluated at every $\lambda$ in the batch `lam`.
         """
         raise NotImplementedError
 

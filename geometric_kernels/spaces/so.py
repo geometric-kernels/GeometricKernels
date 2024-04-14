@@ -42,7 +42,7 @@ class SOEigenfunctions(WeylAdditionTheorem):
 
         super().__init__(n, num_levels, compute_characters)
 
-    def _generate_signatures(self, num_levels: int) -> List[Tuple[int]]:
+    def _generate_signatures(self, num_levels: int) -> List[Tuple[int, ...]]:
         signatures = []
         # largest LB eigenvalues correspond to partitions of smallest integers
         # IF p >> k the number of partitions of p into k parts is O(p^k)
@@ -69,7 +69,7 @@ class SOEigenfunctions(WeylAdditionTheorem):
         signatures = [signatures[i] for i in min_ind]
         return signatures
 
-    def _compute_dimension(self, signature: Tuple[int]) -> int:
+    def _compute_dimension(self, signature: Tuple[int, ...]) -> int:
         if self.n % 2 == 1:
             qs = [pk + self.rank - k - 1 / 2 for k, pk in enumerate(signature)]
             rep_dim = reduce(
@@ -105,13 +105,15 @@ class SOEigenfunctions(WeylAdditionTheorem):
             )
             return int(round(rep_dim))
 
-    def _compute_eigenvalue(self, signature: Tuple[int]) -> B.Float:
+    def _compute_eigenvalue(self, signature: Tuple[int, ...]) -> B.Float:
         np_sgn = np.array(signature)
         rho = self.rho
         eigenvalue = np.linalg.norm(rho + np_sgn) ** 2 - np.linalg.norm(rho) ** 2
         return eigenvalue
 
-    def _compute_character(self, n: int, signature: Tuple[int]) -> LieGroupCharacter:
+    def _compute_character(
+        self, n: int, signature: Tuple[int, ...]
+    ) -> LieGroupCharacter:
         return SOCharacter(n, signature)
 
     def _torus_representative(self, X: B.Numeric) -> B.Numeric:
@@ -176,7 +178,7 @@ class SOCharacter(LieGroupCharacter):
         irreducible unitary representation along with it).
     """
 
-    def __init__(self, n: int, signature: Tuple[int]):
+    def __init__(self, n: int, signature: Tuple[int, ...]):
         self.signature = signature
         self.n = n
         self.coeffs, self.monoms = self._load()

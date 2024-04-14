@@ -100,7 +100,7 @@ class WeylAdditionTheorem(EigenfunctionsWithAdditionTheorem):
             ]
 
     @abc.abstractmethod
-    def _generate_signatures(self, num_levels: int) -> List[Tuple[int]]:
+    def _generate_signatures(self, num_levels: int) -> List[Tuple[int, ...]]:
         """
         Generate the signatures of `self.num_levels` irreducible unitary
         representations of the group that (likely) correspond to the smallest
@@ -119,7 +119,7 @@ class WeylAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _compute_eigenvalue(self, signature: Tuple[int]) -> B.Float:
+    def _compute_eigenvalue(self, signature: Tuple[int, ...]) -> B.Float:
         """
         Compute eigenvalue corresponding to `signature`.
 
@@ -132,7 +132,7 @@ class WeylAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _compute_dimension(self, signature: Tuple[int]) -> int:
+    def _compute_dimension(self, signature: Tuple[int, ...]) -> int:
         """
         Compute dimension of the representation corresponding to `signature`.
 
@@ -145,7 +145,9 @@ class WeylAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def _compute_character(self, n: int, signature: Tuple[int]) -> LieGroupCharacter:
+    def _compute_character(
+        self, n: int, signature: Tuple[int, ...]
+    ) -> LieGroupCharacter:
         """
         Compute character of the representation corresponding to `signature`.
 

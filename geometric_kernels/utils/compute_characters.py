@@ -1,3 +1,15 @@
+"""
+Standalone script to precompute characters for
+:class:`~.spaces.SpecialOrthogonal` and :class:`~.spaces.SpecialUnitary`.
+
+Edit `recalculate`, `storage_file_name`, `order`, and `groups` variables below
+in the code and run the script as.
+
+.. code-block:: bash
+
+    python compute_characters.py
+"""
+
 import itertools
 import json
 import sys

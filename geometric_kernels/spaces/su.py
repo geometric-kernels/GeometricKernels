@@ -40,7 +40,7 @@ class SUEigenfunctions(WeylAdditionTheorem):
 
         super().__init__(n, num_levels, compute_characters)
 
-    def _generate_signatures(self, num_levels: int) -> List[Tuple[int]]:
+    def _generate_signatures(self, num_levels: int) -> List[Tuple[int, ...]]:
         sign_vals_lim = 100 if self.n in (1, 2) else 30 if self.n == 3 else 10
         signatures = list(
             itertools.combinations_with_replacement(
@@ -54,7 +54,7 @@ class SUEigenfunctions(WeylAdditionTheorem):
         signatures = [signatures[i] for i in min_ind]
         return signatures
 
-    def _compute_dimension(self, signature: Tuple[int]) -> int:
+    def _compute_dimension(self, signature: Tuple[int, ...]) -> int:
         rep_dim = reduce(
             operator.mul,
             (
@@ -71,7 +71,7 @@ class SUEigenfunctions(WeylAdditionTheorem):
         )
         return int(round(rep_dim))
 
-    def _compute_eigenvalue(self, signature: Tuple[int]) -> B.Float:
+    def _compute_eigenvalue(self, signature: Tuple[int, ...]) -> B.Float:
         normalized_signature = np.asarray(signature, dtype=np.float64) - np.mean(
             signature
         )
@@ -81,7 +81,9 @@ class SUEigenfunctions(WeylAdditionTheorem):
         )
         return lb_eigenvalue
 
-    def _compute_character(self, n: int, signature: Tuple[int]) -> LieGroupCharacter:
+    def _compute_character(
+        self, n: int, signature: Tuple[int, ...]
+    ) -> LieGroupCharacter:
         return SUCharacter(n, signature)
 
     def _torus_representative(self, X):
@@ -108,7 +110,7 @@ class SUCharacter(LieGroupCharacter):
         irreducible unitary representation along with it).
     """
 
-    def __init__(self, n: int, signature: Tuple[int]):
+    def __init__(self, n: int, signature: Tuple[int, ...]):
         self.signature = signature
         self.n = n
         self.coeffs, self.monoms = self._load()

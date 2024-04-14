@@ -82,11 +82,11 @@ class SymmetricPositiveDefiniteMatrices(
         Q = B.concat(B.expand_dims(Q0, -1), Q[..., 1:], axis=-1)  # [B, D, D]
         return key, Q
 
-    def inv_harish_chandra(self, X):
-        diffX = ordered_pairwise_differences(X)
-        diffX = B.abs(diffX)
+    def inv_harish_chandra(self, lam):
+        diffs = ordered_pairwise_differences(lam)
+        diffs = B.abs(diffs)
         logprod = B.sum(
-            B.log(B.pi * diffX) + B.log(B.tanh(B.pi * diffX)), axis=-1
+            B.log(B.pi * diffs) + B.log(B.tanh(B.pi * diffs)), axis=-1
         )  # [B, ]
         return B.exp(0.5 * logprod)
 
