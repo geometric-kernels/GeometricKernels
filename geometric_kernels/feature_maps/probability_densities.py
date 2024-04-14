@@ -22,9 +22,10 @@ from geometric_kernels.lab_extras import (
 from geometric_kernels.utils.utils import ordered_pairwise_differences
 
 
-def student_t_sample(key, size, deg_freedom, dtype=None):
+def student_t_sample(key, size, deg_freedom, dim, dtype=None):
     r"""
-    Sample from the Student-t distribution with `deg_freedom` degrees of freedom,
+    Sample from the mulitvariate Student-t distribution 
+    with `deg_freedom` degrees of freedom and `dim` dimensions,
     using `key` random state, returning sample of the shape `size`.
 
     Student-t random variable with `nu` degrees of freedom can be represented as
@@ -39,22 +40,25 @@ def student_t_sample(key, size, deg_freedom, dtype=None):
                 `torch.Generator` or `jax.tensor` (representing random state).
     :param size: shape of the returned sample.
     :param deg_freedom: degrees of freedom of the student-t distribution.
+    :param dim: dimension of distribution.
     :param dtype: dtype of the returned tensor.
     """
     assert B.shape(deg_freedom) == (1,), "deg_freedom must be a 1-vector."
     dtype = dtype or dtype_double(key)
-    key, z = B.randn(key, dtype, *size)
+    key, z = B.randn(key, dtype, size, dim)
 
     key, g = B.randgamma(
         key,
         dtype,
-        *size,
+        size,
         alpha=deg_freedom / 2,
-        scale=2 / deg_freedom,
+        scale=2,
     )
+
     g = B.squeeze(g, axis=-1)
 
-    u = z / B.sqrt(g)
+    u = z / B.sqrt(g / deg_freedom)[..., None]
+
     return key, u
 
 
@@ -83,16 +87,18 @@ def base_density_sample(key, size, params, dim, rho, shift_laplacian: bool = Tru
     nu = params["nu"]
     L = params["lengthscale"]
 
+    rho_dim = B.size(rho)
+
     # Note: 1.0 in safe_nu can be replaced by any finite positive value
     safe_nu = B.where(nu == np.inf, B.cast(B.dtype(L), np.r_[1.0]), nu)
 
     # for nu == np.inf
     # sample from Gaussian
-    key, u_nu_infinite = B.randn(key, B.dtype(L), *size)
+    key, u_nu_infinite = B.randn(key, B.dtype(L), size, rho_dim)
     # for nu < np.inf
     # sample from the student-t with 2\nu + dim(space) - dim(rho)  degrees of freedom
-    deg_freedom = 2 * safe_nu + dim - B.rank(rho)
-    key, u_nu_finite = student_t_sample(key, size, deg_freedom, B.dtype(L))
+    deg_freedom = 2 * safe_nu + dim - rho_dim
+    key, u_nu_finite = student_t_sample(key, size, deg_freedom, rho_dim, B.dtype(L))
 
     u = B.where(nu == np.inf, u_nu_infinite, u_nu_finite)
 
@@ -310,7 +316,7 @@ def spd_density_sample(key, size, params, degree, rho, shift_laplacian: bool = T
         diffp = ordered_pairwise_differences(proposal)
         diffp = B.pi * B.abs(diffp)
         logprod = B.sum(B.log(B.tanh(diffp)), axis=-1)
-        prod = B.exp(0.5 * logprod)
+        prod = B.exp(logprod)
         assert B.all(prod > 0)
 
         # accept with probability `prod`
