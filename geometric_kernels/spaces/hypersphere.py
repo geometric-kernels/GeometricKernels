@@ -38,8 +38,20 @@ class SphericalHarmonics(EigenfunctionWithAdditionTheorem):
         self._num_levels = num_levels
         self._num_eigenfunctions = self.degree_to_num_eigenfunctions(self._num_levels)
         self._spherical_harmonics = _SphericalHarmonics(
-            dimension=dim + 1, degrees=self._num_levels
+            dimension=dim + 1,
+            degrees=self._num_levels,
+            allow_uncomputed_levels=True,
         )
+
+    @property
+    def num_computed_levels(self) -> int:
+        num = 0
+        for level in self._spherical_harmonics.harmonic_levels:
+            if level.is_level_computed:
+                num += 1
+            else:
+                break
+        return num
 
     def degree_to_num_eigenfunctions(self, degree: int) -> int:
         """
