@@ -292,8 +292,8 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
     .. math::
         \lambda_{j_1, .., j_S} = \lambda^1_{j_1} + \ldots + \lambda^S_{j_S}.
 
-    The *levels* (see :doc:`here <.kernels.MaternKarhunenLoeveKernel>` and
-    :doc:`here <.eigenfunctions.Eigenfunctions>`) on factors define levels on
+    The *levels* (see :class:`here <.kernels.MaternKarhunenLoeveKernel>` and
+    :class:`here <.eigenfunctions.Eigenfunctions>`) on factors define levels on
     the product space. Thus, we operate on levels. Without a further truncation,
     the number of levels on the product space is the product of the numbers of
     levels on the factors, which is typically too many. Thus, an additional
