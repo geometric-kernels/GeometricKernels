@@ -83,6 +83,15 @@ def make_deterministic(f, key):
             raise ValueError("Unknown key_argtype %s" % key_argtype)
         return f(*new_args, **kwargs)
 
+    new_docstring = f"""
+        This is a deterministic version of the function {f.__name__}.
+
+        The original docstring follows.
+
+        {f.__doc__}
+        """
+    deterministic_f.__doc__ = new_docstring
+
     return deterministic_f
 
 
