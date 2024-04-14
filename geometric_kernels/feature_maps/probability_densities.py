@@ -58,7 +58,7 @@ def student_t_sample(key, size, deg_freedom, dtype=None):
     return key, u
 
 
-def base_density_sample(key, size, params, dim, rho, shift_laplacian=True):
+def base_density_sample(key, size, params, dim, rho, shift_laplacian: bool = True):
     r"""
     The Matérn kernel's spectral density is of the form
     :math:`p_{\nu,\kappa}(\lambda)`,
@@ -171,7 +171,7 @@ def sample_mixture_heat(key, alpha, lengthscale):
     return key, s
 
 
-def sample_mixture_matern(key, alpha, lengthscale, nu, dim, shift_laplacian=True):
+def sample_mixture_matern(key, alpha, lengthscale, nu, dim, shift_laplacian: bool = True):
     r"""
     Sample from the mixture distribution from Prop. 17 for specific alphas
     `alpha`, length scale (kappa) `lengthscale`, smoothness `nu` and dimnesion
@@ -219,7 +219,7 @@ def sample_mixture_matern(key, alpha, lengthscale, nu, dim, shift_laplacian=True
     return key, s
 
 
-def hyperbolic_density_sample(key, size, params, dim, shift_laplacian=True):
+def hyperbolic_density_sample(key, size, params, dim, shift_laplacian: bool = True):
     r"""
     :param key: either `np.random.RandomState`, `tf.random.Generator`,
                 `torch.Generator` or `jax.tensor` (representing random state).
@@ -268,7 +268,7 @@ def hyperbolic_density_sample(key, size, params, dim, shift_laplacian=True):
     return key, B.cast(B.dtype(L), samples)
 
 
-def spd_density_sample(key, size, params, degree, rho, shift_laplacian=True):
+def spd_density_sample(key, size, params, degree, rho, shift_laplacian: bool = True):
     r"""
     :param key: either `np.random.RandomState`, `tf.random.Generator`,
                 `torch.Generator` or `jax.tensor` (representing random state).
@@ -310,7 +310,7 @@ def spd_density_sample(key, size, params, degree, rho, shift_laplacian=True):
         diffp = ordered_pairwise_differences(proposal)
         diffp = B.pi * B.abs(diffp)
         logprod = B.sum(B.log(B.tanh(diffp)), axis=-1)
-        prod = B.exp(logprod)
+        prod = B.exp(0.5 * logprod)
         assert B.all(prod > 0)
 
         # accept with probability `prod`
