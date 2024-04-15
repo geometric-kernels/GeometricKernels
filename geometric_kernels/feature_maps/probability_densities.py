@@ -10,6 +10,7 @@ from functools import reduce
 
 import lab as B
 import numpy as np
+from opt_einsum import contract as einsum
 from sympy import Poly, Product, symbols
 
 from geometric_kernels.lab_extras import (
@@ -22,42 +23,52 @@ from geometric_kernels.lab_extras import (
 from geometric_kernels.utils.utils import ordered_pairwise_differences
 
 
-def student_t_sample(key, size, deg_freedom, dim, dtype=None):
+def student_t_sample(key, loc, shape, df, size, dtype=None):
     r"""
-    Sample from the mulitvariate Student-t distribution 
-    with `deg_freedom` degrees of freedom and `dim` dimensions,
+    Sample from the mulitvariate Student-t distribution
+    with mean `loc`, covariance `shape` and `df` degrees of freedom,
     using `key` random state, returning sample of the shape `size`.
 
-    Student-t random variable with `nu` degrees of freedom can be represented as
-    :math:`T=\frac{Z}{\sqrt{V/\nu}}`, where `Z` is the standard normal r.v. and
-    `V` is :math:`\chi^2(\nu)` r.v. The :math:`\chi^2(\nu)` distribution is the
-    same as `\Gamma(\nu / 2, 2)` distribution, and therefore
+    Multivariate Student-t random variable with `nu` degrees of freedom
+    can be represented as :math:`T=\frac{Z}{\sqrt{V/\nu}} + loc`,
+    where `Z` is the centered normal r.v. with covariance `shape` and
+    `V` is :math:`\chi^2(\nu)` r.v. The :math:`\chi^2(\nu)` distribution 
+    is the same as `\Gamma(\nu / 2, 2)` distribution, and therefore
     :math:`V/\nu \sim \Gamma(\nu / 2, 2 / \nu)`
 
     We use these properties to sample the student-t random variable.
 
     :param key: either `np.random.RandomState`, `tf.random.Generator`,
                 `torch.Generator` or `jax.tensor` (representing random state).
+    :param loc: (n,) vector
+    :param shape: (n, n) positive definite matrix
     :param size: shape of the returned sample.
-    :param deg_freedom: degrees of freedom of the student-t distribution.
-    :param dim: dimension of distribution.
+    :param df: degrees of freedom of the student-t distribution.
     :param dtype: dtype of the returned tensor.
     """
-    assert B.shape(deg_freedom) == (1,), "deg_freedom must be a 1-vector."
+    assert B.shape(df) == (1,), "df must be a 1-vector."
+
+    n = B.length(loc)
+
+    assert B.shape(loc) == (n,), "loc must be a 1-dim vector"
+    assert B.shape(shape) == (n, n), "shape must be a matrix"
+
+    shape_sqrt = B.chol(shape)
     dtype = dtype or dtype_double(key)
-    key, z = B.randn(key, dtype, size, dim)
+    key, z = B.randn(key, dtype, size, n)
+    z = einsum('si,ij->sj', z, shape_sqrt)
 
     key, g = B.randgamma(
         key,
         dtype,
         size,
-        alpha=deg_freedom / 2,
+        alpha=df / 2,
         scale=2,
     )
 
     g = B.squeeze(g, axis=-1)
 
-    u = z / B.sqrt(g / deg_freedom)[..., None]
+    u = (z / B.sqrt(g / df)[..., None]) + loc
 
     return key, u
 
@@ -87,26 +98,36 @@ def base_density_sample(key, size, params, dim, rho, shift_laplacian: bool = Tru
     nu = params["nu"]
     L = params["lengthscale"]
 
-    rho_dim = B.size(rho)
+    rho_size = B.size(rho)
 
     # Note: 1.0 in safe_nu can be replaced by any finite positive value
     safe_nu = B.where(nu == np.inf, B.cast(B.dtype(L), np.r_[1.0]), nu)
 
     # for nu == np.inf
     # sample from Gaussian
-    key, u_nu_infinite = B.randn(key, B.dtype(L), size, rho_dim)
+    key, u_nu_infinite = B.randn(key, B.dtype(L), size, rho_size)
     # for nu < np.inf
     # sample from the student-t with 2\nu + dim(space) - dim(rho)  degrees of freedom
-    deg_freedom = 2 * safe_nu + dim - rho_dim
-    key, u_nu_finite = student_t_sample(key, size, deg_freedom, rho_dim, B.dtype(L))
+    df = 2 * safe_nu + dim - rho_size
+    
+    dtype = B.dtype(L)
+
+    key, u_nu_finite = student_t_sample(
+        key,
+        B.zeros(dtype, rho_size),
+        B.eye(dtype, rho_size),
+        df,
+        size,
+        dtype,
+    )
 
     u = B.where(nu == np.inf, u_nu_infinite, u_nu_finite)
 
     scale_nu_infinite = L
     if shift_laplacian:
-        scale_nu_finite = B.sqrt(deg_freedom / (2 * safe_nu / L**2))
+        scale_nu_finite = B.sqrt(df / (2 * safe_nu / L**2))
     else:
-        scale_nu_finite = B.sqrt(deg_freedom / (2 * safe_nu / L**2 + B.sum(rho**2)))
+        scale_nu_finite = B.sqrt(df / (2 * safe_nu / L**2 + B.sum(rho**2)))
 
     scale = B.where(nu == np.inf, scale_nu_infinite, scale_nu_finite)
 
