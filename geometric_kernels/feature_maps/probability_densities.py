@@ -56,7 +56,7 @@ def student_t_sample(key, loc, shape, df, size, dtype=None):
     shape_sqrt = B.chol(shape)
     dtype = dtype or dtype_double(key)
     key, z = B.randn(key, dtype, size, n)
-    z = einsum('si,ij->sj', z, shape_sqrt)
+    z = einsum("si,ij->sj", z, shape_sqrt)
 
     key, g = B.randgamma(
         key,
@@ -198,7 +198,9 @@ def sample_mixture_heat(key, alpha, lengthscale):
     return key, s
 
 
-def sample_mixture_matern(key, alpha, lengthscale, nu, dim, shift_laplacian: bool = True):
+def sample_mixture_matern(
+    key, alpha, lengthscale, nu, dim, shift_laplacian: bool = True
+):
     r"""
     Sample from the mixture distribution from Prop. 17 for specific alphas
     `alpha`, length scale (kappa) `lengthscale`, smoothness `nu` and dimnesion
