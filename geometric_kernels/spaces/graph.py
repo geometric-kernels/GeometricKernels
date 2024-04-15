@@ -30,6 +30,10 @@ class Graph(DiscreteSpectrumSpace):
 
     Each individual eigenfunction constitutes a *level*.
 
+    .. note::
+        A tutorial on how to use this space is available in the
+        :doc:`Graph.ipynb </examples/Graph>` notebook.
+
     :param adjacency_matrix:
         An n-dimensional square, symmetric matrix, where
         adjacency_matrix[i, j] is non-zero if there is an edge

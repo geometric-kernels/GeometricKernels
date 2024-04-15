@@ -57,17 +57,20 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
     a geometric space is available in the
     :doc:`frontends/GPJax.ipynb </examples/frontends/GPJax>` notebook.
 
-    **Note**: remember that the `base_kernel` itself does not store any of its
-    hyperparameters (like `lengthscale` and `nu`). If you do not set them
-    manually—when initializing the object or after, by setting the properties—
-    this wrapper will use the values provided by `base_kernel.init_params`.
+    .. note::
+        Remember that the `base_kernel` itself does not store any of its
+        hyperparameters (like `lengthscale` and `nu`). If you do not set them
+        manually—when initializing the object or after, by setting the
+        properties—this wrapper will use the values provided by
+        `base_kernel.init_params`.
 
-    **Note**: unlike the frontends for GPflow and GPyTorch, GPJaxGeometricKernel
-    does not have the `trainable_nu` parameter which determines whether or not
-    the smoothness parameter nu is to be optimized over. By default, it is not
-    trainable. If you want to make it trainable, do
-    :code:`kernel = kernel.replace_trainable(nu=False)` on an instance of the
-    `GPJaxGeometricKernel`.
+    .. note::
+        Unlike the frontends for GPflow and GPyTorch, GPJaxGeometricKernel
+        does not have the `trainable_nu` parameter which determines whether or
+        not the smoothness parameter nu is to be optimized over. By default, it
+        is not trainable. If you want to make it trainable, do
+        :code:`kernel = kernel.replace_trainable(nu=False)` on an instance of
+        the `GPJaxGeometricKernel`.
 
     :param base_kernel:
         The kernel to wrap.

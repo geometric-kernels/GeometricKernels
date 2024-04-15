@@ -300,6 +300,10 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
     truncation is needed, i.e. choosing the largest $\lambda_{j_1, .., j_S}$.
     We precompute the optimal truncation leading to the `num_levels` in total.
 
+    .. note::
+        A tutorial on how to use this space is available in the
+        :doc:`Torus.ipynb </examples/Torus>` notebook.
+
     :param spaces:
         The factors, subclasses of :class:`~.spaces.DiscreteSpectrumSpace`.
     :param num_levels:

@@ -148,6 +148,10 @@ class SpecialUnitary(CompactMatrixLieGroup):
     The elements of this space are represented as n x n unitary
     matrices with complex entries and unit determinant.
 
+    .. note::
+        A tutorial on how to use this space is available in the
+        :doc:`SpecialUnitary.ipynb </examples/SpecialUnitary>` notebook.
+
     :param n:
         The order n of the group SU(n).
 

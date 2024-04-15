@@ -26,14 +26,17 @@ class GPflowGeometricKernel(gpflow.kernels.Kernel):
     a geometric space is available in the
     :doc:`frontends/GPflow.ipynb </examples/frontends/GPflow>` notebook.
 
-    **Note**: remember that the `base_kernel` itself does not store any of its
-    hyperparameters (like `lengthscale` and `nu`). If you do not set them
-    manually—when initializing the object or after, by setting the properties—
-    this wrapper will use the values provided by `base_kernel.init_params`.
+    .. note::
+        Remember that the `base_kernel` itself does not store any of its
+        hyperparameters (like `lengthscale` and `nu`). If you do not set them
+        manually—when initializing the object or after, by setting the
+        properties—this wrapper will use the values provided by
+        `base_kernel.init_params`.
 
-    **Note**: as customary in GPflow, this wrapper calls the length scale
-    parameter `lengthscales` (plural), as opposed to the convention used by
-    GeometricKernels, where we call it `lengthscale` (singular).
+    .. note::
+        As customary in GPflow, this wrapper calls the length scale
+        parameter `lengthscales` (plural), as opposed to the convention used by
+        GeometricKernels, where we call it `lengthscale` (singular).
 
     :param base_kernel:
         The kernel to wrap.

@@ -216,6 +216,10 @@ class SpecialOrthogonal(CompactMatrixLieGroup):
     The elements of this space are represented as n x n orthogonal
     matrices with real entries and unit determinant.
 
+    .. note::
+        A tutorial on how to use this space is available in the
+        :doc:`SpecialOrthogonal.ipynb </examples/SpecialOrthogonal>` notebook.
+
     :param n:
         The order n of the group SO(n).
 

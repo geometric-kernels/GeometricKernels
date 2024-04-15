@@ -29,6 +29,10 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
 
     The class inherits the interface of geomstats's `Hyperbolic` with `point_type=extrinsic`.
 
+    .. note::
+        A tutorial on how to use this space is available in the
+        :doc:`Hyperbolic.ipynb </examples/Hyperbolic>` notebook.
+
     :param dim:
         Dimension of the hyperbolic space, denoted by n in docstrings.
 
@@ -37,7 +41,7 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
         is a quotient G/H. For the hyperbolic space $\mathbb{H}_n$, the group
         of symmetries $G$ is the proper Lorentz group $SO(1, n)$,  while the
         isotropy subgroup $H$ is the special orthogonal group $SO(n)$. See the
-        mathematical details in https://arxiv.org/abs/2301.13088.
+        mathematical details in :cite:t:`azangulov2023`.
     """
 
     def __init__(self, dim=2):

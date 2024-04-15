@@ -31,12 +31,19 @@ class SymmetricPositiveDefiniteMatrices(
     The class inherits the interface of geomstats's `SPDMatrices`.
 
     .. note::
+        A tutorial on how to use this space is available in the
+        :doc:`SPD.ipynb </examples/SPD>` notebook.
+
+    :param n:
+        Size of the matrices, the $n$ in $SPD(n)$.
+
+    .. note::
         As mentioned in :ref:`this note <quotient note>`, any symmetric space
         is a quotient G/H. For the manifold of symmetric positive definite
         matrices $SPD(n)$, the group of symmetries $G$ is the identity component
         $GL(n)_+$ of the general linear group $GL(n)$, while the isotropy
         subgroup $H$ is the special orthogonal group $SO(n)$. See the
-        mathematical details in https://arxiv.org/abs/2301.13088.
+        mathematical details in :cite:t:`azangulov2023`.
     """
 
     def __init__(self, n):

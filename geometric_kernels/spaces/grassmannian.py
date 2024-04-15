@@ -70,6 +70,10 @@ class Grassmannian(CompactHomogeneousSpace):
     with orthogonal columns, just like the elements of the :class:`Stiefel`
     space. However, for this space, this representation is not unique: two such
     matrices can represent the same element of the Grassmannian manifold.
+
+    .. note::
+        A tutorial on how to use this space is available in the
+        :doc:`Grassmannian.ipynb </examples/Grassmannian>` notebook.
     """
 
     def __new__(cls, n, m, key, average_order=100):

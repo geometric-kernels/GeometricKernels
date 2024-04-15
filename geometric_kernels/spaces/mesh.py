@@ -34,6 +34,10 @@ class Mesh(DiscreteSpectrumSpace):
         ambient space).
 
     .. note::
+        A tutorial on how to use this space is available in the
+        :doc:`Mesh.ipynb </examples/Mesh>` notebook.
+
+    .. note::
         We use `potpourri3d <https://github.com/nmwsharp/potpourri3d>`_ to
         load meshes and mimic the interface of
         `PyMesh <https://github.com/PyMesh/PyMesh>`_.

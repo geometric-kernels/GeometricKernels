@@ -123,6 +123,10 @@ class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
     .. note::
         We only support d >= 2. For d = 1, use :class:`~.spaces.Circle`.
 
+    .. note::
+        A tutorial on how to use this space is available in the
+        :doc:`Hypersphere.ipynb </examples/Hypersphere>` notebook.
+
     :param dim:
         Dimension of the hypersphere $\mathbb{S}_d$.
         Should satisfy dim >= 2. For dim = 1, use :class:`~.spaces.Circle`.

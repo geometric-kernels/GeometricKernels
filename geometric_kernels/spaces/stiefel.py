@@ -54,6 +54,10 @@ class Stiefel(CompactHomogeneousSpace):
 
     The elements of this space are represented as :math:`n \times m` matrices
     with orthogonal columns.
+
+    .. note::
+        A tutorial on how to use this space is available in the
+        :doc:`Stiefel.ipynb </examples/Stiefel>` notebook.
     """
 
     def __new__(cls, n: int, m: int, key, average_order: int = 100):

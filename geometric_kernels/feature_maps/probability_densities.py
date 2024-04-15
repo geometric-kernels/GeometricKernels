@@ -149,7 +149,7 @@ def _randcat_fix(
 
 def _alphas(n: int) -> B.Numeric:
     r"""
-    Compute alphas for Prop. 16 & 17 of https://arxiv.org/pdf/2301.13088.pdf
+    Compute alphas for Prop. 16 & 17 of cite:t:`azangulov2023`
     for the hyperbolic space of dimension `n`.
 
     :param n: dimension of the hyperbolic space, n >= 2.
@@ -219,7 +219,7 @@ def _sample_mixture_matern(
 ) -> Tuple[B.RandomState, B.Numeric]:
     r"""
     Sample from the mixture distribution from Prop. 17 of
-    https://arxiv.org/pdf/2301.13088.pdf for specific alphas `alpha`, length
+    cite:t:`azangulov2023` for specific alphas `alpha`, length
     scale (kappa) `lengthscale`, smoothness `nu` and dimension `dim`, using
     `key` random state.
 

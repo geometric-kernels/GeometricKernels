@@ -132,6 +132,10 @@ class Circle(DiscreteSpectrumSpace):
 
     Levels are the whole eigenspaces. The zeroth eigenspace is
     one-dimensional, all the other eigenspaces are of dimension 2.
+
+    .. note::
+        The :doc:`example notebook on the torus </examples/Torus>` involves
+        this space.
     """
 
     @property

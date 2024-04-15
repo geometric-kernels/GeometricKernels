@@ -155,7 +155,7 @@ class NoncompactSymmetricSpace(Space):
         Mathematically, any non-compact symmetric space can be represented as
         a quotient $G/H$ of a Lie group of symmetries $G$ and its compact
         isotropy subgroup $H$. We sometimes refer to these $G$ and $H$ in
-        the documentation.
+        the documentation. See mathematical details in :cite:t:`azangulov2023`.
     """
 
     @abc.abstractproperty
