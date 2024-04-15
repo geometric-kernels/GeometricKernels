@@ -151,7 +151,7 @@ bibtex_bibfiles = ['references.bib']
 bibtex_reference_style = "author_year"
 
 import pybtex.plugin
-from pybtex.style.formatting.unsrt import Style as UnsrtStyle
+from pybtex.style.formatting.plain import Style as UnsrtStyle
 from pybtex.style.template import field, sentence
 
 class GKUnsrtStyle(UnsrtStyle):

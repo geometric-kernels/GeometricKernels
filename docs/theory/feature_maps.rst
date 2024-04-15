@@ -2,8 +2,10 @@
   Feature Maps and Sampling
 ##########################################
 
-**Warning:** you can get by fine without reading this page for almost all use cases, just use the standard :class:`default_feature_map <geometric_kernels.kernels.default_feature_map>`, following the example notebook on the specific space of interest.
-This is optional material meant to explain the basic theory.
+.. warning::
+    You can get by fine without reading this page for almost all use cases, just use the standard :func:`~.kernels.default_feature_map`, following the example notebook on the specific space of interest.
+
+    This is optional material meant to explain the basic theory.
 
 =======
 Theory
@@ -17,7 +19,12 @@ $$
 k(x, x') = \langle \phi(x), \phi(x') \rangle_{\mathcal{H}} \approx \langle \widetilde{\phi}(x), \widetilde{\phi}(x') \rangle_{\mathbb{R}^M}.
 $$
 
-Such approximate finite-dimensional feature maps can be used to speed up computations, as in, for example, `Rahimi and Recht (2007) <https://papers.nips.cc/paper_files/paper/2007/file/013a006f03dbc5392effeb8f18fda755-Paper.pdf>`_.
+.. note::
+    If the feature map is complex-valued $\widetilde{\phi}: X \to \mathbb{C}^M$, then 
+
+    .. math:: k(x, x') = \langle \phi(x), \phi(x') \rangle_{\mathcal{H}} \approx \mathrm{Re} \langle \widetilde{\phi}(x), \widetilde{\phi}(x') \rangle_{\mathbb{C}^M}.
+
+Such approximate finite-dimensional feature maps can be used to speed up computations, as in, for example, :cite:t:`rahimi2007`.
 Importantly, it can be used to efficiently sample (without incurring cubic costs) the Gaussian process $f \sim \mathrm{GP}(0, k)$.
 The key idea is that
 $$
