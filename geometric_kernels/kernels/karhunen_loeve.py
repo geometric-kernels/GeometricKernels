@@ -15,15 +15,15 @@ from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 
 class MaternKarhunenLoeveKernel(BaseGeometricKernel):
     r"""
-    This class approximates a kernel by the finite feature decomposition
-    using its Laplace-Beltrami eigenfunctions and eigenvalues.
+    This class approximates Matérn kernel by its truncated Mercer decomposition,
+    in terms of the eigenfunctions & eigenvalues of the Laplacian on the space.
 
     .. math:: k(x, x') = \sum_{l=0}^{L-1} S(\sqrt\lambda_l) \sum_{s=1}^{d_l} f_{ls}(x) f_{ls}(x'),
 
     where $\lambda_l$ and $f_{ls}(\cdot)$ are the eigenvalues and
-    eigenfunctions of the Laplace-Beltrami operator uch that
+    eigenfunctions of the Laplacian such that
     $\Delta f_{ls} = \lambda_l f_{ls}$, and $S(\cdot)$ is the spectrum
-    of the stationary kernel. The eigenvalues and eigenfunctions belong to the
+    of the Matérn kernel. The eigenvalues and eigenfunctions belong to the
     :class:`~.spaces.DiscreteSpectrumSpace` instance.
 
     We denote

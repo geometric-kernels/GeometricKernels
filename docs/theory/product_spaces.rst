@@ -27,7 +27,7 @@ Assume that $\mathcal{M}$ is a product of compact Riemannian manifolds $\mathcal
 You can consider other discrete spectrum spaces in place of the manifolds, like graphs or meshes, just as well.
 Here we concentrate on manifolds for simplicity.
 
-Matérn kernel on $\mathcal{M}$ is determined by the *eigenvalues* $\lambda_n \geq 0$ and *eigenfunctions* $f_n(\cdot)$ of the *Laplace–Beltrami operator* $\Delta_{\mathcal{M}}$ on $\mathcal{M}$.
+Matérn kernel on $\mathcal{M}$ is determined by the *eigenvalues* $\lambda_n \geq 0$ and *eigenfunctions* $f_n(\cdot)$ of the *Laplacian* $\Delta_{\mathcal{M}}$ on $\mathcal{M}$.
 
 The **key idea** is that $\lambda_n, f_n$ can be obtained from the eigenvalues and eigenfunctions on $\mathcal{M}_j$ therefore allowing to build Matérn kernels on the product space $\mathcal{M}$ from the components you would use to build Matérn kernels on the separate factors $\mathcal{M}_j$.
 
