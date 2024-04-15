@@ -32,11 +32,7 @@ def manifold_laplacian(x: B.Numeric, manifold, egrad, ehess):
     :return:
         Manifold Laplacian of the given function at x.
 
-    References:
-
-    [1] J. Jost.
-        Riemannian geometry and geometric analysis. Springer, 2017.
-        Chapter 3.1.
+    See :cite:t:`jost2011` (Chapter 3.1) for mathematical details.
     """
     dim = manifold.dim
 

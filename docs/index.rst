@@ -382,5 +382,6 @@ You can find more examples :doc:`here <examples/index>`.
    Examples <examples/index>
    Theory <theory/index>
    API reference <autoapi/geometric_kernels/index>
+   Bibliography <bibliography>
    GitHub <https://github.com/GPflow/GeometricKernels>
 

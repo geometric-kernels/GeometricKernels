@@ -41,6 +41,7 @@ extensions = [
     'sphinx.ext.todo',
     'nbsphinx',
     'nbsphinx_link',
+    'sphinxcontrib.bibtex',
 ]
 
 # autoapi
@@ -142,6 +143,27 @@ def ensure_pandoc_installed(_):
         targetfolder=pandoc_dir,
         delete_installer=True,
     )
+
+
+# -- Bibtex ------------------------------------------------------------------
+
+bibtex_bibfiles = ['references.bib']
+bibtex_reference_style = "author_year"
+
+import pybtex.plugin
+from pybtex.style.formatting.unsrt import Style as UnsrtStyle
+from pybtex.style.template import field, sentence
+
+class GKUnsrtStyle(UnsrtStyle):
+
+    def format_title(self, e, which_field, as_sentence=True):
+        formatted_title = field(which_field)  # Leave the field exactly as is.
+        if as_sentence:
+            return sentence [ formatted_title ]
+        else:
+            return formatted_title
+
+pybtex.plugin.register_plugin('pybtex.style.formatting', 'gkunsrt', GKUnsrtStyle)
 
 # -- Connect stuff -----------------------------------------------------------
 

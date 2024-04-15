@@ -41,9 +41,9 @@ class WeylAdditionTheorem(EigenfunctionsWithAdditionTheorem):
     groups. These are much like the *zonal spherical harmonics* of the
     :class:`~.SphericalHarmonics` class. However, the key to computing them
     is representation-theoretic: they are proportional to *characters* of
-    irreducible unitary representations of the group. These characters, in
-    their turn, can be algebraically computed using the *Weyl character
-    formula*. See [1] for the mathematical details behind this class.
+    irreducible unitary representations of the group. These characters, in their
+    turn, can be algebraically computed using the *Weyl character formula*. See
+    :cite:t:`azangulov2022` for the mathematical details behind this class.
 
     :param n:
         The order of the Lie group, e.g. for SO(5) this is 5, for SU(3) this is 3.
@@ -77,12 +77,6 @@ class WeylAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         :class:`~.eigenfunctions.Eigenfunctions` only provide an interface for
         working with eigenfunctions, not eigenvalues, offering an interface
         for computing the latter as well.
-
-    References:
-
-    [1] Iskander Azangulov, Andrei Smolensky, Alexander Terenin, Viacheslav
-        Borovitskiy. Stationary Kernels and Gaussian Processes on Lie Groups
-        and their Homogeneous Spaces I: the compact case.
     """
 
     def __init__(self, n: int, num_levels: int, compute_characters: bool = True):
@@ -199,9 +193,9 @@ class WeylAdditionTheorem(EigenfunctionsWithAdditionTheorem):
 
         .. note::
             Doing X1[j, :, :] * inv(X2[i, :, :]) is as permissible as
-            doing inv(X2[i, :, :]) * X1[j, :, :] which is actually used in [1].
-            This is because $\chi(x y x^{-1}) = \chi(y)$ which implies
-            that $\chi(x y) = \chi(y x)$.
+            doing inv(X2[i, :, :]) * X1[j, :, :] which is actually used in
+            :cite:t:`azangulov2022`. This is because $\chi(x y x^{-1})=\chi(y)$
+            which implies that $\chi(x y) = \chi(y x)$.
         """
         X2_inv = self.inverse(X2)
         X_ = B.tile(X[..., None, :, :], 1, X2_inv.shape[0], 1, 1)  # (N, N2, n, n)
@@ -220,8 +214,8 @@ class WeylAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         representation of the group), computes the sum of outer products of
         Laplace-Beltrami eigenfunctions that correspond to this level
         (representation). Uses the fact that such sums are equal to the
-        character of the representation multiplied by the dimension of
-        that representation. See [1] for mathematical details.
+        character of the representation multiplied by the dimension of that
+        representation. See :cite:t:`azangulov2022` for mathematical details.
 
         :param X:
             An [N, n, n]-shaped array, a batch of N matrices of size nxn.

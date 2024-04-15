@@ -203,10 +203,7 @@ class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
             of the Riemannian Hessian of the function evaluated at `x` along
             the `direction`.
 
-        References:
-
-        [1] P.-A. Absil, R. Mahony, R. Sepulchre.
-            Optimization algorithms on matrix manifolds. Princeton University Press 2007.
+        See :cite:t:`absil2008` for mathematical details.
         """
         normal_gradient = egrad - self.to_tangent(egrad, x)
         return (
