@@ -32,7 +32,7 @@ def student_t_sample(key, loc, shape, df, size, dtype=None):
     Multivariate Student-t random variable with `nu` degrees of freedom
     can be represented as :math:`T=\frac{Z}{\sqrt{V/\nu}} + loc`,
     where `Z` is the centered normal r.v. with covariance `shape` and
-    `V` is :math:`\chi^2(\nu)` r.v. The :math:`\chi^2(\nu)` distribution 
+    `V` is :math:`\chi^2(\nu)` r.v. The :math:`\chi^2(\nu)` distribution
     is the same as `\Gamma(\nu / 2, 2)` distribution, and therefore
     :math:`V/\nu \sim \Gamma(\nu / 2, 2 / \nu)`
 
@@ -109,7 +109,7 @@ def base_density_sample(key, size, params, dim, rho, shift_laplacian: bool = Tru
     # for nu < np.inf
     # sample from the student-t with 2\nu + dim(space) - dim(rho)  degrees of freedom
     df = 2 * safe_nu + dim - rho_size
-    
+
     dtype = B.dtype(L)
 
     key, u_nu_finite = student_t_sample(
