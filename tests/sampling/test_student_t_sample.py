@@ -20,7 +20,7 @@ def test_student_t_sample(deg_freedom, n):
 
     np_random_sample = multivariate_t.rvs(loc, shape, deg_freedom, size, key)
 
-    v = np.random.randn(n, seed=key)
+    v = key.standard_normal(n)
     v = v / np.linalg.norm(v)
 
     random_proj = np.einsum("ni,i->n", random_sample, v)
