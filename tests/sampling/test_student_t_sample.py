@@ -14,7 +14,9 @@ def test_student_t_sample(deg_freedom, n):
     shape = 1.0 * np.eye(n)
     loc = 1.0 * np.zeros((n,))
 
-    _, random_sample = student_t_sample(key, loc, shape, np.array([1.0*deg_freedom]), size)
+    _, random_sample = student_t_sample(
+        key, loc, shape, np.array([1.0*deg_freedom]), size
+    )
 
     np_random_sample = multivariate_t(loc, shape, deg_freedom, size=size, seed=key)
 
