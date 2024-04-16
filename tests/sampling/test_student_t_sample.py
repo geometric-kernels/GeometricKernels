@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from scipy.stats import multivariate_t, ks_2samp
+from scipy.stats import ks_2samp, multivariate_t
 
 from geometric_kernels.feature_maps.probability_densities import student_t_sample
 
