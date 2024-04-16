@@ -7,7 +7,7 @@ from geometric_kernels.feature_maps.probability_densities import student_t_sampl
 
 @pytest.mark.parametrize("deg_freedom, n", [(2, 3), (5, 5), (42, 10)])
 def test_student_t_sample(deg_freedom, n):
-    size = 2048
+    size = (2048,)
 
     key = np.random.RandomState(seed=1234)
 
