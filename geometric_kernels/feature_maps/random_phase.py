@@ -153,7 +153,7 @@ class RandomPhaseFeatureMapNoncompact(FeatureMap):
 
         key, random_lambda = base_density_sample(
             key,
-            self.num_random_phases,  # [O, D]
+            (self.num_random_phases,),  # [O, 1]
             params,
             self.space.dimension,
             self.space.rho,
