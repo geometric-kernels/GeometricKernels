@@ -56,13 +56,13 @@ def student_t_sample(key, loc, shape, df, size, dtype=None):
 
     shape_sqrt = B.chol(shape)
     dtype = dtype or dtype_double(key)
-    key, z = B.randn(key, dtype, size, n)
-    z = einsum("si,ji->sj", z, shape_sqrt)
+    key, z = B.randn(key, dtype, *size, n)
+    z = einsum("...i,ji->...j", z, shape_sqrt)
 
     key, g = B.randgamma(
         key,
         dtype,
-        size,
+        *size,
         alpha=df / 2,
         scale=2,
     )
