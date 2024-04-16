@@ -14,8 +14,8 @@ def test_student_t_sample(deg_freedom, n):
 
     key = np.random.RandomState(seed=1234)
 
-    shape = 1.0*np.eye(n)
-    loc = 1.0*np.zeros((n,))
+    shape = 1.0 * np.eye(n)
+    loc = 1.0 * np.zeros((n,))
 
     _, random_sample = student_t_sample(key, loc, shape, deg_freedom, size)
 
