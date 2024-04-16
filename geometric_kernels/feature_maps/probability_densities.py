@@ -7,6 +7,7 @@ the :class:`Hyperbolic` and :class:`SymmetricPositiveDefiniteMatrices` spaces.
 
 import operator
 from functools import reduce
+from typing import List
 
 import lab as B
 import numpy as np
@@ -281,7 +282,7 @@ def hyperbolic_density_sample(key, size, params, dim, shift_laplacian: bool = Tr
             nu == np.inf, sample_mixture_nu_infinite, sample_mixture_nu_finite
         )
 
-    samples: list[B.Numeric] = []
+    samples: List[B.Numeric] = []
 
     while len(samples) < reduce(operator.mul, size, 1):
         key, proposal = base_sampler(key)
@@ -312,7 +313,7 @@ def spd_density_sample(key, size, params, degree, rho, shift_laplacian: bool = T
     nu = params["nu"]
     L = params["lengthscale"]
 
-    samples: list[B.Numeric] = []
+    samples: List[B.Numeric] = []
     while len(samples) < reduce(operator.mul, size, 1):
         key, X = B.randn(key, B.dtype(L), degree, degree)
         M = (X + B.transpose(X)) / 2
