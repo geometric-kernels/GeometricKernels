@@ -7,7 +7,7 @@ the :class:`Hyperbolic` and :class:`SymmetricPositiveDefiniteMatrices` spaces.
 
 import operator
 from functools import reduce
-from typing import List
+from typing import List, Tuple
 
 import lab as B
 import numpy as np
@@ -74,7 +74,14 @@ def student_t_sample(key, loc, shape, df, size, dtype=None):
     return key, u
 
 
-def base_density_sample(key, size, params, dim, rho, shift_laplacian: bool = True):
+def base_density_sample(
+    key,
+    size: Tuple[int],
+    params,
+    dim,
+    rho,
+    shift_laplacian: bool = True,
+):
     r"""
     The Matérn kernel's spectral density is of the form
     :math:`p_{\nu,\kappa}(\lambda)`,
