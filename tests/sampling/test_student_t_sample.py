@@ -18,7 +18,7 @@ def test_student_t_sample(deg_freedom, n):
         key, loc, shape, np.array([1.0 * deg_freedom]), size
     )
 
-    np_random_sample = multivariate_t().rvs(loc, shape, deg_freedom, size, key)
+    np_random_sample = multivariate_t.rvs(loc, shape, deg_freedom, size, key)
 
     v = np.random.randn(n, seed=key)
     v = v / np.linalg.norm(v)
