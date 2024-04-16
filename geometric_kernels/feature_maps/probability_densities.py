@@ -106,7 +106,7 @@ def base_density_sample(key, size, params, dim, rho, shift_laplacian: bool = Tru
 
     # for nu == np.inf
     # sample from Gaussian
-    key, u_nu_infinite = B.randn(key, B.dtype(L), size, rho_size)
+    key, u_nu_infinite = B.randn(key, B.dtype(L), *size, rho_size)
     # for nu < np.inf
     # sample from the student-t with 2\nu + dim(space) - dim(rho)  degrees of freedom
     df = 2 * safe_nu + dim - rho_size
