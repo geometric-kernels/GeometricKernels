@@ -5,7 +5,7 @@ from scipy.stats import ks_2samp, multivariate_t
 from geometric_kernels.feature_maps.probability_densities import student_t_sample
 
 
-@pytest.mark.parametrize("deg_freedom, n", [(2, 5, 42), (3, 5, 6)])
+@pytest.mark.parametrize("deg_freedom, n", [(2, 3), (5, 5), (42, 10)])
 def test_student_t_sample(deg_freedom, n):
     size = (1024,)
 
@@ -18,7 +18,13 @@ def test_student_t_sample(deg_freedom, n):
 
     np_random_sample = multivariate_t(loc, shape, deg_freedom, size=size, seed=key)
 
+    v = np.random.randn(n, seed=key)
+    v = v/np.linalg.norm(v)
+
+    random_proj = np.einsum('ni,i->n', random_sample, v)
+    np_random_proj = np.einsum('ni,i->n', np_random_sample, v)
+
     p_value = 0.05
 
-    test_res = ks_2samp(random_sample, np_random_sample)
+    test_res = ks_2samp(random_proj, np_random_proj)
     assert test_res.pvalue > p_value
