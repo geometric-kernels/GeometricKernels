@@ -49,7 +49,7 @@ def student_t_sample(key, loc, shape, df, size, dtype=None):
     """
     assert B.shape(df) == (1,), "df must be a 1-vector."
 
-    n = B.length(loc)
+    n = int(B.length(loc))
 
     assert B.shape(loc) == (n,), "loc must be a 1-dim vector"
     assert B.shape(shape) == (n, n), "shape must be a matrix"
