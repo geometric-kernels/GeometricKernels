@@ -49,6 +49,9 @@ class Graph(DiscreteSpectrumSpace):
         L_sym = D^-0.5 * L * D^-0.5.
 
         Defaults to False.
+
+    If you use this GeometricKernels space in your research, please consider
+    citing :cite:t:`borovitskiy2021`.
     """
 
     def __init__(self, adjacency_matrix: B.Numeric, normalize_laplacian: bool = False):  # type: ignore

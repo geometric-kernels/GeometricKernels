@@ -100,7 +100,14 @@ html_css_files = [
 ]
 
 html_js_files = [
-    'js/bootstrap.min.js',
+    'scripts/bootstrap.min.js',
+    ( # require.js might be needed for nbspinx to render plotly plots.
+        'https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js',
+        {
+            'crossorigin': 'anonymous',
+            'integrity': 'sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=',
+        },
+    ),
 ]
 
 # Theme-specific options. See theme docs for more info
@@ -123,6 +130,11 @@ mathjax3_config = {
 # -- nbsphinx ----------------------------------------------------------------
 
 nbsphinx_execute = 'never'
+
+# Don't load require.js because it conflicts with bootstrap.min.js being
+# loaded after it. If you need require.js, load it manually by adding it
+# to the html_js_files list.
+nbsphinx_requirejs_path = ""
 
 # -- pandoc (required by nbsphinx) -------------------------------------------
 

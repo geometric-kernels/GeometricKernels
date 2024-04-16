@@ -136,6 +136,9 @@ class Circle(DiscreteSpectrumSpace):
     .. note::
         The :doc:`example notebook on the torus </examples/Torus>` involves
         this space.
+
+    If you use this GeometricKernels space in your research, please consider
+    citing :cite:t:`borovitskiy2020`.
     """
 
     @property

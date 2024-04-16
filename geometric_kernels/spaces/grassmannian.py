@@ -77,6 +77,9 @@ class Grassmannian(CompactHomogeneousSpace):
     .. note::
         A tutorial on how to use this space is available in the
         :doc:`Grassmannian.ipynb </examples/Grassmannian>` notebook.
+
+    If you use this GeometricKernels space in your research, please consider
+    citing :cite:t:`azangulov2022`.
     """
 
     def __new__(cls, n, m, key, average_order=100):

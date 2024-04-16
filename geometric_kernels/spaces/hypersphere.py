@@ -129,6 +129,9 @@ class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
     :param dim:
         Dimension of the hypersphere $\mathbb{S}_d$.
         Should satisfy dim >= 2. For dim = 1, use :class:`~.spaces.Circle`.
+
+    If you use this GeometricKernels space in your research, please consider
+    citing :cite:t:`borovitskiy2020`.
     """
 
     def __init__(self, dim: int):

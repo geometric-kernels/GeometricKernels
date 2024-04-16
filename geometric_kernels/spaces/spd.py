@@ -44,6 +44,9 @@ class SymmetricPositiveDefiniteMatrices(
         $GL(n)_+$ of the general linear group $GL(n)$, while the isotropy
         subgroup $H$ is the special orthogonal group $SO(n)$. See the
         mathematical details in :cite:t:`azangulov2023`.
+
+    If you use this GeometricKernels space in your research, please consider
+    citing :cite:t:`azangulov2023`.
     """
 
     def __init__(self, n):

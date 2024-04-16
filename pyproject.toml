@@ -7,7 +7,7 @@ name = "geometric_kernels"
 authors = [
     {name = "The GeometricKernels Contributors", email = "geometric-kernels@googlegroups.com"},
 ]
-description="A Python Package for Geometric Kernels in TensorFlow, PyTorch and Jax"
+description="A Python Package offering geometric kernels in NumPy, TensorFlow, PyTorch, and Jax."
 readme = "README.md"
 classifiers = [
     "License :: OSI Approved :: Apache Software License",

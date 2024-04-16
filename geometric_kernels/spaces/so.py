@@ -231,6 +231,9 @@ class SpecialOrthogonal(CompactMatrixLieGroup):
         `utils/compute_characters.py` script to precompute the necessary
         mathematical quantities beyond the ones provided by default. Same
         can be required for larger numbers of levels.
+
+    If you use this GeometricKernels space in your research, please consider
+    citing :cite:t:`azangulov2022`.
     """
 
     def __init__(self, n: int):
