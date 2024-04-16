@@ -57,7 +57,8 @@ groups = [
 class CompactJSONEncoder(json.JSONEncoder):
     """A JSON Encoder that puts small containers on single lines.
 
-    Source (probably):  https://gist.github.com/jannismain/e96666ca4f059c3e5bc28abb711b5c92.
+    Source (probably):
+    https://gist.github.com/jannismain/e96666ca4f059c3e5bc28abb711b5c92.
     """
 
     CONTAINER_TYPES = (list, tuple, dict)

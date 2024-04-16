@@ -21,13 +21,15 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
     The GeometricKernels space representing the n-dimensional hyperbolic space
     $\mathbb{H}_n$. We use the hyperboloid model of the hyperbolic space.
 
-    The elements of this space are represented by (n+1)-dimensional vectors satisfying
+    The elements of this space are represented by (n+1)-dimensional vectors
+    satisfying
 
     .. math:: x_0^2 - x_1^2 - \ldots - x_n^2 = 1,
 
     i.e. lying on the hyperboloid.
 
-    The class inherits the interface of geomstats's `Hyperbolic` with `point_type=extrinsic`.
+    The class inherits the interface of geomstats's `Hyperbolic` with
+    `point_type=extrinsic`.
 
     .. note::
         A tutorial on how to use this space is available in the
@@ -170,7 +172,7 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
         :param:
             An [..., dim+1]-shaped array of points on the hyperboloid.
 
-        :returns:
+        :return:
             An [..., dim]-shaped array of points in the Poincare ball.
         """
         # point [N1, ..., Nk, D]

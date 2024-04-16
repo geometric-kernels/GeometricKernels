@@ -12,9 +12,12 @@ def take_along_axis(a: B.Numeric, index: B.Numeric, axis: int = 0):
     """
     Gathers elements of `a` along `axis` at `index` locations.
 
-    :param a: array of any backend, as in `numpy.take_along_axis`.
-    :param index: array of any backend, as in `numpy.take_along_axis`.
-    :param axis: as in `numpy.take_along_axis`.
+    :param a:
+        Array of any backend, as in `numpy.take_along_axis`.
+    :param index:
+        Array of any backend, as in `numpy.take_along_axis`.
+    :param axis:
+        As in `numpy.take_along_axis`.
     """
 
 
@@ -24,8 +27,10 @@ def from_numpy(_: B.Numeric, b: Union[List, B.Numeric]):
     """
     Converts the array `b` to a tensor of the same backend as `_`.
 
-    :param _: array of any backend used to determine the backend.
-    :param b: array of any backend or list to be converted to the backend of _.
+    :param _:
+        Array of any backend used to determine the backend.
+    :param b:
+        Array of any backend or list to be converted to the backend of _.
     """
 
 
@@ -35,10 +40,14 @@ def trapz(y: B.Numeric, x: B.Numeric, dx: B.Numeric = 1.0, axis: int = -1):
     """
     Integrate along the given axis using the trapezoidal rule.
 
-    :param y: array of any backend, as in `numpy.trapz`.
-    :param x: array of any backend, as in `numpy.trapz`.
-    :param dx: array of any backend, as in `numpy.trapz`.
-    :param axis: as in `numpy.trapz`.
+    :param y:
+        Array of any backend, as in `numpy.trapz`.
+    :param x:
+        Array of any backend, as in `numpy.trapz`.
+    :param dx:
+        Array of any backend, as in `numpy.trapz`.
+    :param axis:
+        As in `numpy.trapz`.
     """
 
 
@@ -48,9 +57,12 @@ def logspace(start: B.Numeric, stop: B.Numeric, num: int = 50):
     """
     Return numbers spaced evenly on a log scale.
 
-    :param start: array of any backend, as in `numpy.logspace`.
-    :param stop: array of any backend, as in `numpy.logspace`.
-    :param num: as in `numpy.logspace`.
+    :param start:
+        Array of any backend, as in `numpy.logspace`.
+    :param stop:
+        Array of any backend, as in `numpy.logspace`.
+    :param num:
+        As in `numpy.logspace`.
     """
 
 
@@ -58,10 +70,10 @@ def cosh(x: B.Numeric) -> B.Numeric:
     r"""
     Compute hyperbolic cosine using the formula
 
-    .. math::
-        \textrm{cosh}(x) = \frac{\exp(x) + \exp(-x)}{2}.
+    .. math:: \textrm{cosh}(x) = \frac{\exp(x) + \exp(-x)}{2}.
 
-    :param x: array of any backend.
+    :param x:
+        Array of any backend.
     """
     return 0.5 * (B.exp(x) + B.exp(-x))
 
@@ -70,10 +82,10 @@ def sinh(x: B.Numeric) -> B.Numeric:
     r"""
     Compute hyperbolic sine using the formula
 
-    .. math::
-        \textrm{sinh}(x) = \frac{\exp(x) - \exp(-x)}{2}.
+    .. math:: \textrm{sinh}(x) = \frac{\exp(x) - \exp(-x)}{2}.
 
-    :param x: array of any backend.
+    :param x:
+        Array of any backend.
     """
     return 0.5 * (B.exp(x) - B.exp(-x))
 
@@ -87,7 +99,8 @@ def degree(a):
     degree matrix representing the number of nodes each node
     is connected to.
 
-    :param a: array of any backend or `scipy.sparse` array.
+    :param a:
+        Array of any backend or `scipy.sparse` array.
     """
 
 
@@ -98,8 +111,10 @@ def eigenpairs(L, k: int):
     Obtain the eigenpairs that correspond to the `k` lowest eigenvalues
     of a symmetric positive semi-definite matrix `L`.
 
-    :param a: array of any backend or `scipy.sparse` array.
-    :param k: the number of eigenpairs to compute.
+    :param a:
+        Array of any backend or `scipy.sparse` array.
+    :param k:
+        The number of eigenpairs to compute.
     """
 
 
@@ -110,9 +125,12 @@ def set_value(a, index: int, value: float):
     Set a[index] = value.
     This operation is not done in place and a new array is returned.
 
-    :param a: array of any backend or `scipy.sparse` array.
-    :param index: the index.
-    :param value: the value to set at the given index.
+    :param a:
+        Array of any backend or `scipy.sparse` array.
+    :param index:
+        The index.
+    :param value:
+        The value to set at the given index.
     """
 
 
@@ -122,7 +140,8 @@ def dtype_double(reference: B.RandomState):
     """
     Return `double` dtype of a backend based on the reference.
 
-    :param reference: a random state to infer the backend from.
+    :param reference:
+        A random state to infer the backend from.
     """
 
 
@@ -133,7 +152,8 @@ def float_like(reference: B.Numeric):
     Return the type of the reference if it is a floating point type.
     Otherwise return `double` dtype of a backend based on the reference.
 
-    :param reference: array of any backend.
+    :param reference:
+        Array of any backend.
     """
 
 
@@ -143,7 +163,8 @@ def dtype_integer(reference: B.RandomState):
     """
     Return `int` dtype of a backend based on the reference.
 
-    :param reference: a random state to infer the backend from.
+    :param reference:
+        A random state to infer the backend from.
     """
 
 
@@ -153,7 +174,8 @@ def get_random_state(key: B.RandomState):
     """
     Return the random state of a random generator.
 
-    :param key: the random generator.
+    :param key:
+        The random generator.
     """
 
 
@@ -164,8 +186,10 @@ def restore_random_state(key: B.RandomState, state):
     Set the random state of a random generator. Return the new random
     generator with state `state`.
 
-    :param key: the random generator.
-    :param state: the new random state of the random generator.
+    :param key:
+        The random generator.
+    :param state:
+        The new random state of the random generator.
     """
 
 
@@ -175,8 +199,10 @@ def create_complex(real: B.Numeric, imag: B.Numeric):
     """
     Return a complex number with the given real and imaginary parts.
 
-    :param real: array of any backend, real part of the complex number.
-    :param imag: array of any backend, imaginary part of the complex number.
+    :param real:
+        Array of any backend, real part of the complex number.
+    :param imag:
+        Array of any backend, imaginary part of the complex number.
     """
 
 
@@ -186,7 +212,8 @@ def complex_like(reference: B.Numeric):
     """
     Return `complex` dtype of a backend based on the reference.
 
-    :param reference: array of any backend.
+    :param reference:
+        Array of any backend.
     """
 
 
@@ -196,7 +223,8 @@ def is_complex(reference: B.Numeric):
     """
     Return True if reference of `complex` dtype.
 
-    :param reference: array of any backend.
+    :param reference:
+        Array of any backend.
     """
 
 
@@ -206,8 +234,10 @@ def cumsum(a: B.Numeric, axis=None):
     """
     Return cumulative sum (optionally along axis).
 
-    :param a: array of any backend.
-    :param axis: as in `numpy.cumsum`.
+    :param a:
+        Array of any backend.
+    :param axis:
+        As in `numpy.cumsum`.
     """
 
 
@@ -217,8 +247,10 @@ def qr(x: B.Numeric, mode="reduced"):
     """
     Return a QR decomposition of a matrix x.
 
-    :param x: array of any backend.
-    :param mode: as in `numpy.linalg.qr`.
+    :param x:
+        Array of any backend.
+    :param mode:
+        As in `numpy.linalg.qr`.
     """
 
 
@@ -228,7 +260,8 @@ def slogdet(x: B.Numeric):
     """
     Return the sign and log-determinant of a matrix x.
 
-    :param x: array of any backend.
+    :param x:
+        Array of any backend.
     """
 
 
@@ -238,7 +271,8 @@ def eigvalsh(x: B.Numeric):
     """
     Compute the eigenvalues of a Hermitian or real symmetric matrix x.
 
-    :param x: array of any backend.
+    :param x:
+        Array of any backend.
     """
 
 
@@ -248,7 +282,8 @@ def reciprocal_no_nan(x: Union[B.Numeric, spmatrix]):
     """
     Return element-wise reciprocal (1/x). Whenever x = 0 puts 1/x = 0.
 
-    :param x: array of any backend or `scipy.sparse.spmatrix`.
+    :param x:
+        Array of any backend or `scipy.sparse.spmatrix`.
     """
 
 
@@ -258,5 +293,6 @@ def complex_conj(x: B.Numeric):
     """
     Return complex conjugate.
 
-    :param x: array of any backend.
+    :param x:
+        Array of any backend.
     """

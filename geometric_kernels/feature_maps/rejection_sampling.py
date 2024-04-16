@@ -22,8 +22,10 @@ class RejectionSamplingFeatureMapHyperbolic(FeatureMap):
     Random phase feature map for the :class:`~.spaces.Hyperbolic` space based
     on the rejection sampling algorithm.
 
-    :param space: a :class:`~.spaces.Hyperbolic` space.
-    :param num_random_phases: number of random phases to use.
+    :param space:
+        A :class:`~.spaces.Hyperbolic` space.
+    :param num_random_phases:
+        Number of random phases to use.
     """
 
     def __init__(self, space: Hyperbolic, num_random_phases: int = 3000):
@@ -40,9 +42,12 @@ class RejectionSamplingFeatureMapHyperbolic(FeatureMap):
         **kwargs,
     ) -> Tuple[B.RandomState, B.Numeric]:
         """
-        :param X: [N, D] points in the space to evaluate the map on.
-        :param params: parameters of the feature map (length scale and smoothness).
-        :param key: random state, either `np.random.RandomState`,
+        :param X:
+            [N, D] points in the space to evaluate the map on.
+        :param params:
+            Parameters of the feature map (length scale and smoothness).
+        :param key:
+            Random state, either `np.random.RandomState`,
             `tf.random.Generator`, `torch.Generator` or `jax.tensor` (which
             represents a random state).
 
@@ -55,10 +60,13 @@ class RejectionSamplingFeatureMapHyperbolic(FeatureMap):
                 each time or use the helper function
                 :func:`~.utils.make_deterministic` which does this for you.
 
-        :param normalize: normalize to have unit average variance (`True` by default).
-        :param ``**kwargs``: unused.
+        :param normalize:
+            Normalize to have unit average variance (`True` by default).
+        :param ``**kwargs``:
+            Unused.
 
-        :return: `Tuple(key, features)` where `features` is an [N, O] array, N
+        :return:
+            `Tuple(key, features)` where `features` is an [N, O] array, N
             is the number of inputs and O is the dimension of the feature map;
             `key` is the updated random key for `jax`, or the similar random
             state (generator) for any other backends.
@@ -102,8 +110,10 @@ class RejectionSamplingFeatureMapSPD(FeatureMap):
     :class:`~.spaces.SymmetricPositiveDefiniteMatrices` space based on the
     rejection sampling algorithm.
 
-    :param space: a :class:`~.spaces.SymmetricPositiveDefiniteMatrices` space.
-    :param num_random_phases: number of random phases to use.
+    :param space:
+        A :class:`~.spaces.SymmetricPositiveDefiniteMatrices` space.
+    :param num_random_phases:
+        Number of random phases to use.
     """
 
     def __init__(
@@ -124,9 +134,12 @@ class RejectionSamplingFeatureMapSPD(FeatureMap):
         **kwargs,
     ) -> Tuple[B.RandomState, B.Numeric]:
         """
-        :param X: [N, D, D] points in the space to evaluate the map on.
-        :param params: parameters of the feature map (length scale and smoothness).
-        :param key: random state, either `np.random.RandomState`,
+        :param X:
+            [N, D, D] points in the space to evaluate the map on.
+        :param params:
+            Parameters of the feature map (length scale and smoothness).
+        :param key:
+            Random state, either `np.random.RandomState`,
             `tf.random.Generator`, `torch.Generator` or `jax.tensor` (which
             represents a random state).
 
@@ -139,10 +152,13 @@ class RejectionSamplingFeatureMapSPD(FeatureMap):
                 each time or use the helper function
                 :func:`~.utils.make_deterministic` which does this for you.
 
-        :param normalize: normalize to have unit average variance (`True` by default).
-        :param ``**kwargs``: unused.
+        :param normalize:
+            Normalize to have unit average variance (`True` by default).
+        :param ``**kwargs``:
+            Unused.
 
-        :return: `Tuple(key, features)` where `features` is an [N, O] array, N
+        :return:
+            `Tuple(key, features)` where `features` is an [N, O] array, N
             is the number of inputs and O is the dimension of the feature map;
             `key` is the updated random key for `jax`, or the similar random
             state (generator) for any other backends.

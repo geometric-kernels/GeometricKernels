@@ -41,13 +41,18 @@ def student_t_sample(
     therefore $V/\nu \sim \Gamma(\nu / 2, 2 / \nu)$. We use these properties
     to sample the Student-t random variable.
 
-    :param key: either `np.random.RandomState`, `tf.random.Generator`,
+    :param key:
+        Either `np.random.RandomState`, `tf.random.Generator`,
         `torch.Generator` or `jax.tensor` (representing random state).
-    :param size: shape of the returned sample.
-    :param deg_freedom: the number of degrees of freedom of the Student-t
-        distribution.
-    :param dtype: dtype of the returned tensor.
-    :return: `Tuple(key, samples)` where `samples` is a `size`-shaped array of
+    :param size:
+        Shape of the returned sample.
+    :param deg_freedom:
+        The number of degrees of freedom of the Student-t distribution.
+    :param dtype:
+        dtype of the returned tensor.
+
+    :return:
+        `Tuple(key, samples)` where `samples` is a `size`-shaped array of
         samples of type `dtype`, and `key` is the updated random key for `jax`,
         or the similar random state (generator) for any other backend.
     """
@@ -83,13 +88,20 @@ def base_density_sample(
 
     We call it "base density" and this function returns a sample from it.
 
-    :param key: either `np.random.RandomState`, `tf.random.Generator`,
+    :param key:
+        Either `np.random.RandomState`, `tf.random.Generator`,
         `torch.Generator` or `jax.tensor` (representing random state).
-    :param size: shape of the returned sample.
-    :param params: params of the kernel.
-    :param dim: dimensionality of the space the kernel is defined on.
-    :param rho: `rho` vector of the space.
-    :return: `Tuple(key, samples)` where `samples` is a `size`-shaped array of
+    :param size:
+        Shape of the returned sample.
+    :param params:
+        Params of the kernel.
+    :param dim:
+        Dimensionality of the space the kernel is defined on.
+    :param rho:
+        $\rho$ vector of the space.
+
+    :return:
+        `Tuple(key, samples)` where `samples` is a `size`-shaped array of
         samples, and `key` is the updated random key for `jax`, or the similar
         random state (generator) for any other backend.
     """
@@ -129,13 +141,19 @@ def _randcat_fix(
     """
     Sample from the categorical variable with probabilities `p`.
 
-    :param key: either `np.random.RandomState`, `tf.random.Generator`,
+    :param key:
+        Either `np.random.RandomState`, `tf.random.Generator`,
         `torch.Generator` or `jax.tensor` (representing random state).
-    :param dtype: dtype of the returned tensor.
-    :param size: shape of the returned sample.
-    :param p: vector of (potentially unnormalized) probabilities
+    :param dtype:
+        dtype of the returned tensor.
+    :param size:
+        Shape of the returned sample.
+    :param p:
+        Vector of (potentially unnormalized) probabilities
         defining the discrete distribution to sample from.
-    :return: `Tuple(key, samples)` where `samples` is a `size`-shaped array of
+
+    :return:
+        `Tuple(key, samples)` where `samples` is a `size`-shaped array of
         samples of type `dtype`, and `key` is the updated random key for `jax`,
         or the similar random state (generator) for any other backend.
     """
@@ -152,12 +170,17 @@ def _alphas(n: int) -> B.Numeric:
     Compute alphas for Prop. 16 & 17 of cite:t:`azangulov2023`
     for the hyperbolic space of dimension `n`.
 
-    :param n: dimension of the hyperbolic space, n >= 2.
-    :return: array of alphas.
+    :param n:
+        Dimension of the hyperbolic space, n >= 2.
 
-    .. todo:: precompute these, rather than computing in runtime.
+    :return:
+        Array of alphas.
 
-    .. todo:: update proposition numbers when the paper gets published.
+    .. todo::
+        Precompute these, rather than computing in runtime.
+
+    .. todo::
+        Update proposition numbers when the paper gets published.
     """
     assert n >= 2
     x, j = symbols("x, j")
@@ -177,18 +200,24 @@ def _sample_mixture_heat(
     Sample from the mixture distribution from Prop. 16 for specific alphas
     `alpha` and length scale (kappa) `lengthscale` using `key` random state.
 
-    :param key: either `np.random.RandomState`, `tf.random.Generator`,
-                `torch.Generator` or `jax.tensor` (representing random state).
-    :param alpha: unnormalized coefficients of the mixture.
-    :param lengthscale: length scale (kappa).
-    :return: `Tuple(key, sample)` where `sample` is a single sample from the
+    :param key:
+        Either `np.random.RandomState`, `tf.random.Generator`,
+        `torch.Generator` or `jax.tensor` (representing random state).
+    :param alpha:
+        Unnormalized coefficients of the mixture.
+    :param lengthscale:
+        Length scale (kappa).
+
+    :return:
+        `Tuple(key, sample)` where `sample` is a single sample from the
         distribution, and `key` is the updated random key for `jax`, or the
         similar random state (generator) for any other backend.
 
     .. todo::
-       do we need reparameterization trick for hyperparameter optimization?
+       Do we need reparameterization trick for hyperparameter optimization?
 
-    .. todo:: update proposition numbers when the paper gets published.
+    .. todo::
+        Update proposition numbers when the paper gets published.
     """
     assert B.rank(alpha) == 1
     m = B.shape(alpha)[0] - 1
@@ -223,20 +252,28 @@ def _sample_mixture_matern(
     scale (kappa) `lengthscale`, smoothness `nu` and dimension `dim`, using
     `key` random state.
 
-    :param key: either `np.random.RandomState`, `tf.random.Generator`,
-                `torch.Generator` or `jax.tensor` (representing random state).
-    :param alpha: unnormalized coefficients of the mixture.
-    :param lengthscale: length scale (kappa).
-    :param nu: smoothness parameter of Matérn kernels.
-    :param dim: dimension of the hyperbolic space.
-    :return: `Tuple(key, sample)` where `sample` is a single sample from the
+    :param key:
+        Either `np.random.RandomState`, `tf.random.Generator`,
+        `torch.Generator` or `jax.tensor` (representing random state).
+    :param alpha:
+        Unnormalized coefficients of the mixture.
+    :param lengthscale:
+        Length scale ($\kappa$).
+    :param nu:
+        Smoothness parameter of Matérn kernels ($\nu$).
+    :param dim:
+        Dimension of the hyperbolic space.
+
+    :return:
+        `Tuple(key, sample)` where `sample` is a single sample from the
         distribution, and `key` is the updated random key for `jax`, or the
         similar random state (generator) for any other backend.
 
     .. todo::
-       do we need reparameterization trick for hyperparameter optimization?
+       Do we need reparameterization trick for hyperparameter optimization?
 
-    .. todo:: update proposition numbers when the paper gets published.
+    .. todo::
+        Update proposition numbers when the paper gets published.
     """
     assert B.rank(alpha) == 1
     m = B.shape(alpha)[0] - 1
@@ -275,12 +312,18 @@ def hyperbolic_density_sample(
     factor, where $c$ is the Harish-Chandra's $c$-function) spectral density of
     the heat/Matérn kernel on the hyperbolic space, using rejection sampling.
 
-    :param key: either `np.random.RandomState`, `tf.random.Generator`,
-                `torch.Generator` or `jax.tensor` (representing random state).
-    :param size: shape of the returned sample.
-    :param params: params of the kernel.
-    :param dim: dimensionality of the space the kernel is defined on.
-    :return: `Tuple(key, samples)` where `samples` is a `size`-shaped array of
+    :param key:
+        Either `np.random.RandomState`, `tf.random.Generator`,
+        `torch.Generator` or `jax.tensor` (representing random state).
+    :param size:
+        Shape of the returned sample.
+    :param params:
+        Params of the kernel.
+    :param dim:
+        Dimensionality of the space the kernel is defined on.
+
+    :return:
+        `Tuple(key, samples)` where `samples` is a `size`-shaped array of
         samples, and `key` is the updated random key for `jax`, or the similar
         random state (generator) for any other backend.
     """
@@ -336,12 +379,18 @@ def spd_density_sample(
     of the heat/Matérn kernel on the manifold of symmetric positive definite
     matrices, using rejection sampling.
 
-    :param key: either `np.random.RandomState`, `tf.random.Generator`,
-                `torch.Generator` or `jax.tensor` (representing random state).
-    :param size: shape of the returned sample.
-    :param params: params of the kernel.
-    :param dim: dimensionality of the space the kernel is defined on.
-    :return: `Tuple(key, samples)` where `samples` is a `size`-shaped array of
+    :param key:
+        Either `np.random.RandomState`, `tf.random.Generator`,
+        `torch.Generator` or `jax.tensor` (representing random state).
+    :param size:
+        Shape of the returned sample.
+    :param params:
+        Params of the kernel.
+    :param dim:
+        Dimensionality of the space the kernel is defined on.
+
+    :return:
+        `Tuple(key, samples)` where `samples` is a `size`-shaped array of
         samples, and `key` is the updated random key for `jax`, or the similar
         random state (generator) for any other backend.
     """

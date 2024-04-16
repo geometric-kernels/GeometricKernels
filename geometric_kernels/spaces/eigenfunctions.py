@@ -10,11 +10,12 @@ the Laplacian, or certain combinations thereof (see the note below).
     :class:`EigenfunctionsWithAdditionTheorem`. Importantly, it is permitted to
     _only_ provide the computational routines for these "certain sums", lacking
     the actual capability to compute the eigenfunctions themselves. This is
-    important because for compact Lie groups, for example, computing eigenfunctions
-    is more involved and less efficient than computing the "certain sums", called
-    characters in this case. This is also relevant for hyperspheres of higher
-    dimension: in this case, the eigenfunctions (spherical harmonics) are much
-    more cumbersome than the "certain sums" (zonal spherical harmonics).
+    important because for compact Lie groups, for example, computing
+    eigenfunctions is more involved and less efficient than computing the
+    "certain sums", called characters in this case. This is also relevant for
+    hyperspheres of higher dimension: in this case, the eigenfunctions
+    (spherical harmonics) are much more cumbersome than the "certain
+    sums" (zonal spherical harmonics).
 """
 
 import abc
@@ -120,6 +121,7 @@ class Eigenfunctions(abc.ABC):
             As in :meth:`weighted_outerproduct`.
         :param ``**kwargs``:
             As in :meth:`weighted_outerproduct`.
+
         :return:
             An array of shape [N,].
         """
@@ -173,6 +175,7 @@ class Eigenfunctions(abc.ABC):
             As in :meth:`phi_product`.
         :param ``**kwargs``:
             As in :meth:`phi_product`.
+
         :return:
             An array of shape [N, L].
         """
@@ -287,6 +290,7 @@ class EigenfunctionsFromEigenvectors(Eigenfunctions):
             Indices, an array of shape [N, 1].
         :param ``**kwargs``:
             Ignored.
+
         :return:
             An array of shape [N, J], whose element with index (n, j)
             corresponds to the X[n]-th element of the j-th eigenvector.

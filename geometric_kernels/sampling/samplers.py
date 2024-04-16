@@ -36,7 +36,6 @@ def sample_at(
     .. math :: \sum_{j=1}^n w_j \cdot (\phi_{\nu, \kappa}(x))_j \qquad w_j \stackrel{IID}{\sim} N(0, 1).
 
     .. note::
-
         Fixing $w_j$, and treating $x \to (\phi_{\nu, \kappa}(x))_j$ as basis
         functions, while letting $x$ vary, you get an actual *function* as a
         sample, meaning something that can be evaluated at any $x \in X$.

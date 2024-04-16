@@ -18,8 +18,10 @@ class DeterministicFeatureMapCompact(FeatureMap):
     Deterministic feature map for :class:`~.spaces.DiscreteSpectrumSpace`\ s
     for which the actual eigenpairs are explicitly available.
 
-    :param space: a :class:`~.spaces.DiscreteSpectrumSpace` space.
-    :param num_levels: number of levels in the kernel approximation.
+    :param space:
+        A :class:`~.spaces.DiscreteSpectrumSpace` space.
+    :param num_levels:
+        Number of levels in the kernel approximation.
     """
 
     def __init__(self, space: DiscreteSpectrumSpace, num_levels: int):
@@ -38,14 +40,19 @@ class DeterministicFeatureMapCompact(FeatureMap):
         **kwargs,
     ) -> Tuple[None, B.Numeric]:
         """
-        :param X: [N, ...] points in the space to evaluate the map on.
-        :param params: parameters of the kernel (length scale and smoothness).
-        :param normalize: normalize to have unit average variance (if omitted
+        :param X:
+            [N, ...] points in the space to evaluate the map on.
+        :param params:
+            Parameters of the kernel (length scale and smoothness).
+        :param normalize:
+            Normalize to have unit average variance (if omitted
             or None, follows the standard behavior of
             :class:`~.kernels.MaternKarhunenLoeveKernel`).
-        :param ``**kwargs``: unused.
+        :param ``**kwargs``:
+            Unused.
 
-        :return: `Tuple(None, features)` where `features` is an [N, O] array, N
+        :return:
+            `Tuple(None, features)` where `features` is an [N, O] array, N
             is the number of inputs and O is the dimension of the feature map.
 
         .. note::

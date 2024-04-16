@@ -106,6 +106,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             The smoothness parameter of the kernel.
         :param lengthscale:
             The length scale parameter of the kernel.
+
         :return:
             The spectrum of the Matérn kernel.
         """
@@ -147,7 +148,16 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         """
         Eigenvalues of the kernel.
 
-        :return: [L, 1]
+        :param params:
+            Parameters of the kernel.
+        :param normalize:
+            Whether to normalize kernel to have unit average variance.
+            If None, uses `self.normalize` to decide.
+
+            Defaults to None.
+
+        :return:
+            An [L, 1]-shaped array.
         """
         assert "lengthscale" in params
         assert "nu" in params

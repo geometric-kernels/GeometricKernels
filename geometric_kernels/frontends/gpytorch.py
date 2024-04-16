@@ -53,8 +53,8 @@ class GPyTorchGeometricKernel(gpytorch.kernels.Kernel):
         Cannot be True if nu is equal to infinity. You cannot change
         this parameter after constructing the object. Defaults to False.
 
-    :raises ValueError: if trying to set nu = infinity together with
-        trainable_nu = True.
+    :raises ValueError:
+        If trying to set nu = infinity together with trainable_nu = True.
     """
 
     has_lengthscale = True
@@ -141,11 +141,13 @@ class GPyTorchGeometricKernel(gpytorch.kernels.Kernel):
             If set to True, ignores `x2` and returns the diagonal of K(x1, x1).
         :param last_dim_is_batch:
             Ignored.
+
         :return:
             The covariance matrix K(x1, x2) or, if diag=True, the diagonal
             of the covariance matrix K(x1, x1).
 
-        .. todo:: support GPyTorch-style output batching.
+        .. todo::
+            Support GPyTorch-style output batching.
         """
         params = dict(lengthscale=self.lengthscale, nu=self.nu)
         if diag:

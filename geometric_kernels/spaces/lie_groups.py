@@ -187,6 +187,7 @@ class WeylAdditionTheorem(EigenfunctionsWithAdditionTheorem):
             An [N, n, n]-shaped array, a batch of N matrices of size nxn.
         :param X2:
             An [N2, n, n]-shaped array, a batch of N2 matrices of size nxn.
+
         :return:
             An [N, N2, n, n]-shaped array, all pairwise "differences":
             X1[j, :, :] * inv(X2[i, :, :]) for all 0 <= i < N, 0 <= j < N2.
@@ -248,6 +249,7 @@ class WeylAdditionTheorem(EigenfunctionsWithAdditionTheorem):
             As in :meth:`_addition_theorem`.
         :param ``**kwargs``:
             As in :meth:`_addition_theorem`.
+
         :return:
             An array of shape [N, L].
         """
@@ -300,6 +302,7 @@ class CompactMatrixLieGroup(DiscreteSpectrumSpace):
         :param X:
             A batch [..., n, n] of elements of the group.
             Each element is a n x n matrix.
+
         :return:
             A batch [..., n, n] with each n x n matrix inverted.
         """

@@ -106,6 +106,7 @@ class Graph(DiscreteSpectrumSpace):
         :param num:
             Number of eigenpairs to return. Performs the computation at the
             first call. Afterwards, fetches the result from cache.
+
         :return:
             A tuple of eigenvectors [n, num], eigenvalues [num, 1].
         """
@@ -138,6 +139,7 @@ class Graph(DiscreteSpectrumSpace):
         """
         :param num:
             Number of eigenvectors to return.
+
         :return:
             Array of eigenvectors, with shape [n, num].
         """
@@ -147,6 +149,7 @@ class Graph(DiscreteSpectrumSpace):
         """
         :param num:
             Number of eigenvalues to return.
+
         :return:
             Array of eigenvalues, with shape [num, 1].
         """

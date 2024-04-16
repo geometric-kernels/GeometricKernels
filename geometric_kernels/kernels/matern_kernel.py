@@ -38,16 +38,20 @@ def default_feature_map(
     """
     Constructs the default feature map for the specified space or kernel.
 
-    :param space: space to construct the feature map on. If provided, kernel
-                  must either be omitted or set to None.
-    :param kernel: kernel to construct the feature map from. If provided,
-                   `space` and `num` must either be omitted or set to None.
-    :param num: controls the number of features (dimensionality of the feature
-                map). If omitted or set to None, the default value for each
-                respective space is used. Must only be provided when
-                constructing a feature map on a space (not from a kernel).
+    :param space:
+        A space to construct the feature map on. If provided, kernel must
+        either be omitted or set to None.
+    :param kernel:
+        A kernel to construct the feature map from. If provided, `space` and
+        `num` must either be omitted or set to None.
+    :param num:
+        Controls the number of features (dimensionality of the feature
+        map). If omitted or set to None, the default value for each
+        respective space is used. Must only be provided when
+        constructing a feature map on a space (not from a kernel).
 
-    :return: Callable which is the respective feature map.
+    :return:
+        Callable which is the respective feature map.
     """
     if kernel is not None:
         if space is not None or num is not None:
@@ -89,6 +93,13 @@ def feature_map_from_kernel(kernel: MaternFeatureMapKernel):
 def feature_map_from_kernel(kernel: BaseGeometricKernel):
     """
     Return the default feature map for the specified kernel `kernel`.
+
+    :param kernel:
+        A kernel to construct the feature map from.
+
+    :return:
+        A feature map.
+    :rtype: feature_maps.FeatureMap
 
     .. note::
        This function is organized as an abstract dispatcher plus a set of
@@ -140,6 +151,15 @@ def feature_map_from_space(space: Space, num: int):
     Return the default feature map for the specified space `space` and
     approximation level `num`.
 
+    :param space:
+        A space to construct the feature map on.
+    :param num:
+        Approximation level.
+
+    :return:
+        A feature map.
+    :rtype: feature_maps.FeatureMap
+
     .. note::
        This function is organized as an abstract dispatcher plus a set of
        @overload-decorated implementations, one for each type of spaces.
@@ -186,6 +206,12 @@ def default_num(space: Space) -> int:
     """
     Return the default approximation level for the `space`.
 
+    :param space:
+        A space.
+
+    :return:
+        The default approximation level.
+
     .. note::
        This function is organized as an abstract dispatcher plus a set of
        @overload-decorated implementations, one for each type of spaces.
@@ -214,8 +240,8 @@ class MaternGeometricKernel:
     This class represents a Matérn geometric kernel that "just works". Unless
     you really know what you are doing, you should always use this kernel class.
 
-    Upon creation, this class unpacks into a specific geometric kernel based on
-    the provided space, and, optionally, the associated (approximate) feature map.
+    Upon creation, unpacks into a specific geometric kernel based on the
+    provided space, and, optionally, the associated (approximate) feature map.
     """
 
     _DEFAULT_NUM_EIGENFUNCTIONS = 1000
@@ -239,7 +265,8 @@ class MaternGeometricKernel:
            See :doc:`this page </theory/feature_maps>` for a brief
            introduction into feature maps.
 
-        :param space: space to construct the kernel on.
+        :param space:
+            Space to construct the kernel on.
         :param num:
             If provided, controls the "order of approximation" of the kernel.
             For the discrete spectrum spaces, this means the number of "levels"
@@ -261,11 +288,12 @@ class MaternGeometricKernel:
             Defaults to True.
 
             .. note::
-                For many kernel methods, $k(\cdot, \cdot)$ and $a k(\cdot, \cdot)$
-                are indistinguishable, whatever the positive constant $a$ is. For
-                these, it makes sense to use normalize=False to save up some
-                computational overhead. For others, like for the Gaussian process
-                regression, the normalization of the kernel might be important. In
+                For many kernel methods, $k(\cdot, \cdot)$ and
+                $a k(\cdot, \cdot)$ are indistinguishable, whatever the
+                positive constant $a$ is. For these, it makes sense to use
+                normalize=False to save up some computational overhead. For
+                others, like for the Gaussian process regression, the
+                normalization of the kernel might be important. In
                 these cases, you will typically want to set normalize=True.
 
         :param return_feature_map:
@@ -274,7 +302,8 @@ class MaternGeometricKernel:
 
             Default is False.
         :param ``**kwargs``:
-            Any additional keyword arguments to be passed to the kernel (like `key`).
+            Any additional keyword arguments to be passed to the kernel
+            (like `key`).
 
         .. note::
            For non-compact symmetric spaces, like :class:`~.spaces.Hyperbolic`

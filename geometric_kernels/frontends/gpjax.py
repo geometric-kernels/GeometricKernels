@@ -38,12 +38,15 @@ class _GeometricKernelComputation(gpjax.kernels.computations.AbstractKernelCompu
         Compute the cross covariance matrix between two batches of vectors (or
         batches of matrices) of inputs.
 
-        :param x: A batch of N inputs, each of which is a matrix of size D1xD2,
+        :param x:
+            A batch of N inputs, each of which is a matrix of size D1xD2,
               or a vector of size D2 if D1 is absent.
-        :param y: A batch of M inputs, each of which is a matrix of size D1xD2,
+        :param y:
+            A batch of M inputs, each of which is a matrix of size D1xD2,
               or a vector of size D2 if D1 is absent.
 
-        :return: The N x M covariance matrix.
+        :return:
+            The N x M covariance matrix.
         """
         return jnp.asarray(kernel(x, y))
 
@@ -134,12 +137,15 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
         Compute the cross-covariance matrix between two batches of vectors (or
         batches of matrices) of inputs.
 
-        :param x: A batch of N inputs, each of which is a matrix of size D1xD2,
-              or a vector of size D2 if D1 is absent.
-        :param y: A batch of M inputs, each of which is a matrix of size D1xD2,
-              or a vector of size D2 if D1 is absent.
+        :param x:
+            A batch of N inputs, each of which is a matrix of size D1xD2,
+            or a vector of size D2 if D1 is absent.
+        :param y:
+            A batch of M inputs, each of which is a matrix of size D1xD2,
+            or a vector of size D2 if D1 is absent.
 
-        :return: The N x M cross-covariance matrix.
+        :return:
+            The N x M cross-covariance matrix.
         """
         return self.variance * self.base_kernel.K(
             {"lengthscale": self.lengthscale, "nu": self.nu}, x, y

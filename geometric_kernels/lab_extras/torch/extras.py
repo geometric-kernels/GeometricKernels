@@ -133,8 +133,10 @@ def restore_random_state(key: B.TorchRandomState, state):
     Set the random state of a random generator. Return the new random
     generator with state `state`.
 
-    :param key: the random generator of type `B.TorchRandomState`.
-    :param state: the new random state of the random generator.
+    :param key:
+        The random generator of type `B.TorchRandomState`.
+    :param state:
+        The new random state of the random generator.
     """
     gen = torch.Generator()
     gen.set_state(state)
@@ -146,8 +148,10 @@ def create_complex(real: _Numeric, imag: B.TorchNumeric):
     """
     Return a complex number with the given real and imaginary parts using pytorch.
 
-    :param real: float, real part of the complex number.
-    :param imag: float, imaginary part of the complex number.
+    :param real:
+        float, real part of the complex number.
+    :param imag:
+        float, imaginary part of the complex number.
     """
     complex_num = real + 1j * imag
     return complex_num

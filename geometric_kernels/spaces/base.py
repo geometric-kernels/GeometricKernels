@@ -104,6 +104,7 @@ class DiscreteSpectrumSpace(Space):
 
         :param num:
             Number of levels.
+
         :return:
             (J, 1)-shaped array containing the repeated eigenvalues, J is
             the resulting number of the repeated eigenvalues.
@@ -124,6 +125,7 @@ class DiscreteSpectrumSpace(Space):
             `torch.Generator` or `jax.tensor` (representing random state).
         :param number:
             Number of samples to draw.
+
         :return:
             An array of `number` uniformly random samples on the space.
         """
@@ -184,7 +186,8 @@ class NoncompactSymmetricSpace(Space):
         :param lam:
             A batch of frequencies, vectors of dimension equal to the rank of
             symmetric space.
-        :returns:
+
+        :return:
             $c^{-1}(\lambda)$ evaluated at every $\lambda$ in the batch `lam`.
         """
         raise NotImplementedError
@@ -225,7 +228,8 @@ class NoncompactSymmetricSpace(Space):
 
             Typically of shape [1, L, <axes_p>], where <axes_p> is the shape of
             arrays representing the elements of the isotropy subgroup $H$.
-        :returns:
+
+        :return:
             An array of shape [N, L] with complex number entries, representing
             the value of the values of $p^{\lambda_l}(g_n, h_l)$ for all
             $1 \leq n \leq N$ and $1 \leq l \leq L$.
@@ -266,6 +270,7 @@ class NoncompactSymmetricSpace(Space):
             `torch.Generator` or `jax.tensor` (representing random state).
         :param num:
             Number of samples to draw.
+
         :return:
             An array of `num` uniformly random samples in the isotropy
             subgroup $H$.

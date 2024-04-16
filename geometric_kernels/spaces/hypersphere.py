@@ -74,7 +74,6 @@ class SphericalHarmonics(EigenfunctionsWithAdditionTheorem):
 
         :return:
             An array of shape [N, N2, L].
-
         """
         values = [
             level.addition(X, X2)[..., None]  # [N1, N2, 1]

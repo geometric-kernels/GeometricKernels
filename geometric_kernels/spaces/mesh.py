@@ -82,6 +82,7 @@ class Mesh(DiscreteSpectrumSpace):
         :param num:
             Number of eigenpairs to return. Performs the computation at the
             first call. Afterwards, fetches the result from cache.
+
         :return:
             A tuple of eigenvectors [nv, num], eigenvalues [num, 1].
         """
@@ -103,9 +104,10 @@ class Mesh(DiscreteSpectrumSpace):
     def get_eigenvectors(self, num: int) -> B.Numeric:
         """
         :param num:
-            number of eigenvectors to return.
+            Number of eigenvectors to return.
+
         :return:
-            array of eigenvectors, with shape [Nv, num].
+            Array of eigenvectors, with shape [Nv, num].
         """
         return self.get_eigensystem(num)[0]
 
@@ -113,6 +115,7 @@ class Mesh(DiscreteSpectrumSpace):
         """
         :param num:
             Number of eigenvalues to return.
+
         :return:
             Array of eigenvalues, with shape [num, 1].
         """
@@ -184,6 +187,7 @@ class Mesh(DiscreteSpectrumSpace):
             Path to read the file from. Supported formats: `obj`,
             `ply`, `off`, and `stl`. Format inferred automatically from the
             file extension.
+
         :return:
             And object of class :class:`Mesh` representing the loaded mesh.
         """

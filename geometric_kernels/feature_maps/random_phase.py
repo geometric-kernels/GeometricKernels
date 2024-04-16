@@ -28,9 +28,12 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
     which the :doc:`addition theorem </theory/addition_theorem>`-like basis
     functions are explicitly available while actual eigenpairs may be implicit.
 
-    :param space: a :class:`~.spaces.DiscreteSpectrumSpace` space.
-    :param num_levels: number of levels in the kernel approximation.
-    :param num_random_phases: number of random phases used in the generalized
+    :param space:
+        A :class:`~.spaces.DiscreteSpectrumSpace` space.
+    :param num_levels:
+        Number of levels in the kernel approximation.
+    :param num_random_phases:
+        Number of random phases used in the generalized
         random phase Fourier features technique.
     """
 
@@ -55,11 +58,14 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
         **kwargs,
     ) -> Tuple[B.RandomState, B.Numeric]:
         """
-        :param X: [N, ...] points in the space to evaluate the map on.
+        :param X:
+            [N, ...] points in the space to evaluate the map on.
 
-        :param params: parameters of the kernel (length scale and smoothness).
+        :param params:
+            Parameters of the kernel (length scale and smoothness).
 
-        :param key: random state, either `np.random.RandomState`,
+        :param key:
+            Random state, either `np.random.RandomState`,
             `tf.random.Generator`, `torch.Generator` or `jax.tensor` (which
             represents a random state).
 
@@ -73,12 +79,15 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
                 :func:`~.utils.make_deterministic` which
                 does this for you.
 
-        :param normalize: normalize to have unit average variance (if omitted
+        :param normalize:
+            Normalize to have unit average variance (if omitted
             or None, follows the standard behavior of
             :class:`kernels.MaternKarhunenLoeveKernel`).
-        :param ``**kwargs``: unused.
+        :param ``**kwargs``:
+            Unused.
 
-        :return: `Tuple(key, features)` where `features` is an [N, O] array, N
+        :return:
+            `Tuple(key, features)` where `features` is an [N, O] array, N
             is the number of inputs and O is the dimension of the feature map;
             `key` is the updated random key for `jax`, or the similar random
             state (generator) for any other backends.
@@ -122,13 +131,15 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
 
 class RandomPhaseFeatureMapNoncompact(FeatureMap):
     r"""
-    Basic random phase feature map for :class:`~.spaces.NoncompactSymmetricSpace`\ s
-    (based on the importance sampling).
+    Basic random phase feature map for
+    :class:`~.spaces.NoncompactSymmetricSpace`\ s (importance sampling based).
 
     This feature map should not be used if a space-specific alternative exists.
 
-    :param space: a :class:`~.spaces.NoncompactSymmetricSpace` space.
-    :param num_random_phases: number of random phases to use.
+    :param space:
+        A :class:`~.spaces.NoncompactSymmetricSpace` space.
+    :param num_random_phases:
+        Number of random phases to use.
     """
 
     def __init__(self, space: NoncompactSymmetricSpace, num_random_phases: int = 3000):
@@ -145,9 +156,12 @@ class RandomPhaseFeatureMapNoncompact(FeatureMap):
         **kwargs,
     ) -> Tuple[B.RandomState, B.Numeric]:
         """
-        :param X: [N, ...] points in the space to evaluate the map on.
-        :param params: parameters of the feature map (length scale and smoothness).
-        :param key: random state, either `np.random.RandomState`,
+        :param X:
+            [N, ...] points in the space to evaluate the map on.
+        :param params:
+            Parameters of the feature map (length scale and smoothness).
+        :param key:
+            Random state, either `np.random.RandomState`,
             `tf.random.Generator`, `torch.Generator` or `jax.tensor` (which
             represents a random state).
 
@@ -161,8 +175,10 @@ class RandomPhaseFeatureMapNoncompact(FeatureMap):
                 :func:`~.utils.make_deterministic` which
                 does this for you.
 
-        :param normalize: normalize to have unit average variance (`True` by default).
-        :param ``**kwargs``: unused.
+        :param normalize:
+            Normalize to have unit average variance (`True` by default).
+        :param ``**kwargs``:
+            Unused.
 
         :return: `Tuple(key, features)` where `features` is an [N, O] array, N
             is the number of inputs and O is the dimension of the feature map;

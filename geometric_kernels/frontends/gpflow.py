@@ -65,8 +65,8 @@ class GPflowGeometricKernel(gpflow.kernels.Kernel):
         Cannot be True if nu is equal to infinity. You cannot change
         this parameter after constructing the object. Defaults to False.
 
-    :raises ValueError: if trying to set nu = infinity together with
-        trainable_nu = True.
+    :raises ValueError:
+        If trying to set nu = infinity together with trainable_nu = True.
     """
 
     def __init__(
