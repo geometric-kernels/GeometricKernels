@@ -5,10 +5,7 @@ from scipy.stats import multivariate_t, ks_2samp
 from geometric_kernels.feature_maps.probability_densities import student_t_sample
 
 
-@pytest.mark.parametrize(
-    "deg_freedom, n",
-    [(2, 5, 42), (3, 5, 6)]
-)
+@pytest.mark.parametrize("deg_freedom, n", [(2, 5, 42), (3, 5, 6)])
 def test_student_t_sample(deg_freedom, n):
     size = (1024,)
 
