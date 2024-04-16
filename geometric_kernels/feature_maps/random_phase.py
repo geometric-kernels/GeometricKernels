@@ -103,15 +103,23 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
 
 
 class RandomPhaseFeatureMapNoncompact(FeatureMap):
-    def __init__(self, space: NoncompactSymmetricSpace, num_random_phases: int = 3000):
+    def __init__(
+        self,
+        space: NoncompactSymmetricSpace,
+        num_random_phases: int = 3000,
+        shift_laplacian: bool = True,
+    ):
         """
         Random phase feature map for noncompact symmetric space based on naive algorithm.
 
         :param space: Space.
         :param num_random_phases: number of random phases to use.
+        :param shift_laplacian: if true redefines kernel by shifting Laplacian,
+                this makes the Matern's kernels more flexible.
         """
         self.space = space
         self.num_random_phases = num_random_phases
+        self.shift_laplacian = shift_laplacian
 
     def __call__(
         self, X: B.Numeric, params, *, key, normalize=True, **kwargs
@@ -145,10 +153,11 @@ class RandomPhaseFeatureMapNoncompact(FeatureMap):
 
         key, random_lambda = base_density_sample(
             key,
-            (self.num_random_phases, B.shape(self.space.rho)[0]),  # [O, D]
+            (self.num_random_phases,),  # [O, 1]
             params,
             self.space.dimension,
             self.space.rho,
+            self.shift_laplacian,
         )  # [O, P]
 
         random_phases_b = B.expand_dims(

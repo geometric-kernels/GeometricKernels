@@ -16,16 +16,24 @@ from geometric_kernels.spaces import Hyperbolic, SymmetricPositiveDefiniteMatric
 
 
 class RejectionSamplingFeatureMapHyperbolic(FeatureMap):
-    def __init__(self, space: Hyperbolic, num_random_phases: int = 3000):
+    def __init__(
+        self,
+        space: Hyperbolic,
+        num_random_phases: int = 3000,
+        shift_laplacian: bool = True,
+    ):
         """
         Random phase feature map for the Hyperbolic space based on the
         rejection sampling algorithm.
 
         :param space: Hyperbolic space.
         :param num_random_phases: number of random phases to use.
+        :param shift_laplacian: if true redefines kernel by shifting Laplacian,
+                this makes the Matern's kernels more flexible.
         """
         self.space = space
         self.num_random_phases = num_random_phases
+        self.shift_laplacian = shift_laplacian
 
     def __call__(
         self, X: B.Numeric, params, *, key, normalize=True, **kwargs
@@ -61,6 +69,7 @@ class RejectionSamplingFeatureMapHyperbolic(FeatureMap):
             (self.num_random_phases, B.rank(self.space.rho)),
             params,
             self.space.dimension,
+            self.shift_laplacian,
         )  # [O, 1]
 
         random_phases_b = B.expand_dims(
@@ -86,6 +95,7 @@ class RejectionSamplingFeatureMapSPD(FeatureMap):
         self,
         space: SymmetricPositiveDefiniteMatrices,
         num_random_phases: int = 3000,
+        shift_laplacian: bool = True,
     ):
         """
         Random phase feature map for the SPD (Symmetric Positive Definite) space based on the
@@ -93,9 +103,12 @@ class RejectionSamplingFeatureMapSPD(FeatureMap):
 
         :param space: SymmetricPositiveDefiniteMatrices space.
         :param num_random_phases: number of random phases to use.
+        :param shift_laplacian: if true redefines kernel by shifting Laplacian,
+                this makes the Matern's kernels more flexible.
         """
         self.space = space
         self.num_random_phases = num_random_phases
+        self.shift_laplacian = shift_laplacian
 
     def __call__(
         self, X: B.Numeric, params, *, key, normalize=True, **kwargs
@@ -127,7 +140,12 @@ class RejectionSamplingFeatureMapSPD(FeatureMap):
         )  # [O, D, D]
 
         key, random_lambda = spd_density_sample(
-            key, (self.num_random_phases,), params, self.space.degree, self.space.rho
+            key,
+            (self.num_random_phases,),
+            params,
+            self.space.degree,
+            self.space.rho,
+            self.shift_laplacian,
         )  # [O, D]
 
         random_phases_b = B.expand_dims(
