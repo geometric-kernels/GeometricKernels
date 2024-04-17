@@ -48,7 +48,7 @@ class SUEigenfunctions(WeylAdditionTheorem):
         )
         signatures = [sgn + (0,) for sgn in signatures]
 
-        dimensions = [self._compute_eigenvalue(signature) for signature in signatures]
+        eigenvalues = [self._compute_eigenvalue(signature) for signature in signatures]
         min_ind = np.argsort(eigenvalues)[:num_levels]
         signatures = [signatures[i] for i in min_ind]
         return signatures
