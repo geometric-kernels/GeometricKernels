@@ -37,7 +37,7 @@ class Space(abc.ABC):
         Examples:
         * hypersphere: [D + 1, ]
         * mesh: [1, ]
-        * matrix Lie group: [D, D]
+        * matrix Lie group: [n, n]
         """
         raise NotImplementedError
 

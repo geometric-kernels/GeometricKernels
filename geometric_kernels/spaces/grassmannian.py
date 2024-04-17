@@ -148,4 +148,4 @@ class Grassmannian(CompactHomogeneousSpace):
 
     @property
     def element_shape(self):
-        return [self.n, self.n]
+        return [self.n, self.m]

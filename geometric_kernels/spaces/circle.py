@@ -186,4 +186,4 @@ class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
 
     @property
     def element_shape(self):
-        return [self.dimension]
+        return [1]
