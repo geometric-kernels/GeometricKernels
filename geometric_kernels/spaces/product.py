@@ -13,7 +13,7 @@ from beartype.typing import List, Optional
 from geometric_kernels.lab_extras import from_numpy
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
-from geometric_kernels.utils.product import project_product
+from geometric_kernels.utils.product import make_product, project_product
 from geometric_kernels.utils.utils import chain
 
 
@@ -355,7 +355,7 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
             key, factor_random_points = factor.random(key, number)
             random_points.append(factor_random_points)
 
-        return key, self.make_product(random_points)
+        return key, make_product(random_points)
 
     def get_eigenfunctions(self, num: int) -> Eigenfunctions:
         assert num <= self.num_eigen
