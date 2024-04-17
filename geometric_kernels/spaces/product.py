@@ -8,7 +8,7 @@ import math
 
 import lab as B
 import numpy as np
-from beartype.typing import List
+from beartype.typing import List, Optional
 
 from geometric_kernels.lab_extras import from_numpy
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
@@ -55,6 +55,7 @@ def _find_lowest_sum_combinations(array, k):
         # mutate just accepted ones by adding one to each eigenindex
         new_indices = curr_idx[tied_sums][..., None, :] + B.eye(int, curr_idx.shape[-1])
         new_indices = new_indices.reshape((-1, new_indices.shape[-1]))
+        new_indices = B.minimum(new_indices, D - 1)
         curr_idx = B.concat(old_indices, new_indices, axis=0)
         curr_idx = np.unique(
             B.to_numpy(curr_idx.reshape((-1, curr_idx.shape[-1]))),
@@ -282,7 +283,12 @@ class ProductEigenfunctions(Eigenfunctions):
 
 
 class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
-    def __init__(self, *spaces: DiscreteSpectrumSpace, num_levels: int = 25):
+    def __init__(
+        self,
+        *spaces: DiscreteSpectrumSpace,
+        num_levels: int = 25,
+        num_levels_per_space: Optional[int] = None,
+    ):
         r"""Implementation of products of discrete spectrum spaces.
         Assumes the spaces are compact manifolds and that the eigenfunctions are the
         eigenfunctions of the Laplace-Beltrami operator.
@@ -311,6 +317,10 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
         :param spaces: The spaces to product together (each must inherit from DiscreteSpectrumSpace)
         :param num_levels: (optional)
             number of levels to pre-compute for this product space.
+        :param num_levels_per_space: (optional)
+            Number of levels to fetch for each of the factor spaces to compute
+            the product-space levels. If not given, `num_levels`
+            levels will be fetched for each factor.
         """
         for space in spaces:
             assert isinstance(
@@ -325,9 +335,18 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
         # can be found by taking a one-index step in any direction from the current
         # edge of the searchspace
 
+        if num_levels_per_space is None:
+            num_levels_per_space = num_levels
+        assert num_levels <= num_levels_per_space ** len(
+            spaces
+        ), "Cannot have more levels than there are possible combinations"
+
         # prefetch the eigenvalues of the subspaces
         sub_space_eigenvalues = B.stack(
-            *[space.get_eigenvalues(self.num_eigen)[:, 0] for space in self.sub_spaces],
+            *[
+                space.get_eigenvalues(num_levels_per_space)[:, 0]
+                for space in self.sub_spaces
+            ],
             axis=0,
         )  # [M, S]
 
@@ -369,7 +388,7 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
 
         return ProductEigenfunctions(
             [space.element_shape for space in self.sub_spaces],
-            self.sub_space_eigenindices,
+            self.sub_space_eigenindices[:num],
             *sub_space_eigenfunctions,
         )
 

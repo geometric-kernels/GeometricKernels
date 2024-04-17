@@ -4,7 +4,11 @@ from opt_einsum import contract as einsum
 
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.lab_extras.extras import from_numpy
-from geometric_kernels.spaces import Circle, ProductDiscreteSpectrumSpace, SpecialUnitary
+from geometric_kernels.spaces import (
+    Circle,
+    ProductDiscreteSpectrumSpace,
+    SpecialUnitary,
+)
 from geometric_kernels.utils.utils import chain
 
 _TRUNC_LEVEL = 128
@@ -82,12 +86,15 @@ def test_circle_product_kernel():
         )
 
 
-def test_product_kernel_circle_so():
+def test_product_kernel_circle_su():
     circle = Circle()
     su = SpecialUnitary(2)
 
     product = ProductDiscreteSpectrumSpace(
-        circle, su, num_levels=20,
+        circle,
+        su,
+        num_levels=400,
+        num_levels_per_space=20,
     )
 
     key = B.create_random_state(np.float32)
@@ -96,9 +103,8 @@ def test_product_kernel_circle_so():
 
     xs = product.make_product([xs_circle, xs_su])
 
-    kernel = MaternKarhunenLoeveKernel(product, 20)
-    kernel_single_circle = MaternKarhunenLoeveKernel(circle, 20
-                                                     )
+    kernel = MaternKarhunenLoeveKernel(product, 400)
+    kernel_single_circle = MaternKarhunenLoeveKernel(circle, 20)
     kernel_single_su = MaternKarhunenLoeveKernel(su, 20)
 
     for ls in [0.1, 0.5, 1.0, 2.0, 5.0]:
@@ -109,16 +115,10 @@ def test_product_kernel_circle_so():
 
         k_xx = kernel.K(params, xs, xs[:1])  # [N, 1]
 
-        k_xx_circle = kernel_single_circle.K(
-            params, xs_circle, xs_circle[:1]
-        )  # [N, 1]
+        k_xx_circle = kernel_single_circle.K(params, xs_circle, xs_circle[:1])  # [N, 1]
 
-        k_xx_su = kernel_single_su.K(
-            params, xs_su, xs_su[:1]
-        )  # [N, 1]
+        k_xx_su = kernel_single_su.K(params, xs_su, xs_su[:1])  # [N, 1]
 
         k_xx_product = k_xx_circle * k_xx_su
 
-        np.testing.assert_allclose(
-            k_xx, k_xx_product, atol=1e-08, rtol=1e-05
-        )
+        np.testing.assert_allclose(k_xx, k_xx_product, atol=1e-08, rtol=1e-05)
