@@ -9,6 +9,7 @@ from beartype.typing import List, Mapping, Optional
 
 from geometric_kernels.kernels.base import BaseGeometricKernel
 from geometric_kernels.spaces import Space
+from geometric_kernels.utils.product import project_product
 
 
 class ProductGeometricKernel(BaseGeometricKernel):
@@ -17,9 +18,10 @@ class ProductGeometricKernel(BaseGeometricKernel):
 
     :param kernels: Kernels to compute the product for.
     :param dimension_indices: List of indices the correspond to the indices of
-        the input that should be fed to each kernel. If None, assume the each
-        kernel takes kernel.space.dimension inputs, and that the input will
-        be a stack of this size.
+        the input that should be fed to each kernel. If None, assume the each input
+        is layed-out flattened and concatenated, in the same order as the factor spaces.
+        That is, if the shape of the input is [D1, ..., DN], it is flattened to
+        a [D1*...*DN]-array.
 
         Defaults to None.
     """
@@ -66,16 +68,8 @@ class ProductGeometricKernel(BaseGeometricKernel):
         if X2 is None:
             X2 = X
 
-        N = B.shape(X)[0]
-        M = B.shape(X2)[0]
-        Xs = [
-            B.reshape(B.take(X, inds, axis=-1), N, *shape)
-            for inds, shape in zip(self.dimension_indices, self.element_shapes)
-        ]
-        X2s = [
-            B.reshape(B.take(X2, inds, axis=-1), M, *shape)
-            for inds, shape in zip(self.dimension_indices, self.element_shapes)
-        ]
+        Xs = project_product(X, self.dimension_indices, self.element_shapes)
+        X2s = project_product(X2, self.dimension_indices, self.element_shapes)
 
         return B.prod(
             B.stack(
@@ -89,11 +83,7 @@ class ProductGeometricKernel(BaseGeometricKernel):
         )
 
     def K_diag(self, params, X):
-        N = B.shape(X)[0]
-        Xs = [
-            B.reshape(B.take(X, inds, axis=-1), N, *shape)
-            for inds, shape in zip(self.dimension_indices, self.element_shapes)
-        ]
+        Xs = project_product(X, self.dimension_indices, self.element_shapes)
 
         return B.prod(
             B.stack(

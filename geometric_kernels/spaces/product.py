@@ -13,6 +13,7 @@ from beartype.typing import List, Optional
 from geometric_kernels.lab_extras import from_numpy
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
+from geometric_kernels.utils.product import project_product
 from geometric_kernels.utils.utils import chain
 
 
@@ -171,11 +172,7 @@ class ProductEigenfunctions(Eigenfunctions):
         assert self.eigenindicies.shape[-1] == len(self.eigenfunctions)
 
     def __call__(self, X: B.Numeric, **parameters) -> B.Numeric:
-        N = B.shape(X)[0]
-        Xs = [
-            B.reshape(B.take(X, inds, axis=-1), N, *shape)
-            for inds, shape in zip(self.dimension_indices, self.element_shapes)
-        ]
+        Xs = project_product(X, self.dimension_indices, self.element_shapes)
 
         eigenfunctions = B.stack(
             *[
@@ -212,16 +209,8 @@ class ProductEigenfunctions(Eigenfunctions):
     def weighted_outerproduct(self, weights, X, X2=None, **parameters):
         if X2 is None:
             X2 = X
-        N = B.shape(X)[0]
-        M = B.shape(X2)[0]
-        Xs = [
-            B.reshape(B.take(X, inds, axis=-1), N, *shape)
-            for inds, shape in zip(self.dimension_indices, self.element_shapes)
-        ]
-        Xs2 = [
-            B.reshape(B.take(X2, inds, axis=-1), M, *shape)
-            for inds, shape in zip(self.dimension_indices, self.element_shapes)
-        ]
+        Xs = project_product(X, self.dimension_indices, self.element_shapes)
+        Xs2 = project_product(X2, self.dimension_indices, self.element_shapes)
 
         phis = B.stack(
             *[
@@ -248,11 +237,7 @@ class ProductEigenfunctions(Eigenfunctions):
     def weighted_outerproduct_diag(
         self, weights: B.Numeric, X: B.Numeric, **parameters
     ) -> B.Numeric:
-        N = B.shape(X)[0]
-        Xs = [
-            B.reshape(B.take(X, inds, axis=-1), N, *shape)
-            for inds, shape in zip(self.dimension_indices, self.element_shapes)
-        ]
+        Xs = project_product(X, self.dimension_indices, self.element_shapes)
 
         phis = B.stack(
             *[
@@ -363,11 +348,6 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
     @property
     def dimension(self) -> int:
         return sum([space.dimension for space in self.sub_spaces])
-
-    @staticmethod
-    def make_product(xs: List[B.Numeric]) -> B.Numeric:
-        flat_xs = [B.reshape(x, B.shape(x)[0], -1) for x in xs]
-        return B.concat(*flat_xs, axis=-1)
 
     def random(self, key, number):
         random_points = []
