@@ -15,7 +15,7 @@ def make_product(xs: List[B.Numeric]) -> B.Numeric:
 
 
 def project_product(
-    x: B.Numeric, indices: List[int], element_shapes: List[int]
+    x: B.Numeric, indices: List[int], element_shapes: List[List[int]]
 ) -> List[B.Numeric]:
     """
     Project an element of the product space into each factor.
