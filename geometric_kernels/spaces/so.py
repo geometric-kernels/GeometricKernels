@@ -62,7 +62,7 @@ class SOEigenfunctions(WeylAdditionTheorem):
                         signatures.append(tuple(signature))
 
         dimensions = [self._compute_eigenvalue(signature) for signature in signatures]
-        min_ind = np.argsort(eigenvalues)[:num_levels]        
+        min_ind = np.argsort(eigenvalues)[:num_levels]
         signatures = [signatures[i] for i in min_ind]
         return signatures
 
