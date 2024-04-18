@@ -5,6 +5,7 @@ Abstract base interface for GeometricKernels spaces.
 import abc
 
 import lab as B
+from beartype.typing import List
 
 from geometric_kernels.lab_extras import take_along_axis
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
@@ -25,6 +26,18 @@ class Space(abc.ABC):
         * circle: 1 dimensional
         * sphere: 2 dimensional
         * torus: 2 dimensional
+        """
+        raise NotImplementedError
+
+    @abc.abstractproperty
+    def element_shape(self) -> List[int]:
+        """
+        Shape of an element.
+
+        Examples:
+        * hypersphere: [D + 1, ]
+        * mesh: [1, ]
+        * matrix Lie group: [n, n]
         """
         raise NotImplementedError
 

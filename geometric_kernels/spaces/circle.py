@@ -183,3 +183,7 @@ class Circle(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
         key, random_points = B.random.rand(key, dtype_double(key), number, 1)  # (N, 1)
         random_points *= 2 * B.pi
         return key, random_points
+
+    @property
+    def element_shape(self):
+        return [1]

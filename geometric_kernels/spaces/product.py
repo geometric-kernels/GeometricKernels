@@ -4,14 +4,16 @@ representation of its spectrum, the :class:`ProductEigenfunctions` class.
 """
 
 import itertools
+import math
 
 import lab as B
 import numpy as np
-from beartype.typing import List
+from beartype.typing import List, Optional
 
 from geometric_kernels.lab_extras import from_numpy
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
+from geometric_kernels.utils.product import make_product, project_product
 from geometric_kernels.utils.utils import chain
 
 
@@ -54,6 +56,7 @@ def _find_lowest_sum_combinations(array, k):
         # mutate just accepted ones by adding one to each eigenindex
         new_indices = curr_idx[tied_sums][..., None, :] + B.eye(int, curr_idx.shape[-1])
         new_indices = new_indices.reshape((-1, new_indices.shape[-1]))
+        new_indices = B.minimum(new_indices, D - 1)
         curr_idx = B.concat(old_indices, new_indices, axis=0)
         curr_idx = np.unique(
             B.to_numpy(curr_idx.reshape((-1, curr_idx.shape[-1]))),
@@ -130,7 +133,7 @@ def _per_level_to_separate(eigenindices, nums_per_level):
 class ProductEigenfunctions(Eigenfunctions):
     def __init__(
         self,
-        dimensions: List[int],
+        element_shapes: List[List[int]],
         eigenindicies: B.Numeric,
         *eigenfunctions: Eigenfunctions,
         dimension_indices: B.Numeric = None,
@@ -146,6 +149,8 @@ class ProductEigenfunctions(Eigenfunctions):
         :param eigenfunctions: the eigenfunctions
 
         """
+        self.element_shapes = element_shapes
+        dimensions = [math.prod(element_shape) for element_shape in self.element_shapes]
         if dimension_indices is None:
             self.dimension_indices = []
             i = 0
@@ -167,7 +172,7 @@ class ProductEigenfunctions(Eigenfunctions):
         assert self.eigenindicies.shape[-1] == len(self.eigenfunctions)
 
     def __call__(self, X: B.Numeric, **parameters) -> B.Numeric:
-        Xs = [B.take(X, inds, axis=-1) for inds in self.dimension_indices]
+        Xs = project_product(X, self.dimension_indices, self.element_shapes)
 
         eigenfunctions = B.stack(
             *[
@@ -204,8 +209,8 @@ class ProductEigenfunctions(Eigenfunctions):
     def weighted_outerproduct(self, weights, X, X2=None, **parameters):
         if X2 is None:
             X2 = X
-        Xs = [B.take(X, inds, axis=-1) for inds in self.dimension_indices]
-        Xs2 = [B.take(X2, inds, axis=-1) for inds in self.dimension_indices]
+        Xs = project_product(X, self.dimension_indices, self.element_shapes)
+        Xs2 = project_product(X2, self.dimension_indices, self.element_shapes)
 
         phis = B.stack(
             *[
@@ -232,7 +237,7 @@ class ProductEigenfunctions(Eigenfunctions):
     def weighted_outerproduct_diag(
         self, weights: B.Numeric, X: B.Numeric, **parameters
     ) -> B.Numeric:
-        Xs = [B.take(X, inds, axis=-1) for inds in self.dimension_indices]
+        Xs = project_product(X, self.dimension_indices, self.element_shapes)
 
         phis = B.stack(
             *[
@@ -263,7 +268,12 @@ class ProductEigenfunctions(Eigenfunctions):
 
 
 class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
-    def __init__(self, *spaces: DiscreteSpectrumSpace, num_levels: int = 25):
+    def __init__(
+        self,
+        *spaces: DiscreteSpectrumSpace,
+        num_levels: int = 25,
+        num_levels_per_space: Optional[int] = None,
+    ):
         r"""Implementation of products of discrete spectrum spaces.
         Assumes the spaces are compact manifolds and that the eigenfunctions are the
         eigenfunctions of the Laplace-Beltrami operator.
@@ -292,6 +302,10 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
         :param spaces: The spaces to product together (each must inherit from DiscreteSpectrumSpace)
         :param num_levels: (optional)
             number of levels to pre-compute for this product space.
+        :param num_levels_per_space: (optional)
+            Number of levels to fetch for each of the factor spaces to compute
+            the product-space levels. If not given, `num_levels`
+            levels will be fetched for each factor.
         """
         for space in spaces:
             assert isinstance(
@@ -306,9 +320,18 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
         # can be found by taking a one-index step in any direction from the current
         # edge of the searchspace
 
+        if num_levels_per_space is None:
+            num_levels_per_space = num_levels
+        assert num_levels <= num_levels_per_space ** len(
+            spaces
+        ), "Cannot have more levels than there are possible combinations"
+
         # prefetch the eigenvalues of the subspaces
         sub_space_eigenvalues = B.stack(
-            *[space.get_eigenvalues(self.num_eigen)[:, 0] for space in self.sub_spaces],
+            *[
+                space.get_eigenvalues(num_levels_per_space)[:, 0]
+                for space in self.sub_spaces
+            ],
             axis=0,
         )  # [M, S]
 
@@ -332,7 +355,7 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
             key, factor_random_points = factor.random(key, number)
             random_points.append(factor_random_points)
 
-        return key, B.concat(*random_points, axis=1)
+        return key, make_product(random_points)
 
     def get_eigenfunctions(self, num: int) -> Eigenfunctions:
         assert num <= self.num_eigen
@@ -344,8 +367,8 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
         ]
 
         return ProductEigenfunctions(
-            [space.dimension for space in self.sub_spaces],
-            self.sub_space_eigenindices,
+            [space.element_shape for space in self.sub_spaces],
+            self.sub_space_eigenindices[:num],
             *sub_space_eigenfunctions,
         )
 
@@ -363,3 +386,7 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
 
         repeated_eigenvalues = chain(eigenvalues, multiplicities)
         return B.reshape(repeated_eigenvalues, -1, 1)  # [M, 1]
+
+    @property
+    def element_shape(self):
+        return [sum(space.element_size) for space in self.sub_spaces]

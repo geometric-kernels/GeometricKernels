@@ -128,3 +128,7 @@ class Graph(DiscreteSpectrumSpace):
         )
 
         return key, random_vertices
+
+    @property
+    def element_shape(self):
+        return [1]

@@ -205,3 +205,7 @@ class SpecialUnitary(MatrixLieGroup):
             q_det_inv_phase = complex_conj((q_det / B.abs(q_det)))
             q[:, :, 0] *= q_det_inv_phase[:, None]
             return key, q
+
+    @property
+    def element_shape(self):
+        return [self.n, self.n]

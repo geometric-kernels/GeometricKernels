@@ -2,11 +2,14 @@
 Product of kernels
 """
 
+import math
+
 import lab as B
 from beartype.typing import List, Mapping, Optional
 
 from geometric_kernels.kernels.base import BaseGeometricKernel
 from geometric_kernels.spaces import Space
+from geometric_kernels.utils.product import project_product
 
 
 class ProductGeometricKernel(BaseGeometricKernel):
@@ -15,9 +18,10 @@ class ProductGeometricKernel(BaseGeometricKernel):
 
     :param kernels: Kernels to compute the product for.
     :param dimension_indices: List of indices the correspond to the indices of
-        the input that should be fed to each kernel. If None, assume the each
-        kernel takes kernel.space.dimension inputs, and that the input will
-        be a stack of this size.
+        the input that should be fed to each kernel. If None, assume the each input
+        is layed-out flattened and concatenated, in the same order as the factor spaces.
+        That is, if the shape of the input is [D1, ..., DN], it is flattened to
+        a [D1*...*DN]-array.
 
         Defaults to None.
     """
@@ -28,9 +32,10 @@ class ProductGeometricKernel(BaseGeometricKernel):
         dimension_indices: Optional[List[B.Numeric]] = None,
     ):
         self.kernels = kernels
+        self.element_shapes = [kernel.space.element_shape for kernel in self.kernels]
 
         if dimension_indices is None:
-            dimensions = [kernel.space.dimension for kernel in self.kernels]
+            dimensions = [math.prod(shape) for shape in self.element_shapes]
             self.dimension_indices: List[B.Numeric] = []
             i = 0
             inds = B.linspace(0, sum(dimensions) - 1, sum(dimensions)).astype(int)
@@ -63,8 +68,8 @@ class ProductGeometricKernel(BaseGeometricKernel):
         if X2 is None:
             X2 = X
 
-        Xs = [B.take(X, inds, axis=-1) for inds in self.dimension_indices]
-        X2s = [B.take(X2, inds, axis=-1) for inds in self.dimension_indices]
+        Xs = project_product(X, self.dimension_indices, self.element_shapes)
+        X2s = project_product(X2, self.dimension_indices, self.element_shapes)
 
         return B.prod(
             B.stack(
@@ -78,7 +83,7 @@ class ProductGeometricKernel(BaseGeometricKernel):
         )
 
     def K_diag(self, params, X):
-        Xs = [B.take(X, inds, axis=-1) for inds in self.dimension_indices]
+        Xs = project_product(X, self.dimension_indices, self.element_shapes)
 
         return B.prod(
             B.stack(

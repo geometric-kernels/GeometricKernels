@@ -244,3 +244,6 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
         """
 
         return key, B.cast(dtype_double(key), self.random_point(number))
+
+    def element_shape(self):
+        return [self.dimension + 1]
