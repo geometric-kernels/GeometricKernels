@@ -26,11 +26,23 @@ class RejectionSamplingFeatureMapHyperbolic(FeatureMap):
         A :class:`~.spaces.Hyperbolic` space.
     :param num_random_phases:
         Number of random phases to use.
+    :param shifted_laplacian:
+        If True, assumes that the kernels are defined in terms of the shifted
+        Laplacian. This often makes Matérn kernels more flexible by widening
+        the effective range of the length scale parameter.
+
+        Defaults to True.
     """
 
-    def __init__(self, space: Hyperbolic, num_random_phases: int = 3000):
+    def __init__(
+        self,
+        space: Hyperbolic,
+        num_random_phases: int = 3000,
+        shifted_laplacian: bool = True,
+    ):
         self.space = space
         self.num_random_phases = num_random_phases
+        self.shifted_laplacian = shifted_laplacian
 
     def __call__(
         self,
@@ -84,6 +96,7 @@ class RejectionSamplingFeatureMapHyperbolic(FeatureMap):
             (self.num_random_phases, B.rank(self.space.rho)),
             params,
             self.space.dimension,
+            self.shifted_laplacian,
         )  # [O, 1]
 
         random_phases_b = B.expand_dims(
@@ -114,15 +127,23 @@ class RejectionSamplingFeatureMapSPD(FeatureMap):
         A :class:`~.spaces.SymmetricPositiveDefiniteMatrices` space.
     :param num_random_phases:
         Number of random phases to use.
+    :param shifted_laplacian:
+        If True, assumes that the kernels are defined in terms of the shifted
+        Laplacian. This often makes Matérn kernels more flexible by widening
+        the effective range of the length scale parameter.
+
+        Defaults to True.
     """
 
     def __init__(
         self,
         space: SymmetricPositiveDefiniteMatrices,
         num_random_phases: int = 3000,
+        shifted_laplacian: bool = True,
     ):
         self.space = space
         self.num_random_phases = num_random_phases
+        self.shifted_laplacian = shifted_laplacian
 
     def __call__(
         self,
@@ -172,7 +193,12 @@ class RejectionSamplingFeatureMapSPD(FeatureMap):
         )  # [O, D, D]
 
         key, random_lambda = spd_density_sample(
-            key, (self.num_random_phases,), params, self.space.degree, self.space.rho
+            key,
+            (self.num_random_phases,),
+            params,
+            self.space.degree,
+            self.space.rho,
+            self.shifted_laplacian,
         )  # [O, D]
 
         random_phases_b = B.expand_dims(

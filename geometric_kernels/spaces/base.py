@@ -5,6 +5,7 @@ Abstract base classes for all spaces (input domains) in the library.
 import abc
 
 import lab as B
+from beartype.typing import List
 
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 
@@ -25,6 +26,18 @@ class Space(abc.ABC):
         * :class:`~.spaces.Circle`: 1-dimensional.
         * :class:`~.spaces.Hypersphere`: d-dimensional, with d >= 2.
         * :class:`~.spaces.Hyperbolic`: d-dimensional, with d >= 2.
+        """
+        raise NotImplementedError
+
+    @abc.abstractproperty
+    def element_shape(self) -> List[int]:
+        """
+        Shape of an element.
+
+        Examples:
+        * hypersphere: [D + 1, ]
+        * mesh: [1, ]
+        * matrix Lie group: [n, n]
         """
         raise NotImplementedError
 

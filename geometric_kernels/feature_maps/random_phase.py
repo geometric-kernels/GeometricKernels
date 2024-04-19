@@ -140,11 +140,23 @@ class RandomPhaseFeatureMapNoncompact(FeatureMap):
         A :class:`~.spaces.NoncompactSymmetricSpace` space.
     :param num_random_phases:
         Number of random phases to use.
+    :param shifted_laplacian:
+        If True, assumes that the kernels are defined in terms of the shifted
+        Laplacian. This often makes Matérn kernels more flexible by widening
+        the effective range of the length scale parameter.
+
+        Defaults to True.
     """
 
-    def __init__(self, space: NoncompactSymmetricSpace, num_random_phases: int = 3000):
+    def __init__(
+        self,
+        space: NoncompactSymmetricSpace,
+        num_random_phases: int = 3000,
+        shifted_laplacian: bool = True,
+    ):
         self.space = space
         self.num_random_phases = num_random_phases
+        self.shifted_laplacian = shifted_laplacian
 
     def __call__(
         self,
@@ -196,10 +208,11 @@ class RandomPhaseFeatureMapNoncompact(FeatureMap):
 
         key, random_lambda = base_density_sample(
             key,
-            (self.num_random_phases, B.shape(self.space.rho)[0]),  # [O, D]
+            (self.num_random_phases,),  # [O, 1]
             params,
             self.space.dimension,
             self.space.rho,
+            self.shifted_laplacian,
         )  # [O, P]
 
         random_phases_b = B.expand_dims(

@@ -41,8 +41,20 @@ class SphericalHarmonics(EigenfunctionsWithAdditionTheorem):
         self._num_levels = num_levels
         self._num_eigenfunctions: Optional[int] = None  # To be computed when needed.
         self._spherical_harmonics = _SphericalHarmonics(
-            dimension=dim + 1, degrees=self._num_levels
+            dimension=dim + 1,
+            degrees=self._num_levels,
+            allow_uncomputed_levels=True,
         )
+
+    @property
+    def num_computed_levels(self) -> int:
+        num = 0
+        for level in self._spherical_harmonics.harmonic_levels:
+            if level.is_level_computed:
+                num += 1
+            else:
+                break
+        return num
 
     def __call__(self, X: B.Numeric, **parameters) -> B.Numeric:
         return self._spherical_harmonics(X)
@@ -239,3 +251,7 @@ class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
             B.sum(random_points**2, axis=1, squeeze=False)
         )  # (N, D+1)
         return key, random_points
+
+    @property
+    def element_shape(self):
+        return [self.dimension + 1]

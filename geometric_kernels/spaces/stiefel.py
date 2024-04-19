@@ -183,3 +183,7 @@ class Stiefel(CompactHomogeneousSpace):
         eigenfunctions = StiefelEigenfunctions(self, num, self.samples_H)
         eigenvalues = np.array(eigenfunctions._eigenvalues)
         return B.reshape(eigenvalues, -1, 1)  # [num, 1]
+
+    @property
+    def element_shape(self):
+        return [self.n, self.m]

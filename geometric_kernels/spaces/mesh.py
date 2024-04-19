@@ -204,3 +204,7 @@ class Mesh(DiscreteSpectrumSpace):
             key, dtype_integer(key), number, 1, lower=0, upper=self.num_vertices
         )
         return key, random_vertices
+
+    @property
+    def element_shape(self):
+        return [1]

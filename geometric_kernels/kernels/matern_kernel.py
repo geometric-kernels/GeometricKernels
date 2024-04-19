@@ -25,6 +25,7 @@ from geometric_kernels.spaces import (
     DiscreteSpectrumSpace,
     Graph,
     Hyperbolic,
+    Hypersphere,
     Mesh,
     NoncompactSymmetricSpace,
     Space,
@@ -131,6 +132,14 @@ def feature_map_from_space(space: DiscreteSpectrumSpace, num: int):
         return RandomPhaseFeatureMapCompact(
             space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
         )
+    elif isinstance(space, Hypersphere):
+        num_computed_levels = space.num_computed_levels
+        if num_computed_levels > 0:
+            return DeterministicFeatureMapCompact(space, min(num, num_computed_levels))
+        else:
+            return RandomPhaseFeatureMapCompact(
+                space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
+            )
     else:
         return DeterministicFeatureMapCompact(space, num)
 

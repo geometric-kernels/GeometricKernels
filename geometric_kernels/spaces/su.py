@@ -49,8 +49,8 @@ class SUEigenfunctions(WeylAdditionTheorem):
         )
         signatures = [sgn + (0,) for sgn in signatures]
 
-        dimensions = [self._compute_eigenvalue(signature) for signature in signatures]
-        min_ind = np.argpartition(dimensions, num_levels)[:num_levels]
+        eigenvalues = [self._compute_eigenvalue(signature) for signature in signatures]
+        min_ind = np.argsort(eigenvalues)[:num_levels]
         signatures = [signatures[i] for i in min_ind]
         return signatures
 
@@ -240,3 +240,7 @@ class SpecialUnitary(CompactMatrixLieGroup):
             q_det_inv_phase = complex_conj((q_det / B.abs(q_det)))
             q[:, :, 0] *= q_det_inv_phase[:, None]
             return key, q
+
+    @property
+    def element_shape(self):
+        return [self.n, self.n]

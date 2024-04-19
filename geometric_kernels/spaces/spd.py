@@ -129,3 +129,7 @@ class SymmetricPositiveDefiniteMatrices(
             An array of `number` uniformly random samples on the space.
         """
         return key, B.cast(dtype_double(key), self.random_point(number))
+
+    @property
+    def element_shape(self):
+        return [self.n, self.n]
