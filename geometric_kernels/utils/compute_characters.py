@@ -10,6 +10,7 @@ from sympy.matrices.determinant import _det as sp_det
 from geometric_kernels.spaces.so import SOEigenfunctions
 from geometric_kernels.spaces.su import SUEigenfunctions  # noqa
 from geometric_kernels.utils.utils import (
+    get_resource_file_path,
     partition_dominance_cone,
     partition_dominance_or_subpartition_cone,
 )
@@ -285,8 +286,9 @@ def compute_character_formula_su(self, signature):
 if __name__ == "__main__":
     characters = {}
     if not recalculate:
-        with open(storage_file_name, "r") as file:
-            characters = json.load(file)
+        with get_resource_file_path("precomputed_characters.json") as storage_file_name:
+            with open(storage_file_name, "r") as file:
+                characters = json.load(file)
 
     for name, n, eigenfunctions_class in groups:
         group_name = "{}({})".format(name, n)
@@ -308,5 +310,6 @@ if __name__ == "__main__":
                 print(coeffs, monoms)
                 characters[group_name][str(signature)] = (coeffs, monoms)
 
-    with open(storage_file_name, "w") as file:
-        json.dump(characters, file, cls=CompactJSONEncoder)
+    with get_resource_file_path("precomputed_characters.json") as storage_file_name:
+        with open(storage_file_name, "w") as file:
+            json.dump(characters, file, cls=CompactJSONEncoder)
