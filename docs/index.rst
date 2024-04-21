@@ -270,8 +270,8 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> # Initialize kernel.
    >>> kernel = MaternGeometricKernel(hypersphere)
    >>> params = kernel.init_params()
-   >>> params["nu"] = tf.convert_to_tensor(5/2)
-   >>> params["lengthscale"] = tf.convert_to_tensor(1.)
+   >>> params["nu"] = tf.convert_to_tensor([5/2])
+   >>> params["lengthscale"] = tf.convert_to_tensor([1.])
 
    >>> # Compute and print out the 3x3 kernel matrix.
    >>> print(np.around(kernel.K(params, tf.convert_to_tensor(xs)).numpy(), 2))
@@ -317,8 +317,8 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> # Initialize kernel.
    >>> kernel = MaternGeometricKernel(hypersphere)
    >>> params = kernel.init_params()
-   >>> params["nu"] = torch.tensor(5/2)
-   >>> params["lengthscale"] = torch.tensor(1.)
+   >>> params["nu"] = torch.tensor([5/2])
+   >>> params["lengthscale"] = torch.tensor([1.])
 
    >>> # Compute and print out the 3x3 kernel matrix.
    >>> print(np.around(kernel.K(params, torch.from_numpy(xs)).detach().cpu().numpy(), 2))
@@ -363,8 +363,8 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> # Initialize kernel.
    >>> kernel = MaternGeometricKernel(hypersphere)
    >>> params = kernel.init_params()
-   >>> params["nu"] = jnp.r_[5/2]
-   >>> params["lengthscale"] = jnp.r_[1.]
+   >>> params["nu"] = jnp.array([5/2])
+   >>> params["lengthscale"] = jnp.array([1.0])
 
    >>> # Compute and print out the 3x3 kernel matrix.
    >>> print(np.around(kernel.K(params, jnp.array(xs)), 2))

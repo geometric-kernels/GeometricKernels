@@ -11,7 +11,7 @@ from dataclasses import dataclass
 import gpjax
 import jax.numpy as jnp
 import tensorflow_probability.substrates.jax.bijectors as tfb
-from beartype.typing import TypeVar, Union
+from beartype.typing import List, TypeVar, Union
 from gpjax.base import param_field, static_field
 from gpjax.kernels.computations.base import AbstractKernelComputation
 from gpjax.typing import Array, ScalarFloat
@@ -121,12 +121,16 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
 
         if self.nu is None:
             self.nu = jnp.array(default_params["nu"])
+        if isinstance(self.nu, ScalarFloat):
+            self.nu = jnp.array([self.nu])
 
         if self.lengthscale is None:
             self.lengthscale = jnp.array(default_params["lengthscale"])
+        if isinstance(self.lengthscale, ScalarFloat):
+            self.lengthscale = jnp.array([self.lengthscale])
 
     @property
-    def space(self) -> Space:
+    def space(self) -> Union[Space, List[Space]]:
         r"""Alias to the `base_kernel`\ s space property."""
         return self.base_kernel.space
 

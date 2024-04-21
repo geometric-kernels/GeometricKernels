@@ -64,7 +64,7 @@ def student_t_sample(
         An array of shape (n, n).
     :param size:
         The returned array `samples` will have the shape `(*size, n)`.
-    :param deg_freedom:
+    :param df:
         The number of degrees of freedom of the Student-t distribution,
         represented as a (1,)-array of the used backend.
     :param dtype:
@@ -141,8 +141,10 @@ def base_density_sample(
         of samples, and `key` is the updated random key for `jax`, or the
         similar random state (generator) for any other backend.
     """
-    assert "nu" in params
     assert "lengthscale" in params
+    assert params["lengthscale"].shape == (1,)
+    assert "nu" in params
+    assert params["nu"].shape == (1,)
 
     nu = params["nu"]
     L = params["lengthscale"]
@@ -396,8 +398,10 @@ def hyperbolic_density_sample(
         samples, and `key` is the updated random key for `jax`, or the similar
         random state (generator) for any other backend.
     """
-    assert "nu" in params
     assert "lengthscale" in params
+    assert params["lengthscale"].shape == (1,)
+    assert "nu" in params
+    assert params["nu"].shape == (1,)
 
     nu = params["nu"]
     L = params["lengthscale"]
@@ -474,6 +478,11 @@ def spd_density_sample(
         samples, and `key` is the updated random key for `jax`, or the similar
         random state (generator) for any other backend.
     """
+    assert "lengthscale" in params
+    assert params["lengthscale"].shape == (1,)
+    assert "nu" in params
+    assert params["nu"].shape == (1,)
+
     nu = params["nu"]
     L = params["lengthscale"]
 

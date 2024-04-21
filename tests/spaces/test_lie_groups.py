@@ -118,7 +118,7 @@ def test_feature_map(group_and_eigf):
     key = B.create_random_state(dtype, seed=0)
 
     kernel = MaternKarhunenLoeveKernel(group, order, normalize=True)
-    param = dict(lengthscale=np.array(10), nu=np.array(1.5))
+    param = dict(lengthscale=np.array([10]), nu=np.array([1.5]))
 
     feature_order = 5000
     feature_map = RandomPhaseFeatureMapCompact(group, order, feature_order)

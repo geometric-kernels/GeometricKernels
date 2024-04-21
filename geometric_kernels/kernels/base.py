@@ -6,7 +6,7 @@ for all geometric kernels.
 import abc
 
 import lab as B
-from beartype.typing import Dict, Optional
+from beartype.typing import Dict, List, Optional, Union
 
 from geometric_kernels.spaces import Space
 
@@ -23,7 +23,7 @@ class BaseGeometricKernel(abc.ABC):
         self._space = space
 
     @property
-    def space(self) -> Space:
+    def space(self) -> Union[Space, List[Space]]:
         """
         The space on which the kernel is defined.
         """
@@ -70,8 +70,14 @@ class BaseGeometricKernel(abc.ABC):
 
             .. note::
                 The values `params["lengthscale"]` and `params["nu"]` are
-                typically 1-element arrays of the suitable backend. This serves
-                to point at the backend to be used for internal computations.
+                typically (1,)-shaped arrays of the suitable backend. This
+                serves to point at the backend to be used for internal
+                computations.
+
+                In some cases, for example, when the kernel is
+                :class:`~.kernels.ProductGeometricKernel`, the values of
+                `params` may be (s,)-shaped arrays instead, where `s` is the
+                number of factors.
 
             .. note::
                 Finite values of `params["nu"]` typically correspond to the

@@ -1,6 +1,11 @@
 """
 This module provides the :class:`ProductDiscreteSpectrumSpace` space and the
-representation of its spectrum, the :class:`ProductEigenfunctions` class.
+respective :class:`~.eigenfunctions.Eigenfunctions` subclass
+:class:`ProductEigenfunctions`.
+
+See :doc:`this page </theory/product_spaces>` for a brief account on
+theory behind product spaces and the :doc:`Torus.ipynb </examples/Torus>`
+notebook for a tutorial on how to use them.
 """
 
 import itertools
@@ -8,25 +13,32 @@ import math
 
 import lab as B
 import numpy as np
-from beartype.typing import List, Optional
+from beartype.typing import List, Optional, Tuple
 
-from geometric_kernels.lab_extras import from_numpy
+from geometric_kernels.lab_extras import from_numpy, int_like
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 from geometric_kernels.utils.product import make_product, project_product
 from geometric_kernels.utils.utils import chain
 
 
-def _find_lowest_sum_combinations(array, k):
+def _find_lowest_sum_combinations(arr: B.Numeric, k: int) -> B.Numeric:
     """
-    For an [N, D] array, assumed to be sorted within columns, find k smallest
-    sums of one element per each row, return array of indices of the summands.
+    For an [N, D] array `arr`, with `arr[i, :]` assumed sorted, find `k`
+    smallest sums of one element per each row, i.e. sums of form
+    `sum_i arr[i, j_i]`, return the array of indices of the summands.
 
-    Will possibly cause problems if k<D (but unlikely).
+    :param arr:
+        An [N, D]-shaped array.
+    :param k:
+        Number of smallest sums to find.
+
+    :return:
+        A [k, N]-shaped array of the same backend as `arr`.
     """
-    N, D = array.shape
+    N, D = arr.shape
 
-    index_array = B.stack(*[B.zeros(int, N) for i in range(k)], axis=0)
+    index_array = B.stack(*[B.zeros(int_like(arr), N) for i in range(k)], axis=0)
     # prebuild array for indexing the first index of the eigenvalue array
     first_index = B.linspace(0, N - 1, N).astype(int)
     i = 0
@@ -35,7 +47,7 @@ def _find_lowest_sum_combinations(array, k):
     curr_idx = B.zeros(int, N)[None, :]
     while i < k:
         # compute eigenvalues of the proposals
-        sum_values = array[first_index, curr_idx].sum(axis=1)
+        sum_values = arr[first_index, curr_idx].sum(axis=1)
 
         # Compute tied smallest new eigenvalues
         lowest_sum_index = int(sum_values.argmin())
@@ -50,8 +62,6 @@ def _find_lowest_sum_combinations(array, k):
             i += 1
             if i >= k:
                 break
-
-        # create new proposal eigenindicies
 
         # keep unaccepted ones around
         old_indices = curr_idx[~tied_sums]
@@ -77,28 +87,15 @@ def _find_lowest_sum_combinations(array, k):
     return index_array
 
 
-def _total_multiplicities(eigenindices, nums_per_level):
+def _num_per_level_to_mapping(num_per_level: List[int]) -> List[List[int]]:
     """
-    Given a collection of eigenindices [J, S], compute the total multiplicities
-    of the corresponding eigenvalues.
+    Given a list of numbers of eigenfunctions per level, return a list `mapping`
+    such that `mapping[i][j]` is the index of the `j`-th eigenfunction of the
+    `i`-th level.
 
-    eigidx: [J, S]
-    nums_per_level [S, L]
+    :param num_per_level:
+        A `num_eigenfunctions_per_level` list of some space.
     """
-    totals = []
-
-    per_level = from_numpy(eigenindices, nums_per_level)
-    num_sub_spaces = np.shape(eigenindices)[1]
-    for index in eigenindices:
-        multiplicities = per_level[B.range(num_sub_spaces), index]
-        total = B.prod(multiplicities)
-        totals.append(total)
-
-        # totals = B.stack(*eigenindices, axis=0)
-    return totals
-
-
-def _num_per_level_to_mapping(num_per_level):
     mapping = []
     i = 0
     for num in num_per_level:
@@ -107,48 +104,81 @@ def _num_per_level_to_mapping(num_per_level):
     return mapping
 
 
-def _per_level_to_separate(eigenindices, nums_per_level):
+def _eigenlevelindices_to_eigenfunctionindices(
+    eigenlevelindices: B.Numeric, nums_per_level: List[List[int]]
+) -> B.Numeric:
     """
-    Given `eigenindices` which map product space's eigenfunction index to the
-    indices of subspaces' eigenlevels, convert them to a mapping of product
-    space's eigenfunction index to the indices of subspaces' individual
-    eigenfunctions via `nums_per_level`, which gives number of eigenfunctions
-    per level for each subspace.
+    Given an `eigenlevelindices` which maps the product space's level indices to
+    the indices of the factor spaces' levels, return an `eigenfunctionindices`
+    array that maps the product space's eigenfunction index to the indices of
+    the factor spaces' individual eigenfunctions.
+
+    :param eigenlevelindices:
+        A [L, S]-shaped array, where `S` is the number of factor spaces and `L`
+        is the number of levels, such that `eigenindicies[i, :]` are the indices
+        of the levels of the factor spaces that correspond to the `i`'th level
+        of the product space.
+    :param nums_per_level:
+        Each `nums_per_level[j]` represents the `num_eigenfunctions_per_level`
+        list of the `j`-th factor space.
 
     :return:
-        An [J, S]-shaped array, where `J` is the total number of eigenfunctions,
-        and `S` is the number of factors.
+        A [J, S]-shaped array, where `J` is the total number of eigenfunctions.
     """
-    separate = [_num_per_level_to_mapping(npl) for npl in nums_per_level]
-    # S lists of length L
+    L = eigenlevelindices.shape[0]
+    S = eigenlevelindices.shape[1]
+    levels_to_eigenfunction_indices: List[List[List[int]]] = [
+        _num_per_level_to_mapping(npl) for npl in nums_per_level
+    ]  # S lists of lists of length L
 
-    total_eigenindices = []
-    for index in eigenindices:
-        separates = [separate[s][level] for s, level in enumerate(index)]
-        # S lists, each with separate indices
-        new_indices = list(itertools.product(*separates))
-        total_eigenindices += new_indices
+    eigenfunctionindices = []
+    for cur_level in range(L):
+        cur_factor_eigenfunction_indices: List[List[int]] = [
+            levels_to_eigenfunction_indices[s][eigenlevelindices[cur_level, s]]
+            for s in range(S)
+        ]
+        new_indices: List[Tuple[int, ...]] = list(
+            itertools.product(*cur_factor_eigenfunction_indices)
+        )  # part of the resulting eigenfunctionindices for the cur_level level.
+        eigenfunctionindices += new_indices
 
-    out = from_numpy(eigenindices, np.array(total_eigenindices))
+    out = from_numpy(eigenlevelindices, np.array(eigenfunctionindices))
     return out
 
 
 class ProductEigenfunctions(Eigenfunctions):
-    """
+    r"""
     Eigenfunctions of the Laplacian on the product space are outer products
-    of the factors.
+    of the eigenfunctions on factors.
 
     Levels correspond to tuples of levels of the factors.
 
-    :param dimensions:
-        The list of dimensions of the factor spaces.
+    :param element_shapes:
+        Shapes of the elements in each of the factor spaces.
     :param eigenindicies:
-        An array mapping a j'th eigenfunction of the product space to the
-        index of the eigenlevels of the subspaces.
+        A [L, S]-shaped array, where `S` is the number of factor spaces and `L`
+        is the number of levels, such that `eigenindicies[i, :]` are the indices
+        of the levels of the factor spaces that correspond to the `i`'th level
+        of the product space.
+
+        This parameter implicitly determines the number of levels.
     :param ``*eigenfunctions``:
-        The eigenfunctions of the factor spaces.
+        The :class:`~.Eigenfunctions` subclasses corresponding to each of
+        the factor spaces.
     :param dimension_indices:
-        Dimension indices.
+        Determines how a vector `x` representing a product space element is to
+        be mapped into the arrays `xi` that represent elements of the factor
+        spaces. `xi` are assumed to be equal to `x[dimension_indices[i]]`,
+        possibly up to a reshape. Such a reshape might be necessary to
+        accommodate the spaces whose elements are matrices rather than vectors,
+        as determined by `element_shapes`. The transformation of `x` into the
+        list of `xi`\ s is performed by :func:`~.project_product`.
+
+        If None, assumes the each input is layed-out flattened and concatenated,
+        in the same order as the factor spaces. In this case, the inverse to
+        :func:`~.project_product` is :func:`~.make_product`.
+
+        Defaults to None.
     """
 
     def __init__(
@@ -158,41 +188,52 @@ class ProductEigenfunctions(Eigenfunctions):
         *eigenfunctions: Eigenfunctions,
         dimension_indices: B.Numeric = None,
     ):
+        self._num_levels = eigenindicies.shape[0]
         self.element_shapes = element_shapes
         dimensions = [math.prod(element_shape) for element_shape in self.element_shapes]
         if dimension_indices is None:
             self.dimension_indices = []
             i = 0
-            inds = B.linspace(0, sum(dimensions) - 1, sum(dimensions)).astype(int)
             for dim in dimensions:
-                self.dimension_indices.append(inds[i : i + dim])
+                self.dimension_indices.append([*range(i, i + dim)])
                 i += dim
         self.eigenindicies = eigenindicies
         self.eigenfunctions = eigenfunctions
 
-        self.nums_per_level = [
-            eigenfunction.num_eigenfunctions_per_level
-            for eigenfunction in self.eigenfunctions
-        ]  # [S, L]
+        self.nums_per_level: List[List[int]] = [
+            eigenfunctions_factor.num_eigenfunctions_per_level
+            for eigenfunctions_factor in self.eigenfunctions
+        ]  # [S, LFactor] where `LFactor` is eigenfunctions[0].num_levels
 
-        self._separate_eigenindices = _per_level_to_separate(
+        self._eigenfunctionindices = _eigenlevelindices_to_eigenfunctionindices(
             self.eigenindicies, self.nums_per_level
         )
 
         assert self.eigenindicies.shape[-1] == len(self.eigenfunctions)
 
-    def __call__(self, X: B.Numeric, **parameters) -> B.Numeric:
+    def __call__(self, X: B.Numeric, **kwargs) -> B.Numeric:
         """
         Evaluate the individual eigenfunctions at a batch of input locations.
 
         .. warning::
-            Will `raise NotImplementedError` if some of the factors does not
+            Will `raise NotImplementedError` if some of the factors do not
             implement their `__call__`.
 
         :param X:
-            Points to evaluate the eigenfunctions at, an array of
-            shape [N, <axis>], where N is the number of points and <axis> is
-            the shape of the arrays that represent the points in a given space.
+            Points to evaluate the eigenfunctions at, an array of shape [N, D],
+            where `N` is the number of points and `D` is the dimension of the
+            vectors that represent points in the product space.
+
+            Each point `x` in the product space is a `D`-dimensional vector such
+            that `x[dimension_indices[i]]` is the vector that represents the
+            flattened element of the `i`-th factor space.
+
+            .. note::
+                If the instance was created with `dimension_indices=None`, then
+                you can use the :func:`~.make_product` function to convert a
+                list of (batches of) points in factor spaces into a (batch of)
+                points in the product space.
+
         :param ``**kwargs``:
             Any additional parameters.
 
@@ -201,31 +242,39 @@ class ProductEigenfunctions(Eigenfunctions):
         """
         Xs = project_product(X, self.dimension_indices, self.element_shapes)
 
-        eigenfunctions = B.stack(
-            *[
-                eigenfunction(X, **parameters)  # [N, J]
-                for eigenfunction, X in zip(self.eigenfunctions, Xs)
-            ],
-            axis=-1,
-        )  # [N, J, S]
+        factor_eigenfunction_values = [
+            eigenfunction(X, **kwargs)  # [N, Js], Js different for each factor
+            for eigenfunction, X in zip(self.eigenfunctions, Xs)
+        ]  # List of length S, contains arrays of different shapes (not stackable)
 
-        # eigenindices shape [J, S]
+        eigenfunction_values = []
+        for j in range(self.num_eigenfunctions):
+            m_idx = self._eigenfunctionindices[j]  # (S,)-shaped array
+            eigenfunction_values.append(
+                B.prod(
+                    B.stack(
+                        *(
+                            factor_eigenfunction_values[s][
+                                :, self._eigenfunctionindices[j, s]
+                            ]
+                            for s in range(len(m_idx))
+                        ),
+                        axis=-1,
+                    ),
+                    axis=1,
+                )
+            )
+        eigenfunction_values = B.stack(*eigenfunction_values, axis=-1)  # [N, J]
 
-        return eigenfunctions[
-            :,
-            self._separate_eigenindices,
-            B.range(self.eigenindicies.shape[1]),
-        ].prod(
-            axis=-1
-        )  # [N, J, S] --> [N, J]
+        return eigenfunction_values
 
     @property
     def num_eigenfunctions(self) -> int:
-        return self._separate_eigenindices.shape[0]
+        return self._eigenfunctionindices.shape[0]
 
     @property
     def num_levels(self) -> int:
-        return self.eigenindicies.shape[0]
+        return self._num_levels
 
     def phi_product(
         self, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs
@@ -241,7 +290,7 @@ class ProductEigenfunctions(Eigenfunctions):
                 for eigenfunction, X1, X2 in zip(self.eigenfunctions, Xs, Xs2)
             ],
             axis=-1,
-        )  # [N, N2, L, S]
+        )  # [N, N2, LFactor, S] where `LFactor` is self.eigenfunctions[0].num_levels
 
         prod_phis = phis[
             :,
@@ -250,7 +299,7 @@ class ProductEigenfunctions(Eigenfunctions):
             B.range(self.eigenindicies.shape[1]),
         ].prod(
             axis=-1
-        )  # [N, N2, L, S] -> [N, N2, L]
+        )  # [N, N2, LFactor, S] -> [N, N2, L]
 
         return prod_phis
 
@@ -263,7 +312,7 @@ class ProductEigenfunctions(Eigenfunctions):
                 for eigenfunction, X1 in zip(self.eigenfunctions, Xs)
             ],
             axis=-1,
-        )  # [N, L, S]
+        )  # [N, LFactor, S] where `LFactor` is self.eigenfunctions[0].num_levels
 
         prod_phis = phis[
             :,
@@ -271,13 +320,26 @@ class ProductEigenfunctions(Eigenfunctions):
             B.range(self.eigenindicies.shape[1]),
         ].prod(
             axis=-1
-        )  # [N, L, S] -> [N, L]
+        )  # [N, LFactor, S] -> [N, L]
 
         return prod_phis
 
     @property
     def num_eigenfunctions_per_level(self) -> List[int]:
-        return _total_multiplicities(self.eigenindicies, self.nums_per_level)
+        L = self.eigenindicies.shape[0]
+        S = self.eigenindicies.shape[1]
+
+        totals = []
+
+        for cur_level in range(L):
+            totals.append(
+                math.prod(
+                    self.nums_per_level[s][self.eigenindicies[cur_level, s]]
+                    for s in range(S)
+                )
+            )
+
+        return totals
 
 
 class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
@@ -288,37 +350,50 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
 
     of :class:`~.spaces.DiscreteSpectrumSpace`-s $\mathcal{S}_i$.
 
-    Eigenfunctions on the product space are outer products of the factors'
-    eigenfunctions:
+    Levels are indexed by tuples of levels of the factors.
 
-    .. math::
-        f_{j_1, .., j_S}(x_1, .., x_S) = f^1_{j_1} (x_1) \cdot \ldots \cdot f^S_{j_S} (x_S)
+    .. admonition:: Precomputing optimal levels
 
-    An eigenfunction above corresponds to the eigenvalue
+        The eigenvalue corresponding to a level of the product space
+        represented by a tuple $(j_1, .., j_S)$ is the sum
 
-    .. math::
-        \lambda_{j_1, .., j_S} = \lambda^1_{j_1} + \ldots + \lambda^S_{j_S}.
+        .. math:: \lambda^{(1)}_{j_1} + \ldots + \lambda^{(S)}_{j_S}
 
-    The *levels* (see :class:`here <.kernels.MaternKarhunenLoeveKernel>` and
-    :class:`here <.eigenfunctions.Eigenfunctions>`) on factors define levels on
-    the product space. Thus, we operate on levels. Without a further truncation,
-    the number of levels on the product space is the product of the numbers of
-    levels on the factors, which is typically too many. Thus, an additional
-    truncation is needed, i.e. choosing the largest $\lambda_{j_1, .., j_S}$.
-    We precompute the optimal truncation leading to the `num_levels` in total.
+        of the eigenvalues $\lambda^{(s)}_{j_s}$ of the factors.
+
+        Computing top `num_levels` smallest eigenvalues is thus a combinatorial
+        problem, the solution to which we precompute. To make this
+        precomputation possible you need to provide the `num_levels` parameter
+        when constructing the :class:`ProductDiscreteSpectrumSpace`, unlike for
+        other spaces. What is more, the `num` parameter of the
+        :meth:`get_eigenfunctions` cannot be larger than the `num_levels` value.
 
     .. note::
-        A tutorial on how to use this space is available in the
-        :doc:`Torus.ipynb </examples/Torus>` notebook.
+        See :doc:`this page </theory/product_spaces>` for a brief account on
+        theory behind product spaces and the :doc:`Torus.ipynb
+        </examples/Torus>` notebook for a tutorial on how to use them.
+
+        An alternative to using :class:`ProductDiscreteSpectrumSpace` is to use
+        the :class:`~.kernels.ProductGeometricKernel` kernel. The latter is more
+        flexible, allowing more general spaces as factors and automatic
+        relevance determination -like behavior.
 
     :param spaces:
         The factors, subclasses of :class:`~.spaces.DiscreteSpectrumSpace`.
     :param num_levels:
         The number of levels to pre-compute for this product space.
     :param num_levels_per_space:
-        Number of levels to fetch for each of the factor spaces to compute
-        the product-space levels. If not given, `num_levels`
-        levels will be fetched for each factor.
+        Number of levels to fetch for each of the factor spaces, to compute
+        the product-space levels. This is a single number rather than a list,
+        because we currently only support fetching the same number of levels
+        for all the factor spaces.
+
+        If not given, `num_levels` levels will be fetched for each factor.
+
+    .. admonition:: Citation
+
+        If you use this GeometricKernels space in your research, please consider
+        citing :cite:t:`borovitskiy2020`.
     """
 
     def __init__(
@@ -332,8 +407,8 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
                 space, DiscreteSpectrumSpace
             ), "One of the spaces is not an instance of DiscreteSpectrumSpace."
 
-        self.sub_spaces = spaces
-        self.num_eigen = num_levels
+        self.factor_spaces = spaces  # List of length S
+        self.num_levels = num_levels
 
         # Perform a breadth-first search for the smallest eigenvalues.
         # Assuming that the eigenvalues come sorted, the next biggest eigenvalue
@@ -347,22 +422,22 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
         ), "Cannot have more levels than there are possible combinations"
 
         # prefetch the eigenvalues of the subspaces
-        sub_space_eigenvalues = B.stack(
+        factor_space_eigenvalues = B.stack(
             *[
                 space.get_eigenvalues(num_levels_per_space)[:, 0]
-                for space in self.sub_spaces
+                for space in self.factor_spaces
             ],
             axis=0,
-        )  # [L, S]
+        )  # [S, num_levels_per_space]
 
-        self.sub_space_eigenindices = _find_lowest_sum_combinations(
-            sub_space_eigenvalues, self.num_eigen
-        )
-        self.sub_space_eigenvalues = sub_space_eigenvalues
+        self.factor_space_eigenindices = _find_lowest_sum_combinations(
+            factor_space_eigenvalues, self.num_levels
+        )  # [self.num_levels, S]
+        self.factor_space_eigenvalues = factor_space_eigenvalues
 
-        self._eigenvalues = sub_space_eigenvalues[
-            B.range(len(self.sub_spaces)),
-            self.sub_space_eigenindices[: self.num_eigen, :],
+        self._eigenvalues = factor_space_eigenvalues[
+            range(len(self.factor_spaces)),
+            self.factor_space_eigenindices,
         ].sum(axis=1)
 
     @property
@@ -371,11 +446,24 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
         Returns the dimension of the product space, equal to the sum of
         dimensions of the factors.
         """
-        return sum([space.dimension for space in self.sub_spaces])
+        return sum([space.dimension for space in self.factor_spaces])
 
     def random(self, key, number):
+        """
+        Sample random points on the product space by concatenating random points
+        on the factor spaces via :func:`~.make_product`.
+
+        :param key:
+            Either `np.random.RandomState`, `tf.random.Generator`,
+            `torch.Generator` or `jax.tensor` (representing random state).
+        :param number:
+            Number of samples to draw.
+
+        :return:
+            An array of `number` uniformly random samples on the space.
+        """
         random_points = []
-        for factor in self.sub_spaces:
+        for factor in self.factor_spaces:
             key, factor_random_points = factor.random(key, number)
             random_points.append(factor_random_points)
 
@@ -386,37 +474,63 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
         Returns the :class:`~.ProductEigenfunctions` object with `num` levels.
 
         :param num:
-            Number of levels.
+            Number of levels. Cannot be larger than the `num_levels` parameter
+            of the constructor.
         """
-        assert num <= self.num_eigen
+        assert num <= self.num_levels
 
-        max_eigenvalue = self.sub_space_eigenindices[:num, :].max() + 1
+        max_level = int(self.factor_space_eigenindices[:num, :].max() + 1)
 
-        sub_space_eigenfunctions = [
-            space.get_eigenfunctions(max_eigenvalue) for space in self.sub_spaces
+        factor_space_eigenfunctions = [
+            space.get_eigenfunctions(max_level) for space in self.factor_spaces
         ]
 
         return ProductEigenfunctions(
-            [space.element_shape for space in self.sub_spaces],
-            self.sub_space_eigenindices[:num],
-            *sub_space_eigenfunctions,
+            [space.element_shape for space in self.factor_spaces],
+            self.factor_space_eigenindices[:num],
+            *factor_space_eigenfunctions,
         )
 
     def get_eigenvalues(self, num: int) -> B.Numeric:
-        assert num <= self.num_eigen
+        """
+        Eigenvalues of the Laplacian corresponding to the first `num` levels.
+
+        :param num:
+            Number of levels. Cannot be larger than the `num_levels` parameter
+            of the constructor.
+        :return:
+            (num, 1)-shaped array containing the eigenvalues.
+        """
+        assert num <= self.num_levels
 
         return self._eigenvalues[:num, None]
 
     def get_repeated_eigenvalues(self, num: int) -> B.Numeric:
-        assert num <= self.num_eigen
+        """
+        Eigenvalues of the Laplacian corresponding to the first `num` levels,
+        repeated according to their multiplicity within levels.
+
+        :param num:
+            Number of levels. Cannot be larger than the `num_levels` parameter
+            of the constructor.
+
+        :return:
+            (J, 1)-shaped array containing the repeated eigenvalues,`J is
+            the resulting number of the repeated eigenvalues.
+        """
+        assert num <= self.num_levels
 
         eigenfunctions = self.get_eigenfunctions(num)
         eigenvalues = self._eigenvalues[:num]
         multiplicities = eigenfunctions.num_eigenfunctions_per_level
 
         repeated_eigenvalues = chain(eigenvalues, multiplicities)
-        return B.reshape(repeated_eigenvalues, -1, 1)  # [M, 1]
+        return B.reshape(repeated_eigenvalues, -1, 1)  # [J, 1]
 
     @property
     def element_shape(self):
-        return [sum(space.element_size) for space in self.sub_spaces]
+        """
+        :return:
+            Sum of the products of the element shapes of the factor spaces.
+        """
+        return sum(math.prod(space.element_shape) for space in self.factor_spaces)

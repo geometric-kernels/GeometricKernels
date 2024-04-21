@@ -25,17 +25,17 @@ Theory
 =======
 
 In GeometricKernels, there is a concept of product Matérn kernel (:class:`~.kernels.ProductGeometricKernel`).
-It allows you to define a kernel $k$ on a product $\mathcal{M} = \mathcal{M}_1 \times \ldots \times \mathcal{M}_m$ of some other spaces $\mathcal{M}_i$ by taking a product of some kernels $k_i: \mathcal{M}_i \times \mathcal{M}_i \to \mathbb{R}$:
+It allows you to define a kernel $k$ on a product $\mathcal{M} = \mathcal{M}_1 \times \ldots \times \mathcal{M}_S$ of some other spaces $\mathcal{M}_s$ by taking a product of some kernels $k_s: \mathcal{M}_s \times \mathcal{M}_s \to \mathbb{R}$:
 $$
-k((x_1, \ldots, x_m), (x_1', \ldots, x_m'))
+k((x_1, \ldots, x_S), (x_1', \ldots, x_S'))
 =
-k_1(x_1, x_1') \cdot \ldots \cdot k_m(x_m, x_m')
+k_1(x_1, x_1') \cdot \ldots \cdot k_m(x_S, x_S')
 .
 $$
-Each $k_i$ would usually be :class:`~.kernels.MaternGeometricKernel` on spaces $\mathcal{M}_i$, which can be anything: compact manifolds, graphs, meshes, non-compact symmetric spaces, etc.
+Each $k_s$ would usually be :class:`~.kernels.MaternGeometricKernel` on spaces $\mathcal{M}_s$, which can be anything: compact manifolds, graphs, meshes, non-compact symmetric spaces, etc.
 
 **Importantly**, this allows you to have a separate length scale parameter for each of the factors, enabling, e.g. *automatic relevance determination* (ARD, cf. :cite:t:`rasmussen2006`).
 
-For Matérn kernels, even if $\nu$ and $\kappa$ are the same for all $k_j$, the product kernel turns out to be different from the Matérn kernel on the product space whenever $\nu < \infty$.
+For Matérn kernels, even if $\nu$ and $\kappa$ are the same for all $k_s$, the product kernel turns out to be different from the Matérn kernel on the product space whenever $\nu < \infty$.
 If $\nu = \infty$, i.e. in the case of the heat kernel (a.k.a. diffusion kernel, or squared exponential kernel, or RBF kernel), the product of kernels with same values of $\kappa$ coincides with the kernel on the product space with this same $\kappa$.
 This mirrors the standard Euclidean case.

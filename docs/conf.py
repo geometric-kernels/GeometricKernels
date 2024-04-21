@@ -48,6 +48,7 @@ extensions = [
 extensions.append("autoapi.extension")
 autoapi_dirs = ["../geometric_kernels"]
 autodoc_typehints = 'description'
+autodoc_typehints_format = 'short'
 autoapi_add_toctree_entry = False
 autoapi_keep_files = True
 autoapi_python_class_content = "class"  # we handle __init__ and __new__ below

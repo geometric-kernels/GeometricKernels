@@ -87,7 +87,7 @@ class MaternFeatureMapKernel(BaseGeometricKernel):
         """
         Initializes the dict of the trainable parameters of the kernel.
 
-        Returns `dict(nu=np.array(np.inf), lengthscale=np.array(1.0))`.
+        Returns `dict(nu=np.array([np.inf]), lengthscale=np.array([1.0]))`.
 
         This dict can be modified and is passed around into such methods as
         :meth:`~.K` or :meth:`~.K_diag`, as the `params` argument.
@@ -99,7 +99,7 @@ class MaternFeatureMapKernel(BaseGeometricKernel):
             need to replace the values with the analogs typed as arrays of
             the desired backend.
         """
-        params = dict(nu=np.array(np.inf), lengthscale=np.array(1.0))
+        params = dict(nu=np.array([np.inf]), lengthscale=np.array([1.0]))
         return params
 
     def K(
@@ -109,6 +109,11 @@ class MaternFeatureMapKernel(BaseGeometricKernel):
         X2: Optional[B.Numeric] = None,
         **kwargs,
     ):
+        assert "lengthscale" in params
+        assert params["lengthscale"].shape == (1,)
+        assert "nu" in params
+        assert params["nu"].shape == (1,)
+
         _, features_X = self.feature_map(
             X, params, normalize=self.normalize, **kwargs
         )  # [N, O]
@@ -123,6 +128,11 @@ class MaternFeatureMapKernel(BaseGeometricKernel):
         return feature_product
 
     def K_diag(self, params: Dict[str, B.Numeric], X: B.Numeric, **kwargs):
+        assert "lengthscale" in params
+        assert params["lengthscale"].shape == (1,)
+        assert "nu" in params
+        assert params["nu"].shape == (1,)
+
         _, features_X = self.feature_map(
             X, params, normalize=self.normalize, **kwargs
         )  # [N, O]

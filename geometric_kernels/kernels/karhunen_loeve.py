@@ -77,7 +77,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         """
         Initializes the dict of the trainable parameters of the kernel.
 
-        Returns `dict(nu=np.array(np.inf), lengthscale=np.array(1.0))`.
+        Returns `dict(nu=np.array([np.inf]), lengthscale=np.array([1.0]))`.
 
         This dict can be modified and is passed around into such methods as
         :meth:`~.K` or :meth:`~.K_diag`, as the `params` argument.
@@ -89,7 +89,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             need to replace the values with the analogs typed as arrays of
             the desired backend.
         """
-        params = dict(nu=np.array(np.inf), lengthscale=np.array(1.0))
+        params = dict(nu=np.array([np.inf]), lengthscale=np.array([1.0]))
 
         return params
 
@@ -110,6 +110,8 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         :return:
             The spectrum of the Matérn kernel.
         """
+        assert lengthscale.shape == (1,)
+        assert nu.shape == (1,)
 
         # Note: 1.0 in safe_nu can be replaced by any finite positive value
         safe_nu = B.where(nu == np.inf, B.cast(B.dtype(lengthscale), np.r_[1.0]), nu)
@@ -149,7 +151,9 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         Eigenvalues of the kernel.
 
         :param params:
-            Parameters of the kernel.
+            Parameters of the kernel. Must contain keys `"lengthscale"` and
+            `"nu"`. The shapes of `params["lengthscale"]` and `params["nu"]`
+            are `(1,)`.
         :param normalize:
             Whether to normalize kernel to have unit average variance.
             If None, uses `self.normalize` to decide.
@@ -160,7 +164,9 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             An [L, 1]-shaped array.
         """
         assert "lengthscale" in params
+        assert params["lengthscale"].shape == (1,)
         assert "nu" in params
+        assert params["nu"].shape == (1,)
 
         spectral_values = self._spectrum(
             self.eigenvalues_laplacian,
@@ -185,6 +191,11 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
     def K(
         self, params, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs  # type: ignore
     ) -> B.Numeric:
+        assert "lengthscale" in params
+        assert params["lengthscale"].shape == (1,)
+        assert "nu" in params
+        assert params["nu"].shape == (1,)
+
         weights = B.cast(B.dtype(params["nu"]), self.eigenvalues(params))  # [L, 1]
         Phi = self.eigenfunctions
         K = Phi.weighted_outerproduct(weights, X, X2, **params)  # [N, N2]
@@ -194,6 +205,11 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             return K
 
     def K_diag(self, params, X: B.Numeric, **kwargs) -> B.Numeric:
+        assert "lengthscale" in params
+        assert params["lengthscale"].shape == (1,)
+        assert "nu" in params
+        assert params["nu"].shape == (1,)
+
         weights = self.eigenvalues(params)  # [L, 1]
         Phi = self.eigenfunctions
         K_diag = Phi.weighted_outerproduct_diag(weights, X, **params)  # [N,]

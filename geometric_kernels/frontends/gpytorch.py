@@ -9,7 +9,7 @@ a geometric space is available in the
 import gpytorch
 import numpy as np
 import torch
-from beartype.typing import Union
+from beartype.typing import List, Union
 
 from geometric_kernels.kernels import BaseGeometricKernel
 from geometric_kernels.spaces import Space
@@ -55,6 +55,9 @@ class GPyTorchGeometricKernel(gpytorch.kernels.Kernel):
 
     :raises ValueError:
         If trying to set nu = infinity together with trainable_nu = True.
+
+    .. todo::
+        Handle `ard_num_dims` properly when base_kernel is a product kernel.
     """
 
     has_lengthscale = True
@@ -75,9 +78,13 @@ class GPyTorchGeometricKernel(gpytorch.kernels.Kernel):
 
         if nu is None:
             nu = default_params["nu"]
+        if type(nu) is float:
+            nu = np.array([nu])
 
         if lengthscale is None:
             lengthscale = default_params["lengthscale"]
+        if type(lengthscale) is float:
+            lengthscale = np.array([lengthscale])
 
         lengthscale = torch.as_tensor(lengthscale)
         nu = torch.as_tensor(nu)
@@ -98,7 +105,7 @@ class GPyTorchGeometricKernel(gpytorch.kernels.Kernel):
             self.register_buffer("raw_nu", nu)
 
     @property
-    def space(self) -> Space:
+    def space(self) -> Union[Space, List[Space]]:
         r"""Alias to the `base_kernel`\ s space property."""
         return self.base_kernel.space
 
@@ -149,7 +156,7 @@ class GPyTorchGeometricKernel(gpytorch.kernels.Kernel):
         .. todo::
             Support GPyTorch-style output batching.
         """
-        params = dict(lengthscale=self.lengthscale, nu=self.nu)
+        params = dict(lengthscale=self.lengthscale.flatten(), nu=self.nu.flatten())
         if diag:
             return self.base_kernel.K_diag(params, x1)
         return self.base_kernel.K(params, x1, x2)

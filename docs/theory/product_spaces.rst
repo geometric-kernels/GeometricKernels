@@ -25,28 +25,31 @@ Theory
 
 This builds on the general :doc:`theory on compact manifolds <compact>`.
 
-Assume that $\mathcal{M}$ is a product of compact Riemannian manifolds $\mathcal{M}_i$, i.e. $\mathcal{M} = \mathcal{M}_1 \times \ldots \times \mathcal{M}_m$.
+Assume that $\mathcal{M}$ is a product of compact Riemannian manifolds $\mathcal{M}_s$, i.e. $\mathcal{M} = \mathcal{M}_1 \times \ldots \times \mathcal{M}_S$.
 You can consider other discrete spectrum spaces in place of the manifolds, like graphs or meshes, just as well.
 Here we concentrate on manifolds for simplicity of exposition.
 
 Matérn kernels on $\mathcal{M}$ are determined by the *eigenvalues* $\lambda_j \geq 0$ and *eigenfunctions* $f_j(\cdot)$ of the minus *Laplacian* $-\Delta_{\mathcal{M}}$ on $\mathcal{M}$.
 
-The **key idea** is that $\lambda_j, f_j$ can be obtained from the eigenvalues and eigenfunctions on $\mathcal{M}_i$ therefore allowing to build Matérn kernels on the product space $\mathcal{M}$ from the components you would use to build Matérn kernels on the separate factors $\mathcal{M}_i$.
+The **key idea** is that $\lambda_j, f_j$ can be obtained from the eigenvalues and eigenfunctions on $\mathcal{M}_s$ therefore allowing to build Matérn kernels on the product space $\mathcal{M}$ from the components you would use to build Matérn kernels on the separate factors $\mathcal{M}_s$.
 
 In fact, all eigenfunctions on $\mathcal{M}$ have form
 $$
-f_j(x_1, \ldots, x_m)
+f_j(x_1, \ldots, x_S)
 =
-f^{(1)}_{j_1(j)}(x_1) \cdot \ldots \cdot f^{(m)}_{j_m(j)}(x_m)
+f^{(1)}_{j_1(j)}(x_1) \cdot \ldots \cdot f^{(S)}_{j_S(j)}(x_S)
 $$
-where $f^{(i)}_{j}(\cdot)$ is the $j$-th eigenfunction on $\mathcal{M}_i$.
+where $f^{(s)}_{j}(\cdot)$ is the $j$-th eigenfunction on $\mathcal{M}_s$.
 What is more,
 $$
 \Delta_{\mathcal{M}} f_j = \lambda_j f_j
 \qquad
 \text{for}
 \qquad
-\lambda_j = \lambda^{(1)}_{j_1(j)} + \ldots + \lambda^{(m)}_{j_m(j)}
+\lambda_j = \lambda^{(1)}_{j_1(j)} + \ldots + \lambda^{(S)}_{j_S(j)}
 $$
-where $\lambda^{(i)}_{j}$ is the $j$-th eigenvalue on $\mathcal{M}_i$.
+where $\lambda^{(s)}_{j}$ is the $j$-th eigenvalue on $\mathcal{M}_s$.
 See, e.g., page 48 of the :cite:t:`canzani2013`.
+
+.. note::
+    The *levels* (see :class:`here <.kernels.MaternKarhunenLoeveKernel>` and :class:`here <.eigenfunctions.Eigenfunctions>`) on factors define levels on the product space, in the same fashion as individual eigenfunctions and eigenvalues on the factors define their counterparts on the product space. In practice we operate on levels rather than on individual eigenpairs.

@@ -9,7 +9,7 @@ a geometric space is available in the
 import gpflow
 import numpy as np
 import tensorflow as tf
-from beartype.typing import Optional, Union
+from beartype.typing import List, Optional, Union
 from gpflow.base import TensorType
 from gpflow.kernels.base import ActiveDims
 from gpflow.utilities import positive
@@ -86,9 +86,13 @@ class GPflowGeometricKernel(gpflow.kernels.Kernel):
 
         if nu is None:
             nu = default_params["nu"]
+        if type(nu) is float:
+            nu = np.array([nu])
 
         if lengthscales is None:
             lengthscales = default_params["lengthscale"]
+        if type(lengthscales) is float:
+            lengthscales = np.array([lengthscales])
 
         self.lengthscales = gpflow.Parameter(lengthscales, transform=positive())
         self.variance = gpflow.Parameter(variance, transform=positive())
@@ -104,7 +108,7 @@ class GPflowGeometricKernel(gpflow.kernels.Kernel):
             self.nu = nu
 
     @property
-    def space(self) -> Space:
+    def space(self) -> Union[Space, List[Space]]:
         r"""Alias to the `base_kernel`\ s space property."""
         return self.base_kernel.space
 
