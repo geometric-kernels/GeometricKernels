@@ -20,9 +20,9 @@ Before doing anything, you might want to create and activate a new virtual envir
 
    <div class="bootstrap">
    <div class="accordion" id="virtualenvs">
-     <div class="accordion-item">
+     <div class="accordion-item" style="background-color: var(--color-background-primary);">
        <h2 class="accordion-header mb-0" id="virtualenvsHeadingOne">
-         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#virtualenvsCollapseOne" aria-expanded="true" aria-controls="virtualenvsCollapseOne">
+         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#virtualenvsCollapseOne" aria-expanded="true" aria-controls="virtualenvsCollapseOne" style="background-color: var(--color-background-secondary); color: var(--color-foreground-primary);">
            Conda
          </button>
        </h2>
@@ -44,9 +44,9 @@ where [env_name] is the name of the environment and [version] is the version of 
 
 .. raw:: html
 
-     <div class="accordion-item">
+     <div class="accordion-item" style="background-color: var(--color-background-primary);">
        <h2 class="accordion-header mb-0" id="virtualenvsHeadingTwo">
-         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#virtualenvsCollapseTwo" aria-expanded="false" aria-controls="virtualenvsCollapseTwo">
+         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#virtualenvsCollapseTwo" aria-expanded="false" aria-controls="virtualenvsCollapseTwo" style="background-color: var(--color-background-secondary); color: var(--color-foreground-primary);">
            Virtualenv
          </button>
        </h2>
@@ -94,9 +94,9 @@ Any backend, except for ``NumPy``, should be manually installed.
 
    <div class="bootstrap">
    <div class="accordion" id="backends">
-     <div class="accordion-item">
+     <div class="accordion-item" style="background-color: var(--color-background-primary);">
        <h2 class="accordion-header mb-0" id="backendsHeadingOne">
-         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#backendsCollapseOne" aria-expanded="true" aria-controls="backendsCollapseOne">
+         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#backendsCollapseOne" aria-expanded="true" aria-controls="backendsCollapseOne" style="background-color: var(--color-background-secondary); color: var(--color-foreground-primary);">
            TensorFlow Installation
          </button>
        </h2>
@@ -125,9 +125,9 @@ You need both ``tensorflow`` and ``tensorflow-probability``. You can get them by
 
 .. raw:: html
 
-     <div class="accordion-item">
+     <div class="accordion-item" style="background-color: var(--color-background-primary);">
        <h2 class="accordion-header mb-0" id="backendsHeadingTwo">
-         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#backendsCollapseTwo" aria-expanded="false" aria-controls="backendsCollapseTwo">
+         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#backendsCollapseTwo" aria-expanded="false" aria-controls="backendsCollapseTwo" style="background-color: var(--color-background-secondary); color: var(--color-foreground-primary);">
            PyTorch Installation
          </button>
        </h2>
@@ -154,9 +154,9 @@ You can get PyTorch by running
 
 .. raw:: html
 
-     <div class="accordion-item">
+     <div class="accordion-item" style="background-color: var(--color-background-primary);">
        <h2 class="accordion-header mb-0" id="backendsHeadingThree">
-         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#backendsCollapseThree" aria-expanded="false" aria-controls="backendsCollapseThree">
+         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#backendsCollapseThree" aria-expanded="false" aria-controls="backendsCollapseThree" style="background-color: var(--color-background-secondary); color: var(--color-foreground-primary);">
            JAX Installation
          </button>
        </h2>
@@ -174,9 +174,17 @@ To install JAX, follow `these instructions <https://github.com/google/jax#instal
 
 .. warning::
 
+    .. raw:: html
+
+        <div style="color: var(--color-content-foreground);">
+
     Currently, only some versions of `gpjax` are supported (we tested `gpjax==0.6.9`).
 
     Furthermore, installation might be far from trivial and result in a broken environment. This is due to our conflicting dependencies, see https://github.com/JaxGaussianProcesses/GPJax/issues/441.
+
+    .. raw:: html
+
+        </div>
 
 .. raw:: html
 
@@ -196,9 +204,9 @@ In the following example we show how to initialize the Matern52 kernel on the tw
 
    <div class="bootstrap">
    <div class="accordion" id="example">
-     <div class="accordion-item">
+     <div class="accordion-item" style="background-color: var(--color-background-primary);">
        <h2 class="accordion-header mb-0" id="exampleHeadingOne">
-         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#exampleCollapseOne" aria-expanded="true" aria-controls="exampleCollapseOne">
+         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#exampleCollapseOne" aria-expanded="true" aria-controls="exampleCollapseOne" style="background-color: var(--color-background-secondary); color: var(--color-foreground-primary);">
            Numpy
          </button>
        </h2>
@@ -241,9 +249,9 @@ In the following example we show how to initialize the Matern52 kernel on the tw
 
 .. raw:: html
 
-     <div class="accordion-item">
+     <div class="accordion-item" style="background-color: var(--color-background-primary);">
        <h2 class="accordion-header mb-0" id="exampleHeadingTwo">
-         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#exampleCollapseTwo" aria-expanded="false" aria-controls="exampleCollapseTwo">
+         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#exampleCollapseTwo" aria-expanded="false" aria-controls="exampleCollapseTwo" style="background-color: var(--color-background-secondary); color: var(--color-foreground-primary);">
            TensorFlow
          </button>
        </h2>
@@ -288,9 +296,9 @@ In the following example we show how to initialize the Matern52 kernel on the tw
 
 .. raw:: html
 
-     <div class="accordion-item">
+     <div class="accordion-item" style="background-color: var(--color-background-primary);">
        <h2 class="accordion-header mb-0" id="exampleHeadingThree">
-         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#exampleCollapseThree" aria-expanded="false" aria-controls="exampleCollapseThree">
+         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#exampleCollapseThree" aria-expanded="false" aria-controls="exampleCollapseThree" style="background-color: var(--color-background-secondary); color: var(--color-foreground-primary);">
            PyTorch
          </button>
        </h2>
@@ -334,9 +342,9 @@ In the following example we show how to initialize the Matern52 kernel on the tw
 
 .. raw:: html
 
-     <div class="accordion-item">
+     <div class="accordion-item" style="background-color: var(--color-background-primary);">
        <h2 class="accordion-header mb-0" id="exampleHeadingFour">
-         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#exampleCollapseFour" aria-expanded="false" aria-controls="exampleCollapseFour">
+         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#exampleCollapseFour" aria-expanded="false" aria-controls="exampleCollapseFour" style="background-color: var(--color-background-secondary); color: var(--color-foreground-primary);">
            JAX
          </button>
        </h2>
