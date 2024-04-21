@@ -7,13 +7,11 @@ Spaces
    :titlesonly:
 
    Graph <Graph>
-   Grassmannian <Grassmannian>
    Hyperbolic <Hyperbolic>
    Hypersphere <Hypersphere>
    Mesh <Mesh>
    SpecialOrthogonal <SpecialOrthogonal>
    SPD <SPD>
-   Stiefel <Stiefel>
    SpecialUnitary <SpecialUnitary>
    Torus <Torus>
 
