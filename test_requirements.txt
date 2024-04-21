@@ -1,0 +1,17 @@
+# Base
+ipykernel
+backends>=1.5.4
+
+# Plotting
+plotly
+kaleido
+
+# Tests and style checks
+black==24.3.0
+flake8==7.0.0
+isort==5.13.2
+autoflake
+pytest
+# pytest-cov
+nbmake
+mypy

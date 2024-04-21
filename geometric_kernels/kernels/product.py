@@ -1,80 +1,145 @@
 """
-Product of kernels
+This module provides the :class:`ProductGeometricKernel` kernel for
+constructing product kernels from a sequence of kernels.
+
+See :doc:`this page </theory/product_kernels>` for a brief account on
+theory behind product kernels and the :doc:`Torus.ipynb </examples/Torus>`
+notebook for a tutorial on how to use them.
 """
-from typing import List, Mapping, Tuple
+
+import math
 
 import lab as B
+from beartype.typing import Dict, List, Optional
 
-from geometric_kernels.kernels import BaseGeometricKernel
+from geometric_kernels.kernels.base import BaseGeometricKernel
 from geometric_kernels.spaces import Space
+from geometric_kernels.utils.product import params_to_params_list, project_product
 
 
 class ProductGeometricKernel(BaseGeometricKernel):
+    r"""
+    Product kernel, defined as the product of a sequence of kernels.
+
+    See :doc:`this page </theory/product_kernels>` for a brief account on
+    theory behind product kernels and the :doc:`Torus.ipynb </examples/Torus>`
+    notebook for a tutorial on how to use them.
+
+    :param ``*kernels``:
+        A sequence of kernels to compute the product of. Cannot contain another
+        instance of :class:`ProductGeometricKernel`. We denote the number of
+        factors, i.e. the length of the "sequence", by s.
+    :param dimension_indices:
+        Determines how a product kernel input vector `x` is to be mapped into
+        the inputs `xi` for the factor kernels. `xi` are assumed to be equal to
+        `x[dimension_indices[i]]`, possibly up to a reshape. Such a reshape
+        might be necessary to accommodate the spaces whose elements are matrices
+        rather than vectors, as determined by `element_shapes`. The
+        transformation of `x` into the list of `xi`\ s is performed
+        by :func:`~.project_product`.
+
+        If None, assumes the each input is layed-out flattened and concatenated,
+        in the same order as the factor spaces. In this case, the inverse to
+        :func:`~.project_product` is :func:`~.make_product`.
+
+        Defaults to None.
+
+    .. note::
+        `params` of a :class:`ProductGeometricKernel` are such that
+        `params["lengthscale"]` and `params["nu"]` are (s,)-shaped arrays, where
+        `s` is the number of factors.
+
+        Basically, `params["lengthscale"][i]` stores the length scale parameter
+        for the `i`-th factor kernel. Same goes for `params["nu"]`. Importantly,
+        this enables *automatic relevance determination*-like behavior.
+    """
+
     def __init__(
         self,
         *kernels: BaseGeometricKernel,
-        dimension_indices: List[B.Numeric] = None,
+        dimension_indices: Optional[List[List[int]]] = None,
     ):
-        """
-        Basic implementation of product kernels.
-        TODO: Support combined RFF/KL expansion methods
-
-        :param kernels: kernels to compute the product for
-        :param dimension_indices: List of indices the correspond to the indices of the input that should be fed to each kernel.
-            If None, assume the each kernel takes kernel.space.dimension inputs, and that the input will
-            be a stack of this size, by default None
-        """
         self.kernels = kernels
+        self.spaces: List[Space] = []
+        for kernel in self.kernels:
+            # Make sure there is no product kernel in the list of kernels.
+            assert isinstance(kernel.space, Space)
+            self.spaces.append(kernel.space)
+        self.element_shapes = [space.element_shape for space in self.spaces]
 
         if dimension_indices is None:
-            dimensions = [kernel.space.dimension for kernel in self.kernels]
-            self.dimension_indices: List[B.Numeric] = []
+            dimensions = [math.prod(shape) for shape in self.element_shapes]
+            self.dimension_indices: List[List[int]] = []
             i = 0
-            inds = B.linspace(0, sum(dimensions) - 1, sum(dimensions)).astype(int)
+            inds = [*range(sum(dimensions))]
             for dim in dimensions:
                 self.dimension_indices.append(inds[i : i + dim])
                 i += dim
         else:
             assert len(dimension_indices) == len(self.kernels)
-            for idx in dimension_indices:
-                assert idx.dtype == B.Int
-                assert B.all(idx >= 0)
+            for idx_list in dimension_indices:
+                assert all(idx >= 0 for idx in idx_list)
 
             self.dimension_indices = dimension_indices
 
     @property
     def space(self) -> List[Space]:
-        return [kernel.space for kernel in self.kernels]
+        """
+        The list of spaces upon which the factor kernels are defined.
+        """
+        return self.spaces
 
-    def init_params_and_state(self) -> Tuple[List[Mapping], List[Mapping]]:
-        params_and_state = [kernel.init_params_and_state() for kernel in self.kernels]
+    def init_params(self) -> Dict[str, B.NPNumeric]:
+        r"""
+        Returns a dict `params` where `params["lengthscale"]` is the
+        concatenation of all `self.kernels[i].init_params()["lengthscale"]` and
+        same for `params["nu"]`.
+        """
+        nu_list: List[B.NPNumeric] = []
+        lengthscale_list: List[B.NPNumeric] = []
 
-        return [p[0] for p in params_and_state], [s[1] for s in params_and_state]
+        for kernel in self.kernels:
+            cur_params = kernel.init_params()
+            assert cur_params["lengthscale"].shape == (1,)
+            assert cur_params["nu"].shape == (1,)
+            nu_list.append(cur_params["nu"])
+            lengthscale_list.append(cur_params["lengthscale"])
 
-    def K(
-        self, params: List[Mapping], state: List[Mapping], X, X2=None, **kwargs
-    ) -> B.Numeric:
+        params: Dict[str, B.NPNumeric] = {}
+        params["nu"] = B.concat(*nu_list)
+        params["lengthscale"] = B.concat(*lengthscale_list)
+        return params
+
+    def K(self, params: Dict[str, B.Numeric], X, X2=None, **kwargs) -> B.Numeric:
         if X2 is None:
             X2 = X
 
-        Xs = [B.take(X, inds, axis=-1) for inds in self.dimension_indices]
-        X2s = [B.take(X2, inds, axis=-1) for inds in self.dimension_indices]
+        Xs = project_product(X, self.dimension_indices, self.element_shapes)
+        X2s = project_product(X2, self.dimension_indices, self.element_shapes)
+        params_list = params_to_params_list(params)
 
-        return B.stack(
-            *[
-                kernel.K(p, s, X, X2)
-                for kernel, X, X2, p, s in zip(self.kernels, Xs, X2s, params, state)
-            ],
+        return B.prod(
+            B.stack(
+                *[
+                    kernel.K(p, X, X2)
+                    for kernel, X, X2, p in zip(self.kernels, Xs, X2s, params_list)
+                ],
+                axis=-1,
+            ),
             axis=-1,
-        ).prod(dim=-1)
+        )
 
-    def K_diag(self, params, state, X):
-        Xs = [B.take(X, inds, axis=-1) for inds in self.dimension_indices]
+    def K_diag(self, params, X):
+        Xs = project_product(X, self.dimension_indices, self.element_shapes)
+        params_list = params_to_params_list(params)
 
-        return B.stack(
-            *[
-                kernel.K_diag(p, s, X)
-                for kernel, X, p, s in zip(self.kernels, Xs, params, state)
-            ],
+        return B.prod(
+            B.stack(
+                *[
+                    kernel.K_diag(p, X)
+                    for kernel, X, p in zip(self.kernels, Xs, params_list)
+                ],
+                axis=-1,
+            ),
             axis=-1,
-        ).prod(dim=-1)
+        )

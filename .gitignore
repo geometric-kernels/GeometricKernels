@@ -72,6 +72,7 @@ instance/
 docs/_build/
 docs/generated/
 docs/autoapi/
+docs/bin
 
 # PyBuilder
 target/
@@ -135,3 +136,9 @@ dmypy.json
 
 # Vim swp files
 *.swp
+
+# Mac OS
+.DS_Store
+
+# Idea
+/.idea/

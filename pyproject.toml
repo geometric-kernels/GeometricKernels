@@ -1,12 +1,53 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "geometric_kernels"
+authors = [
+    {name = "The GeometricKernels Contributors", email = "geometric-kernels@googlegroups.com"},
+]
+description="A Python Package offering geometric kernels in NumPy, TensorFlow, PyTorch, and Jax."
+readme = "README.md"
+classifiers = [
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+keywords=[
+    "geometric-kernels",
+]
+requires-python = ">=3.8"
+dependencies = [
+    "numpy>=1.16",
+    "scipy>=1.3",
+    "plum-dispatch>=2.2.0",
+    "backends>=1.5.4",
+    "potpourri3d",
+    "robust_laplacian",
+    "opt-einsum",
+    "geomstats",
+    "einops",
+    "spherical-harmonics-basis",
+]
+version="0.2a0"
+
+[project.urls]
+Documentation = "https://geometric-kernels.github.io/"
+Source = "https://github.com/GPflow/GeometricKernels"
+
 [tool.isort]
 profile = "black"
 skip_glob = [
-    "geometric_kernel/__init__.py",
+    "geometric_kernels/__init__.py",
 ]
 known_third_party = [
     "lab",
 ]
-
 
 [tool.mypy]
 ignore_missing_imports = true
@@ -16,11 +57,4 @@ allow_redefinition = true
 
 [tool.black]
 line-length = 88
-target-version = ['py37']
-# Remaining settings for compatibility with black
-# See https://github.com/psf/black/blob/master/docs/compatible_configs.md#isort
-multi_line_output = 3
-include_trailing_comma = true
-force_grid_wrap = 0
-use_parentheses = true
-ensure_newline_before_comments = true
+target-version = ['py38', 'py39', 'py310', 'py311']

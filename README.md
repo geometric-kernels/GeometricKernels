@@ -1,62 +1,87 @@
-# Geometric Kernels
+# GeometricKernels
 
 [![Quality checks and Tests](https://github.com/GPflow/GeometricKernels/actions/workflows/quality-checks.yaml/badge.svg)](https://github.com/GPflow/GeometricKernels/actions/workflows/quality-checks.yaml)
 [![Documentation](https://github.com/GPflow/GeometricKernels/actions/workflows/docs.yaml/badge.svg)](https://gpflow.github.io/GeometricKernels/index.html)
 [![Landing Page](https://img.shields.io/badge/Landing_Page-informational)](https://geometric-kernels.github.io/)
 
-[![Geometric Kernels](https://geometric-kernels.github.io/assets/title-sm.png)](https://geometric-kernels.github.io/)
+[![GeometricKernels](https://geometric-kernels.github.io/assets/title-sm.png)](https://geometric-kernels.github.io/)
 
-Geometric Kernels is a library that implements kernels including the heat and Matérn class on non-Euclidean spaces as **Riemannian manifolds**, **graphs** and **meshes**.
+GeometricKernels is a library that implements kernels including the heat and Matérn class on non-Euclidean spaces as **Riemannian manifolds**, **graphs** and **meshes**.
 This enables kernel methods &mdash; in particular Gaussian process models &mdash; to be deployed on such spaces.
 
 ## Installation
 
-0. [Optionally] install and run virtualenv
+0. [Optionally] create and activate a new virtual environment.
 
-```bash
-[sudo] pip install virtualenv
-virtualenv [env_name]
-source [env_name]/bin/activate
-```
+    You can use Conda
 
-1. [Prerequisite] install [LAB](https://github.com/wesselb/lab) following [these instructions](https://gist.github.com/wesselb/4b44bf87f3789425f96e26c4308d0adc).
+    ```bash
+    conda create -n [env_name] python=3.[version]
+    conda activate [env_name]
+    ```
 
-2. Install the library in the active environment by running
+    or virtualenv
 
-```bash
-pip install git+https://github.com/gpflow/geometrickernels.git
-```
+    ```bash
+    virtualenv [env_name]
+    source [env_name]/bin/activate
+    ```
 
-4. Install a backend of your choice
+1. Install the library in the active environment by running
 
-We use [LAB](https://github.com/wesselb/lab) to support multiple backends (e.g., TensorFlow, Jax, PyTorch). However, you are not required to install all of them on your system to use the Geometric Kernel package. Simply install the backend (and (optionally) a GP package) of your choice. For example,
+    ```bash
+    pip install geometric_kernels
+    ```
 
-- TensorFlow and GPflow
+    If you want to install specific GitHub branch called `[branch]`, run
 
-```
-pip install tensorflow tensorflow-probability gpflow
-```
+    ```bash
+    pip install "git+https://github.com/GPflow/GeometricKernels@[branch]"
+    ```
 
-- PyTorch and GPyTorch
+2. Install a backend of your choice
 
-```
-pip install torch gpytorch
-```
+    We use [LAB](https://github.com/wesselb/lab) to support multiple backends (e.g., TensorFlow, Jax, PyTorch). However, you are not required to install all of them on your system to use the GeometricKernels package. Simply install the backend (and (optionally) a GP package) of your choice. For example,
 
-- JAX (the cpu version) and GPJax
+    - [Tensorflow](https://www.tensorflow.org/)
 
-```
-pip install "jax[cpu]" gpjax
-```
+        ```
+        pip install tensorflow tensorflow-probability
+        ```
 
-### Supported backends with associated GP packages
+        Optionally, you can install the Tensorflow-based Gaussian processes library [GPflow](https://github.com/GPflow/GPflow), for which we provide a frontend.
 
-| Ready | Backend                                       | GP package                                             |
-| ----- | --------------------------------------------- | ------------------------------------------------------ |
-| ✅    | [Tensorflow](https://www.tensorflow.org/)     | [GPflow](https://github.com/GPflow/GPflow)             |
-| ✅    | [PyTorch](https://github.com/pytorch/pytorch) | [GPyTorch](https://gpytorch.ai/)                       |
-| ✅    | [JAX](https://github.com/google/jax)          | [GPJax](https://github.com/JaxGaussianProcesses/GPJax) |
-| ✅    | [Numpy](https://numpy.org/)                   | -                                                      |
+        ```
+        pip install gpflow
+        ```
+
+    - [PyTorch](https://pytorch.org/)
+
+        ```
+        pip install torch
+        ```
+
+        Optionally, you can install the PyTorch-based Gaussian processes library [GPyTorch](https://gpytorch.ai/), for which we provide a frontend.
+
+        ```
+        pip install gpytorch
+        ```
+
+    - [JAX](https://jax.readthedocs.io/) (the cpu version)—the gpu and tpu versions can be installed [similarly](https://jax.readthedocs.io/en/latest/installation.html).
+
+        ```
+        pip install "jax[cpu]"
+        ```
+
+        Optionally, you can install the JAX-based Gaussian processes library [GPJax](https://github.com/JaxGaussianProcesses/GPJax), for which we provide a frontend.
+
+        ```
+        pip install gpjax
+        ```
+
+        **Note**. Currently, only some versions of `gpjax` are supported (we tested `gpjax==0.6.9`).
+
+        Furthermore, installation might be far from trivial and result in a broken environment. This is due to our conflicting dependencies, see https://github.com/JaxGaussianProcesses/GPJax/issues/441.
 
 ## A basic example
 
@@ -69,30 +94,30 @@ import numpy as np
 import geometric_kernels
 # Import a space and an appropriate kernel.
 from geometric_kernels.spaces.hypersphere import Hypersphere
-from geometric_kernels.kernels.geometric_kernels import MaternKarhunenLoeveKernel
+from geometric_kernels.kernels import MaternGeometricKernel
 
 # Create a manifold (2-dim sphere).
 hypersphere = Hypersphere(dim=2)
 
-# Generate 3 random points on the sphere.
+# Define 3 points on the sphere.
 xs = np.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
 
-# Initialize kernel, use 10 levels to approximate the infinite series.
-kernel = MaternKarhunenLoeveKernel(hypersphere, 10)
-params, state = kernel.init_params_and_state()
+# Initialize kernel.
+kernel = MaternGeometricKernel(hypersphere)
+params = kernel.init_params()
 params["nu"] = np.array([5/2])
 params["lengthscale"] = np.array([1.])
 
 # Compute and print out the 3x3 kernel matrix.
-print(kernel.K(params, state, xs))
+print(np.around(kernel.K(params, xs), 2))
 ```
 
 This should output
 
 ```
-[[0.00855354 0.00305004 0.00305004]
- [0.00305004 0.00855354 0.00305004]
- [0.00305004 0.00305004 0.00855354]]
+[[1.   0.36 0.36]
+ [0.36 1.   0.36]
+ [0.36 0.36 1.  ]]
 ```
 
 ## Documentation
@@ -106,7 +131,12 @@ Run these commands from the root directory of the repository.
 Install all backends and the dev requirements (Pytest, black, etc.)
 
 ```bash
-pip install -r dev_requirements.txt -r requirements.txt
+make install
+```
+
+Run style checks
+```bash
+make lint
 ```
 
 Run the tests
@@ -115,6 +145,10 @@ Run the tests
 make test
 ```
 
-## The structure of the library
+## Citation
 
-<img alt="class diagram" src="docs/class_diagram.svg">
+If you are using GeometricKernels, please consider citing the theoretical papers it is based on.
+
+You can find the relevant references for any space in
+- the docstring of the respective space class,
+- at the end of the respective tutorial notebook.

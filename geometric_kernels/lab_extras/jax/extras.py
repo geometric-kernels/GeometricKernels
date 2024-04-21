@@ -1,7 +1,6 @@
-from typing import List
-
 import jax.numpy as jnp
 import lab as B
+from beartype.typing import List
 from lab import dispatch
 from plum import Union
 
@@ -57,7 +56,8 @@ def degree(a: B.JAXNumeric):  # type: ignore
 @dispatch
 def eigenpairs(L: B.JAXNumeric, k: int):
     """
-    Obtain the k highest eigenpairs of a symmetric PSD matrix L.
+    Obtain the eigenpairs that correspond to the `k` lowest eigenvalues
+    of a symmetric positive semi-definite matrix `L`.
     """
     l, u = jnp.linalg.eigh(L)
     return l[:k], u[:, :k]
@@ -71,3 +71,153 @@ def set_value(a: B.JAXNumeric, index: int, value: float):
     """
     a = a.at[index].set(value)
     return a
+
+
+@dispatch
+def dtype_double(reference: B.JAXRandomState):  # type: ignore
+    """
+    Return `double` dtype of a backend based on the reference.
+    """
+    return jnp.float64
+
+
+@dispatch
+def float_like(reference: B.JAXNumeric):
+    """
+    Return the type of the reference if it is a floating point type.
+    Otherwise return `double` dtype of a backend based on the reference.
+    """
+    reference_dtype = reference.dtype
+    if jnp.issubdtype(reference_dtype, jnp.floating):
+        return reference_dtype
+    else:
+        return jnp.float64
+
+
+@dispatch
+def dtype_integer(reference: B.JAXRandomState):  # type: ignore
+    """
+    Return `int` dtype of a backend based on the reference.
+    """
+    return jnp.int32
+
+
+@dispatch
+def int_like(reference: B.JAXNumeric):
+    reference_dtype = reference.dtype
+    if jnp.issubdtype(reference_dtype, jnp.integer):
+        return reference_dtype
+    else:
+        return jnp.int32
+
+
+@dispatch
+def get_random_state(key: B.JAXRandomState):
+    """
+    Return the random state of a random generator.
+
+    :param key:
+        The random generator of type `B.JAXRandomState`.
+    """
+    return key
+
+
+@dispatch
+def restore_random_state(key: B.JAXRandomState, state):
+    """
+    Set the random state of a random generator. Return the new random
+    generator with state `state`.
+
+    :param key:
+        The random generator of type `B.JAXRandomState`.
+    :param state:
+        The new random state of the random generator.
+    """
+    return state
+
+
+@dispatch
+def create_complex(real: _Numeric, imag: B.JAXNumeric):
+    """
+    Return a complex number with the given real and imaginary parts using jax.
+
+    :param real:
+        float, real part of the complex number.
+    :param imag:
+        float, imaginary part of the complex number.
+    """
+    complex_num = real + 1j * imag
+    return complex_num
+
+
+@dispatch
+def complex_like(reference: B.JAXNumeric):
+    """
+    Return `complex` dtype of a backend based on the reference.
+    """
+    if B.dtype(reference) == jnp.float32:
+        return jnp.complex64
+    else:
+        return jnp.complex128
+
+
+@dispatch
+def is_complex(reference: B.JAXNumeric):
+    """
+    Return True if reference of `complex` dtype.
+    """
+    return (B.dtype(reference) == jnp.complex64) or (
+        B.dtype(reference) == jnp.complex128
+    )
+
+
+@dispatch
+def cumsum(x: B.JAXNumeric, axis=None):
+    """
+    Return cumulative sum (optionally along axis)
+    """
+    return jnp.cumsum(x, axis=axis)
+
+
+@dispatch
+def qr(x: B.JAXNumeric, mode="reduced"):
+    """
+    Return a QR decomposition of a matrix x.
+    """
+    Q, R = jnp.linalg.qr(x, mode=mode)
+    return Q, R
+
+
+@dispatch
+def slogdet(x: B.JAXNumeric):
+    """
+    Return the sign and log-determinant of a matrix x.
+    """
+    sign, logdet = jnp.linalg.slogdet(x)
+    return sign, logdet
+
+
+@dispatch
+def eigvalsh(x: B.JAXNumeric):
+    """
+    Compute the eigenvalues of a Hermitian or real symmetric matrix x.
+    """
+    return jnp.linalg.eigvalsh(x)
+
+
+@dispatch
+def reciprocal_no_nan(x: B.JAXNumeric):
+    """
+    Return element-wise reciprocal (1/x). Whenever x = 0 puts 1/x = 0.
+    """
+    x_is_zero = jnp.equal(x, 0.0)
+    safe_x = jnp.where(x_is_zero, 1.0, x)
+    return jnp.where(x_is_zero, 0.0, jnp.reciprocal(safe_x))
+
+
+@dispatch
+def complex_conj(x: B.JAXNumeric):
+    """
+    Return complex conjugate
+    """
+    return jnp.conj(x)

@@ -1,46 +1,87 @@
 """
-Hyperbolic space.
+This module provides the :class:`Hyperbolic` space.
 """
-
-from typing import Optional
 
 import geomstats as gs
 import lab as B
+from beartype.typing import Optional
 from opt_einsum import contract as einsum
 
-from geometric_kernels.lab_extras import cosh, from_numpy, logspace, sinh, trapz
-from geometric_kernels.spaces import Space
+from geometric_kernels.lab_extras import (
+    complex_like,
+    create_complex,
+    dtype_double,
+    from_numpy,
+)
+from geometric_kernels.spaces.base import NoncompactSymmetricSpace
 
 
-class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
+class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
     r"""
-    Hyperbolic manifold.
+    The GeometricKernels space representing the n-dimensional hyperbolic space
+    $\mathbb{H}_n$. We use the hyperboloid model of the hyperbolic space.
 
-    The class implements the hyperboloid model of the hyperbolic space :math:`H^n`.
+    The elements of this space are represented by (n+1)-dimensional vectors
+    satisfying
 
-    :math:`H^n = \{ (x_0, \ldots, x_{n}) | x_0^2 - \sum_{i=1}^{n} x_i^2 = 1, x_0 > 0 \}`
+    .. math:: x_0^2 - x_1^2 - \ldots - x_n^2 = 1,
 
-    The class inherits the interface of geomstats's `Hyperbolic` with `point_type=extrinsic`.
+    i.e. lying on the hyperboloid.
+
+    The class inherits the interface of geomstats's `Hyperbolic` with
+    `point_type=extrinsic`.
+
+    .. note::
+        A tutorial on how to use this space is available in the
+        :doc:`Hyperbolic.ipynb </examples/Hyperbolic>` notebook.
+
+    :param dim:
+        Dimension of the hyperbolic space, denoted by n in docstrings.
+
+    .. note::
+        As mentioned in :ref:`this note <quotient note>`, any symmetric space
+        is a quotient G/H. For the hyperbolic space $\mathbb{H}_n$, the group
+        of symmetries $G$ is the proper Lorentz group $SO(1, n)$,  while the
+        isotropy subgroup $H$ is the special orthogonal group $SO(n)$. See the
+        mathematical details in :cite:t:`azangulov2023`.
+
+    .. admonition:: Citation
+
+        If you use this GeometricKernels space in your research, please consider
+        citing :cite:t:`azangulov2023`.
     """
 
-    def __init__(self, dim=1):
+    def __init__(self, dim=2):
         super().__init__(dim=dim)
 
     @property
     def dimension(self) -> int:
+        """
+        Returns n, the `dim` parameter that was passed down to `__init__`.
+        """
         return self.dim
 
     def distance(
         self, x1: B.Numeric, x2: B.Numeric, diag: Optional[bool] = False
     ) -> B.Numeric:
-        """Compute the hyperbolic distance between `x1` and `x2`.
+        """
+        Compute the hyperbolic distance between `x1` and `x2`.
 
-        The code is a reimplementation of `geomstats.geometry.hyperboloid.HyperbolicMetric` for `lab`.
+        The code is a reimplementation of
+        `geomstats.geometry.hyperboloid.HyperbolicMetric` for `lab`.
 
-        :param x1: [N, dim+1] array of points in the hyperbolic space
-        :param x2: [M, dim+1] array of points in the hyperbolic space
-        :param diag: if True, compute elementwise distance. Default False.
-        :return: hyperbolic distance.
+        :param x1:
+            An [N, n+1]-shaped array of points in the hyperbolic space.
+        :param x2:
+            An [M, n+1]-shaped array of points in the hyperbolic space.
+        :param diag:
+            If True, compute elementwise distance. Requires N = M.
+
+            Default False.
+
+        :return:
+            An [N, M]-shaped array if diag=False or [N,]-shaped array
+            if diag=True.
         """
         if diag:
             # Compute a pointwise distance between `x1` and `x2`
@@ -53,10 +94,10 @@ class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
                 x2 = B.expand_dims(x2)
 
             # compute pairwise distance between arrays of points `x1` and `x2`
-            # `x1` (N, dim+1)
-            # `x2` (M, dim+1)
-            x1_ = B.tile(x1[..., None, :], 1, x2.shape[0], 1)  # (N, M, dim+1)
-            x2_ = B.tile(x2[None], x1.shape[0], 1, 1)  # (N, M, dim+1)
+            # `x1` (N, n+1)
+            # `x2` (M, n+1)
+            x1_ = B.tile(x1[..., None, :], 1, x2.shape[0], 1)  # (N, M, n+1)
+            x2_ = B.tile(x2[None], x1.shape[0], 1, 1)  # (N, M, n+1)
 
         sq_norm_1 = self.inner_product(x1_, x1_)
         sq_norm_2 = self.inner_product(x2_, x2_)
@@ -76,79 +117,114 @@ class Hyperbolic(Space, gs.geometry.hyperboloid.Hyperboloid):
         return dist
 
     def inner_product(self, vector_a, vector_b):
+        r"""
+        Computes the Minkowski inner product of vectors.
+
+        .. math:: \langle a, b \rangle = a_0 b_0 - a_1 b_1 - \ldots - a_n b_n.
+
+        :param vector_a:
+            An [..., n+1]-shaped array of points in the hyperbolic space.
+        :param vector_b:
+            An [..., n+1]-shaped array of points in the hyperbolic space.
+
+        :return:
+            An [...,]-shaped array of inner products.
+        """
         q = self.dimension
         p = 1
-        diagonal = from_numpy(vector_a, [-1.0] * p + [1.0] * q)  # (dim+1)
+        diagonal = from_numpy(vector_a, [-1.0] * p + [1.0] * q)  # (n+1)
         diagonal = B.cast(B.dtype(vector_a), diagonal)
         return einsum("...i,...i->...", diagonal * vector_a, vector_b)
 
-    def heat_kernel(
-        self, distance: B.Numeric, t: B.Numeric, num_points: int = 100
-    ) -> B.Numeric:
+    def inv_harish_chandra(self, lam: B.Numeric) -> B.Numeric:
+        lam = B.squeeze(lam, -1)
+        if self.dimension == 2:
+            c = B.abs(lam) * B.tanh(B.pi * B.abs(lam))
+            return B.sqrt(c)
+
+        if self.dimension % 2 == 0:
+            m = self.dimension // 2
+            js = B.range(B.dtype(lam), 0, m - 1)
+            addenda = ((js * 2 + 1.0) ** 2) / 4  # [M]
+        elif self.dimension % 2 == 1:
+            m = self.dimension // 2
+            js = B.range(B.dtype(lam), 0, m)
+            addenda = js**2  # [M]
+        log_c = B.sum(B.log(lam[..., None] ** 2 + addenda), axis=-1)  # [N, M] --> [N, ]
+        if self.dimension % 2 == 0:
+            log_c += B.log(B.abs(lam)) + B.log(B.tanh(B.pi * B.abs(lam)))
+
+        return B.exp(0.5 * log_c)
+
+    def power_function(self, lam: B.Numeric, g: B.Numeric, h: B.Numeric) -> B.Numeric:
+        lam = B.squeeze(lam, -1)
+        g_poincare = self.convert_to_ball(g)  # [..., n]
+        gh_norm = B.sum(B.power(g_poincare - h, 2), axis=-1)  # [N1, ..., Nk]
+        denominator = B.log(gh_norm)
+        numerator = B.log(1.0 - B.sum(g_poincare**2, axis=-1))
+        exponent = create_complex(self.rho[0], -1 * B.abs(lam))  # rho is 1-d
+        log_out = (
+            B.cast(complex_like(lam), (numerator - denominator)) * exponent
+        )  # [N1, ..., Nk]
+        out = B.exp(log_out)
+        return out
+
+    def convert_to_ball(self, point):
         """
-        Compute the heat kernel associated with the space.
+        Converts the `point` from the hyperboloid model to the Poincare model.
+        This corresponds to a stereographic projection onto the ball.
 
-        We use Millson's formula for the heat kernel.
+        :param:
+            An [..., n+1]-shaped array of points on the hyperboloid.
 
-        References:
-            [1] A. Grigoryan and M. Noguchi,
-            The heat kernel on hyperbolic space.
-            Bulletin of the London Mathematical Society, 30(6):643–650, 1998.
-
-        :param distance: precomputed distance between the inputs
-        :param t: heat kernel lengthscale
-        :param num_points: number of points in the integral
-        :return: heat kernel values
+        :return:
+            An [..., n]-shaped array of points in the Poincare ball.
         """
-        if self.dimension == 1:
-            heat_kernel = B.exp(
-                -B.power(distance[..., None], 2) / (4 * t)
-            )  # (..., N1, N2, T)
+        # point [N1, ..., Nk, n]
+        return point[..., 1:] / (1 + point[..., :1])
 
-        elif self.dimension == 2:
-            expanded_distance = B.expand_dims(
-                B.expand_dims(distance, -1), -1
-            )  # (... N1, N2) -> (..., N1, N2, 1, 1)
+    @property
+    def rho(self):
+        return B.ones(1) * (self.dimension - 1) / 2
 
-            # TODO: the behavior of this kernel is not so stable around zero distance
-            # due to the division in the computation of the integral value and
-            # depends on the start of the s_vals interval
-            s_vals = (
-                B.cast(
-                    B.dtype(expanded_distance),
-                    from_numpy(
-                        expanded_distance,
-                        logspace(
-                            B.log(1e-2), B.log(100.0), num_points, base=B.exp(1.0)
-                        ),
-                    ),
-                )
-                + expanded_distance
-            )  # (..., N1, N2, 1, S)
-            reshape = [1] * B.rank(s_vals)
-            reshape[-2] = B.shape(t)[-1]
-            s_vals = B.tile(s_vals, *reshape)  # (N1, N2, T, S)
-            integral_vals = (
-                s_vals
-                * B.exp(-(s_vals**2) / (4 * t[:, None]))
-                / B.sqrt(cosh(s_vals) - cosh(expanded_distance))
-            )  # (..., N1, N2, T, S)
+    @property
+    def num_axes(self):
+        """
+        Number of axes in an array representing a point in the space.
 
-            integral_vals = B.cast(B.dtype(s_vals), integral_vals)
+        :return:
+            1.
+        """
+        return 1
 
-            heat_kernel = trapz(integral_vals, s_vals, axis=-1)  # (..., N1, N2, T)
+    def random_phases(self, key, num):
+        if not isinstance(num, tuple):
+            num = (num,)
+        key, x = B.randn(key, dtype_double(key), *num, self.dimension)
+        x = x / B.sqrt(B.sum(x**2, axis=-1, squeeze=False))
+        return key, x
 
-        elif self.dimension == 3:
-            heat_kernel = B.exp(
-                -B.power(distance[..., None], 2) / (4 * t)
-            )  # (..., N1, N2, T)
-            heat_kernel = (
-                heat_kernel
-                * (distance[..., None] + 1e-8)
-                / sinh(distance[..., None] + 1e-8)
-            )  # Adding 1e-8 avoids numerical issues around d=0
+    def random(self, key, number):
+        """
+        Geomstats-based non-uniform random sampling.
 
-        else:
-            raise NotImplementedError
+        Always returns [N, n+1] float64 array of the `key`'s backend.
 
-        return heat_kernel
+        :param key:
+            Either `np.random.RandomState`, `tf.random.Generator`,
+            `torch.Generator` or `jax.tensor` (representing random state).
+        :param number:
+            Number of samples to draw.
+
+        :return:
+            An array of `number` uniformly random samples on the space.
+        """
+
+        return key, B.cast(dtype_double(key), self.random_point(number))
+
+    def element_shape(self):
+        """
+        :return:
+            [n+1].
+        """
+        return [self.dimension + 1]

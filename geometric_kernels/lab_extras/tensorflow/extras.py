@@ -1,8 +1,7 @@
-from typing import Any, List, Optional
-
 import lab as B
 import tensorflow as tf
 import tensorflow_probability as tfp
+from beartype.typing import Any, List, Optional
 from lab import dispatch
 from plum import Union
 
@@ -65,7 +64,8 @@ def degree(a: B.TFNumeric):  # type: ignore
 @dispatch
 def eigenpairs(L: B.TFNumeric, k: int):
     """
-    Obtain the k highest eigenpairs of a symmetric PSD matrix L.
+    Obtain the eigenpairs that correspond to the `k` lowest eigenvalues
+    of a symmetric positive semi-definite matrix `L`.
     """
     l, u = tf.linalg.eigh(L)
     return l[:k], u[:, :k]
@@ -79,3 +79,151 @@ def set_value(a: B.TFNumeric, index: int, value: float):
     """
     a = tf.where(tf.range(len(a)) == index, value, a)
     return a
+
+
+@dispatch
+def dtype_double(reference: B.TFRandomState):  # type: ignore
+    """
+    Return `double` dtype of a backend based on the reference.
+    """
+    return tf.float64
+
+
+@dispatch
+def float_like(reference: B.TFNumeric):
+    """
+    Return the type of the reference if it is a floating point type.
+    Otherwise return `double` dtype of a backend based on the reference.
+    """
+    reference_dtype = reference.dtype
+    if reference_dtype.is_floating:
+        return reference_dtype
+    else:
+        return tf.float64
+
+
+@dispatch
+def dtype_integer(reference: B.TFRandomState):  # type: ignore
+    """
+    Return `int` dtype of a backend based on the reference.
+    """
+    return tf.int32
+
+
+@dispatch
+def int_like(reference: B.TFNumeric):
+    reference_dtype = reference.dtype
+    if reference_dtype.is_integer:
+        return reference_dtype
+    else:
+        return tf.int32
+
+
+@dispatch
+def get_random_state(key: B.TFRandomState):
+    """
+    Return the random state of a random generator.
+
+    :param key:
+        The random generator of type `B.TFRandomState`.
+    """
+    return tf.identity(key.state), key.algorithm
+
+
+@dispatch
+def restore_random_state(key: B.TFRandomState, state):
+    """
+    Set the random state of a random generator. Return the new random
+    generator with state `state`.
+
+    :param key:
+        The random generator.
+    :param state:
+        The new random state of the random generator of type `B.TFRandomState`.
+    """
+    gen = tf.random.Generator.from_state(state=tf.identity(state[0]), alg=state[1])
+    return gen
+
+
+@dispatch
+def create_complex(real: _Numeric, imag: B.TFNumeric):
+    """
+    Return a complex number with the given real and imaginary parts using tensorflow.
+
+    :param real:
+        float, real part of the complex number.
+    :param imag:
+        float, imaginary part of the complex number.
+    """
+    complex_num = tf.complex(B.cast(B.dtype(imag), from_numpy(imag, real)), imag)
+    return complex_num
+
+
+@dispatch
+def complex_like(reference: B.TFNumeric):
+    """
+    Return `complex` dtype of a backend based on the reference.
+    """
+    if B.dtype(reference) == tf.float32:
+        return tf.complex64
+    else:
+        return tf.complex128
+
+
+@dispatch
+def is_complex(reference: B.TFNumeric):
+    """
+    Return True if reference of `complex` dtype.
+    """
+    return (B.dtype(reference) == tf.complex64) or (B.dtype(reference) == tf.complex128)
+
+
+@dispatch
+def cumsum(x: B.TFNumeric, axis=None):
+    """
+    Return cumulative sum (optionally along axis)
+    """
+    return tf.math.cumsum(x, axis=axis)
+
+
+@dispatch
+def qr(x: B.TFNumeric, mode="reduced"):
+    """
+    Return a QR decomposition of a matrix x.
+    """
+    full_matrices = mode == "complete"
+    Q, R = tf.linalg.qr(x, full_matrices=full_matrices)
+    return Q, R
+
+
+@dispatch
+def slogdet(x: B.TFNumeric):
+    """
+    Return the sign and log-determinant of a matrix x.
+    """
+    sign, logdet = tf.linalg.slogdet(x)
+    return sign, logdet
+
+
+@dispatch
+def eigvalsh(x: B.TFNumeric):
+    """
+    Compute the eigenvalues of a Hermitian or real symmetric matrix x.
+    """
+    return tf.linalg.eigvalsh(x)
+
+
+@dispatch
+def reciprocal_no_nan(x: B.TFNumeric):
+    """
+    Return element-wise reciprocal (1/x). Whenever x = 0 puts 1/x = 0.
+    """
+    return tf.math.reciprocal_no_nan(x)
+
+
+@dispatch
+def complex_conj(x: B.TFNumeric):
+    """
+    Return complex conjugate
+    """
+    return tf.math.conj(x)

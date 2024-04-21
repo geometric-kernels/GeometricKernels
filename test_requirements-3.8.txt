@@ -1,0 +1,25 @@
+# Version-independent requirements
+##################################
+-r test_requirements.txt
+
+# Version-dependent requirements
+################################
+
+# Base
+scipy==1.10.1
+
+# Torch
+torch==2.1.2
+gpytorch
+botorch
+
+# TensorFlow
+gpflow==2.9.0
+tensorflow==2.13.0
+tensorflow-probability==0.20.1
+
+# JAX
+jax==0.4.13
+jaxlib==0.4.13
+jaxtyping
+optax==0.1.7

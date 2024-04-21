@@ -1,7 +1,9 @@
 import lab as B
+import scipy
 import scipy.sparse as sp
+from beartype.typing import Union
 from lab import dispatch
-from plum import Signature, Union
+from plum import Signature
 
 from .extras import _Numeric
 
@@ -35,11 +37,16 @@ def degree(a: SparseArray):  # type: ignore
 @dispatch
 def eigenpairs(L: Union[SparseArray, _Numeric], k: int):
     """
-    Obtain the k highest eigenpairs of a symmetric PSD matrix L.
+    Obtain the eigenpairs that correspond to the `k` lowest eigenvalues
+    of a symmetric positive semi-definite matrix `L`.
     """
     if sp.issparse(L) and (k == L.shape[0]):
         L = L.toarray()
-    return sp.linalg.eigsh(L, k, sigma=1e-8)
+    if sp.issparse(L):
+        return sp.linalg.eigsh(L, k, sigma=1e-8)
+    else:
+        eigenvalues, eigenvectors = scipy.linalg.eigh(L)
+        return (eigenvalues[:k], eigenvectors[:, :k])
 
 
 @dispatch
@@ -68,11 +75,12 @@ def pinv(a: Union[SparseArray]):
         return a
 
 
-_SparseArray = Signature(SparseArray)
+# putting "ignore" here for now, seems like some plum/typing issue
+_SparseArray = Signature(SparseArray)  # type: ignore
 
-B.T.register(_SparseArray, lambda a: a.T)
-B.shape.register(_SparseArray, lambda a: a.shape)
-B.sqrt.register(_SparseArray, lambda a: a.sqrt())
-B.any.register(_SparseArray, lambda a: bool((a == True).sum()))  # noqa
+B.T.register(lambda a: a.T, _SparseArray)
+B.shape.register(lambda a: a.shape, _SparseArray)
+B.sqrt.register(lambda a: a.sqrt(), _SparseArray)
+B.any.register(lambda a: bool((a == True).sum()), _SparseArray)  # noqa
 
-B.linear_algebra.pinv.register(_SparseArray, pinv)
+B.linear_algebra.pinv.register(pinv, _SparseArray)

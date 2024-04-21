@@ -3,7 +3,7 @@ import numpy as np
 import torch
 
 import geometric_kernels.torch  # noqa
-from geometric_kernels.kernels.geometric_kernels import MaternKarhunenLoeveKernel
+from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces.hypersphere import Hypersphere
 from geometric_kernels.utils.manifold_utils import manifold_laplacian
 
@@ -28,14 +28,14 @@ def test_sphere_heat_kernel():
     ys = xs
 
     # Define kernel
-    kernel = MaternKarhunenLoeveKernel(hypersphere, _TRUNCATION_LEVEL)
-    params, state = kernel.init_params_and_state()
-    params["nu"] = torch.tensor(torch.inf)
+    kernel = MaternKarhunenLoeveKernel(hypersphere, _TRUNCATION_LEVEL, normalize=False)
+    params = kernel.init_params()
+    params["nu"] = torch.tensor([torch.inf])
 
     # Define heat kernel function
     def heat_kernel(t, x, y):
-        params["lengthscale"] = B.sqrt(2 * t)
-        return kernel.K(params, state, x, y)
+        params["lengthscale"] = B.reshape(B.sqrt(2 * t), 1)
+        return kernel.K(params, x, y)
 
     for t in ts:
         for x in xs:
