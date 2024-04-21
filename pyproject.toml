@@ -34,7 +34,7 @@ dependencies = [
     "einops",
     "spherical-harmonics-basis",
 ]
-version="0.2a0"
+version="0.2"
 
 [project.urls]
 Documentation = "https://geometric-kernels.github.io/"
