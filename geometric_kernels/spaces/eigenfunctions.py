@@ -268,17 +268,43 @@ class EigenfunctionsFromEigenvectors(Eigenfunctions):
     def __init__(self, eigenvectors: B.Numeric):
         self.eigenvectors = eigenvectors
 
+    def weighted_outerproduct(
+        self,
+        weights: B.Numeric,
+        X: B.Numeric,
+        X2: Optional[B.Numeric] = None,  # type: ignore
+        **kwargs,
+    ) -> B.Numeric:
+        Phi_X = self.__call__(X, **kwargs)  # [N, J]
+        if X2 is None:
+            Phi_X2 = Phi_X
+        else:
+            Phi_X2 = self.__call__(X2, **kwargs)  # [N2, J]
+
+        Phi_X = B.cast(B.dtype(weights), Phi_X)
+        Phi_X2 = B.cast(B.dtype(weights), Phi_X2)
+
+        Kxx = B.matmul(B.transpose(weights) * Phi_X, Phi_X2, tr_b=True)  # [N, N2]
+        return Kxx
+
+    def weighted_outerproduct_diag(
+        self, weights: B.Numeric, X: B.Numeric, **kwargs
+    ) -> B.Numeric:
+        Phi_X = self.__call__(X, **kwargs)  # [N, J]
+        Kx = B.sum(B.transpose(weights) * Phi_X**2, axis=1)  # [N,]
+        return Kx
+
     def phi_product(
         self, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs
     ) -> B.Numeric:
         if X2 is None:
             X2 = X
-        Phi_X = self.__call__(X, **kwargs)  # [N, M]
-        Phi_X2 = self.__call__(X2, **kwargs)  # [N2, M]
-        return einsum("nl,ml->nml", Phi_X, Phi_X2)  # [N, N2, M]
+        Phi_X = self.__call__(X, **kwargs)  # [N, J]
+        Phi_X2 = self.__call__(X2, **kwargs)  # [N2, J]
+        return einsum("nl,ml->nml", Phi_X, Phi_X2)  # [N, N2, J]
 
     def phi_product_diag(self, X: B.Numeric, **kwargs):
-        Phi_X = self.__call__(X, **kwargs)  # [N, M]
+        Phi_X = self.__call__(X, **kwargs)  # [N, J]
         return Phi_X**2
 
     def __call__(self, X: B.Numeric, **kwargs) -> B.Numeric:
