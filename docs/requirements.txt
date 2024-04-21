@@ -4,6 +4,7 @@ furo
 pygments>=2.13.0,<3.0
 sphinx-math-dollar
 nbsphinx
+docutils<0.21
 nbsphinx_link
 pypandoc
 sphinxcontrib.bibtex
