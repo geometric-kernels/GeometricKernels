@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.2 -- 21.04.2024
+## v0.2 - 21.04.2024
  New geometric kernel that *just works*, `kernels.MaternGeometricKernel`. Relies on *(hopefully)* sensible defaults we defined. Mostly by @stoprightthere.
 
 New spaces, based on Azangulov et al. ([2022](https://arxiv.org/abs/2208.14960), [2023](https://arxiv.org/abs/2301.13088)), mostly by @imbirik and @stoprightthere:
@@ -39,5 +39,5 @@ Other:
 - [LAB](https://github.com/wesselb/lab) is now a lightweight dependency, thanks to @wesselb,
 - kernels are now normalized to have unit outputscale by default.
 
-## v0.1-alpha -- 20.10.2022
+## v0.1-alpha - 20.10.2022
 Alpha release.
