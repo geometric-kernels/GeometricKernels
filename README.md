@@ -30,10 +30,10 @@ This enables kernel methods &mdash; in particular Gaussian process models &mdash
 1. Install the library in the active environment by running
 
     ```bash
-    pip install "git+https://github.com/gpflow/geometrickernels.git"
+    pip install geometric_kernels
     ```
 
-    If you want to install specific branch called `[branch]`, run
+    If you want to install specific GitHub branch called `[branch]`, run
 
     ```bash
     pip install "git+https://github.com/GPflow/GeometricKernels@[branch]"

@@ -72,10 +72,10 @@ To install GeometricKernels, run
 
 ..  code-block:: bash
 
-    pip install "git+https://github.com/GPflow/GeometricKernels.git"
+    pip install geometric_kernels
 
 .. note::
-  If you want to install specific branch called `[branch]`, run
+  If you want to install specific GitHub branch called `[branch]`, run
 
   ..  code-block:: bash
 
