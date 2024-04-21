@@ -1,5 +1,5 @@
 """
-Custom extensions for LAB.
+Custom extensions for `LAB <https://github.com/wesselb/lab>`_.
 """
 
 from lab import dispatch

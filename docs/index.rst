@@ -1,13 +1,13 @@
-.. Geometric Kernels documentation master file, should contain the root
+.. GeometricKernels documentation master file, should contain the root
    `toctree` directive.
 
 
 Overview
 ========
 
-Geometric Kernels is a library that implements natural kernels (heat, Matérn) on such non-Euclidean spaces as **Riemannian manifolds**, **graphs** and **meshes**.
+GeometricKernels is a library that implements natural kernels (heat [#]_, Matérn) on such non-Euclidean spaces as **Riemannian manifolds**, **graphs** and **meshes**.
 
-The main projected application is within the Gaussian process framework.
+The main projected application is Gaussian processes.
 
 Installation and Requirements
 =============================
@@ -15,7 +15,6 @@ Installation and Requirements
 This is a **Python 3** library.
 
 Before doing anything, you might want to create and activate a new virtual environment:
-
 
 .. raw:: html
 
@@ -30,10 +29,12 @@ Before doing anything, you might want to create and activate a new virtual envir
        <div id="virtualenvsCollapseOne" class="accordion-collapse collapse show" aria-labelledby="virtualenvsHeadingOne" data-bs-parent="#virtualenvs">
          <div class="accordion-body pb-0">
 
-.. code::
+..  code-block:: bash
 
-   conda create -n [env_name] python=3.10
+   conda create -n [env_name] python=[version]
    conda activate [env_name]
+
+where [env_name] is the name of the environment and [version] is the version of Python you want to use, we currently support 3.8, 3.9, 3.10, 3.11.
 
 .. raw:: html
 
@@ -52,7 +53,7 @@ Before doing anything, you might want to create and activate a new virtual envir
        <div id="virtualenvsCollapseTwo" class="accordion-collapse collapse" aria-labelledby="virtualenvsHeadingTwo" data-bs-parent="#virtualenvs">
          <div class="accordion-body pb-0">
 
-.. code::
+..  code-block:: bash
 
    virtualenv [env_name]
    source [env_name]/bin/activate
@@ -69,9 +70,16 @@ Before doing anything, you might want to create and activate a new virtual envir
 
 To install GeometricKernels, run
 
-.. code::
+..  code-block:: bash
 
-   pip install git+https://github.com/GPflow/GeometricKernels.git
+    pip install geometric_kernels
+
+.. note::
+  If you want to install specific GitHub branch called `[branch]`, run
+
+  ..  code-block:: bash
+
+      pip install "git+https://github.com/GPflow/GeometricKernels@[branch]"
 
 The kernels are compatible with several backends, namely
 
@@ -97,15 +105,16 @@ Any backend, except for ``NumPy``, should be manually installed.
 
 You need both ``tensorflow`` and ``tensorflow-probability``. You can get them by running
 
-.. code::
+..  code-block:: bash
 
    pip install tensorflow tensorflow-probability
 
+
 [Optional] We support the TensorFlow-based Gaussian process library ``gpflow`` which you can install by running
 
-.. code::
+..  code-block:: bash
 
-   pip install gpflow
+    pip install gpflow
 
 
 .. raw:: html
@@ -127,13 +136,13 @@ You need both ``tensorflow`` and ``tensorflow-probability``. You can get them by
 
 You can get PyTorch by running
 
-.. code::
+..  code-block:: bash
 
    pip install torch
 
 [Optional] We support the PyTorch-based Gaussian process library ``gpytorch`` which you can install by running
 
-.. code::
+..  code-block:: bash
 
    pip install gpytorch
 
@@ -159,9 +168,15 @@ To install JAX, follow `these instructions <https://github.com/google/jax#instal
 
 [Optional] We support the JAX-based Gaussian process library ``GPJax`` which you can install by running
 
-.. code::
+..  code-block:: bash
 
    pip install gpjax
+
+.. warning::
+
+    Currently, only some versions of `gpjax` are supported (we tested `gpjax==0.6.9`).
+
+    Furthermore, installation might be far from trivial and result in a broken environment. This is due to our conflicting dependencies, see https://github.com/JaxGaussianProcesses/GPJax/issues/441.
 
 .. raw:: html
 
@@ -175,7 +190,7 @@ To install JAX, follow `these instructions <https://github.com/google/jax#instal
 A Basic Example
 ===============
 
-In the following example we show how to initialize the Matern52 kernel on the two-dimensional sphere and how to compute a kernel matrix for a vector of random points on the sphere.
+In the following example we show how to initialize the Matern52 kernel on the two-dimensional sphere and how to compute a kernel matrix for a few points on the sphere.
 
 .. raw:: html
 
@@ -203,7 +218,7 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> # Create a manifold (2-dim sphere).
    >>> hypersphere = Hypersphere(dim=2)
 
-   >>> # Generate 3 random points on the sphere.
+   >>> # Define 3 points on the sphere.
    >>> xs = np.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
 
    >>> # Initialize kernel.
@@ -249,14 +264,14 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> # Create a manifold (2-dim sphere).
    >>> hypersphere = Hypersphere(dim=2)
 
-   >>> # Generate 3 random points on the sphere.
+   >>> # Define 3 points on the sphere.
    >>> xs = np.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
 
    >>> # Initialize kernel.
    >>> kernel = MaternGeometricKernel(hypersphere)
    >>> params = kernel.init_params()
-   >>> params["nu"] = tf.convert_to_tensor(5/2)
-   >>> params["lengthscale"] = tf.convert_to_tensor(1.)
+   >>> params["nu"] = tf.convert_to_tensor([5/2])
+   >>> params["lengthscale"] = tf.convert_to_tensor([1.])
 
    >>> # Compute and print out the 3x3 kernel matrix.
    >>> print(np.around(kernel.K(params, tf.convert_to_tensor(xs)).numpy(), 2))
@@ -296,14 +311,14 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> # Create a manifold (2-dim sphere).
    >>> hypersphere = Hypersphere(dim=2)
 
-   >>> # Generate 3 random points on the sphere.
+   >>> # Define 3 points on the sphere.
    >>> xs = np.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
 
    >>> # Initialize kernel.
    >>> kernel = MaternGeometricKernel(hypersphere)
    >>> params = kernel.init_params()
-   >>> params["nu"] = torch.tensor(5/2)
-   >>> params["lengthscale"] = torch.tensor(1.)
+   >>> params["nu"] = torch.tensor([5/2])
+   >>> params["lengthscale"] = torch.tensor([1.])
 
    >>> # Compute and print out the 3x3 kernel matrix.
    >>> print(np.around(kernel.K(params, torch.from_numpy(xs)).detach().cpu().numpy(), 2))
@@ -342,14 +357,14 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> # Create a manifold (2-dim sphere).
    >>> hypersphere = Hypersphere(dim=2)
 
-   >>> # Generate 3 random points on the sphere.
+   >>> # Define 3 points on the sphere.
    >>> xs = np.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
 
    >>> # Initialize kernel.
    >>> kernel = MaternGeometricKernel(hypersphere)
    >>> params = kernel.init_params()
-   >>> params["nu"] = jnp.r_[5/2]
-   >>> params["lengthscale"] = jnp.r_[1.]
+   >>> params["nu"] = jnp.array([5/2])
+   >>> params["lengthscale"] = jnp.array([1.0])
 
    >>> # Compute and print out the 3x3 kernel matrix.
    >>> print(np.around(kernel.K(params, jnp.array(xs)), 2))
@@ -369,18 +384,33 @@ In the following example we show how to initialize the Matern52 kernel on the tw
 
 You can find more examples :doc:`here <examples/index>`.
 
+Citation
+========
+
+If you are using GeometricKernels, please consider citing the theoretical papers it is based on.
+
+You can find the relevant references for any space in
+
+- the docstring of the respective space class,
+- at the end of the respective tutorial notebook.
+
+.. rubric:: Footnotes
+
+.. [#] The heat kernel (or diffusion kernel) is a far-reaching generalization of the RBF kernel (a.k.a. Gaussian kernel, or squared exponential kernel). It can be considered to be a Matérn kernel with smoothness parameter :math:`\nu = \infty`, as we do in this library.
+
 .. toctree::
    :hidden:
 
-   Geometric Kernels <self>
+   GeometricKernels <self>
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
    :titlesonly:
    :hidden:
 
    Examples <examples/index>
    Theory <theory/index>
    API reference <autoapi/geometric_kernels/index>
+   Bibliography <bibliography>
    GitHub <https://github.com/GPflow/GeometricKernels>
 

@@ -5,6 +5,7 @@ import logging
 
 class DisableLogging:
     """
+    Temporarily disable logging (except for the `CRITICAL` level messages).
     Adapted from https://stackoverflow.com/a/20251235. Use as
 
     .. code-block:: python
@@ -22,8 +23,8 @@ class DisableLogging:
 
 class FirstPartFilter(logging.Filter):
     """
-    A filter that provides the `name_first` variable for formatting. For a logger
-    called "aaa.bbb.ccc", name_first="aaa".
+    A filter that provides the `name_first` variable for formatting. For a
+    logger called "aaa.bbb.ccc", name_first="aaa".
     Adapted from https://stackoverflow.com/a/46961676.
     """
 

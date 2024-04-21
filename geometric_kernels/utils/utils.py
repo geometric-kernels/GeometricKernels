@@ -9,20 +9,10 @@ from importlib import resources as impresources
 
 import einops
 import lab as B
-from beartype.typing import List, Type
-from plum import Union
+from beartype.typing import Callable, Generator, List, Set, Tuple
 
 from geometric_kernels import resources
 from geometric_kernels.lab_extras import get_random_state, restore_random_state
-
-
-class OptionalMeta(type):
-    def __getitem__(cls, args: Type):
-        return Union[(None,) + (args,)]
-
-
-class Optional(metaclass=OptionalMeta):
-    pass
 
 
 def chain(elements: B.Numeric, repetitions: List[int]) -> B.Numeric:
@@ -31,11 +21,23 @@ def chain(elements: B.Numeric, repetitions: List[int]) -> B.Numeric:
     specified in `repetitions`.  The length of `elements` and `repetitions`
     should match.
 
-    .. code:
-        elements = ['a', 'b', 'c']
+    :param elements:
+        An [N,]-shaped array of elements to repeat.
+    :param repetitions:
+        A list specifying the number of types to repeat each of the elements in
+        `elements`. The length of `repetitions` should be equal to N.
+
+    :return:
+        An [M,]-shaped array.
+
+    EXAMPLE:
+
+    .. code-block:: python
+
+        elements = np.array([1, 2, 3])
         repetitions = [2, 1, 3]
         out = chain(elements, repetitions)
-        print(out)  # ['a', 'a', 'b', 'c', 'c', 'c']
+        print(out)  # [1, 1, 2, 3, 3, 3]
     """
     values = [
         einops.repeat(elements[i : i + 1], "j -> (tile j)", tile=repetitions[i])
@@ -44,19 +46,33 @@ def chain(elements: B.Numeric, repetitions: List[int]) -> B.Numeric:
     return B.concat(*values, axis=0)
 
 
-def make_deterministic(f, key):
+def make_deterministic(f: Callable, key: B.RandomState) -> Callable:
     """
-    Returns a deterministic version of a function that uses a random number generator.
+    Returns a deterministic version of a function that uses a random
+    number generator.
 
-    :param f: the function to make deterministic.
-    :param key: the key used to generate the random state.
+    :param f:
+        The function to make deterministic.
+    :param key:
+        The key used to generate the random state.
 
-    :return: a function representing the deterministic version of the input function.
+    :return:
+        A function representing the deterministic version of the input function.
 
-        .. Note:
-            This function assumes that the input function has a 'key' argument
-            or keyword-only argument that is used to generate random numbers.
-            Otherwise, the function is returned as is.
+        .. note::
+           This function assumes that the input function has a 'key' argument
+           or keyword-only argument that is used to generate random numbers.
+           Otherwise, the function is returned as is.
+
+    EXAMPLE:
+
+    .. code-block:: python
+
+        key = tf.random.Generator.from_seed(1234)
+        feature_map = default_feature_map(kernel=base_kernel)
+        sample_paths = make_deterministic(sampler(feature_map), key)
+        _, ys_train  = sample_paths(xs_train, params)
+        key, ys_test = sample_paths(xs_test,  params)
     """
     f_argspec = inspect.getfullargspec(f)
     f_varnames = f_argspec.args
@@ -83,17 +99,41 @@ def make_deterministic(f, key):
             raise ValueError("Unknown key_argtype %s" % key_argtype)
         return f(*new_args, **kwargs)
 
+    if hasattr(f, "__name__"):
+        f_name = f.__name__
+    elif hasattr(f, "__class__") and hasattr(f.__class__, "__name__"):
+        f_name = f.__class__.__name__
+    else:
+        f_name = "<anonymous>"
+
+    if hasattr(f, "__doc__"):
+        f_doc = f.__doc__
+    else:
+        f_doc = ""
+
+    new_docstring = f"""
+        This is a deterministic version of the function {f_name}.
+
+        The original docstring follows.
+
+        {f_doc}
+        """
+    deterministic_f.__doc__ = new_docstring
+
     return deterministic_f
 
 
-def ordered_pairwise_differences(X):
+def ordered_pairwise_differences(X: B.Numeric) -> B.Numeric:
     """
     Compute the ordered pairwise differences between elements of a vector.
 
-    :param X: a tensor of shape [B, D], where B is the batch size and D is the dimension.
+    :param X:
+        A [..., D]-shaped array, a batch of D-dimensional vectors.
 
-    :return: a vector of shape [B, C], where C = D*(D-1)//2, with the ordered pairwise differences
-            between elements of X. That is, the vector containing differences X[...,i]-X[...,j] where i < j.
+    :return:
+        A [..., C]-shaped array, where C = D*(D-1)//2, containing the ordered
+        pairwise differences between the elements of X. That is, the array
+        containing differences X[...,i] - X[...,j] for all i < j.
     """
     diffX = B.expand_dims(X, -2) - B.expand_dims(X, -1)  # [B, D, D]
     # diffX[i, j] = X[j] - X[i]
@@ -105,12 +145,19 @@ def ordered_pairwise_differences(X):
     return diffX
 
 
-def fixed_length_partitions(n, L):  # noqa: C901
+def fixed_length_partitions(  # noqa: C901
+    n: int, L: int
+) -> Generator[List[int], None, None]:
     """
+    A generator for integer partitions of n into L parts, in colex order.
+
+    :param n:
+        The number to partition.
+    :param L:
+        Size of partitions.
+
     Developed by D. Eppstein in 2005, taken from
     https://www.ics.uci.edu/~eppstein/PADS/IntegerPartitions.py
-
-    Integer partitions of n into L parts, in colex order.
     The algorithm follows Knuth v4 fasc3 p38 in rough outline;
     Knuth credits it to Hindenburg, 1779.
     """
@@ -150,13 +197,19 @@ def fixed_length_partitions(n, L):  # noqa: C901
         partition[0] = s
 
 
-def partition_dominance_cone(partition):
+def partition_dominance_cone(partition: Tuple[int, ...]) -> Set[Tuple[int, ...]]:
     """
-    Calculates partitions dominated by a given one
-    and having the same number of parts (including zero parts of the original)
+    Calculates partitions dominated by a given one and having the same number
+    of parts (including the zero parts of the original).
+
+    :param partition:
+        A partition.
+
+    :return:
+        A set of partitions.
     """
     cone = {partition}
-    new_partitions = {0}
+    new_partitions: Set[Tuple[int, ...]] = {(0,)}
     prev_partitions = cone
     while new_partitions:
         new_partitions = set()
@@ -179,13 +232,21 @@ def partition_dominance_cone(partition):
     return cone
 
 
-def partition_dominance_or_subpartition_cone(partition):
+def partition_dominance_or_subpartition_cone(
+    partition: Tuple[int, ...]
+) -> Set[Tuple[int, ...]]:
     """
-    Calculates subpartitions and partitions dominated by a given one
-    and having the same number of parts (including zero parts of the original)
+    Calculates subpartitions and partitions dominated by a given one and having
+    the same number of parts (including zero parts of the original).
+
+    :param partition:
+        A partition.
+
+    :return:
+        A set of partitions.
     """
     cone = {partition}
-    new_partitions = {0}
+    new_partitions: Set[Tuple[int, ...]] = {(0,)}
     prev_partitions = cone
     while new_partitions:
         new_partitions = set()
@@ -202,9 +263,9 @@ def partition_dominance_or_subpartition_cone(partition):
                             partition[i] > partition[j] + 1
                             and partition[j] < partition[j - 1]
                         ):
-                            new_partition = list(partition)
-                            new_partition[i] -= 1
-                            new_partition[j] += 1
+                            new_partition = list(partition)  # type: ignore[assignment]
+                            new_partition[i] -= 1  # type: ignore[index]
+                            new_partition[j] += 1  # type: ignore[index]
                             new_partition = tuple(new_partition)
                             if new_partition not in cone:
                                 new_partitions.add(new_partition)
@@ -214,7 +275,14 @@ def partition_dominance_or_subpartition_cone(partition):
 
 
 @contextmanager
-def get_resource_file_path(filename):
+def get_resource_file_path(filename: str):
+    """
+    A contextmanager wrapper around `impresources` that supports both
+    Python>=3.9 and Python==3.8 with a unified interface.
+
+    :param filename:
+        The name of the file.
+    """
     if sys.version_info >= (3, 9):
         with impresources.as_file(impresources.files(resources) / filename) as path:
             yield path

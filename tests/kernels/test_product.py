@@ -6,6 +6,7 @@ from geometric_kernels.kernels import MaternKarhunenLoeveKernel, ProductGeometri
 from geometric_kernels.lab_extras.extras import from_numpy
 from geometric_kernels.spaces import (
     Circle,
+    Hypersphere,
     ProductDiscreteSpectrumSpace,
     SpecialUnitary,
 )
@@ -38,7 +39,8 @@ def test_circle_product_eigenfunctions():
     Phi_X2 = eigenfunctions(X)
 
     weights = from_numpy(X, np.random.randn(eigenfunctions.num_levels))
-    chained_weights = chain(weights, eigenfunctions.dim_of_eigenspaces)
+    chained_weights = chain(weights, eigenfunctions.num_eigenfunctions_per_level)
+    weights = B.expand_dims(weights, -1)
     actual = B.to_numpy(eigenfunctions.weighted_outerproduct(weights, X, X))
 
     expected = einsum("ni,mi,i->nm", Phi_X, Phi_X2, chained_weights)
@@ -62,12 +64,12 @@ def test_circle_product_kernel():
         kernel_single = MaternKarhunenLoeveKernel(Circle(), _TRUNC_LEVEL)
 
         params = kernel.init_params()
-        params["nu"] = from_numpy(grid_, np.inf)
-        params["lengthscale"] = from_numpy(grid, ls)
+        params["nu"] = from_numpy(grid_, [np.inf])
+        params["lengthscale"] = from_numpy(grid, [ls])
 
         params_single = kernel_single.init_params()
-        params_single["nu"] = from_numpy(grid_, np.inf)
-        params_single["lengthscale"] = from_numpy(grid, ls)
+        params_single["nu"] = from_numpy(grid_, [np.inf])
+        params_single["lengthscale"] = from_numpy(grid, [ls])
 
         k_xx = kernel.K(params, grid_, grid_)
         k_xx = k_xx.reshape(_GRID_SIZE, _GRID_SIZE, _GRID_SIZE, _GRID_SIZE)
@@ -154,8 +156,35 @@ def test_product_space_circle_su_and_product_kernel():
         params = kernel.init_params()
         params["nu"] = np.r_[np.inf]
         params["lengthscale"] = np.r_[ls]
+        product_params = {
+            "nu": np.r_[np.inf, np.inf],
+            "lengthscale": np.r_[ls, ls],
+        }
 
         k_xx = kernel.K(params, xs, xs[:1])  # [N, 1]
-        k_xx_product = product_kernel.K([params, params], xs, xs[:1])  # [N, 1]
+        k_xx_product = product_kernel.K(product_params, xs, xs[:1])  # [N, 1]
 
         np.testing.assert_allclose(k_xx, k_xx_product, atol=1e-08, rtol=1e-05)
+
+
+def test_number_of_individual_eigenfunctions():
+    circle = Circle()
+    sphere = Hypersphere(3)
+
+    product = ProductDiscreteSpectrumSpace(
+        circle,
+        sphere,
+        num_levels=5,
+        num_levels_per_space=20,
+    )
+
+    eigf = product.get_eigenfunctions(5)
+
+    key = B.create_random_state(np.float32)
+    N = 10
+    key, xs_circle = circle.random(key, N)
+    key, xs_sph = sphere.random(key, N)
+
+    xs = make_product([xs_circle, xs_sph])
+
+    assert eigf(xs).shape == (N, eigf.num_eigenfunctions)

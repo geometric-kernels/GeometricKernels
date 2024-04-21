@@ -11,12 +11,12 @@ help: ## Shows this help message
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-24s\033[0m %s\n", $$1, $$2}'
 
 docs:
-	(cd docs ; make doctest; make html)
-	@echo "\n${SUCCESS}============== Docs are available at docs/_build/html/index.html ============== ${SUCCESS}"
+	(cd docs ; make clean; make doctest; make html)
+	@echo "${SUCCESS}============== Docs are available at docs/_build/html/index.html ============== ${SUCCESS}"
 
 
 install:  ## Install repo for developement (Only for Linux)
-	@echo "\n=== pip install package with dev requirements (using $(GK_REQUIREMENTS)) =============="
+	@echo "=== pip install package with dev requirements (using $(GK_REQUIREMENTS)) =============="
 	pip install --upgrade pip
 	pip install --upgrade --upgrade-strategy eager --no-cache-dir -r $(GK_REQUIREMENTS) | cat
 	pip install -e .

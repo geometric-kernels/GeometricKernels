@@ -1,9 +1,9 @@
 """
-GPJax wrapper for `BaseGeometricKernel`
+GPJax kernel wrapper.
 
 A tutorial on how to use this wrapper to run Gaussian process regression on
-a geometric space is available in the `frontends/GPJax.ipynb <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/frontends/GPJax.ipynb>`_
-notebook.
+a geometric space is available in the
+:doc:`frontends/GPJax.ipynb </examples/frontends/GPJax>` notebook.
 """
 
 from dataclasses import dataclass
@@ -11,18 +11,19 @@ from dataclasses import dataclass
 import gpjax
 import jax.numpy as jnp
 import tensorflow_probability.substrates.jax.bijectors as tfb
-from beartype.typing import TypeVar, Union
+from beartype.typing import List, TypeVar, Union
 from gpjax.base import param_field, static_field
 from gpjax.kernels.computations.base import AbstractKernelComputation
 from gpjax.typing import Array, ScalarFloat
 from jaxtyping import Float, Num
 
 from geometric_kernels.kernels import BaseGeometricKernel
+from geometric_kernels.spaces import Space
 
 Kernel = TypeVar("Kernel", bound="gpjax.kernels.base.AbstractKernel")  # noqa: F821
 
 
-class GeometricKernelComputation(gpjax.kernels.computations.AbstractKernelComputation):
+class _GeometricKernelComputation(gpjax.kernels.computations.AbstractKernelComputation):
     """
     A class for computing the covariance matrix of a geometric kernel.
     """
@@ -34,14 +35,18 @@ class GeometricKernelComputation(gpjax.kernels.computations.AbstractKernelComput
         y: Float[Array, "M #D1 D2"],  # noqa: F821
     ) -> Float[Array, "N M"]:
         """
-        Compute the cross covariance matrix between two matrices of inputs.
+        Compute the cross covariance matrix between two batches of vectors (or
+        batches of matrices) of inputs.
 
-        :param x: A batch of N inputs, each of which is a matrix of size D1xD2,
+        :param x:
+            A batch of N inputs, each of which is a matrix of size D1xD2,
               or a vector of size D2 if D1 is absent.
-        :param y: A batch of M inputs, each of which is a matrix of size D1xD2,
+        :param y:
+            A batch of M inputs, each of which is a matrix of size D1xD2,
               or a vector of size D2 if D1 is absent.
 
-        :return: The N x M covariance matrix.
+        :return:
+            The N x M covariance matrix.
         """
         return jnp.asarray(kernel(x, y))
 
@@ -49,27 +54,30 @@ class GeometricKernelComputation(gpjax.kernels.computations.AbstractKernelComput
 @dataclass
 class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
     r"""
-    GPJax wrapper for :class:`BaseGeometricKernel`.
+    GPJax wrapper for :class:`~.kernels.BaseGeometricKernel`.
 
     A tutorial on how to use this wrapper to run Gaussian process regression on
-    a geometric space is available in the `frontends/GPJax.ipynb <https://github.com/GPflow/GeometricKernels/blob/main/notebooks/frontends/GPJax.ipynb>`_
-    notebook.
+    a geometric space is available in the
+    :doc:`frontends/GPJax.ipynb </examples/frontends/GPJax>` notebook.
 
-    **Note**: remember that the `base_kernel` itself does not store any of its
-    hyperparameters (like `lengthscale` and `nu`). If you do not set them
-    manually—when initializing the object or after, by setting the properties—
-    this wrapper will use the values provided by `base_kernel.init_params`.
+    .. note::
+        Remember that the `base_kernel` itself does not store any of its
+        hyperparameters (like `lengthscale` and `nu`). If you do not set them
+        manually—when initializing the object or after, by setting the
+        properties—this wrapper will use the values provided by
+        `base_kernel.init_params`.
 
-    **Note**: unlike the frontends for GPflow and GPyTorch, GPJaxGeometricKernel
-    does not have the `trainable_nu` parameter which determines whether or not
-    the smoothness parameter nu is to be optimized over. By default, it is not
-    trainable. If you want to make it trainable, do
-    :code:`kernel = kernel.replace_trainable(nu=False)` on an instance of the
-    `GPJaxGeometricKernel`.
+    .. note::
+        Unlike the frontends for GPflow and GPyTorch, GPJaxGeometricKernel
+        does not have the `trainable_nu` parameter which determines whether or
+        not the smoothness parameter nu is to be optimized over. By default, it
+        is not trainable. If you want to make it trainable, do
+        :code:`kernel = kernel.replace_trainable(nu=False)` on an instance of
+        the `GPJaxGeometricKernel`.
 
     :param base_kernel:
         The kernel to wrap.
-    :type base_kernel: BaseGeometricKernel
+    :type base_kernel: geometric_kernels.kernels.BaseGeometricKernel
     :param name:
         Optional kernel name (inherited from `gpjax.kernels.AbstractKernel`).
 
@@ -101,7 +109,7 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
     variance: ScalarFloat = param_field(jnp.array(1.0), bijector=tfb.Softplus())
     base_kernel: BaseGeometricKernel = static_field(None)
     compute_engine: AbstractKernelComputation = static_field(
-        GeometricKernelComputation(), repr=False
+        _GeometricKernelComputation(), repr=False
     )
     name: str = "Geometric Kernel"
 
@@ -113,22 +121,35 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
 
         if self.nu is None:
             self.nu = jnp.array(default_params["nu"])
+        if isinstance(self.nu, ScalarFloat):
+            self.nu = jnp.array([self.nu])
 
         if self.lengthscale is None:
             self.lengthscale = jnp.array(default_params["lengthscale"])
+        if isinstance(self.lengthscale, ScalarFloat):
+            self.lengthscale = jnp.array([self.lengthscale])
+
+    @property
+    def space(self) -> Union[Space, List[Space]]:
+        r"""Alias to the `base_kernel`\ s space property."""
+        return self.base_kernel.space
 
     def __call__(
         self, x: Num[Array, "N #D1 D2"], y: Num[Array, "M #D1 D2"]  # noqa: F821
     ) -> Float[Array, "N M"]:
         """
-        Compute the cross covariance matrix between two matrices of inputs.
+        Compute the cross-covariance matrix between two batches of vectors (or
+        batches of matrices) of inputs.
 
-        :param x: A batch of N inputs, each of which is a matrix of size D1xD2,
-              or a vector of size D2 if D1 is absent.
-        :param y: A batch of M inputs, each of which is a matrix of size D1xD2,
-              or a vector of size D2 if D1 is absent.
+        :param x:
+            A batch of N inputs, each of which is a matrix of size D1xD2,
+            or a vector of size D2 if D1 is absent.
+        :param y:
+            A batch of M inputs, each of which is a matrix of size D1xD2,
+            or a vector of size D2 if D1 is absent.
 
-        :return: The N x M covariance matrix.
+        :return:
+            The N x M cross-covariance matrix.
         """
         return self.variance * self.base_kernel.K(
             {"lengthscale": self.lengthscale, "nu": self.nu}, x, y

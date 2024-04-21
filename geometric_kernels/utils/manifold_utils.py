@@ -10,22 +10,29 @@ def manifold_laplacian(x: B.Numeric, manifold, egrad, ehess):
     r"""
     Computes the manifold Laplacian of a given function at a given point x.
     The manifold Laplacian equals the trace of the manifold Hessian, i.e.,
-    :math:`\Delta_M f(x) = \sum_{i=0}^{D-1} \nabla^2 f(x_i, x_i)`,
-    where :math:`[x_i]_{i=0}^{D-1}` is an orthonormal basis of the tangent
-    space at x.
+    $\Delta_M f(x) = \sum_{i=1}^{d} \nabla^2 f(x_i, x_i)$, where
+    $[x_i]_{i=1}^{d}$ is an orthonormal basis of the tangent space at x.
 
-    :param x: point on the manifold at which to compute the Laplacian
-    :param manifold: manifold space, based on geomstats
-    :param egrad: Euclidean gradient of the function
-    :param ehess: Euclidean Hessian of the function
+    .. warning::
+        This function only works for hyperspheres out of the box. We will
+        need to change that in the future.
 
-    :return: manifold Laplacian
+    .. todo::
+        See warning above.
 
-    References:
+    :param x:
+        A point on the manifold at which to compute the Laplacian.
+    :param manifold:
+        A geomstats manifold.
+    :param egrad:
+        Euclidean gradient of the given function at x.
+    :param ehess:
+        Euclidean Hessian of the given function at x.
 
-        [1] J. Jost.
-            Riemannian geometry and geometric analysis. Springer, 2017.
-            Chapter 3.1.
+    :return:
+        Manifold Laplacian of the given function at x.
+
+    See :cite:t:`jost2011` (Chapter 3.1) for mathematical details.
     """
     dim = manifold.dim
 
@@ -47,10 +54,21 @@ def tangent_onb(manifold, x):
     r"""
     Computes an orthonormal basis on the tangent space at x.
 
-    :param manifold: manifold space, based on geomstats
-    :param x: point on the manifold
+    .. warning::
+        This function only works for hyperspheres out of the box. We will
+        need to change that in the future.
 
-    :return: [num, num] array containing the orthonormal basis
+    .. todo::
+        See warning above.
+
+    :param manifold:
+        A geomstats manifold.
+    :param x:
+        A point on the manifold.
+
+    :return:
+        An [d, d]-shaped array containing the orthonormal basis
+        on `manifold` at `x`.
     """
     ambient_dim = manifold.dim + 1
     manifold_dim = manifold.dim

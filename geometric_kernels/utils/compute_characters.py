@@ -1,3 +1,15 @@
+"""
+Standalone script to precompute characters for
+:class:`~.spaces.SpecialOrthogonal` and :class:`~.spaces.SpecialUnitary`.
+
+Edit `recalculate`, `storage_file_name`, `order`, and `groups` variables below
+in the code and run the script as.
+
+.. code-block:: bash
+
+    python compute_characters.py
+"""
+
 import itertools
 import json
 import sys
@@ -46,7 +58,8 @@ groups = [
 class CompactJSONEncoder(json.JSONEncoder):
     """A JSON Encoder that puts small containers on single lines.
 
-    Source (probably):  https://gist.github.com/jannismain/e96666ca4f059c3e5bc28abb711b5c92.
+    Source (probably):
+    https://gist.github.com/jannismain/e96666ca4f059c3e5bc28abb711b5c92.
     """
 
     CONTAINER_TYPES = (list, tuple, dict)
@@ -125,7 +138,10 @@ class CompactJSONEncoder(json.JSONEncoder):
 
 
 def compute_character_formula_so(self, signature):
-    """Refer to the appendix of https://arxiv.org/pdf/2208.14960.pdf"""
+    """
+    Refer to the appendix of cite:t:`azangulov2022`,
+    https://arxiv.org/pdf/2208.14960.pdf.
+    """
     n = self.n
     rank = self.rank
     gammas = sympy.symbols(" ".join("g{}".format(i + 1) for i in range(rank)))
@@ -240,7 +256,10 @@ def compute_character_formula_so(self, signature):
 
 
 def compute_character_formula_su(self, signature):
-    """Refer to the appendix of https://arxiv.org/pdf/2208.14960.pdf"""
+    """
+    Refer to the appendix of cite:t:`azangulov2022`,
+    https://arxiv.org/pdf/2208.14960.pdf.
+    """
     n = self.n
     gammas = sympy.symbols(" ".join("g{}".format(i) for i in range(1, n + 1)))
     qs = [pk + n - k - 1 for k, pk in enumerate(signature)]

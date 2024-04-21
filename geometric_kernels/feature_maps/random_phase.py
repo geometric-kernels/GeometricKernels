@@ -1,81 +1,108 @@
-"""
+r"""
 This module provides the random phase-based feature maps.
 
-Specifically, it provides the class:`RandomPhaseFeatureMapCompact`, a random
-phase-based feature map for :class:`DiscreteSpectrumSpace`s for which the
-:doc:`addition theorem </theory/addition_theorem>`-like basis functions are
-explicitly available while the actual eigenpairs may remain implicit.
+Specifically, it provides a random phase-based feature map for
+:class:`~.spaces.DiscreteSpectrumSpace`\ s for which the
+:doc:`addition theorem </theory/addition_theorem>`-like basis functions
+are explicitly available while the actual eigenpairs may remain implicit.
 
-It also provides the class:`RandomPhaseFeatureMapNoncompact`, a basic random
-phase-based feature map for :class:`NoncompactSymmetricSpace`s. It should be
-used unless a more specialized per-space implementation is available, like the
-ones in the module :module:`geometric_kernels.rejection_sampling`.
+It also provides a basic random phase-based feature map for
+:class:`~.spaces.NoncompactSymmetricSpace`\ s. It should be used unless a more
+specialized per-space implementation is available, like the ones in the module
+:mod:`geometric_kernels.feature_maps.rejection_sampling`.
 """
 
 import lab as B
+from beartype.typing import Dict, Optional, Tuple
 
 from geometric_kernels.feature_maps.base import FeatureMap
 from geometric_kernels.feature_maps.probability_densities import base_density_sample
 from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
-from geometric_kernels.lab_extras import dtype_complex, from_numpy, is_complex
+from geometric_kernels.lab_extras import complex_like, from_numpy, is_complex
 from geometric_kernels.spaces import DiscreteSpectrumSpace, NoncompactSymmetricSpace
 
 
 class RandomPhaseFeatureMapCompact(FeatureMap):
+    r"""
+    Random phase feature map for :class:`~.spaces.DiscreteSpectrumSpace`\ s for
+    which the :doc:`addition theorem </theory/addition_theorem>`-like basis
+    functions are explicitly available while actual eigenpairs may be implicit.
+
+    :param space:
+        A :class:`~.spaces.DiscreteSpectrumSpace` space.
+    :param num_levels:
+        Number of levels in the kernel approximation.
+    :param num_random_phases:
+        Number of random phases used in the generalized
+        random phase Fourier features technique.
+    """
+
     def __init__(
         self,
         space: DiscreteSpectrumSpace,
         num_levels: int,
         num_random_phases: int = 3000,
     ):
-        """
-        Random phase feature map for compact spaces based on the Laplacian eigendecomposition.
-
-        :param space: space.
-        :param num_levels: number of levels in the kernel approximation.
-        :param num_random_phases: number of random phases in generalized random phase Fourier features.
-        """
         self.space = space
         self.num_levels = num_levels
         self.num_random_phases = num_random_phases
         self.kernel = MaternKarhunenLoeveKernel(space, num_levels)
 
     def __call__(
-        self, X: B.Numeric, params, *, key, normalize=None, **kwargs
-    ) -> B.Numeric:
+        self,
+        X: B.Numeric,
+        params: Dict[str, B.Numeric],
+        *,
+        key: B.RandomState,
+        normalize: Optional[bool] = None,
+        **kwargs,
+    ) -> Tuple[B.RandomState, B.Numeric]:
         """
-        :param X: [N, D] points in the space to evaluate the map on.
+        :param X:
+            [N, ...] points in the space to evaluate the map on.
 
-        :param params: parameters of the kernel (lengthscale and smoothness).
+        :param params:
+            Parameters of the kernel (length scale and smoothness).
 
-        :param key: random state, either `np.random.RandomState`, `tf.random.Generator`,
-                    `torch.Generator` or `jax.tensor` (representing random state).
+        :param key:
+            Random state, either `np.random.RandomState`,
+            `tf.random.Generator`, `torch.Generator` or `jax.tensor` (which
+            represents a random state).
 
-                     Note that for any backend other than `jax`, passing the same `key`
-                     twice does not guarantee that the feature map will be the same each time.
-                     This is because these backends' random state has... a state.
-                     One either has to recreate/restore the state each time or
-                     make use of `geometric_kernels.utils.make_deterministic`.
-        :param normalize: normalize to have unit average variance (if omitted
-                          or None, follows the standard behavior of
-                          MaternKarhunenLoeveKernel).
-        :param ``**kwargs``: unused.
+            .. note::
+                For any backend other than `jax`, passing the same `key` twice
+                does not guarantee that the feature map will be the same each
+                time. This is because these backends' random state has... a
+                state. To evaluate the same (including randomness) feature map
+                on different inputs, you can either save/restore state manually
+                each time or use the helper function
+                :func:`~.utils.make_deterministic` which
+                does this for you.
 
-        :return: `Tuple(key, features)` where `features` is [N, O] features,
-                 and `key` is the new key for `jax`, and the same random
-                 state (generator) for all other backends.
+        :param normalize:
+            Normalize to have unit average variance (if omitted
+            or None, follows the standard behavior of
+            :class:`kernels.MaternKarhunenLoeveKernel`).
+        :param ``**kwargs``:
+            Unused.
+
+        :return:
+            `Tuple(key, features)` where `features` is an [N, O] array, N
+            is the number of inputs and O is the dimension of the feature map;
+            `key` is the updated random key for `jax`, or the similar random
+            state (generator) for any other backends.
         """
         key, random_phases = self.space.random(key, self.num_random_phases)  # [O, D]
         eigenvalues = self.kernel.eigenvalues_laplacian
 
         spectrum = self.kernel._spectrum(
-            eigenvalues**0.5,
+            eigenvalues,
             nu=params["nu"],
             lengthscale=params["lengthscale"],
         )
 
         if is_complex(X):
-            dtype = dtype_complex(params["lengthscale"])
+            dtype = complex_like(params["lengthscale"])
         else:
             dtype = B.dtype(params["lengthscale"])
 
@@ -103,44 +130,72 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
 
 
 class RandomPhaseFeatureMapNoncompact(FeatureMap):
+    r"""
+    Basic random phase feature map for
+    :class:`~.spaces.NoncompactSymmetricSpace`\ s (importance sampling based).
+
+    This feature map should not be used if a space-specific alternative exists.
+
+    :param space:
+        A :class:`~.spaces.NoncompactSymmetricSpace` space.
+    :param num_random_phases:
+        Number of random phases to use.
+    :param shifted_laplacian:
+        If True, assumes that the kernels are defined in terms of the shifted
+        Laplacian. This often makes Matérn kernels more flexible by widening
+        the effective range of the length scale parameter.
+
+        Defaults to True.
+    """
+
     def __init__(
         self,
         space: NoncompactSymmetricSpace,
         num_random_phases: int = 3000,
-        shift_laplacian: bool = True,
+        shifted_laplacian: bool = True,
     ):
-        """
-        Random phase feature map for noncompact symmetric space based on naive algorithm.
-
-        :param space: Space.
-        :param num_random_phases: number of random phases to use.
-        :param shift_laplacian: if true redefines kernel by shifting Laplacian,
-                this makes the Matern's kernels more flexible.
-        """
         self.space = space
         self.num_random_phases = num_random_phases
-        self.shift_laplacian = shift_laplacian
+        self.shifted_laplacian = shifted_laplacian
 
     def __call__(
-        self, X: B.Numeric, params, *, key, normalize=True, **kwargs
-    ) -> B.Numeric:
+        self,
+        X: B.Numeric,
+        params: Dict[str, B.Numeric],
+        *,
+        key: B.RandomState,
+        normalize: Optional[bool] = True,
+        **kwargs,
+    ) -> Tuple[B.RandomState, B.Numeric]:
         """
-        :param X: [N, D] points in the space to evaluate the map on.
-        :param params: parameters of the feature map (lengthscale and smoothness).
-        :param key: random state, either `np.random.RandomState`, `tf.random.Generator`,
-                    `torch.Generator` or `jax.tensor` (representing random state).
+        :param X:
+            [N, ...] points in the space to evaluate the map on.
+        :param params:
+            Parameters of the feature map (length scale and smoothness).
+        :param key:
+            Random state, either `np.random.RandomState`,
+            `tf.random.Generator`, `torch.Generator` or `jax.tensor` (which
+            represents a random state).
 
-                     Note that for any backend other than `jax`, passing the same `key`
-                     twice does not guarantee that the feature map will be the same each time.
-                     This is because these backends' random state has... a state.
-                     One either has to recreate/restore the state each time or
-                     make use of `geometric_kernels.utils.make_deterministic`.
-        :param normalize: normalize to have unit average variance (`True` by default).
-        :param ``**kwargs``: unused.
+            .. note::
+                For any backend other than `jax`, passing the same `key` twice
+                does not guarantee that the feature map will be the same each
+                time. This is because these backends' random state has... a
+                state. To evaluate the same (including randomness) feature map
+                on different inputs, you can either save/restore state manually
+                each time or use the helper function
+                :func:`~.utils.make_deterministic` which
+                does this for you.
 
-        :return: `Tuple(key, features)` where `features` is [N, O] features,
-                 and `key` is the new key for `jax`, and the same random
-                 state (generator) for all other backends.
+        :param normalize:
+            Normalize to have unit average variance (`True` by default).
+        :param ``**kwargs``:
+            Unused.
+
+        :return: `Tuple(key, features)` where `features` is an [N, O] array, N
+            is the number of inputs and O is the dimension of the feature map;
+            `key` is the updated random key for `jax`, or the similar random
+            state (generator) for any other backends.
         """
 
         # default behavior
@@ -149,7 +204,7 @@ class RandomPhaseFeatureMapNoncompact(FeatureMap):
 
         key, random_phases = self.space.random_phases(
             key, self.num_random_phases
-        )  # [O, <axes>]
+        )  # [O, <axes_p>]
 
         key, random_lambda = base_density_sample(
             key,
@@ -157,12 +212,12 @@ class RandomPhaseFeatureMapNoncompact(FeatureMap):
             params,
             self.space.dimension,
             self.space.rho,
-            self.shift_laplacian,
+            self.shifted_laplacian,
         )  # [O, P]
 
         random_phases_b = B.expand_dims(
             B.cast(B.dtype(params["lengthscale"]), from_numpy(X, random_phases))
-        )  # [1, O, <axes>]
+        )  # [1, O, <axes_p>]
         random_lambda_b = B.expand_dims(
             B.cast(B.dtype(params["lengthscale"]), from_numpy(X, random_lambda))
         )  # [1, O, P]

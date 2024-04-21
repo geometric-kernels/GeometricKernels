@@ -56,7 +56,8 @@ def degree(a: B.JAXNumeric):  # type: ignore
 @dispatch
 def eigenpairs(L: B.JAXNumeric, k: int):
     """
-    Obtain the k highest eigenpairs of a symmetric PSD matrix L.
+    Obtain the eigenpairs that correspond to the `k` lowest eigenvalues
+    of a symmetric positive semi-definite matrix `L`.
     """
     l, u = jnp.linalg.eigh(L)
     return l[:k], u[:, :k]
@@ -88,7 +89,7 @@ def float_like(reference: B.JAXNumeric):
     """
     reference_dtype = reference.dtype
     if jnp.issubdtype(reference_dtype, jnp.floating):
-        return B.dtype(reference)
+        return reference_dtype
     else:
         return jnp.float64
 
@@ -102,13 +103,21 @@ def dtype_integer(reference: B.JAXRandomState):  # type: ignore
 
 
 @dispatch
+def int_like(reference: B.JAXNumeric):
+    reference_dtype = reference.dtype
+    if jnp.issubdtype(reference_dtype, jnp.integer):
+        return reference_dtype
+    else:
+        return jnp.int32
+
+
+@dispatch
 def get_random_state(key: B.JAXRandomState):
     """
     Return the random state of a random generator.
 
-    :param key: the random generator of type `B.JAXRandomState`.
-
-    :return: the random state of the random generator.
+    :param key:
+        The random generator of type `B.JAXRandomState`.
     """
     return key
 
@@ -116,12 +125,13 @@ def get_random_state(key: B.JAXRandomState):
 @dispatch
 def restore_random_state(key: B.JAXRandomState, state):
     """
-    Set the random state of a random generator.
+    Set the random state of a random generator. Return the new random
+    generator with state `state`.
 
-    :param key: the random generator of type `B.JAXRandomState`.
-    :param state: the new random state of the random generator.
-
-    :return: the new random generator with state `state`.
+    :param key:
+        The random generator of type `B.JAXRandomState`.
+    :param state:
+        The new random state of the random generator.
     """
     return state
 
@@ -129,18 +139,19 @@ def restore_random_state(key: B.JAXRandomState, state):
 @dispatch
 def create_complex(real: _Numeric, imag: B.JAXNumeric):
     """
-    Returns a complex number with the given real and imaginary parts using jax.
+    Return a complex number with the given real and imaginary parts using jax.
 
-    :param real: float, real part of the complex number.
-    :param imag: float, imaginary part of the complex number.
-    :return: complex, a complex number with the given real and imaginary parts.
+    :param real:
+        float, real part of the complex number.
+    :param imag:
+        float, imaginary part of the complex number.
     """
     complex_num = real + 1j * imag
     return complex_num
 
 
 @dispatch
-def dtype_complex(reference: B.JAXNumeric):
+def complex_like(reference: B.JAXNumeric):
     """
     Return `complex` dtype of a backend based on the reference.
     """

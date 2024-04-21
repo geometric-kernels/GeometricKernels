@@ -17,7 +17,8 @@ from geometric_kernels.spaces.so import SpecialOrthogonal
 
 def _hook_content_formula(lmd, n):
     """
-    A combinatorial formula used to calculate the dimension of invariant space of the Stiefeld manifold (among other things).
+    A combinatorial formula used to calculate the dimension of invariant space
+    of the Stiefeld manifold (among other things).
     """
     numer = 1
     denom = 1
@@ -34,10 +35,15 @@ def _hook_content_formula(lmd, n):
 class StiefelEigenfunctions(AveragingAdditionTheorem):
     def _compute_projected_character_value_at_e(self, signature):
         """
-        Value of character on class of identity element is equal to the dimension of invariant space.
-        In case of Stiefel manifold it could be computed using the hook-content formula.
-        :param signature: the character signature
-        :return: int
+        Value of character on the class of identity element is equal to the
+        dimension of invariant space. In case of Stiefel manifold it could be
+        computed using the hook-content formula.
+
+        :param signature:
+            The character signature.
+
+        :return:
+            Value of character on the class of identity element.
         """
 
         m_ = min(self.M.m, self.M.n - self.M.m)
@@ -50,19 +56,34 @@ class StiefelEigenfunctions(AveragingAdditionTheorem):
 class Stiefel(CompactHomogeneousSpace):
     r"""
     The GeometricKernels space representing the Stifiel manifold
-    :math:`V(m, n)` as the homogeneous space :math:`SO(n) / SO(n-m)`.
+    V(m, n) as the homogeneous space SO(n) / SO(n-m).
 
-    The elements of this space are represented as :math:`n \times m` matrices
+    The elements of this space are represented as n x m matrices
     with orthogonal columns.
+
+    .. note::
+        A tutorial on how to use this space is available in the
+        :doc:`Stiefel.ipynb </examples/Stiefel>` notebook.
+
+    .. admonition:: Citation
+
+        If you use this GeometricKernels space in your research, please consider
+        citing :cite:t:`azangulov2022`.
     """
 
     def __new__(cls, n: int, m: int, key, average_order: int = 100):
         """
-        :param n: the number of rows.
-        :param m: the number of columns.
-        :param key: random state used to sample from the stabilizer `SO(n-m)`.
-        :param average_order: the number of random samples from the stabilizer `SO(n-m)`.
-        :return: a tuple (new random state, a realization of `V(m, n)`).
+        :param n:
+            The number of rows.
+        :param m:
+            The number of columns.
+        :param key:
+            Random state used to sample from the stabilizer SO(n-m).
+        :param average_order:
+            The number of random samples from the stabilizer SO(n-m).
+
+        :return:
+            A tuple (new random state, a realization of V(m, n)).
         """
 
         assert n > m, "n should be greater than m"
@@ -90,18 +111,25 @@ class Stiefel(CompactHomogeneousSpace):
         """
         Take first m columns of an orthogonal matrix.
 
-        :param g: [..., n, n] array of points in SO(n)
-        :return: [..., n, m] array of points in V(m, n)
+        :param g:
+            [..., n, n] array of points in SO(n).
+
+        :return:
+            [..., n, m] array of points in V(m, n).
         """
 
         return g[..., : self.m]
 
     def embed_manifold(self, x):
         """
-        Complete [n, m] matrix with orthogonal columns to an orthogonal [n, n] one using QR algorithm.
+        Complete [n, m] matrix with orthogonal columns to an orthogonal
+        [n, n] one using QR algorithm.
 
-        :param x: [..., n, m] array of points in V(m, n)
-        :return g: [..., n, n] array of points in SO(n)
+        :param x:
+            [..., n, m] array of points in V(m, n).
+
+        :return g:
+            [..., n, n] array of points in SO(n).
         """
 
         g, r = qr(x, mode="complete")
@@ -122,8 +150,11 @@ class Stiefel(CompactHomogeneousSpace):
         Embed SO(n-m) matrix into SO(n) adding ones on diagonal,
         i.e. i(h) = [[h, 0], [0, 1]].
 
-        :param h: [..., n-m, n-m] array of points in SO(n-m)
-        :return res: [..., n, n] array of points in SO(n)
+        :param h:
+            [..., n-m, n-m] array of points in SO(n-m).
+
+        :return:
+            [..., n, n] array of points in SO(n).
         """
 
         zeros = B.zeros(
@@ -157,4 +188,8 @@ class Stiefel(CompactHomogeneousSpace):
 
     @property
     def element_shape(self):
+        """
+        :return:
+            [n, m].
+        """
         return [self.n, self.m]

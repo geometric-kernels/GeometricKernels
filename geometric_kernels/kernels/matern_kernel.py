@@ -1,8 +1,13 @@
 """
-A wrapper around different kernels and feature maps that dispatches on space.
+Provides :class:`MaternGeometricKernel`,the geometric Matérn kernel---with
+the heat kernel as a special case---that just works.
+
+It wraps around different kernels and feature maps, dispatching on the space.
+
+Unless you know exactly what you are doing, use :class:`MaternGeometricKernel`.
 """
 
-from plum import dispatch
+from plum import dispatch, overload
 
 from geometric_kernels.feature_maps import (
     DeterministicFeatureMapCompact,
@@ -16,11 +21,11 @@ from geometric_kernels.kernels.feature_map import MaternFeatureMapKernel
 from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import (
     CompactHomogeneousSpace,
+    CompactMatrixLieGroup,
     DiscreteSpectrumSpace,
     Graph,
     Hyperbolic,
     Hypersphere,
-    MatrixLieGroup,
     Mesh,
     NoncompactSymmetricSpace,
     Space,
@@ -34,39 +39,41 @@ def default_feature_map(
     """
     Constructs the default feature map for the specified space or kernel.
 
-    :param space: space to construct the feature map on. If provided, kernel
-                  must either be omitted or set to None.
-    :param kernel: kernel to construct the feature map from. If provided,
-                   space and num must either be omitted or set to None.
-    :param num: controls the number of features (dimensionality of the feature
-                map). If omitted or set to None, the default value for each
-                respective space is used. Must only be provided when
-                constructing a feature map on a space (not from a kernel).
+    :param space:
+        A space to construct the feature map on. If provided, kernel must
+        either be omitted or set to None.
+    :param kernel:
+        A kernel to construct the feature map from. If provided, `space` and
+        `num` must either be omitted or set to None.
+    :param num:
+        Controls the number of features (dimensionality of the feature
+        map). If omitted or set to None, the default value for each
+        respective space is used. Must only be provided when
+        constructing a feature map on a space (not from a kernel).
 
-    :return: Callable which is the respective feature map.
+    :return:
+        Callable which is the respective feature map.
     """
     if kernel is not None:
         if space is not None or num is not None:
             raise ValueError(
                 "When kernel is provided, space and num must be omitted or set to None"
             )
-        return feature_map_from_kernel(kernel)
+        return feature_map_from_kernel(kernel)  # type: ignore[call-overload]
     elif space is not None:
         if num is None:
-            num = default_num(space)
-        return feature_map_from_space(space, num)
+            num = default_num(space)  # type: ignore[call-overload]
+        return feature_map_from_space(space, num)  # type: ignore[call-overload]
     else:
         raise ValueError(
             "Either kernel or space must be provided and be different from None"
         )
 
 
-@dispatch  # type: ignore[no-redef]
+@overload
 def feature_map_from_kernel(kernel: MaternKarhunenLoeveKernel):
-    if isinstance(kernel.space, MatrixLieGroup) or isinstance(
-        kernel.space, CompactHomogeneousSpace
-    ):
-        # Because `MatrixLieGroup` and `CompactHomogeneousSpace` do not
+    if isinstance(kernel.space, (CompactMatrixLieGroup, CompactHomogeneousSpace)):
+        # Because `CompactMatrixLieGroup` and `CompactHomogeneousSpace` do not
         # currently support explicit eigenfunction computation (they
         # only support addition theorem).
         return RandomPhaseFeatureMapCompact(
@@ -78,84 +85,163 @@ def feature_map_from_kernel(kernel: MaternKarhunenLoeveKernel):
         return DeterministicFeatureMapCompact(kernel.space, kernel.num_levels)
 
 
-@dispatch  # type: ignore[no-redef]
+@overload
 def feature_map_from_kernel(kernel: MaternFeatureMapKernel):
     return kernel.feature_map
 
 
-@dispatch  # type: ignore[no-redef]
+@dispatch
+def feature_map_from_kernel(kernel: BaseGeometricKernel):
+    """
+    Return the default feature map for the specified kernel `kernel`.
+
+    :param kernel:
+        A kernel to construct the feature map from.
+
+    :return:
+        A feature map.
+    :rtype: feature_maps.FeatureMap
+
+    .. note::
+       This function is organized as an abstract dispatcher plus a set of
+       @overload-decorated implementations, one for each type of kernels.
+
+       When followed by an "empty" @dispatch-decorated function of the same
+       name, plum-dispatch changes the default behavior of the `@overload`
+       decorator, allowing the implementations inside the preceding
+       @overload-decorated functions. This is opposed to the standard behavior
+       when @overload-decorated functions can only provide type signature,
+       while the general implementation should be contained in the function
+       of the same name without an `@overload` decorator.
+
+       The trick is taken from https://beartype.github.io/plum/integration.html.
+
+    .. note::
+       For dispatching to work, the empty @dispatch-decorated function should
+       follow (not precede) the @overload-decorated implementations in the code.
+    """
+    raise NotImplementedError(
+        "feature_map_from_kernel is not implemented for the kernel of type %s."
+        % str(type(kernel))
+    )
+
+
+@overload
 def feature_map_from_space(space: DiscreteSpectrumSpace, num: int):
-    return DeterministicFeatureMapCompact(space, num)
-
-
-@dispatch  # type: ignore[no-redef]
-def feature_map_from_space(space: Hypersphere, num: int):
-    num_computed_levels = space.num_computed_levels
-    if num_computed_levels > 0:
-        return DeterministicFeatureMapCompact(space, min(num, num_computed_levels))
-    else:
+    if isinstance(space, (CompactMatrixLieGroup, CompactHomogeneousSpace)):
         return RandomPhaseFeatureMapCompact(
             space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
         )
+    elif isinstance(space, Hypersphere):
+        num_computed_levels = space.num_computed_levels
+        if num_computed_levels > 0:
+            return DeterministicFeatureMapCompact(space, min(num, num_computed_levels))
+        else:
+            return RandomPhaseFeatureMapCompact(
+                space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
+            )
+    else:
+        return DeterministicFeatureMapCompact(space, num)
 
 
-@dispatch  # type: ignore[no-redef]
-def feature_map_from_space(space: MatrixLieGroup, num: int):
-    return RandomPhaseFeatureMapCompact(
-        space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
-    )
-
-
-@dispatch  # type: ignore[no-redef]
-def feature_map_from_space(space: CompactHomogeneousSpace, num: int):
-    return RandomPhaseFeatureMapCompact(
-        space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
-    )
-
-
-@dispatch  # type: ignore[no-redef]
+@overload
 def feature_map_from_space(space: NoncompactSymmetricSpace, num: int):
-    return RandomPhaseFeatureMapNoncompact(space, num)
+    if isinstance(space, Hyperbolic):
+        return RejectionSamplingFeatureMapHyperbolic(space, num)
+    elif isinstance(space, SymmetricPositiveDefiniteMatrices):
+        return RejectionSamplingFeatureMapSPD(space, num)
+    else:
+        return RandomPhaseFeatureMapNoncompact(space, num)
 
 
-@dispatch  # type: ignore[no-redef]
-def feature_map_from_space(space: Hyperbolic, num: int):
-    return RejectionSamplingFeatureMapHyperbolic(space, num)
+@dispatch
+def feature_map_from_space(space: Space, num: int):
+    """
+    Return the default feature map for the specified space `space` and
+    approximation level `num`.
+
+    :param space:
+        A space to construct the feature map on.
+    :param num:
+        Approximation level.
+
+    :return:
+        A feature map.
+    :rtype: feature_maps.FeatureMap
+
+    .. note::
+       This function is organized as an abstract dispatcher plus a set of
+       @overload-decorated implementations, one for each type of spaces.
+
+       When followed by an "empty" @dispatch-decorated function of the same
+       name, plum-dispatch changes the default behavior of the `@overload`
+       decorator, allowing the implementations inside the preceding
+       @overload-decorated functions. This is opposed to the standard behavior
+       when @overload-decorated functions can only provide type signature,
+       while the general implementation should be contained in the function
+       of the same name without an `@overload` decorator.
+
+       The trick is taken from https://beartype.github.io/plum/integration.html.
+
+    .. note::
+       For dispatching to work, the empty @dispatch-decorated function should
+       follow (not precede) the @overload-decorated implementations in the code.
+    """
+    raise NotImplementedError(
+        "feature_map_from_space is not implemented for the space of type %s."
+        % str(type(space))
+    )
 
 
-@dispatch  # type: ignore[no-redef]
-def feature_map_from_space(space: SymmetricPositiveDefiniteMatrices, num: int):
-    return RejectionSamplingFeatureMapSPD(space, num)
+@overload
+def default_num(space: DiscreteSpectrumSpace) -> int:
+    if isinstance(space, (CompactMatrixLieGroup, CompactHomogeneousSpace)):
+        return MaternGeometricKernel._DEFAULT_NUM_LEVELS_LIE_GROUP
+    elif isinstance(space, (Graph, Mesh)):
+        return min(
+            MaternGeometricKernel._DEFAULT_NUM_EIGENFUNCTIONS, space.num_vertices
+        )
+    else:
+        return MaternGeometricKernel._DEFAULT_NUM_LEVELS
 
 
-@dispatch  # type: ignore[no-redef]
-def default_num(space: Mesh):
-    return min(MaternGeometricKernel._DEFAULT_NUM_EIGENFUNCTIONS, space.num_vertices)
-
-
-@dispatch  # type: ignore[no-redef]
-def default_num(space: Graph):
-    return min(MaternGeometricKernel._DEFAULT_NUM_EIGENFUNCTIONS, space.num_vertices)
-
-
-@dispatch  # type: ignore[no-redef]
-def default_num(space: DiscreteSpectrumSpace):
-    return MaternGeometricKernel._DEFAULT_NUM_LEVELS
-
-
-@dispatch  # type: ignore[no-redef]
-def default_num(space: MatrixLieGroup):
-    return MaternGeometricKernel._DEFAULT_NUM_LEVELS_LIE_GROUP
-
-
-@dispatch  # type: ignore[no-redef]
-def default_num(space: CompactHomogeneousSpace):
-    return MaternGeometricKernel._DEFAULT_NUM_LEVELS_LIE_GROUP
-
-
-@dispatch  # type: ignore[no-redef]
-def default_num(space: NoncompactSymmetricSpace):
+@overload
+def default_num(space: NoncompactSymmetricSpace) -> int:
     return MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
+
+
+@dispatch
+def default_num(space: Space) -> int:
+    """
+    Return the default approximation level for the `space`.
+
+    :param space:
+        A space.
+
+    :return:
+        The default approximation level.
+
+    .. note::
+       This function is organized as an abstract dispatcher plus a set of
+       @overload-decorated implementations, one for each type of spaces.
+
+       When followed by an "empty" @dispatch-decorated function of the same
+       name, plum-dispatch changes the default behavior of the `@overload`
+       decorator, allowing the implementations inside the preceding
+       @overload-decorated functions. This is opposed to the standard behavior
+       when @overload-decorated functions can only provide type signature,
+       while the general implementation should be contained in the function
+       of the same name without an `@overload` decorator.
+
+       The trick is taken from https://beartype.github.io/plum/integration.html.
+
+    .. note::
+       For dispatching to work, the empty @dispatch-decorated function should
+       follow (not precede) the @overload-decorated implementations in the code.
+    """
+    raise NotImplementedError(
+        "default_num is not implemented for the space of type %s." % str(type(space))
+    )
 
 
 class MaternGeometricKernel:
@@ -163,8 +249,8 @@ class MaternGeometricKernel:
     This class represents a Matérn geometric kernel that "just works". Unless
     you really know what you are doing, you should always use this kernel class.
 
-    Upon creation, this class unpacks into a specific geometric kernel based on
-    the provided space, and, optionally, the associated (approximate) feature map.
+    Upon creation, unpacks into a specific geometric kernel based on the
+    provided space, and, optionally, the associated (approximate) feature map.
     """
 
     _DEFAULT_NUM_EIGENFUNCTIONS = 1000
@@ -184,33 +270,54 @@ class MaternGeometricKernel:
         Construct a kernel and (if `return_feature_map` is `True`) a
         feature map on `space`.
 
-        :param space: space to construct the kernel on.
+        .. note::
+           See :doc:`this page </theory/feature_maps>` for a brief
+           introduction into feature maps.
+
+        :param space:
+            Space to construct the kernel on.
         :param num:
             If provided, controls the "order of approximation" of the kernel.
             For the discrete spectrum spaces, this means the number of "levels"
             that go into the truncated series that defines the kernel (for
-            example, these are unique eigenvalues for the `Hypersphere` or
-            eigenvalues with repetitions for the `Graph` or for the `Mesh`).
-            For the noncompact symmetric spaces, this is the number of random
-            phases to construct the kernel.
+            example, these are unique eigenvalues for the
+            :class:`~.spaces.Hypersphere` or eigenvalues with repetitions for
+            the :class:`~.spaces.Graph` or for the :class:`~.spaces.Mesh`).
+            For the non-compact symmetric spaces
+            (:class:`~.spaces.NoncompactSymmetricSpace`), this is the number
+            of random phases used to construct the kernel.
 
-            The default is space-dependent.
+            If num=None, we use a (hopefully) reasonable default, which is
+            space-dependent.
         :param normalize:
-            Normalize kernel variance. The exact normalization technique
-            varies from space to space.
+            Normalize the kernel (and the feature map). If normalize=True,
+            then either $k(x, x) = 1$ for all $x \in X$, where $X$ is the
+            `space`, or $\int_X k(x, x) d x = 1$, depending on the space.
 
             Defaults to True.
+
+            .. note::
+                For many kernel methods, $k(\cdot, \cdot)$ and
+                $a k(\cdot, \cdot)$ are indistinguishable, whatever the
+                positive constant $a$ is. For these, it makes sense to use
+                normalize=False to save up some computational overhead. For
+                others, like for the Gaussian process regression, the
+                normalization of the kernel might be important. In
+                these cases, you will typically want to set normalize=True.
+
         :param return_feature_map:
             If `True`, return a feature map (needed e.g. for efficient sampling
             from Gaussian processes) along with the kernel.
 
             Default is False.
         :param ``**kwargs``:
-            Any additional keyword arguments to be passed to the kernel (like `key`).
+            Any additional keyword arguments to be passed to the kernel
+            (like `key`).
 
         .. note::
-           For non-compact symmetric spaces (Hyperbolic, SPD) the `key`
-           **must** be provided in kwargs.
+           For non-compact symmetric spaces, like :class:`~.spaces.Hyperbolic`
+           or :class:`~.spaces.SymmetricPositiveDefiniteMatrices`, the `key`
+           **must** be provided in ``**kwargs``.
         """
 
         kernel: BaseGeometricKernel

@@ -16,8 +16,9 @@ from geometric_kernels.spaces.so import SpecialOrthogonal
 
 
 class _SOxSO:
-    """Helper class for sampling. Represents SO(n) x SO(m), as described by
-    :math:`(n+m) \times (n+m)` block-diagonal matrices.
+    """
+    Helper class for sampling. Represents SO(n) x SO(m), as described by
+    (n+m) x (n+m) block-diagonal matrices.
     """
 
     def __init__(self, n: int, m: int):
@@ -27,13 +28,12 @@ class _SOxSO:
         self.dim = self.so_n.dim + self.so_m.dim
 
     def random(self, key, number):
-        """Randomly samples `number` matrices of size
-        :math:`(n+m)\times(n+m)`.
+        """
+        Randomly samples `number` matrices of size (n+m) x (n+m).
 
-        Each sample has a form of `[[H_n, 0], [0, H_m]]`.
-        The upper left block is uniformly
-        sampled over :math:`SO(n)`, and the lower right block is
-        uniformly sampled over :math:`SO(m)`.
+        Each sample has a form of `[[H_n, 0], [0, H_m]]`. The upper left block
+        is uniformly sampled over SO(n), and the lower right block is
+        uniformly sampled over SO(m).
         """
         key, h_u = self.so_n.random(key, number)  # [number, n, n]
         key, h_d = self.so_m.random(key, number)  # [number, m, m]
@@ -49,11 +49,15 @@ class _SOxSO:
 class GrassmannianEigenfunctions(AveragingAdditionTheorem):
     def _compute_projected_character_value_at_e(self, signature) -> int:
         """
-        Value of character on class of identity element is equal to the dimension of invariant space.
-        In case of the Grassmannian this value always equal to 1, since the space is symmetric.
+        Value of character on class of identity element is equal to the
+        dimension of invariant space. In case of the Grassmannian this value
+        always equal to 1, since the space is symmetric.
 
-        :param signature: the signature of a representation.
-        :return: value at e, the identity element.
+        :param signature:
+            The signature of a representation.
+
+        :return:
+            Value at e, the identity element.
         """
 
         return 1
@@ -61,24 +65,38 @@ class GrassmannianEigenfunctions(AveragingAdditionTheorem):
 
 class Grassmannian(CompactHomogeneousSpace):
     r"""
-    The GeometricKernels space representing the Grassmannian manifold
-    :math:`Gr(n, m)` as the homogeneous space
-    :math:`O(n) / (O(m) \times O(n-m))` which also happens to be a symmetric
-    space.
+    The GeometricKernels space representing the Grassmannian manifold Gr(n, m)
+    as the homogeneous space O(n) / (O(m) x O(n-m)) which also happens
+    to be a symmetric space.
 
-    The elements of this space are represented as :math:`n \times m` matrices
+    The elements of this space are represented as n x m matrices
     with orthogonal columns, just like the elements of the :class:`Stiefel`
     space. However, for this space, this representation is not unique: two such
     matrices can represent the same element of the Grassmannian manifold.
+
+    .. note::
+        A tutorial on how to use this space is available in the
+        :doc:`Grassmannian.ipynb </examples/Grassmannian>` notebook.
+
+    .. admonition:: Citation
+
+        If you use this GeometricKernels space in your research, please consider
+        citing :cite:t:`azangulov2022`.
     """
 
     def __new__(cls, n, m, key, average_order=100):
         """
-        :param n: the number of rows.
-        :param m: the number of columns.
-        :param key: random state used to sample from the stabilizer.
-        :param average_order: the number of random samples from the stabilizer.
-        :return: a tuple (new random state, a realization of `Gr(m, n)`).
+        :param n:
+            The number of rows.
+        :param m:
+            The number of columns.
+        :param key:
+            Random state used to sample from the stabilizer.
+        :param average_order:
+            The number of random samples from the stabilizer.
+
+        :return:
+            A tuple (new random state, a realization of Gr(m, n)).
         """
 
         assert n > m, "n should be greater than m"
@@ -96,18 +114,25 @@ class Grassmannian(CompactHomogeneousSpace):
         """
         Take first m columns of an orthogonal matrix.
 
-        :param g: [..., n, n] array of points in SO(n)
-        :return: [..., n, m] array of points in V(n, m)
+        :param g:
+            [..., n, n] array of points in SO(n).
+
+        :return:
+            [..., n, m] array of points in V(n, m).
         """
 
         return g[..., : self.m]
 
     def embed_manifold(self, x):
         """
-        Complete [n, m] matrix with orthogonal columns to an orthogonal [n, n] one using QR algorithm.
+        Complete [n, m] matrix with orthogonal columns to an orthogonal
+        [n, n] one using QR algorithm.
 
-        :param x: [..., n, m] array of points in Gr(n, m)
-        :return g: [..., n, n] array of points in SO(n)
+        :param x:
+            [..., n, m] array of points in Gr(n, m).
+
+        :return g:
+            [..., n, n] array of points in SO(n).
         """
 
         g, r = qr(x, mode="complete")
@@ -129,8 +154,11 @@ class Grassmannian(CompactHomogeneousSpace):
         Embed SO(m) x SO(n-m) matrix into SO(n),
         In case of the Grassmannian, this is an identity mapping.
 
-        :param h: [..., n, n] array of points in SO(m) x SO(n-m)
-        :return: [..., n, n] array of points in SO(n)
+        :param h:
+            [..., n, n] array of points in SO(m) x SO(n-m).
+
+        :return:
+            [..., n, n] array of points in SO(n).
         """
         return h
 
@@ -148,4 +176,8 @@ class Grassmannian(CompactHomogeneousSpace):
 
     @property
     def element_shape(self):
+        """
+        :return:
+            [n, m].
+        """
         return [self.n, self.m]

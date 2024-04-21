@@ -1,5 +1,9 @@
-sphinx
+vsphinx
 sphinx-autoapi
 furo
 pygments>=2.13.0,<3.0
 sphinx-math-dollar
+nbsphinx
+nbsphinx_link
+pypandoc
+sphinxcontrib.bibtex

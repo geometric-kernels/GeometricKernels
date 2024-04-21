@@ -23,6 +23,9 @@ jobs:
       run: |
         make install
         pip install -r docs/requirements.txt
+    - name: Doctests
+      run: |
+        make doctest
     - name: Build documentation
       run: |
         make docs

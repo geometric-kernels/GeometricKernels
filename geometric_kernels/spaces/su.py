@@ -1,6 +1,6 @@
 """
-This module provides the :class:`SpecialUnitary` space and the representation
-of its spectrum, the :class:`SUEigenfunctions` class.
+This module provides the :class:`SpecialUnitary` space and the respective
+:class:`~.eigenfunctions.Eigenfunctions` subclass :class:`SUEigenfunctions`.
 """
 
 import itertools
@@ -11,6 +11,7 @@ from functools import reduce
 
 import lab as B
 import numpy as np
+from beartype.typing import List, Tuple
 from opt_einsum import contract as einsum
 
 from geometric_kernels.lab_extras import (
@@ -22,8 +23,8 @@ from geometric_kernels.lab_extras import (
 )
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 from geometric_kernels.spaces.lie_groups import (
+    CompactMatrixLieGroup,
     LieGroupCharacter,
-    MatrixLieGroup,
     WeylAdditionTheorem,
 )
 from geometric_kernels.utils.utils import chain, get_resource_file_path
@@ -32,14 +33,14 @@ from geometric_kernels.utils.utils import chain, get_resource_file_path
 class SUEigenfunctions(WeylAdditionTheorem):
     def __init__(self, n, num_levels, compute_characters=True):
         self.n = n
-        self.dim = n * (n - 1)
+        self.dim = n**2 - 1
         self.rank = n - 1
 
         self.rho = np.arange(self.n - 1, -self.n, -2) * 0.5
 
         super().__init__(n, num_levels, compute_characters)
 
-    def _generate_signatures(self, num_levels):
+    def _generate_signatures(self, num_levels: int) -> List[Tuple[int, ...]]:
         sign_vals_lim = 100 if self.n in (1, 2) else 30 if self.n == 3 else 10
         signatures = list(
             itertools.combinations_with_replacement(
@@ -53,7 +54,7 @@ class SUEigenfunctions(WeylAdditionTheorem):
         signatures = [signatures[i] for i in min_ind]
         return signatures
 
-    def _compute_dimension(self, signature):
+    def _compute_dimension(self, signature: Tuple[int, ...]) -> int:
         rep_dim = reduce(
             operator.mul,
             (
@@ -70,26 +71,46 @@ class SUEigenfunctions(WeylAdditionTheorem):
         )
         return int(round(rep_dim))
 
-    def _compute_eigenvalue(self, signature):
-        normalized_signature = signature - np.mean(signature)
+    def _compute_eigenvalue(self, signature: Tuple[int, ...]) -> B.Float:
+        normalized_signature = np.asarray(signature, dtype=np.float64) - np.mean(
+            signature
+        )
         lb_eigenvalue = (
             np.linalg.norm(self.rho + normalized_signature) ** 2
             - np.linalg.norm(self.rho) ** 2
         )
         return lb_eigenvalue
 
-    def _compute_character(self, n, signature):
+    def _compute_character(
+        self, n: int, signature: Tuple[int, ...]
+    ) -> LieGroupCharacter:
         return SUCharacter(n, signature)
 
     def _torus_representative(self, X):
         return B.eig(X, False)
 
     def inverse(self, X: B.Numeric) -> B.Numeric:
-        return B.transpose(X).conj()
+        return SpecialUnitary.inverse(X)
 
 
 class SUCharacter(LieGroupCharacter):
-    def __init__(self, n, signature):
+    """
+    The class that represents a character of the SU(n) group.
+
+    Many of the characters on SU(n) are complex-valued.
+
+    These are polynomials whose coefficients are precomputed and stored in a
+    file. By default, there are 20 precomputed characters for n from 2 to 6.
+    If you want more, use the `utils/compute_characters.py` script.
+
+    :param n:
+        The order n of the SO(n) group.
+    :param signature:
+        The signature that determines a particular character (and an
+        irreducible unitary representation along with it).
+    """
+
+    def __init__(self, n: int, signature: Tuple[int, ...]):
         self.signature = signature
         self.n = n
         self.coeffs, self.monoms = self._load()
@@ -112,55 +133,76 @@ class SUCharacter(LieGroupCharacter):
                         )
                     ) from None
 
-    def __call__(self, gammas):
+    def __call__(self, gammas: B.Numeric) -> B.Numeric:
         char_val = B.zeros(B.dtype(gammas), *gammas.shape[:-1])
         for coeff, monom in zip(self.coeffs, self.monoms):
             char_val += coeff * B.prod(gammas ** from_numpy(gammas, monom), axis=-1)
         return char_val
 
 
-class SpecialUnitary(MatrixLieGroup):
+class SpecialUnitary(CompactMatrixLieGroup):
     r"""
-    The GeometricKernels space representing the special unitary group
-    :math:`SU(n)` consisting of n by n complex unitary matrices with unit
-    determinant.
+    The GeometricKernels space representing the special unitary group SU(n)
+    consisting of n by n complex unitary matrices with unit determinant.
 
-    The elements of this space are represented as :math:`n \times n` unitary
+    The elements of this space are represented as n x n unitary
     matrices with complex entries and unit determinant.
 
-    Note: we only support n >= 2. Mathematically, SU(1) is trivial, consisting
-    of a single element (the identity), chances are you do not need it.
-    For large values of n, you might need to run the `compute_characters.py`
-    script to precompute the necessary mathematical quantities beyond the ones
-    provided by default.
+    .. note::
+        A tutorial on how to use this space is available in the
+        :doc:`SpecialUnitary.ipynb </examples/SpecialUnitary>` notebook.
+
+    :param n:
+        The order n of the group SU(n).
+
+    .. note::
+        We only support n >= 2. Mathematically, SU(1) is trivial, consisting
+        of a single element (the identity), chances are you do not need it.
+        For large values of n, you might need to run the `compute_characters.py`
+        script to precompute the necessary mathematical quantities beyond the
+        ones provided by default.
+
+    .. admonition:: Citation
+
+        If you use this GeometricKernels space in your research, please consider
+        citing :cite:t:`azangulov2022`.
     """
 
-    def __init__(self, n):
+    def __init__(self, n: int):
         if n < 2:
             raise ValueError(f"Only n >= 2 is supported. n = {n} was provided.")
         self.n = n
-        self.dim = n * (n - 1) // 2
+        self.dim = n**2 - 1
+        self.rank = n - 1
         super().__init__()
 
     @property
     def dimension(self) -> int:
+        """
+        The dimension of the space, as that of a Riemannian manifold.
+
+        :return:
+            floor(n^2-1) where n is the order of the group SU(n).
+        """
         return self.dim
 
-    def inverse(self, X: B.Numeric) -> B.Numeric:
-        return complex_conj(B.transpose(X))
+    @staticmethod
+    def inverse(X: B.Numeric) -> B.Numeric:
+        return complex_conj(
+            B.transpose(X)
+        )  # B.transpose only inverses the last two dims.
 
     def get_eigenfunctions(self, num: int) -> Eigenfunctions:
         """
-        :param num: number of eigenfunctions returned.
+        Returns the :class:`~.SUEigenfunctions` object with `num` levels
+        and order n.
+
+        :param num:
+            Number of levels.
         """
         return SUEigenfunctions(self.n, num)
 
     def get_eigenvalues(self, num: int) -> B.Numeric:
-        """
-        Eigenvalues of first 'num' levels of the Laplace-Beltrami operator.
-
-        :return: [num, 1] array containing the eigenvalues
-        """
         eigenfunctions = SUEigenfunctions(self.n, num)
         eigenvalues = np.array(
             [eigenvalue for eigenvalue in eigenfunctions._eigenvalues]
@@ -168,11 +210,6 @@ class SpecialUnitary(MatrixLieGroup):
         return B.reshape(eigenvalues, -1, 1)  # [num, 1]
 
     def get_repeated_eigenvalues(self, num: int) -> B.Numeric:
-        """Eigenvalues of first 'num' levels of the Laplace-Beltrami operator,
-        repeated according to their multiplicity.
-
-        :return: [M, 1] array containing the eigenvalues
-        """
         eigenfunctions = SUEigenfunctions(self.n, num)
         eigenvalues = chain(
             eigenfunctions._eigenvalues,
@@ -180,9 +217,9 @@ class SpecialUnitary(MatrixLieGroup):
         )
         return B.reshape(eigenvalues, -1, 1)  # [M, 1]
 
-    def random(self, key, number):
+    def random(self, key: B.RandomState, number: int):
         if self.n == 2:
-            # explicit parametrization via the double cover SU(2) = S^3
+            # explicit parametrization via the double cover SU(2) = S_3
             key, sphere_point = B.random.randn(key, dtype_double(key), number, 4)
             sphere_point /= B.reshape(
                 B.sqrt(einsum("ij,ij->i", sphere_point, sphere_point)), -1, 1
@@ -208,4 +245,8 @@ class SpecialUnitary(MatrixLieGroup):
 
     @property
     def element_shape(self):
+        """
+        :return:
+            [n, n].
+        """
         return [self.n, self.n]

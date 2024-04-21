@@ -1,12 +1,12 @@
-# Geometric Kernels
+# GeometricKernels
 
 [![Quality checks and Tests](https://github.com/GPflow/GeometricKernels/actions/workflows/quality-checks.yaml/badge.svg)](https://github.com/GPflow/GeometricKernels/actions/workflows/quality-checks.yaml)
 [![Documentation](https://github.com/GPflow/GeometricKernels/actions/workflows/docs.yaml/badge.svg)](https://gpflow.github.io/GeometricKernels/index.html)
 [![Landing Page](https://img.shields.io/badge/Landing_Page-informational)](https://geometric-kernels.github.io/)
 
-[![Geometric Kernels](https://geometric-kernels.github.io/assets/title-sm.png)](https://geometric-kernels.github.io/)
+[![GeometricKernels](https://geometric-kernels.github.io/assets/title-sm.png)](https://geometric-kernels.github.io/)
 
-Geometric Kernels is a library that implements kernels including the heat and Matérn class on non-Euclidean spaces as **Riemannian manifolds**, **graphs** and **meshes**.
+GeometricKernels is a library that implements kernels including the heat and Matérn class on non-Euclidean spaces as **Riemannian manifolds**, **graphs** and **meshes**.
 This enables kernel methods &mdash; in particular Gaussian process models &mdash; to be deployed on such spaces.
 
 ## Installation
@@ -30,18 +30,18 @@ This enables kernel methods &mdash; in particular Gaussian process models &mdash
 1. Install the library in the active environment by running
 
     ```bash
-    pip install "git+https://github.com/gpflow/geometrickernels.git"
+    pip install geometric_kernels
     ```
 
-    If you want to install specific branch called `[branch]`, run
+    If you want to install specific GitHub branch called `[branch]`, run
 
     ```bash
-    pip install "git+https://github.com/GPflow/GeometricKernels@[branch]#egg=GeometricKernels"
+    pip install "git+https://github.com/GPflow/GeometricKernels@[branch]"
     ```
 
 2. Install a backend of your choice
 
-    We use [LAB](https://github.com/wesselb/lab) to support multiple backends (e.g., TensorFlow, Jax, PyTorch). However, you are not required to install all of them on your system to use the Geometric Kernel package. Simply install the backend (and (optionally) a GP package) of your choice. For example,
+    We use [LAB](https://github.com/wesselb/lab) to support multiple backends (e.g., TensorFlow, Jax, PyTorch). However, you are not required to install all of them on your system to use the GeometricKernels package. Simply install the backend (and (optionally) a GP package) of your choice. For example,
 
     - [Tensorflow](https://www.tensorflow.org/)
 
@@ -79,6 +79,10 @@ This enables kernel methods &mdash; in particular Gaussian process models &mdash
         pip install gpjax
         ```
 
+        **Note**. Currently, only some versions of `gpjax` are supported (we tested `gpjax==0.6.9`).
+
+        Furthermore, installation might be far from trivial and result in a broken environment. This is due to our conflicting dependencies, see https://github.com/JaxGaussianProcesses/GPJax/issues/441.
+
 ## A basic example
 
 This example shows how to compute a 3x3 kernel matrix for the Matern52 kernel on the standard two-dimensional sphere. It relies on the numpy-based backend. Look up the information on how to use other backends in [the documentation](https://gpflow.github.io/GeometricKernels/index.html).
@@ -95,7 +99,7 @@ from geometric_kernels.kernels import MaternGeometricKernel
 # Create a manifold (2-dim sphere).
 hypersphere = Hypersphere(dim=2)
 
-# Generate 3 random points on the sphere.
+# Define 3 points on the sphere.
 xs = np.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
 
 # Initialize kernel.
@@ -140,3 +144,11 @@ Run the tests
 ```bash
 make test
 ```
+
+## Citation
+
+If you are using GeometricKernels, please consider citing the theoretical papers it is based on.
+
+You can find the relevant references for any space in
+- the docstring of the respective space class,
+- at the end of the respective tutorial notebook.

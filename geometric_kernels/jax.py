@@ -1,9 +1,9 @@
 """
-Load Jax backend in lab, spherical_harmonics and geometric_kernels using:
+Loads JAX backend in lab, spherical_harmonics and geometric_kernels.
 
-.. code-block::
-
-    import geometric_kernels.jax
+..note::
+    A tutorial on the JAX backend is available in the
+    :doc:`backends/JAX_Graph.ipynb </examples/backends/JAX_Graph>` notebook.
 """
 
 import logging

@@ -1,4 +1,4 @@
-"""Adds __version__"""
+"""Adds `__version__`."""
 
 import importlib.metadata
 
