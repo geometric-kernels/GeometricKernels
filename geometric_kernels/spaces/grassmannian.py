@@ -78,8 +78,10 @@ class Grassmannian(CompactHomogeneousSpace):
         A tutorial on how to use this space is available in the
         :doc:`Grassmannian.ipynb </examples/Grassmannian>` notebook.
 
-    If you use this GeometricKernels space in your research, please consider
-    citing :cite:t:`azangulov2022`.
+    .. admonition:: Citation
+
+        If you use this GeometricKernels space in your research, please consider
+        citing :cite:t:`azangulov2022`.
     """
 
     def __new__(cls, n, m, key, average_order=100):
@@ -174,4 +176,8 @@ class Grassmannian(CompactHomogeneousSpace):
 
     @property
     def element_shape(self):
+        """
+        :return:
+            [n, m].
+        """
         return [self.n, self.m]

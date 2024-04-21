@@ -50,8 +50,10 @@ class Graph(DiscreteSpectrumSpace):
 
         Defaults to False.
 
-    If you use this GeometricKernels space in your research, please consider
-    citing :cite:t:`borovitskiy2021`.
+    .. admonition:: Citation
+
+        If you use this GeometricKernels space in your research, please consider
+        citing :cite:t:`borovitskiy2021`.
     """
 
     def __init__(self, adjacency_matrix: B.Numeric, normalize_laplacian: bool = False):  # type: ignore
@@ -177,4 +179,8 @@ class Graph(DiscreteSpectrumSpace):
 
     @property
     def element_shape(self):
+        """
+        :return:
+            [1].
+        """
         return [1]

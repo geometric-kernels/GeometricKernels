@@ -162,8 +162,10 @@ class SpecialUnitary(CompactMatrixLieGroup):
         script to precompute the necessary mathematical quantities beyond the
         ones provided by default.
 
-    If you use this GeometricKernels space in your research, please consider
-    citing :cite:t:`azangulov2022`.
+    .. admonition:: Citation
+
+        If you use this GeometricKernels space in your research, please consider
+        citing :cite:t:`azangulov2022`.
     """
 
     def __init__(self, n: int):
@@ -243,4 +245,8 @@ class SpecialUnitary(CompactMatrixLieGroup):
 
     @property
     def element_shape(self):
+        """
+        :return:
+            [n, n].
+        """
         return [self.n, self.n]

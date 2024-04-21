@@ -52,8 +52,10 @@ class Mesh(DiscreteSpectrumSpace):
             Only 3 vertex indices per face are supported, i.e. mesh must be
             triangulated.
 
-    If you use this GeometricKernels space in your research, please consider
-    citing :cite:t:`borovitskiy2020`.
+    .. admonition:: Citation
+
+        If you use this GeometricKernels space in your research, please consider
+        citing :cite:t:`borovitskiy2020`.
     """
 
     def __init__(self, vertices: np.ndarray, faces: np.ndarray):
@@ -207,4 +209,8 @@ class Mesh(DiscreteSpectrumSpace):
 
     @property
     def element_shape(self):
+        """
+        :return:
+            [1].
+        """
         return [1]

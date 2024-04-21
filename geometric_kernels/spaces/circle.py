@@ -137,8 +137,10 @@ class Circle(DiscreteSpectrumSpace):
         The :doc:`example notebook on the torus </examples/Torus>` involves
         this space.
 
-    If you use this GeometricKernels space in your research, please consider
-    citing :cite:t:`borovitskiy2020`.
+    .. admonition:: Citation
+
+        If you use this GeometricKernels space in your research, please consider
+        citing :cite:t:`borovitskiy2020`.
     """
 
     @property
@@ -178,4 +180,8 @@ class Circle(DiscreteSpectrumSpace):
 
     @property
     def element_shape(self):
+        """
+        :return:
+            [1].
+        """
         return [1]

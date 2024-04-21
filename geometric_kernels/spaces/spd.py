@@ -45,8 +45,10 @@ class SymmetricPositiveDefiniteMatrices(
         subgroup $H$ is the special orthogonal group $SO(n)$. See the
         mathematical details in :cite:t:`azangulov2023`.
 
-    If you use this GeometricKernels space in your research, please consider
-    citing :cite:t:`azangulov2023`.
+    .. admonition:: Citation
+
+        If you use this GeometricKernels space in your research, please consider
+        citing :cite:t:`azangulov2023`.
     """
 
     def __init__(self, n):
@@ -132,4 +134,8 @@ class SymmetricPositiveDefiniteMatrices(
 
     @property
     def element_shape(self):
+        """
+        :return:
+            [n, n].
+        """
         return [self.n, self.n]

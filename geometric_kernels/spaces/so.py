@@ -232,8 +232,10 @@ class SpecialOrthogonal(CompactMatrixLieGroup):
         mathematical quantities beyond the ones provided by default. Same
         can be required for larger numbers of levels.
 
-    If you use this GeometricKernels space in your research, please consider
-    citing :cite:t:`azangulov2022`.
+    .. admonition:: Citation
+
+        If you use this GeometricKernels space in your research, please consider
+        citing :cite:t:`azangulov2022`.
     """
 
     def __init__(self, n: int):
@@ -323,4 +325,8 @@ class SpecialOrthogonal(CompactMatrixLieGroup):
 
     @property
     def element_shape(self):
+        """
+        :return:
+            [n, n].
+        """
         return [self.n, self.n]

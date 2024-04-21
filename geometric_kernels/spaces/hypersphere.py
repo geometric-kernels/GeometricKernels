@@ -142,8 +142,10 @@ class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
         Dimension of the hypersphere $\mathbb{S}_d$.
         Should satisfy dim >= 2. For dim = 1, use :class:`~.spaces.Circle`.
 
-    If you use this GeometricKernels space in your research, please consider
-    citing :cite:t:`borovitskiy2020`.
+    .. admonition:: Citation
+
+        If you use this GeometricKernels space in your research, please consider
+        citing :cite:t:`borovitskiy2020`.
     """
 
     def __init__(self, dim: int):
@@ -155,7 +157,7 @@ class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
     @property
     def dimension(self) -> int:
         """
-        Returns the `dim` parameter that was passed down to `__init__`.
+        Returns d, the `dim` parameter that was passed down to `__init__`.
         """
         return self.dim
 
@@ -246,12 +248,16 @@ class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
         """
         key, random_points = B.random.randn(
             key, dtype_double(key), number, self.dimension + 1
-        )  # (N, D+1)
+        )  # (N, d+1)
         random_points /= B.sqrt(
             B.sum(random_points**2, axis=1, squeeze=False)
-        )  # (N, D+1)
+        )  # (N, d+1)
         return key, random_points
 
     @property
     def element_shape(self):
+        """
+        :return:
+            [d+1].
+        """
         return [self.dimension + 1]

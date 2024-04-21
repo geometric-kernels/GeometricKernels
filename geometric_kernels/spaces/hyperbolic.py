@@ -45,8 +45,10 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
         isotropy subgroup $H$ is the special orthogonal group $SO(n)$. See the
         mathematical details in :cite:t:`azangulov2023`.
 
-    If you use this GeometricKernels space in your research, please consider
-    citing :cite:t:`azangulov2023`.
+    .. admonition:: Citation
+
+        If you use this GeometricKernels space in your research, please consider
+        citing :cite:t:`azangulov2023`.
     """
 
     def __init__(self, dim=2):
@@ -55,7 +57,7 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
     @property
     def dimension(self) -> int:
         """
-        Returns the `dim` parameter that was passed down to `__init__`.
+        Returns n, the `dim` parameter that was passed down to `__init__`.
         """
         return self.dim
 
@@ -69,9 +71,9 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
         `geomstats.geometry.hyperboloid.HyperbolicMetric` for `lab`.
 
         :param x1:
-            An [N, dim+1]-shaped array of points in the hyperbolic space.
+            An [N, n+1]-shaped array of points in the hyperbolic space.
         :param x2:
-            An [M, dim+1]-shaped array of points in the hyperbolic space.
+            An [M, n+1]-shaped array of points in the hyperbolic space.
         :param diag:
             If True, compute elementwise distance. Requires N = M.
 
@@ -92,10 +94,10 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
                 x2 = B.expand_dims(x2)
 
             # compute pairwise distance between arrays of points `x1` and `x2`
-            # `x1` (N, dim+1)
-            # `x2` (M, dim+1)
-            x1_ = B.tile(x1[..., None, :], 1, x2.shape[0], 1)  # (N, M, dim+1)
-            x2_ = B.tile(x2[None], x1.shape[0], 1, 1)  # (N, M, dim+1)
+            # `x1` (N, n+1)
+            # `x2` (M, n+1)
+            x1_ = B.tile(x1[..., None, :], 1, x2.shape[0], 1)  # (N, M, n+1)
+            x2_ = B.tile(x2[None], x1.shape[0], 1, 1)  # (N, M, n+1)
 
         sq_norm_1 = self.inner_product(x1_, x1_)
         sq_norm_2 = self.inner_product(x2_, x2_)
@@ -121,16 +123,16 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
         .. math:: \langle a, b \rangle = a_0 b_0 - a_1 b_1 - \ldots - a_n b_n.
 
         :param vector_a:
-            An [..., dim+1]-shaped array of points in the hyperbolic space.
+            An [..., n+1]-shaped array of points in the hyperbolic space.
         :param vector_b:
-            An [..., dim+1]-shaped array of points in the hyperbolic space.
+            An [..., n+1]-shaped array of points in the hyperbolic space.
 
         :return:
             An [...,]-shaped array of inner products.
         """
         q = self.dimension
         p = 1
-        diagonal = from_numpy(vector_a, [-1.0] * p + [1.0] * q)  # (dim+1)
+        diagonal = from_numpy(vector_a, [-1.0] * p + [1.0] * q)  # (n+1)
         diagonal = B.cast(B.dtype(vector_a), diagonal)
         return einsum("...i,...i->...", diagonal * vector_a, vector_b)
 
@@ -156,7 +158,7 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
 
     def power_function(self, lam: B.Numeric, g: B.Numeric, h: B.Numeric) -> B.Numeric:
         lam = B.squeeze(lam, -1)
-        g_poincare = self.convert_to_ball(g)  # [..., D]
+        g_poincare = self.convert_to_ball(g)  # [..., n]
         gh_norm = B.sum(B.power(g_poincare - h, 2), axis=-1)  # [N1, ..., Nk]
         denominator = B.log(gh_norm)
         numerator = B.log(1.0 - B.sum(g_poincare**2, axis=-1))
@@ -173,12 +175,12 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
         This corresponds to a stereographic projection onto the ball.
 
         :param:
-            An [..., dim+1]-shaped array of points on the hyperboloid.
+            An [..., n+1]-shaped array of points on the hyperboloid.
 
         :return:
-            An [..., dim]-shaped array of points in the Poincare ball.
+            An [..., n]-shaped array of points in the Poincare ball.
         """
-        # point [N1, ..., Nk, D]
+        # point [N1, ..., Nk, n]
         return point[..., 1:] / (1 + point[..., :1])
 
     @property
@@ -221,4 +223,8 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
         return key, B.cast(dtype_double(key), self.random_point(number))
 
     def element_shape(self):
+        """
+        :return:
+            [n+1].
+        """
         return [self.dimension + 1]
