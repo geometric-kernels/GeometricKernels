@@ -111,6 +111,15 @@ def dtype_integer(reference: B.TFRandomState):  # type: ignore
 
 
 @dispatch
+def int_like(reference: B.TFNumeric):
+    reference_dtype = reference.dtype
+    if reference_dtype.is_integer:
+        return reference_dtype
+    else:
+        return tf.int32
+
+
+@dispatch
 def get_random_state(key: B.TFRandomState):
     """
     Return the random state of a random generator.

@@ -86,7 +86,16 @@ def dtype_integer(reference: B.NPRandomState):  # type: ignore
     """
     Return `int` dtype of a backend based on the reference.
     """
-    return np.int64
+    return np.int32
+
+
+@dispatch
+def int_like(reference: B.NPNumeric):
+    reference_dtype = reference.dtype
+    if np.issubdtype(reference_dtype, np.integer):
+        return reference_dtype
+    else:
+        return np.int32
 
 
 @dispatch

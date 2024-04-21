@@ -89,7 +89,7 @@ def float_like(reference: B.JAXNumeric):
     """
     reference_dtype = reference.dtype
     if jnp.issubdtype(reference_dtype, jnp.floating):
-        return B.dtype(reference)
+        return reference_dtype
     else:
         return jnp.float64
 
@@ -100,6 +100,15 @@ def dtype_integer(reference: B.JAXRandomState):  # type: ignore
     Return `int` dtype of a backend based on the reference.
     """
     return jnp.int32
+
+
+@dispatch
+def int_like(reference: B.JAXNumeric):
+    reference_dtype = reference.dtype
+    if jnp.issubdtype(reference_dtype, jnp.integer):
+        return reference_dtype
+    else:
+        return jnp.int32
 
 
 @dispatch

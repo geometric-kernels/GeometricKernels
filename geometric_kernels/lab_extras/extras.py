@@ -170,6 +170,18 @@ def dtype_integer(reference: B.RandomState):
 
 @dispatch
 @abstract()
+def int_like(reference: B.Numeric):
+    """
+    Return the type of the reference if it is integer type.
+    Otherwise return `int32` dtype of a backend based on the reference.
+
+    :param reference:
+        Array of any backend.
+    """
+
+
+@dispatch
+@abstract()
 def get_random_state(key: B.RandomState):
     """
     Return the random state of a random generator.

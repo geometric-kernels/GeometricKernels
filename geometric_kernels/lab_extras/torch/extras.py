@@ -118,6 +118,15 @@ def dtype_integer(reference: B.TorchRandomState):  # type: ignore
 
 
 @dispatch
+def int_like(reference: B.TorchNumeric):
+    reference_dtype = reference.dtype
+    if reference_dtype in [torch.int8, torch.int16, torch.int32, torch.int64]:
+        return reference_dtype
+    else:
+        return torch.int32
+
+
+@dispatch
 def get_random_state(key: B.TorchRandomState):
     """
     Return the random state of a random generator.
