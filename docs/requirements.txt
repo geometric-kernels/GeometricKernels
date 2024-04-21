@@ -1,4 +1,4 @@
-vsphinx
+sphinx
 sphinx-autoapi
 furo
 pygments>=2.13.0,<3.0
