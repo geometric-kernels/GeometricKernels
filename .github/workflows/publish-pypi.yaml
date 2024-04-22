@@ -1,0 +1,27 @@
+name: Publish-PyPI
+
+on:
+  push:
+    tags: v[0-9]+.[0-9]+.[0-9]+*
+
+jobs:
+  upload-pypi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Install flit
+        run: |
+          pip install flit
+      - name: Create pip package
+        run: |
+          flit build
+      - name: Publish to PyPI
+        run: |
+          flit publish
+        env:
+          FLIT_INDEX_URL: ${{ secrets.PYPI_INDEX_URL }}
+          FLIT_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+          FLIT_USERNAME: __token__
