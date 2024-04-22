@@ -145,6 +145,12 @@ Run the tests
 make test
 ```
 
+## If you have a question
+
+Post it in issues using the `"How do I do ..." and other issues` template and the "question" label.
+
+This [link](https://github.com/GPflow/GeometricKernels/issues/new?assignees=&labels=question&projects=&template=other-issue.md) chooses the right template and label for you.
+
 ## Citation
 
 If you are using GeometricKernels, please consider citing the theoretical papers it is based on.
