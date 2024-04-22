@@ -114,7 +114,7 @@ html_js_files = [
 # Theme-specific options. See theme docs for more info
 html_context = {
   'display_github': True,
-  'github_user': 'GPflow',
+  'github_user': 'geometric-kernels',
   'github_repo': 'GeometricKernels',
   'github_version': 'main/docs/'
 }

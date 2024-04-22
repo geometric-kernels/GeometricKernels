@@ -12,19 +12,19 @@ Here is the list of original contributors to the project (in alphabetical order)
 
 ### Reporting a bug
 
-Finding and fixing bugs helps us provide robust functionality to all users. You can either submit a bug report or, if you know how to fix the bug yourself, you can submit a bug fix. We gladly welcome either, but a fix is likely to be released sooner, simply because others may not have time to quickly implement a fix themselves. If you're interested in implementing it, but would like help in doing so, you can send [the maintainers](#who-are-we) an email or open an [issue](https://github.com/GPflow/GeometricKernels/issues/new).
+Finding and fixing bugs helps us provide robust functionality to all users. You can either submit a bug report or, if you know how to fix the bug yourself, you can submit a bug fix. We gladly welcome either, but a fix is likely to be released sooner, simply because others may not have time to quickly implement a fix themselves. If you're interested in implementing it, but would like help in doing so, you can send [the maintainers](#who-are-we) an email or open an [issue](https://github.com/geometric-kernels/GeometricKernels/issues/new).
 
-We use GitHub issues for bug reports. You can use the [issue template](https://github.com/GPflow/GeometricKernels/issues/new) to start writing yours. Once you've submitted it, the maintainers will take a look as soon as possible, ideally within the week, and get back to you about how to proceed. If it's a small easy fix, they may implement it then and there. For fixes that are more involved, they will discuss with you about how urgent the fix is, with the aim of providing some timeline of when you can expect to see it.
+We use GitHub issues for bug reports. You can use the [issue template](https://github.com/geometric-kernels/GeometricKernels/issues/new) to start writing yours. Once you've submitted it, the maintainers will take a look as soon as possible, ideally within the week, and get back to you about how to proceed. If it's a small easy fix, they may implement it then and there. For fixes that are more involved, they will discuss with you about how urgent the fix is, with the aim of providing some timeline of when you can expect to see it.
 
-If you'd like to submit a bug fix, [open a pull request](https://github.com/GPflow/GeometricKernels/compare). We recommend you discuss your changes with the community before you begin working on them (e.g. via issues), so that questions and suggestions can be made early on.
+If you'd like to submit a bug fix, [open a pull request](https://github.com/geometric-kernels/GeometricKernels/compare). We recommend you discuss your changes with the community before you begin working on them (e.g. via issues), so that questions and suggestions can be made early on.
 
 ### Requesting a feature
 
 GeometricKernels is built on features added and improved by the community. You can submit a feature request either as an issue or, if you can implement the change yourself, as a pull request. We gladly welcome either, but a pull request is likely to be released sooner, simply because others may not have time to quickly implement it themselves.
 
-We use GitHub issues for feature requests. You can use the [issue template](https://github.com/GPflow/GeometricKernels/issues/new) to start writing yours. Once you've submitted it, the maintainers will take a look as soon as possible, ideally within the week, and get back to you about how to proceed. If it's a small easy feature that is backwards compatible, they may implement it then and there. For features that are more involved, they will discuss with you about a timeline for implementing it. Features that are not backwards compatible are likely to take longer to reach a release. It may become apparent during discussions that a feature doesn't lie within the scope of GeometricKernels, in which case we will discuss alternative options with you, such as adding it as a notebook or an external extension to GeometricKernels.
+We use GitHub issues for feature requests. You can use the [issue template](https://github.com/geometric-kernels/GeometricKernels/issues/new) to start writing yours. Once you've submitted it, the maintainers will take a look as soon as possible, ideally within the week, and get back to you about how to proceed. If it's a small easy feature that is backwards compatible, they may implement it then and there. For features that are more involved, they will discuss with you about a timeline for implementing it. Features that are not backwards compatible are likely to take longer to reach a release. It may become apparent during discussions that a feature doesn't lie within the scope of GeometricKernels, in which case we will discuss alternative options with you, such as adding it as a notebook or an external extension to GeometricKernels.
 
-If you'd like to submit a pull request, [open a pull request](https://github.com/GPflow/GeometricKernels/compare). We recommend you discuss your changes with the community before you begin working on them (e.g. via issues), so that questions and suggestions can be made early on.
+If you'd like to submit a pull request, [open a pull request](https://github.com/geometric-kernels/GeometricKernels/compare). We recommend you discuss your changes with the community before you begin working on them (e.g. via issues), so that questions and suggestions can be made early on.
 
 ### Pull request guidelines
 
@@ -71,7 +71,7 @@ $ make test
 
 #### Continuous integration
 
-[GitHub actions](https://github.com/GPflow/GeometricKernels/blob/main/.github/workflows/quality-checks.yaml) will automatically run the quality checks against pull requests to the develop branch. The GitHub repository is set up such that these need to pass in order to merge.
+[GitHub actions](https://github.com/geometric-kernels/GeometricKernels/blob/main/.github/workflows/quality-checks.yaml) will automatically run the quality checks against pull requests to the develop branch. The GitHub repository is set up such that these need to pass in order to merge.
 
 
 # License
