@@ -79,7 +79,7 @@ To install GeometricKernels, run
 
   ..  code-block:: bash
 
-      pip install "git+https://github.com/GPflow/GeometricKernels@[branch]"
+      pip install "git+https://github.com/geometric-kernels/GeometricKernels@[branch]"
 
 The kernels are compatible with several backends, namely
 
@@ -420,5 +420,5 @@ You can find the relevant references for any space in
    Theory <theory/index>
    API reference <autoapi/geometric_kernels/index>
    Bibliography <bibliography>
-   GitHub <https://github.com/GPflow/GeometricKernels>
+   GitHub <https://github.com/geometric-kernels/GeometricKernels>
 

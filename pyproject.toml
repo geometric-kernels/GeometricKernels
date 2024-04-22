@@ -38,7 +38,7 @@ version="0.2"
 
 [project.urls]
 Documentation = "https://geometric-kernels.github.io/"
-Source = "https://github.com/GPflow/GeometricKernels"
+Source = "https://github.com/geometric-kernels/GeometricKernels"
 
 [tool.isort]
 profile = "black"

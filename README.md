@@ -1,7 +1,7 @@
 # GeometricKernels
 
-[![Quality checks and Tests](https://github.com/GPflow/GeometricKernels/actions/workflows/quality-checks.yaml/badge.svg)](https://github.com/GPflow/GeometricKernels/actions/workflows/quality-checks.yaml)
-[![Documentation](https://github.com/GPflow/GeometricKernels/actions/workflows/docs.yaml/badge.svg)](https://gpflow.github.io/GeometricKernels/index.html)
+[![Quality checks and Tests](https://github.com/geometric-kernels/GeometricKernels/actions/workflows/quality-checks.yaml/badge.svg)](https://github.com/geometric-kernels/GeometricKernels/actions/workflows/quality-checks.yaml)
+[![Documentation](https://github.com/geometric-kernels/GeometricKernels/actions/workflows/docs.yaml/badge.svg)](https://geometric-kernels.github.io/GeometricKernels/index.html)
 [![Landing Page](https://img.shields.io/badge/Landing_Page-informational)](https://geometric-kernels.github.io/)
 
 [![GeometricKernels](https://geometric-kernels.github.io/assets/title-sm.png)](https://geometric-kernels.github.io/)
@@ -36,7 +36,7 @@ This enables kernel methods &mdash; in particular Gaussian process models &mdash
     If you want to install specific GitHub branch called `[branch]`, run
 
     ```bash
-    pip install "git+https://github.com/GPflow/GeometricKernels@[branch]"
+    pip install "git+https://github.com/geometric-kernels/GeometricKernels@[branch]"
     ```
 
 2. Install a backend of your choice
@@ -85,7 +85,7 @@ This enables kernel methods &mdash; in particular Gaussian process models &mdash
 
 ## A basic example
 
-This example shows how to compute a 3x3 kernel matrix for the Matern52 kernel on the standard two-dimensional sphere. It relies on the numpy-based backend. Look up the information on how to use other backends in [the documentation](https://gpflow.github.io/GeometricKernels/index.html).
+This example shows how to compute a 3x3 kernel matrix for the Matern52 kernel on the standard two-dimensional sphere. It relies on the numpy-based backend. Look up the information on how to use other backends in [the documentation](https://geometric-kernels.github.io/GeometricKernels/index.html).
 
 ```python
 # Import a backend.
@@ -122,7 +122,7 @@ This should output
 
 ## Documentation
 
-The documentation for GeometricKernels is available on a [separate website](https://gpflow.github.io/GeometricKernels/index.html).
+The documentation for GeometricKernels is available on a [separate website](https://geometric-kernels.github.io/GeometricKernels/index.html).
 
 ## For development and running the tests
 
@@ -149,7 +149,7 @@ make test
 
 Post it in issues using the `"How do I do ..." and other issues` template and the "question" label.
 
-This [link](https://github.com/GPflow/GeometricKernels/issues/new?assignees=&labels=question&projects=&template=other-issue.md) chooses the right template and label for you.
+This [link](https://github.com/geometric-kernels/GeometricKernels/issues/new?assignees=&labels=question&projects=&template=other-issue.md) chooses the right template and label for you.
 
 ## Citation
 
