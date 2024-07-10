@@ -198,7 +198,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
 
         weights = B.cast(B.dtype(params["nu"]), self.eigenvalues(params))  # [L, 1]
         Phi = self.eigenfunctions
-        K = Phi.weighted_outerproduct(weights, X, X2, **params)  # [N, N2]
+        K = Phi.weighted_outerproduct(weights, X, X2, **kwargs)  # [N, N2]
         if is_complex(K):
             return B.real(K)
         else:
@@ -210,9 +210,9 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         assert "nu" in params
         assert params["nu"].shape == (1,)
 
-        weights = self.eigenvalues(params)  # [L, 1]
+        weights = B.cast(B.dtype(params["nu"]), self.eigenvalues(params))  # [L, 1]
         Phi = self.eigenfunctions
-        K_diag = Phi.weighted_outerproduct_diag(weights, X, **params)  # [N,]
+        K_diag = Phi.weighted_outerproduct_diag(weights, X, **kwargs)  # [N,]
         if is_complex(K_diag):
             return B.real(K_diag)
         else:
