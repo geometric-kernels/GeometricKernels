@@ -220,7 +220,7 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> # Import the geometric_kernels backend.
    >>> import geometric_kernels
    >>> # Import a space and an appropriate kernel.
-   >>> from geometric_kernels.spaces.hypersphere import Hypersphere
+   >>> from geometric_kernels.spaces import Hypersphere
    >>> from geometric_kernels.kernels import MaternGeometricKernel
 
    >>> # Create a manifold (2-dim sphere).
@@ -266,7 +266,7 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> # Import the geometric_kernels backend.
    >>> import geometric_kernels.tensorflow
    >>> # Import a space and an appropriate kernel.
-   >>> from geometric_kernels.spaces.hypersphere import Hypersphere
+   >>> from geometric_kernels.spaces import Hypersphere
    >>> from geometric_kernels.kernels import MaternGeometricKernel
 
    >>> # Create a manifold (2-dim sphere).
@@ -313,7 +313,7 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> # Import the geometric_kernels backend.
    >>> import geometric_kernels.torch
    >>> # Import a space and an appropriate kernel.
-   >>> from geometric_kernels.spaces.hypersphere import Hypersphere
+   >>> from geometric_kernels.spaces import Hypersphere
    >>> from geometric_kernels.kernels import MaternGeometricKernel
 
    >>> # Create a manifold (2-dim sphere).
@@ -359,7 +359,7 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> # Import the geometric_kernels backend.
    >>> import geometric_kernels.jax
    >>> # Import a space and an appropriate kernel.
-   >>> from geometric_kernels.spaces.hypersphere import Hypersphere
+   >>> from geometric_kernels.spaces import Hypersphere
    >>> from geometric_kernels.kernels import MaternGeometricKernel
 
    >>> # Create a manifold (2-dim sphere).
