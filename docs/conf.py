@@ -32,6 +32,7 @@ author = 'The GeometricKernels Contributors'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    'autoapi.extension',
     'sphinx.ext.viewcode',
     'sphinx.ext.duration',
     'sphinx.ext.doctest',
@@ -45,7 +46,6 @@ extensions = [
 ]
 
 # autoapi
-extensions.append("autoapi.extension")
 autoapi_dirs = ["../geometric_kernels"]
 autodoc_typehints = 'description'
 autodoc_typehints_format = 'short'
