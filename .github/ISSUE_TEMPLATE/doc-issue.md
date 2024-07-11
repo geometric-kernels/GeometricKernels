@@ -15,5 +15,5 @@ about: Let us know what would make the GeometricKernels documentation better
 
 
 Links:
-* [latest GeometricKernels documentation](https://gpflow.github.io/GeometricKernels/index.html)
+* [latest GeometricKernels documentation](https://geometric-kernels.github.io/GeometricKernels/index.html)
 * [Landing page](https://geometric-kernels.github.io/)

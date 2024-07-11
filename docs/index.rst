@@ -220,7 +220,7 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> # Import the geometric_kernels backend.
    >>> import geometric_kernels
    >>> # Import a space and an appropriate kernel.
-   >>> from geometric_kernels.spaces.hypersphere import Hypersphere
+   >>> from geometric_kernels.spaces import Hypersphere
    >>> from geometric_kernels.kernels import MaternGeometricKernel
 
    >>> # Create a manifold (2-dim sphere).
@@ -266,14 +266,14 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> # Import the geometric_kernels backend.
    >>> import geometric_kernels.tensorflow
    >>> # Import a space and an appropriate kernel.
-   >>> from geometric_kernels.spaces.hypersphere import Hypersphere
+   >>> from geometric_kernels.spaces import Hypersphere
    >>> from geometric_kernels.kernels import MaternGeometricKernel
 
    >>> # Create a manifold (2-dim sphere).
    >>> hypersphere = Hypersphere(dim=2)
 
    >>> # Define 3 points on the sphere.
-   >>> xs = np.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
+   >>> xs = tf.convert_to_tensor([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
 
    >>> # Initialize kernel.
    >>> kernel = MaternGeometricKernel(hypersphere)
@@ -282,7 +282,7 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> params["lengthscale"] = tf.convert_to_tensor([1.])
 
    >>> # Compute and print out the 3x3 kernel matrix.
-   >>> print(np.around(kernel.K(params, tf.convert_to_tensor(xs)).numpy(), 2))
+   >>> print(np.around(kernel.K(params, xs).numpy(), 2))
    [[1.   0.36 0.36]
     [0.36 1.   0.36]
     [0.36 0.36 1.  ]]
@@ -313,14 +313,14 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> # Import the geometric_kernels backend.
    >>> import geometric_kernels.torch
    >>> # Import a space and an appropriate kernel.
-   >>> from geometric_kernels.spaces.hypersphere import Hypersphere
+   >>> from geometric_kernels.spaces import Hypersphere
    >>> from geometric_kernels.kernels import MaternGeometricKernel
 
    >>> # Create a manifold (2-dim sphere).
    >>> hypersphere = Hypersphere(dim=2)
 
    >>> # Define 3 points on the sphere.
-   >>> xs = np.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
+   >>> xs = torch.tensor([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
 
    >>> # Initialize kernel.
    >>> kernel = MaternGeometricKernel(hypersphere)
@@ -329,7 +329,7 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> params["lengthscale"] = torch.tensor([1.])
 
    >>> # Compute and print out the 3x3 kernel matrix.
-   >>> print(np.around(kernel.K(params, torch.from_numpy(xs)).detach().cpu().numpy(), 2))
+   >>> print(np.around(kernel.K(params, xs).detach().cpu().numpy(), 2))
    [[1.   0.36 0.36]
     [0.36 1.   0.36]
     [0.36 0.36 1.  ]]
@@ -359,7 +359,7 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> # Import the geometric_kernels backend.
    >>> import geometric_kernels.jax
    >>> # Import a space and an appropriate kernel.
-   >>> from geometric_kernels.spaces.hypersphere import Hypersphere
+   >>> from geometric_kernels.spaces import Hypersphere
    >>> from geometric_kernels.kernels import MaternGeometricKernel
 
    >>> # Create a manifold (2-dim sphere).
