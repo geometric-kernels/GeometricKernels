@@ -366,7 +366,7 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> hypersphere = Hypersphere(dim=2)
 
    >>> # Define 3 points on the sphere.
-   >>> xs = np.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
+   >>> xs = jnp.array([[0., 0., 1.], [0., 1., 0.], [1., 0., 0.]])
 
    >>> # Initialize kernel.
    >>> kernel = MaternGeometricKernel(hypersphere)
@@ -375,7 +375,7 @@ In the following example we show how to initialize the Matern52 kernel on the tw
    >>> params["lengthscale"] = jnp.array([1.0])
 
    >>> # Compute and print out the 3x3 kernel matrix.
-   >>> print(np.around(kernel.K(params, jnp.array(xs)), 2))
+   >>> print(np.around(np.asarray(kernel.K(params, xs)), 2))
    [[1.   0.36 0.36]
     [0.36 1.   0.36]
     [0.36 0.36 1.  ]]
