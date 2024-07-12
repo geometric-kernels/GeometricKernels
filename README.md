@@ -153,8 +153,17 @@ This [link](https://github.com/geometric-kernels/GeometricKernels/issues/new?ass
 
 ## Citation
 
-If you are using GeometricKernels, please consider citing the theoretical papers it is based on.
+If you are using GeometricKernels, please cite the following [paper](https://arxiv.org/pdf/2407.08086):
+```
+@article{mostowsky2024,
+      title = {The GeometricKernels Package: Heat and Matérn Kernels for Geometric Learning on Manifolds, Meshes, and Graphs},
+      author = {Peter Mostowsky and Vincent Dutordoir and Iskander Azangulov and Noémie Jaquier and Michael John Hutchinson and Aditya Ravuri and Leonel Rozo and Alexander Terenin and Viacheslav Borovitskiy},
+      year = {2024},
+      journal = {arXiv:2407.08086},
+}
+```
 
+Furthermore, please consider citing the theoretical papers the package is based on.
 You can find the relevant references for any space in
 - the docstring of the respective space class,
 - at the end of the respective tutorial notebook.
