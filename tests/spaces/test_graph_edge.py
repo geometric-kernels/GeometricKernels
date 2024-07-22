@@ -1,23 +1,14 @@
-# current path 
-import os 
-import sys
-sys.path.append(os.path.dirname(os.getcwd()))
-# add the first parent path
-sys.path.append(os.path.dirname(os.path.dirname(os.getcwd())))
-
 import warnings
 
 import jax
 import lab as B
 import numpy as np
 import scipy.sparse as sp
-# import tensorflow as tf
 import torch
 
 from geometric_kernels.jax import *  # noqa
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces.graph_edge import GraphEdge
-# from geometric_kernels.tensorflow import *  # noqa
 from geometric_kernels.torch import *  # noqa
 
 warnings.filterwarnings("ignore", category=RuntimeWarning, module="scipy")
@@ -184,7 +175,6 @@ def test_graphs_torch_cuda():
         B2 = torch.tensor(B2).cuda()
         m = B1.shape[1]
         sc = GraphEdge(B1,B2)
-        # normed_graph = Graph(adj, normalize_laplacian=True)  # fails due to bug in lab
 
         K_cons = MaternKarhunenLoeveKernel(sc, m, normalize=False)
         params = K_cons.init_params()

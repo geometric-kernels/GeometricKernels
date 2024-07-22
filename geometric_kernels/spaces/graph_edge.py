@@ -12,7 +12,9 @@ from geometric_kernels.lab_extras import (
     eigenpairs,
     reciprocal_no_nan,
     set_value,
+    take_along_axis,
 )
+
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import (
     Eigenfunctions,
@@ -134,7 +136,7 @@ class GraphEdge(DiscreteSpectrumSpace):
             return self._edge_laplacian, self._down_edge_laplacian, self._up_edge_laplacian
        
 
-    def get_eigensystem(self, num):
+    def get_eigensystem(self, num, hgc_order=False):
         """
         Returns the first `num` eigenvalues and eigenvectors of the Hodge Laplacian.
         Caches the solution to prevent re-computing the same values.
@@ -142,31 +144,44 @@ class GraphEdge(DiscreteSpectrumSpace):
         :param num:
             Number of eigenpairs to return. Performs the computation at the
             first call. Afterwards, fetches the result from cache.
+            
+        :param hgc_order:
+            If True, the eigenmodes are organized according to the Harmonic, Gradient and Curl eigenvalues from small to big.
+            
 
         :return:
             A tuple of eigenvectors [n, num], eigenvalues [num, 1].
         """
-        eps = np.finfo(float).eps
+        eps = 1e-6
         if num not in self.cache:
             evals, evecs = eigenpairs(self._edge_laplacian, num)
-            if self.edge_triangle_incidence_matrix is not None:
+            if self.edge_triangle_incidence_matrix is not None and hgc_order:
                 # harmonic ones are the ones associated to zero eigenvalues of the edge laplacian
                 total_var = []
                 total_div = []
                 total_curl = []
                 num_eigemodes = len(evals)
                 for i in range(num_eigemodes):
-                    total_var.append(evecs[:, i].T@self._edge_laplacian@evecs[:, i])
-                    total_div.append(evecs[:, i].T@self._down_edge_laplacian@evecs[:, i])
-                    total_curl.append(evecs[:, i].T@self._up_edge_laplacian@evecs[:, i])
+                    total_var.append(B.matmul(evecs[:, i].reshape(1,-1), B.matmul(self._edge_laplacian, evecs[:, i])))
+                    total_div.append(B.matmul(evecs[:, i].reshape(1,-1), B.matmul(self._down_edge_laplacian,evecs[:, i])))
+                    total_curl.append(B.matmul(evecs[:, i].reshape(1,-1), B.matmul(self._up_edge_laplacian,evecs[:, i])))
                     
-                harm_evecs = np.where(np.array(total_var) < eps)[0]
-                grad_evecs = np.where(np.array(total_div) > eps)[0]
-                curl_eflow = np.where(np.array(total_curl) > eps)[0]
-                assert len(harm_evecs) + len(grad_evecs) + len(curl_eflow) == num_eigemodes, "The eigenmodes are not correctly organized"
-                evals = np.concatenate((evals[harm_evecs], evals[grad_evecs], evals[curl_eflow]))
-                evecs = np.concatenate((evecs[:, harm_evecs], evecs[:, grad_evecs], evecs[:, curl_eflow]), axis=1)
+                harm_evecs, grad_evecs, curl_evecs = [], [], []
+                for i in range(num_eigemodes):
+                    if total_var[i] < eps:
+                        harm_evecs.append(i)
+                    elif total_div[i] > eps:
+                        grad_evecs.append(i)
+                    elif total_curl[i] > eps:
+                        curl_evecs.append(i)
+                        
+                reorder_indices = harm_evecs + grad_evecs + curl_evecs
+                assert len(reorder_indices) == num_eigemodes, "The eigenmodes are not correctly organized"
 
+                evals = B.take(evals, reorder_indices, axis=0)
+                evecs = B.take(evecs, reorder_indices, axis=1)
+
+                
             self.cache[num] = (evecs, evals[:, None])
 
         return self.cache[num]
