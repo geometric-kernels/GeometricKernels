@@ -14,21 +14,24 @@ from geometric_kernels.torch import *  # noqa
 warnings.filterwarnings("ignore", category=RuntimeWarning, module="scipy")
 
 B1 = np.array(
-[[-1, -1, -1,  0,  0,  0],
- [ 1,  0,  0, -1,  0,  0],
- [ 0,  1,  0,  1, -1,  0],
- [ 0,  0,  1,  0,  0, -1],
- [ 0,  0,  0,  0,  1,  1],
- ]
+    [
+        [-1, -1, -1, 0, 0, 0],
+        [1, 0, 0, -1, 0, 0],
+        [0, 1, 0, 1, -1, 0],
+        [0, 0, 1, 0, 0, -1],
+        [0, 0, 0, 0, 1, 1],
+    ]
 ).astype(np.float64)
 
 B2 = np.array(
- [[ 1],
- [-1],
- [ 0],
- [ 1],
- [ 0],
- [ 0],]
+    [
+        [1],
+        [-1],
+        [0],
+        [1],
+        [0],
+        [0],
+    ]
 ).astype(np.float64)
 
 
@@ -36,25 +39,18 @@ def run_tests_with_adj(B1, B2, tol=1e-7, tol_m=1e-4):
     ##############################################
     # Inits
 
-    m= B1.shape[1]
-    B1 = B.cast(B.dtype(B1), B1)
-    B2 = B.cast(B.dtype(B2), B2)
+    m = B1.shape[1]
     sc = GraphEdge(B1, B2)
 
     ##############################################
     # Laplacian computation
-    L = B.matmul(B.transpose(B1), B1) + B.matmul(B2, B2.T)
-    comparison = sc.edge_laplacian[0] == (L)
-    
+    L = B.matmul(B1, B1, tr_a=True) + B.matmul(B2, B2, tr_b=True)
+    comparison = sc._edge_laplacian == L
 
     if sp.issparse(comparison):
         comparison = comparison.toarray()
 
-    if isinstance(comparison, np.matrix):  # bug with lab?
-        assert comparison.all(), "Laplacian does not match."
-    else:
-        assert B.all(comparison), "Laplacian does not match."
-
+    assert B.all(comparison), "Laplacian does not match."
 
     ##############################################
     # Eigendecomposition checks
@@ -80,7 +76,6 @@ def run_tests_with_adj(B1, B2, tol=1e-7, tol_m=1e-4):
         np.testing.assert_allclose(
             np.abs(evecs)[:, [1, 0]], np.abs(evecs_np)[:, :2], atol=tol, rtol=tol
         )
-
 
     ##############################################
     # Kernel init checks
@@ -161,6 +156,7 @@ def run_tests_with_adj(B1, B2, tol=1e-7, tol_m=1e-4):
 def test_graphs_numpy():
     run_tests_with_adj(B1, B2)
 
+
 def test_graphs_torch():
     run_tests_with_adj(torch.tensor(B1), torch.tensor(B2))
 
@@ -171,10 +167,8 @@ def test_graphs_jax():
 
 def test_graphs_torch_cuda():
     if torch.cuda.is_available():
-        B1 = torch.tensor(B1).cuda()
-        B2 = torch.tensor(B2).cuda()
         m = B1.shape[1]
-        sc = GraphEdge(B1,B2)
+        sc = GraphEdge(torch.tensor(B1).cuda(), torch.tensor(B2).cuda())
 
         K_cons = MaternKarhunenLoeveKernel(sc, m, normalize=False)
         params = K_cons.init_params()
