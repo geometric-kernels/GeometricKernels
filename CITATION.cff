@@ -4,7 +4,6 @@ title: "GeometricKernels"
 authors:
 - name: "GeometricKernels Contributors"
 preferred-citation:
-  abbreviation: "mostowsky2024"
   type: "article"
   title: "The GeometricKernels Package: Heat and Matérn Kernels for Geometric Learning on Manifolds, Meshes, and Graphs"
   authors:
