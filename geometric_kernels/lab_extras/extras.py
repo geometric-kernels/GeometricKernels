@@ -308,3 +308,42 @@ def complex_conj(x: B.Numeric):
     :param x:
         Array of any backend.
     """
+
+
+@dispatch
+@abstract()
+def logical_xor(x1: B.Bool, x2: B.Bool):
+    """
+    Return logical XOR of two arrays.
+
+    :param x1:
+        Array of any backend.
+    :param x2:
+        Array of any backend.
+    """
+
+
+@dispatch
+@abstract()
+def hamming_distance(x1: B.Bool, x2: B.Bool):
+    """
+    Hamming distance between two boolean arrays.
+
+    :param x1:
+        Array of any backend, of shape [N, D].
+    :param x2:
+        Array of any backend, of shape [M, D].
+
+    The shape of the returned array will be [N, M].
+    """
+
+
+@dispatch
+@abstract()
+def dtype_bool(reference: B.RandomState):
+    """
+    Return `bool` dtype of a backend based on the reference.
+
+    :param reference:
+        A random state to infer the backend from.
+    """

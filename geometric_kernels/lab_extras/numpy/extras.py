@@ -216,3 +216,27 @@ def complex_conj(x: B.NPNumeric):
     Return complex conjugate
     """
     return np.conjugate(x)
+
+
+@dispatch
+def logical_xor(x1: B.NPNumeric, x2: B.NPNumeric):
+    """
+    Return logical XOR of two arrays.
+    """
+    return np.logical_xor(x1, x2)
+
+
+@dispatch
+def hamming_distance(x1: B.NPNumeric, x2: B.NPNumeric):
+    """
+    Hamming distance between two boolean arrays.
+    """
+    return logical_xor(x1[:, None, :], x2[None, :, :]).sum(axis=-1)
+
+
+@dispatch
+def dtype_bool(reference: B.NPRandomState):  # type: ignore
+    """
+    Return `bool` dtype of a backend based on the reference.
+    """
+    return bool

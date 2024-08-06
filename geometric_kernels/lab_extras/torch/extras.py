@@ -234,3 +234,27 @@ def complex_conj(x: B.TorchNumeric):
     Return complex conjugate
     """
     return torch.conj(x)
+
+
+@dispatch
+def logical_xor(x1: B.TorchNumeric, x2: B.TorchNumeric):
+    """
+    Return logical XOR of two arrays.
+    """
+    return torch.logical_xor(x1, x2)
+
+
+@dispatch
+def hamming_distance(x1: B.TorchNumeric, x2: B.TorchNumeric):
+    """
+    Hamming distance between two boolean arrays.
+    """
+    return logical_xor(x1[:, None, :], x2[None, :, :]).sum(axis=-1)
+
+
+@dispatch
+def dtype_bool(reference: B.TorchRandomState):  # type: ignore
+    """
+    Return `bool` dtype of a backend based on the reference.
+    """
+    return torch.bool
