@@ -23,16 +23,17 @@ keywords=[
 ]
 requires-python = ">=3.8"
 dependencies = [
-    "numpy>=1.16",
-    "scipy>=1.3",
-    "plum-dispatch>=2.2.0",
     "backends>=1.5.4",
+    "einops",
+    "geomstats",
+    "numpy>=1.16",
+    "opt-einsum",
+    "plum-dispatch>=2.2.0",
     "potpourri3d",
     "robust_laplacian",
-    "opt-einsum",
-    "geomstats",
-    "einops",
+    "scipy>=1.3",
     "spherical-harmonics-basis",
+    "sympy~=1.13",
 ]
 version="0.2"
 
