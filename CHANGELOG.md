@@ -6,6 +6,7 @@
  - update README.md,
  - update the Bayesian Optimization notebook in `notebooks/other/`,
  - add an explicit `sympy` requirement.
+ - add citation files to the repo.
 
 ## v0.2 - 21.04.2024
  New geometric kernel that *just works*, `kernels.MaternGeometricKernel`. Relies on *(hopefully)* sensible defaults we defined. Mostly by @stoprightthere.
