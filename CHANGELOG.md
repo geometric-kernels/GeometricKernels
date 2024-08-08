@@ -2,11 +2,15 @@
 
 ## v0.2.1 - 08.08.2024
  Minor release with mostly cosmetic changes:
- - fix documentation,
- - update README.md,
- - update the Bayesian Optimization notebook in `notebooks/other/`,
- - add an explicit `sympy` requirement.
- - add citation files to the repo.
+* Add "If you have a question" section to README.md by @vabor112 in https://github.com/geometric-kernels/GeometricKernels/pull/131
+* Github cosmetics by @stoprightthere in https://github.com/geometric-kernels/GeometricKernels/pull/133
+* Replace all references to "gpflow" organization with "geometric-kernels" organization by @vabor112 in https://github.com/geometric-kernels/GeometricKernels/pull/134
+* Use fit_gpytorch_model or fit.fit_gpytorch_mll depening on the botorсh version by @vabor112 in https://github.com/geometric-kernels/GeometricKernels/pull/137
+* Add a missing type cast and fix a typo in kernels/karhunen_loeve.py by @vabor112 in https://github.com/geometric-kernels/GeometricKernels/pull/136
+* Minor documentation improvements by @vabor112 in https://github.com/geometric-kernels/GeometricKernels/pull/135
+* Add citation to the preprint of the GeometricKernels paper by @vabor112 in https://github.com/geometric-kernels/GeometricKernels/pull/138
+* Add citation file by @aterenin in https://github.com/geometric-kernels/GeometricKernels/pull/140
+* Fix dependencies (Version 0.2.1) by @stoprightthere in https://github.com/geometric-kernels/GeometricKernels/pull/143
 
 ## v0.2 - 21.04.2024
  New geometric kernel that *just works*, `kernels.MaternGeometricKernel`. Relies on *(hopefully)* sensible defaults we defined. Mostly by @stoprightthere.
