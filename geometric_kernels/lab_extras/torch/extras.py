@@ -245,11 +245,11 @@ def logical_xor(x1: B.TorchNumeric, x2: B.TorchNumeric):
 
 
 @dispatch
-def hamming_distance(x1: B.TorchNumeric, x2: B.TorchNumeric):
+def count_nonzero(x: B.TorchNumeric, axis=None):
     """
-    Hamming distance between two boolean arrays.
+    Count non-zero elements in an array.
     """
-    return logical_xor(x1[:, None, :], x2[None, :, :]).sum(axis=-1)
+    return torch.count_nonzero(x, dim=axis)
 
 
 @dispatch

@@ -325,16 +325,12 @@ def logical_xor(x1: B.Bool, x2: B.Bool):
 
 @dispatch
 @abstract()
-def hamming_distance(x1: B.Bool, x2: B.Bool):
+def count_nonzero(x: B.Numeric, axis=None):
     """
-    Hamming distance between two boolean arrays.
+    Count non-zero elements in an array.
 
-    :param x1:
-        Array of any backend, of shape [N, D].
-    :param x2:
-        Array of any backend, of shape [M, D].
-
-    The shape of the returned array will be [N, M].
+    :param x:
+        Array of any backend and of any shape.
     """
 
 

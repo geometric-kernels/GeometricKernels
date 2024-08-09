@@ -6,13 +6,23 @@ import inspect
 import sys
 from contextlib import contextmanager
 from importlib import resources as impresources
+from itertools import combinations
 
 import einops
 import lab as B
-from beartype.typing import Callable, Generator, List, Set, Tuple
+import numpy as np
+from beartype.typing import Any, Callable, Generator, List, Optional, Set, Tuple, Union
+from plum import ModuleType, resolve_type_hint
 
 from geometric_kernels import resources
-from geometric_kernels.lab_extras import get_random_state, restore_random_state
+from geometric_kernels.lab_extras import (
+    count_nonzero,
+    get_random_state,
+    logical_xor,
+    restore_random_state,
+)
+
+EagerTensor = ModuleType("tensorflow.python.framework.ops", "EagerTensor")
 
 
 def chain(elements: B.Numeric, repetitions: List[int]) -> B.Numeric:
@@ -291,6 +301,22 @@ def get_resource_file_path(filename: str):
             yield path
 
 
+def hamming_distance(x1: B.Bool, x2: B.Bool):
+    """
+    Hamming distance between two batches of boolean vectors.
+
+    :param x1:
+        Array of any backend, of shape [N, D].
+    :param x2:
+        Array of any backend, of shape [M, D].
+
+    :return:
+        An array of shape [N, M] whose entry n, m contains the Hamming distance
+        between x1[n, :] and x2[m, :].
+    """
+    return count_nonzero(logical_xor(x1[:, None, :], x2[None, :, :]), axis=-1)
+
+
 def log_binomial(n: B.Int, k: B.Int) -> B.Float:
     """
     Compute the logarithm of the binomial coefficient.
@@ -306,3 +332,89 @@ def log_binomial(n: B.Int, k: B.Int) -> B.Float:
     assert B.all(0 <= k <= n)
 
     return B.loggamma(n + 1) - B.loggamma(k + 1) - B.loggamma(n - k + 1)
+
+
+def binary_vectors_and_subsets(d: int):
+    """
+    Generates all possible binary vectors of size d and all possible subsets of
+    the set $\{0, .., d-1\}$ as a byproduct.
+
+    :param d:
+        The dimension of binary vectors and the size of the set to take subsets of.
+
+    :return:
+        A tuple (x, combs), where x is a matrix of size (2**d, d) whose rows
+        are all possible binary vectors of size d, and combs is a list of all
+        possible subsets of the set $\{0, .., d-1\}$, each subset being
+        represented by a list of integers itself.
+
+    """
+    x = np.zeros((2**d, d), dtype=bool)
+    combs = []
+    i = 0
+    for level in range(d + 1):
+        for cur_combination in combinations(range(d), level):
+            indices = list(cur_combination)
+            combs.append(indices)
+            x[i, indices] = 1
+            i += 1
+
+    return x, combs
+
+
+def np_to_backend(value: B.NPNumeric, backend: str):
+    if backend == "tensorflow":
+        import tensorflow as tf
+
+        return tf.convert_to_tensor(value)
+    elif backend in ["torch", "pytorch"]:
+        import torch
+
+        return torch.tensor(value)
+    elif backend == "numpy":
+        return value
+    elif backend == "jax":
+        import jax.numpy as jnp
+
+        return jnp.array(value)
+    else:
+        raise ValueError("Unknown backend: {}".format(backend))
+
+
+def array_type(backend: str):
+    if backend == "tensorflow":
+        return resolve_type_hint(Union[B.TFNumeric, EagerTensor])
+    elif backend in ["torch", "pytorch"]:
+        return resolve_type_hint(B.TorchNumeric)
+    elif backend == "numpy":
+        return resolve_type_hint(B.NPNumeric)
+    elif backend == "jax":
+        return resolve_type_hint(B.JAXNumeric)
+    else:
+        raise ValueError("Unknown backend: {}".format(backend))
+
+
+def check_function_with_backend(
+    backend: str,
+    result: Any,
+    f: Callable,
+    *args: B.NPNumeric,
+    compare_to_result: Optional[Callable] = None,
+    atol=1e-5,
+):
+    """
+    1. Casts the arguments `*args` to the backend `backend`.
+    2. Runs the function `f` on the casted arguments.
+    3. Checks that the result is of the backend `backend`.
+    4. Checks that the result, casted back to numpy backend, coincides
+       with the given `result`.
+    """
+
+    args_casted = [np_to_backend(arg, backend) for arg in args]
+    f_output = f(*args_casted)
+    assert isinstance(f_output, array_type(backend))
+    if compare_to_result is None:
+        # assert np.allclose(B.to_numpy(f_output), result, atol=atol)
+        np.testing.assert_allclose(B.to_numpy(f_output), result, atol=atol)
+    else:
+        assert compare_to_result(result, f_output)

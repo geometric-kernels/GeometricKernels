@@ -15,3 +15,6 @@ pytest
 # pytest-cov
 nbmake
 mypy
+
+# For running some tests
+scikit-learn

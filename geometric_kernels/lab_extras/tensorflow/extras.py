@@ -238,11 +238,11 @@ def logical_xor(x1: B.TFNumeric, x2: B.TFNumeric):
 
 
 @dispatch
-def hamming_distance(x1: B.TFNumeric, x2: B.TFNumeric):
+def count_nonzero(x: B.TFNumeric, axis=None):
     """
-    Hamming distance between two boolean arrays.
+    Count non-zero elements in an array.
     """
-    return tf.count_nonzero(logical_xor(x1[:, None, :], x2[None, :, :]), axis=-1)
+    return tf.math.count_nonzero(x, axis=axis)
 
 
 @dispatch

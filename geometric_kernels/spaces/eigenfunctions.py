@@ -22,7 +22,6 @@ import abc
 
 import lab as B
 from beartype.typing import List, Optional
-from opt_einsum import contract as einsum
 
 from geometric_kernels.lab_extras import complex_like, is_complex, take_along_axis
 
@@ -106,7 +105,7 @@ class Eigenfunctions(abc.ABC):
         else:
             sum_phi_phi_for_level = B.cast(B.dtype(weights), sum_phi_phi_for_level)
 
-        return einsum("id,...nki->...nk", weights, sum_phi_phi_for_level)  # [N, N2]
+        return B.einsum("id,...nki->...nk", weights, sum_phi_phi_for_level)  # [N, N2]
 
     def weighted_outerproduct_diag(
         self, weights: B.Numeric, X: B.Numeric, **kwargs
@@ -132,7 +131,7 @@ class Eigenfunctions(abc.ABC):
         else:
             phi_product_diag = B.cast(B.dtype(weights), phi_product_diag)
 
-        return einsum("id,ni->n", weights, phi_product_diag)  # [N,]
+        return B.einsum("id,ni->n", weights, phi_product_diag)  # [N,]
 
     @abc.abstractmethod
     def phi_product(
@@ -301,7 +300,7 @@ class EigenfunctionsFromEigenvectors(Eigenfunctions):
             X2 = X
         Phi_X = self.__call__(X, **kwargs)  # [N, J]
         Phi_X2 = self.__call__(X2, **kwargs)  # [N2, J]
-        return einsum("nl,ml->nml", Phi_X, Phi_X2)  # [N, N2, J]
+        return B.einsum("nl,ml->nml", Phi_X, Phi_X2)  # [N, N2, J]
 
     def phi_product_diag(self, X: B.Numeric, **kwargs):
         Phi_X = self.__call__(X, **kwargs)  # [N, J]

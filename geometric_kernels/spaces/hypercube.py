@@ -10,7 +10,7 @@ import lab as B
 import numpy as np
 from beartype.typing import List, Optional
 
-from geometric_kernels.lab_extras import dtype_double, float_like, hamming_distance
+from geometric_kernels.lab_extras import dtype_double, float_like
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import (
     Eigenfunctions,
@@ -20,7 +20,7 @@ from geometric_kernels.utils.special_functions import (
     kravchuk_normalized,
     walsh_function,
 )
-from geometric_kernels.utils.utils import chain
+from geometric_kernels.utils.utils import chain, hamming_distance
 
 
 class WalshFunctions(EigenfunctionsWithAdditionTheorem):
@@ -60,14 +60,14 @@ class WalshFunctions(EigenfunctionsWithAdditionTheorem):
         self._num_eigenfunctions: Optional[int] = None  # To be computed when needed.
 
     def __call__(self, X: B.Bool, **kwargs) -> B.Float:
-        result = B.zeros(float_like(X), *X.shape[:-1], self.num_eigenfunctions)
-        cur_ind = 0
-        for level in range(self.num_levels):
-            for cur_combination in combinations(range(self.dim), level):
-                # result[:, cur_ind] = (-1)**B.sum(take_along_axis(X, cur_combination, axis=-1), axis=-1)
-                result[:, cur_ind] = walsh_function(self.dim, list(cur_combination), X)
-                cur_ind += 1
-        return result
+        return B.stack(
+            *[
+                walsh_function(self.dim, list(cur_combination), X)
+                for level in range(self.num_levels)
+                for cur_combination in combinations(range(self.dim), level)
+            ],
+            axis=1,
+        )
 
     def _addition_theorem(
         self, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs
@@ -101,10 +101,7 @@ class WalshFunctions(EigenfunctionsWithAdditionTheorem):
     @property
     def num_eigenfunctions(self) -> int:
         if self._num_eigenfunctions is None:
-            J = 0
-            for level in range(self.num_levels):
-                J += comb(self.dim, level)
-            self._num_eigenfunctions = J
+            self._num_eigenfunctions = sum(self.num_eigenfunctions_per_level)
         return self._num_eigenfunctions
 
     @property
@@ -147,6 +144,13 @@ class Hypercube(DiscreteSpectrumSpace):
     def dimension(self) -> int:
         """
         Returns d, the `dim` parameter that was passed down to `__init__`.
+
+        .. note:
+            Although this is a graph, and graphs are generally treated as
+            0-dimensional throughout GeometricKernels, we make an exception for
+            the hypercube. This is because it helps maintain good behavior of
+            Matérn kernels with the usual values of the smoothness parameter
+            nu, i.e. nu = 1/2, nu=3/2, nu=5/2.
         """
         return self.dim
 
@@ -162,7 +166,9 @@ class Hypercube(DiscreteSpectrumSpace):
     def get_eigenvalues(self, num: int) -> B.Numeric:
         eigenvalues = np.array(
             [
-                2 * level / self.dim  # we assume normalized Laplacian
+                2
+                * level
+                / self.dim  # we assume normalized Laplacian (for numerical stability)
                 for level in range(num)
             ]
         )

@@ -227,11 +227,11 @@ def logical_xor(x1: B.NPNumeric, x2: B.NPNumeric):
 
 
 @dispatch
-def hamming_distance(x1: B.NPNumeric, x2: B.NPNumeric):
+def count_nonzero(x: B.NPNumeric, axis=None):
     """
-    Hamming distance between two boolean arrays.
+    Count non-zero elements in an array.
     """
-    return logical_xor(x1[:, None, :], x2[None, :, :]).sum(axis=-1)
+    return np.count_nonzero(x, axis=axis)
 
 
 @dispatch
