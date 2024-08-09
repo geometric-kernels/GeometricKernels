@@ -20,37 +20,27 @@ from geometric_kernels.utils.special_functions import (
     kravchuk_normalized,
     walsh_function,
 )
-from geometric_kernels.utils.utils import chain, hamming_distance
+from geometric_kernels.utils.utils import chain, hamming_distance, log_binomial
 
 
 class WalshFunctions(EigenfunctionsWithAdditionTheorem):
     r"""
-    Eigenfunctions of graph Laplacian on the hypercube $C = \{0, 1\}^d$ are
-    Walsh functions $w_T: C \to \{-1, 1\}$ given by
+    Eigenfunctions of graph Laplacian on the hypercube $C^d = \{0, 1\}^d$ are
+    Walsh functions $w_T: C^d \to \{-1, 1\}$ given by
 
-    .. math:: w_T(x_1, .., x_d) = (-1)^{\sum_{i \in T} x_i},
+    .. math:: w_T(x_0, .., x_{d-1}) = (-1)^{\sum_{i \in T} x_i},
 
-    enumerated by all possible subsets $T$ of the set $\{1, .., d\}$.
-
-    .. note::
-        Since the degree matrix is a constant multiple of the identity, all
-        types of the graph Laplacian coincide on the hypercube up to a constant.
+    enumerated by all possible subsets $T$ of the set $\{0, .., d-1\}$.
 
     Levels are the whole eigenspaces, comprising all Walsh functions $w_T$ with
     the same cardinality of $T$. The addition theorem for these is based on
-    dynamically precomputed basis functions equivalent to certain
-    discretizations of the Kravchuk polynomials.
+    certain discrete orthogonal polynomials called Kravchuk polynomials.
 
     :param dim:
         Dimension $d$ of the hypercube.
 
     :param num_levels:
-        Specifies the number of levels of the spherical harmonics.
-
-    :todo:
-        Implement explicit weighted_outerproduct and weighted_outerproduct_diag
-        which compute the product of weights and binom(d, j) in log scale (for
-        numerical stability).
+        Specifies the number of levels of the Walsh functions.
     """
 
     def __init__(self, dim: int, num_levels: int) -> None:
@@ -98,6 +88,42 @@ class WalshFunctions(EigenfunctionsWithAdditionTheorem):
         ]
         return B.concat(*values, axis=1)  # [N, L]
 
+    def weighted_outerproduct(
+        self,
+        weights: B.Numeric,
+        X: B.Numeric,
+        X2: Optional[B.Numeric] = None,  # type: ignore
+        **kwargs,
+    ) -> B.Numeric:
+        if X2 is None:
+            X2 = X
+
+        hamming_distances = hamming_distance(X, X2)
+
+        # Instead of multiplying weights by binomial coefficients, we sum their
+        # logs and then exponentiate the result for numerical stability.
+        result = sum(
+            B.exp(B.log(weights[level]) + log_binomial(self.dim, level))
+            * kravchuk_normalized(self.dim, level, hamming_distances)[..., None]
+            for level in range(self.num_levels)
+        )  # [N, N2, 1]
+
+        return B.reshape(result, *result.shape[:-1])  # [N, N2]
+
+    def weighted_outerproduct_diag(
+        self, weights: B.Numeric, X: B.Numeric, **kwargs
+    ) -> B.Numeric:
+
+        # Instead of multiplying weights by binomial coefficients, we sum their
+        # logs and then exponentiate the result for numerical stability.
+        result = sum(
+            B.exp(B.log(weights[level]) + log_binomial(self.dim, level))
+            * B.ones(float_like(X), *X.shape[:-1], 1)
+            for level in range(self.num_levels)
+        )  # [N, 1]
+
+        return B.reshape(result, *result.shape[:-1])  # [N,]
+
     @property
     def num_eigenfunctions(self) -> int:
         if self._num_eigenfunctions is None:
@@ -116,7 +142,7 @@ class WalshFunctions(EigenfunctionsWithAdditionTheorem):
 class Hypercube(DiscreteSpectrumSpace):
     r"""
     The GeometricKernels space representing the d-dimensional hypercube graph
-    $C = \{0, 1\}^d$, the combinatorial space of binary vectors of length $d$.
+    $C^d = \{0, 1\}^d$, the combinatorial space of binary vectors of length $d$.
 
     The elements of this space are represented by d-dimensional boolean vectors.
 
@@ -126,8 +152,13 @@ class Hypercube(DiscreteSpectrumSpace):
         A tutorial on how to use this space is available in the
         :doc:`Hypersphere.ipynb </examples/Hypercube>` notebook.
 
+    .. note::
+        Since the degree matrix is a constant multiple of the identity, all
+        types of the graph Laplacian coincide on the hypercube up to a constant,
+        we choose the normalized Laplacian for numerical stability.
+
     :param dim:
-        Dimension $d$ of the hypercube $C = \{0, 1\}^d$, a positive integer.
+        Dimension $d$ of the hypercube $C^d = \{0, 1\}^d$, a positive integer.
 
     .. admonition:: Citation
 
@@ -150,13 +181,13 @@ class Hypercube(DiscreteSpectrumSpace):
             0-dimensional throughout GeometricKernels, we make an exception for
             the hypercube. This is because it helps maintain good behavior of
             Matérn kernels with the usual values of the smoothness parameter
-            nu, i.e. nu = 1/2, nu=3/2, nu=5/2.
+            nu, i.e. nu = 1/2, nu = 3/2, nu = 5/2.
         """
         return self.dim
 
     def get_eigenfunctions(self, num: int) -> Eigenfunctions:
         """
-        Returns the :class:`~.SphericalHarmonics` object with `num` levels.
+        Returns the :class:`~.WalshFunctions` object with `num` levels.
 
         :param num:
             Number of levels.
@@ -186,7 +217,7 @@ class Hypercube(DiscreteSpectrumSpace):
 
     def random(self, key: B.RandomState, number: int) -> B.Numeric:
         r"""
-        Sample uniformly random points on the hypercube $C = \{0, 1\}^d$.
+        Sample uniformly random points on the hypercube $C^d = \{0, 1\}^d$.
 
         Always returns [N, D] boolean array of the `key`'s backend.
 

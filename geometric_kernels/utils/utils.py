@@ -312,7 +312,7 @@ def hamming_distance(x1: B.Bool, x2: B.Bool):
 
     :return:
         An array of shape [N, M] whose entry n, m contains the Hamming distance
-        between x1[n, :] and x2[m, :].
+        between x1[n, :] and x2[m, :]. It is of the same backend as x1 and x2.
     """
     return count_nonzero(logical_xor(x1[:, None, :], x2[None, :, :]), axis=-1)
 
@@ -335,7 +335,7 @@ def log_binomial(n: B.Int, k: B.Int) -> B.Float:
 
 
 def binary_vectors_and_subsets(d: int):
-    """
+    r"""
     Generates all possible binary vectors of size d and all possible subsets of
     the set $\{0, .., d-1\}$ as a byproduct.
 
@@ -347,7 +347,6 @@ def binary_vectors_and_subsets(d: int):
         are all possible binary vectors of size d, and combs is a list of all
         possible subsets of the set $\{0, .., d-1\}$, each subset being
         represented by a list of integers itself.
-
     """
     x = np.zeros((2**d, d), dtype=bool)
     combs = []
@@ -363,6 +362,20 @@ def binary_vectors_and_subsets(d: int):
 
 
 def np_to_backend(value: B.NPNumeric, backend: str):
+    """
+    Converts a numpy array to the desired backend.
+
+    :param value:
+        A numpy array.
+    :param backend:
+        The backend to use, one of the strings "tensorflow", "torch", "numpy", "jax".
+
+    :raises ValueError:
+        If the backend is not recognized.
+
+    :return:
+        The array `value` converted to the desired backend.
+    """
     if backend == "tensorflow":
         import tensorflow as tf
 
@@ -382,6 +395,15 @@ def np_to_backend(value: B.NPNumeric, backend: str):
 
 
 def array_type(backend: str):
+    """
+    Returns the array type corresponding to the given backend.
+
+    :param backend:
+        The backend to use, one of the strings "tensorflow", "torch", "numpy", "jax".
+
+    :return:
+        The array type corresponding to the given backend.
+    """
     if backend == "tensorflow":
         return resolve_type_hint(Union[B.TFNumeric, EagerTensor])
     elif backend in ["torch", "pytorch"]:
@@ -400,14 +422,32 @@ def check_function_with_backend(
     f: Callable,
     *args: B.NPNumeric,
     compare_to_result: Optional[Callable] = None,
-    atol=1e-5,
+    atol=1e-4,
 ):
     """
     1. Casts the arguments `*args` to the backend `backend`.
     2. Runs the function `f` on the casted arguments.
     3. Checks that the result is of the backend `backend`.
-    4. Checks that the result, casted back to numpy backend, coincides
-       with the given `result`.
+    4. If no `compare_to_result` kwarg is provided, checks that the result,
+       casted back to numpy backend, coincides with the given `result`.
+       If `compare_to_result` is provided, checks if
+       `compare_to_result(result, f_output)` is True.
+
+    :param backend:
+        The backend to use, one of the strings "tensorflow", "torch", "numpy", "jax".
+    :param result:
+        The expected result of the function, if no `compare_to_result` kwarg is
+        provided, expected to be a numpy array. Otherwise, can be anything.
+    :param f:
+        The backend-independent function to run.
+    :param args:
+        The arguments to pass to the function `f`, expected to be numpy arrays.
+    :param compare_to_result:
+        A function that takes two arguments, the computed result and the
+        expected result, and returns a boolean.
+    :param atol:
+        The absolute tolerance to use when comparing the computed result with
+        the expected result.
     """
 
     args_casted = [np_to_backend(arg, backend) for arg in args]

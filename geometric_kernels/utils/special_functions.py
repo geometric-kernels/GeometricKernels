@@ -1,3 +1,7 @@
+"""
+Special mathematical functions used in the library.
+"""
+
 from math import sqrt
 
 import lab as B
@@ -28,7 +32,7 @@ def walsh_function(d: int, combination: List[int], x: B.Bool) -> B.Float:
         A subset of the set $\{0, .., d-1\}$ determining the particular Walsh
         function. A list of integers.
     :param x:
-        The batch of binary vectors $x = (x_0, .., x_{d-1})$ of shape [N, d].
+        A batch of binary vectors $x = (x_0, .., x_{d-1})$ of shape [N, d].
 
     :return:
         The value of the Walsh function $w_T(x)$ evaluated for every $x$ in the
@@ -53,28 +57,28 @@ def kravchuk_normalized(d: int, j: int, m: B.Int) -> B.Float:
 
     .. math:: G_{d, j, m} = \sum_{T \subseteq \{0, .., d-1\}, |T| = j} w_T(x).
 
-    Here $w_T$ are the Walsh functions on the hypercube $C = \{0, 1\}^d$ and
-    $x \in C$ is an arbitrary binary vector with $m$ ones (the right-hand side
-    does not depend on the choice of such vector).
+    Here $w_T$ are the Walsh functions on the hypercube $C^d = \{0, 1\}^d$ and
+    $x \in C^d$ is an arbitrary binary vector with $m$ ones (the right-hand side
+    does not depend on the choice of a particular vector of the kind).
 
     .. note::
         We are using the three term recurrence relation to compute the Kravchuk
         polynomials. Cf. Equation (60) in MacWilliams and Sloane "The Theory of
         Error-Correcting Codes", 1977. The parameters q and \gamma from
-        MacWilliams and Sloane are set to be q = 2; \gamma = q - 1 = 1.
+        :cite:t:`macwilliams1977` are set to be q = 2; \gamma = q - 1 = 1.
 
     .. note::
-        We use the fact that $G_{d, j, 0} = binom{d}{j}$.
+        We use the fact that $G_{d, j, 0} = \binom{d}{j}$.
 
     :param d:
         The degree of Kravhuk polynomial, an integer d > 0.
-        Maps to n in MacWilliams and Sloane.
+        Maps to n in :cite:t:`macwilliams1977`.
     :param j: d
         The order of Kravhuk polynomial, an integer 0 <= j <= d.
-        Maps to k in MacWilliams and Sloane.
+        Maps to k in :cite:t:`macwilliams1977`.
     :param m:
         The independent variable, an integer 0 <= m <= d.
-        Maps to x in MacWilliams and Sloane.
+        Maps to x in :cite:t:`macwilliams1977`.
 
     :return:
         $G_{d, j, m}/G_{d, j, 0}$ where $G_{d, j, m}$ is the Kravchuk polynomial.

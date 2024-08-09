@@ -22,8 +22,8 @@ from geometric_kernels.utils.utils import (
 def all_xs_and_combs(request):
     """
     Returns a tuple (d, x, combs) where:
-    - d is an integer equal to request.param
-    - x is a 2**d x d boolean matrix with all possible binary vectors of length d
+    - d is an integer equal to request.param,
+    - x is a 2**d x d boolean matrix with all possible binary vectors of length d,
     - combs is a list of all possible combinations of indices of x.
     """
     d = request.param
@@ -41,7 +41,7 @@ def walsh_matrix(d, combs, x):
 def test_walsh_functions(all_xs_and_combs, backend):
     d, x, combs = all_xs_and_combs
 
-    # Checks that Walsh functions are orthogonal
+    # Check that Walsh functions are orthogonal.
     check_function_with_backend(
         backend,
         2**d * np.eye(2**d),
@@ -49,7 +49,7 @@ def test_walsh_functions(all_xs_and_combs, backend):
         x,
     )
 
-    # Checks that Walsh functions only take values in {-1, 1}
+    # Check that Walsh functions only take values in the set {-1, 1}.
     check_function_with_backend(
         backend, np.ones((2**d, 2**d)), lambda x: B.abs(walsh_matrix(d, combs, x)), x
     )
@@ -72,7 +72,7 @@ def test_kravchuk_polynomials(all_xs_and_combs, backend):
         )
 
         # Checks that Kravchuk polynomials coincide with certain sums of
-        # Walsh functions.
+        # the Walsh functions.
         check_function_with_backend(
             backend,
             result,
