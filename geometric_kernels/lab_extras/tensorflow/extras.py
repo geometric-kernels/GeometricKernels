@@ -227,3 +227,27 @@ def complex_conj(x: B.TFNumeric):
     Return complex conjugate
     """
     return tf.math.conj(x)
+
+
+@dispatch
+def logical_xor(x1: B.TFNumeric, x2: B.TFNumeric):
+    """
+    Return logical XOR of two arrays.
+    """
+    return tf.math.logical_xor(x1, x2)
+
+
+@dispatch
+def hamming_distance(x1: B.TFNumeric, x2: B.TFNumeric):
+    """
+    Hamming distance between two boolean arrays.
+    """
+    return tf.count_nonzero(logical_xor(x1[:, None, :], x2[None, :, :]), axis=-1)
+
+
+@dispatch
+def dtype_bool(reference: B.TFRandomState):  # type: ignore
+    """
+    Return `bool` dtype of a backend based on the reference.
+    """
+    return tf.bool

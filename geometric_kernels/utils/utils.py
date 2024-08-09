@@ -289,3 +289,20 @@ def get_resource_file_path(filename: str):
     else:
         with impresources.path(resources, filename) as path:
             yield path
+
+
+def log_binomial(n: B.Int, k: B.Int) -> B.Float:
+    """
+    Compute the logarithm of the binomial coefficient.
+
+    :param n:
+        The number of elements in the set.
+    :param k:
+        The number of elements to choose.
+
+    :return:
+        The logarithm of the binomial coefficient binom(n, k).
+    """
+    assert B.all(0 <= k <= n)
+
+    return B.loggamma(n + 1) - B.loggamma(k + 1) - B.loggamma(n - k + 1)
