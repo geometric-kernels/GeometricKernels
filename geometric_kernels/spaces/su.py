@@ -12,7 +12,6 @@ from functools import reduce
 import lab as B
 import numpy as np
 from beartype.typing import List, Tuple
-from opt_einsum import contract as einsum
 
 from geometric_kernels.lab_extras import (
     complex_conj,
@@ -222,7 +221,7 @@ class SpecialUnitary(CompactMatrixLieGroup):
             # explicit parametrization via the double cover SU(2) = S_3
             key, sphere_point = B.random.randn(key, dtype_double(key), number, 4)
             sphere_point /= B.reshape(
-                B.sqrt(einsum("ij,ij->i", sphere_point, sphere_point)), -1, 1
+                B.sqrt(B.einsum("ij,ij->i", sphere_point, sphere_point)), -1, 1
             )
             a = create_complex(sphere_point[..., 0], sphere_point[..., 1])
             b = create_complex(sphere_point[..., 2], sphere_point[..., 3])
@@ -235,7 +234,7 @@ class SpecialUnitary(CompactMatrixLieGroup):
             key, imag = B.random.randn(key, dtype_double(key), number, self.n, self.n)
             h = create_complex(real, imag) / B.sqrt(2)
             q, r = qr(h, mode="complete")
-            r_diag = einsum("...ii->...i", r)
+            r_diag = B.einsum("...ii->...i", r)
             r_diag_inv_phase = complex_conj(r_diag / B.abs(r_diag))
             q *= r_diag_inv_phase[:, None]
             q_det = B.det(q)
