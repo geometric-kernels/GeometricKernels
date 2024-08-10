@@ -11,6 +11,7 @@ from itertools import combinations
 import einops
 import lab as B
 import numpy as np
+from beartype.door import is_bearable
 from beartype.typing import Any, Callable, Generator, List, Optional, Set, Tuple, Union
 from plum import ModuleType, resolve_type_hint
 
@@ -452,7 +453,7 @@ def check_function_with_backend(
 
     args_casted = [np_to_backend(arg, backend) for arg in args]
     f_output = f(*args_casted)
-    assert isinstance(f_output, array_type(backend))
+    assert is_bearable(f_output, array_type(backend))
     if compare_to_result is None:
         # assert np.allclose(B.to_numpy(f_output), result, atol=atol)
         np.testing.assert_allclose(B.to_numpy(f_output), result, atol=atol)
