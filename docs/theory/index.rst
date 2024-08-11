@@ -13,3 +13,4 @@
    Kernels on product spaces <product_spaces>
    Product kernels <product_kernels>
    Feature maps and sampling <feature_maps>
+   Hypercube graph space <hypercube>
