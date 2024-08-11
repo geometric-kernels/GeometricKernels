@@ -28,36 +28,36 @@ def all_xs_and_combs(request):
     """
     d = request.param
 
-    x, combs = binary_vectors_and_subsets(d)
+    X, combs = binary_vectors_and_subsets(d)
 
-    return d, x, combs
+    return d, X, combs
 
 
-def walsh_matrix(d, combs, x):
-    return B.stack(*[walsh_function(d, comb, x) for comb in combs])
+def walsh_matrix(d, combs, X):
+    return B.stack(*[walsh_function(d, comb, X) for comb in combs])
 
 
 @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
 def test_walsh_functions(all_xs_and_combs, backend):
-    d, x, combs = all_xs_and_combs
+    d, X, combs = all_xs_and_combs
 
     # Check that Walsh functions are orthogonal.
     check_function_with_backend(
         backend,
         2**d * np.eye(2**d),
-        lambda x: B.matmul(walsh_matrix(d, combs, x), B.T(walsh_matrix(d, combs, x))),
-        x,
+        lambda X: B.matmul(walsh_matrix(d, combs, X), B.T(walsh_matrix(d, combs, X))),
+        X,
     )
 
     # Check that Walsh functions only take values in the set {-1, 1}.
     check_function_with_backend(
-        backend, np.ones((2**d, 2**d)), lambda x: B.abs(walsh_matrix(d, combs, x)), x
+        backend, np.ones((2**d, 2**d)), lambda X: B.abs(walsh_matrix(d, combs, X)), X
     )
 
 
 @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
 def test_kravchuk_polynomials(all_xs_and_combs, backend):
-    d, x, combs = all_xs_and_combs
+    d, X, combs = all_xs_and_combs
 
     x0 = np.zeros((1, d), dtype=bool)
 
@@ -66,7 +66,7 @@ def test_kravchuk_polynomials(all_xs_and_combs, backend):
         num_walsh = comb(d, j)
 
         result = np.sum(
-            walsh_matrix(d, combs, x)[cur_ind : cur_ind + num_walsh, :],
+            walsh_matrix(d, combs, X)[cur_ind : cur_ind + num_walsh, :],
             axis=0,
             keepdims=True,
         )
@@ -76,10 +76,10 @@ def test_kravchuk_polynomials(all_xs_and_combs, backend):
         check_function_with_backend(
             backend,
             result,
-            lambda x0, x: comb(d, j)
-            * kravchuk_normalized(d, j, hamming_distance(x0, x)),
+            lambda x0, X: comb(d, j)
+            * kravchuk_normalized(d, j, hamming_distance(x0, X)),
             x0,
-            x,
+            X,
         )
 
         cur_ind += num_walsh
@@ -87,25 +87,25 @@ def test_kravchuk_polynomials(all_xs_and_combs, backend):
 
 @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
 def test_kravchuk_precomputed(all_xs_and_combs, backend):
-    d, x, _ = all_xs_and_combs
+    d, X, _ = all_xs_and_combs
 
     x0 = np.zeros((1, d), dtype=bool)
 
     kravchuk_normalized_j_minus_1, kravchuk_normalized_j_minus_2 = None, None
     for j in range(d + 1):
 
-        cur_kravchuk_normalized = kravchuk_normalized(d, j, hamming_distance(x0, x))
+        cur_kravchuk_normalized = kravchuk_normalized(d, j, hamming_distance(x0, X))
 
         # Checks that Kravchuk polynomials coincide with certain sums of
         # the Walsh functions.
         check_function_with_backend(
             backend,
             cur_kravchuk_normalized,
-            lambda x0, x, kn1, kn2: kravchuk_normalized(
-                d, j, hamming_distance(x0, x), kn1, kn2
+            lambda x0, X, kn1, kn2: kravchuk_normalized(
+                d, j, hamming_distance(x0, X), kn1, kn2
             ),
             x0,
-            x,
+            X,
             kravchuk_normalized_j_minus_1,
             kravchuk_normalized_j_minus_2,
         )

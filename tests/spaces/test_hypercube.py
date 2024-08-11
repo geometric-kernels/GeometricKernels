@@ -43,7 +43,7 @@ def test_call_eigenfunctions(inputs: Tuple[B.NPNumeric, B.NPNumeric], backend):
     check_function_with_backend(
         backend,
         (X.shape[0], eigenfunctions.num_eigenfunctions),
-        lambda x: eigenfunctions(x),
+        lambda X: eigenfunctions(X),
         X,
         compare_to_result=lambda res, f_out: f_out.shape == res,
     )
@@ -80,15 +80,15 @@ def test_orthonormality(inputs, backend):
 
     eigenfunctions = space.get_eigenfunctions(space.dim + 1)
 
-    input, _ = binary_vectors_and_subsets(space.dim)
+    X, _ = binary_vectors_and_subsets(space.dim)
 
     # Check that the eigenfunctions are orthonormal with respect to the inner
     # product <x, y> = 2**(-d) sum_i x_i y_i.
     check_function_with_backend(
         backend,
         np.eye(2**space.dim) * 2**space.dim,
-        lambda x: B.matmul(B.T(eigenfunctions(x)), eigenfunctions(x)),
-        input,
+        lambda X: B.matmul(B.T(eigenfunctions(X)), eigenfunctions(X)),
+        X,
     )
 
 

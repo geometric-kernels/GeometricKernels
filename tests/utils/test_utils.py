@@ -12,17 +12,17 @@ from geometric_kernels.utils.utils import (
 @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
 def test_hamming_distance(backend):
 
-    x1 = np.array([[1, 0, 1]], dtype=bool)
+    X = np.array([[1, 0, 1]], dtype=bool)
 
-    x2 = np.array([[0, 0, 1]], dtype=bool)
+    X2 = np.array([[0, 0, 1]], dtype=bool)
 
     # Check that hamming_distance gives the correct results for the given inputs.
-    check_function_with_backend(backend, np.array([[1]]), hamming_distance, x1, x2)
-    check_function_with_backend(backend, np.array([[0]]), hamming_distance, x1, x1)
-    check_function_with_backend(backend, np.array([[0]]), hamming_distance, x2, x2)
-    check_function_with_backend(backend, np.array([[1]]), hamming_distance, x2, x1)
+    check_function_with_backend(backend, np.array([[1]]), hamming_distance, X, X2)
+    check_function_with_backend(backend, np.array([[0]]), hamming_distance, X, X)
+    check_function_with_backend(backend, np.array([[0]]), hamming_distance, X2, X2)
+    check_function_with_backend(backend, np.array([[1]]), hamming_distance, X2, X)
 
-    x1 = np.asarray(
+    X = np.asarray(
         [
             [0, 0, 0, 1, 0],
             [1, 0, 0, 0, 0],
@@ -36,7 +36,7 @@ def test_hamming_distance(backend):
         dtype=bool,
     )
 
-    x2 = np.asarray(
+    X2 = np.asarray(
         [
             [1, 1, 1, 0, 0],
             [1, 0, 1, 0, 0],
@@ -45,7 +45,7 @@ def test_hamming_distance(backend):
         dtype=bool,
     )
 
-    ham_x1_x2 = np.asarray(
+    ham_X_X2 = np.asarray(
         [
             [4, 3, 4],
             [2, 1, 2],
@@ -59,7 +59,7 @@ def test_hamming_distance(backend):
         dtype=int,
     )
 
-    ham_x1_x1 = np.asarray(
+    ham_X_X = np.asarray(
         [
             [0, 2, 3, 4, 1, 1, 1, 1],
             [2, 0, 3, 4, 3, 1, 1, 1],
@@ -73,7 +73,7 @@ def test_hamming_distance(backend):
         dtype=int,
     )
 
-    ham_x2_x2 = np.asarray(
+    ham_X2_X2 = np.asarray(
         [
             [0, 1, 2],
             [1, 0, 1],
@@ -83,10 +83,10 @@ def test_hamming_distance(backend):
     )
 
     # Check that hamming_distance gives the correct results for more given inputs.
-    check_function_with_backend(backend, ham_x1_x2, hamming_distance, x1, x2)
-    check_function_with_backend(backend, ham_x1_x1, hamming_distance, x1, x1)
-    check_function_with_backend(backend, ham_x2_x2, hamming_distance, x2, x2)
-    check_function_with_backend(backend, ham_x1_x2.T, hamming_distance, x2, x1)
+    check_function_with_backend(backend, ham_X_X2, hamming_distance, X, X2)
+    check_function_with_backend(backend, ham_X_X, hamming_distance, X, X)
+    check_function_with_backend(backend, ham_X2_X2, hamming_distance, X2, X2)
+    check_function_with_backend(backend, ham_X_X2.T, hamming_distance, X2, X)
 
 
 @pytest.mark.parametrize("n", [0, 1, 2, 3, 4, 5])
@@ -99,15 +99,15 @@ def test_log_binomial(n):
 
 @pytest.mark.parametrize("d", [0, 1, 2, 3, 5, 10])
 def test_binary_vectors_and_subsets(d):
-    x, subsets = binary_vectors_and_subsets(d)
+    X, subsets = binary_vectors_and_subsets(d)
 
     # Check the returned values have the correct types.
-    assert isinstance(x, np.ndarray)
+    assert isinstance(X, np.ndarray)
     assert isinstance(subsets, list)
 
     # Check the returned values have the correct shapes.
-    assert x.shape == (2**d, d)
-    assert x.dtype == bool
+    assert X.shape == (2**d, d)
+    assert X.dtype == bool
     assert len(subsets) == 2**d
 
     # Check that all x[i, :] are different and that they have ones at the
@@ -116,6 +116,6 @@ def test_binary_vectors_and_subsets(d):
         xi_alt = np.zeros(d, dtype=bool)
         assert isinstance(subsets[i], list)
         xi_alt[subsets[i]] = True
-        assert np.all(x[i, :] == xi_alt)
+        assert np.all(X[i, :] == xi_alt)
         for j in range(i + 1, 2**d):
-            assert np.any(x[i, :] != x[j, :])
+            assert np.any(X[i, :] != X[j, :])
