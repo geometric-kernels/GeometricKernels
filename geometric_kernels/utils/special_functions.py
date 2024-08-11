@@ -47,7 +47,13 @@ def walsh_function(d: int, combination: List[int], x: B.Bool) -> B.Float:
     return (-1) ** count_nonzero(take_along_axis(x, indices, axis=-1), axis=-1)
 
 
-def kravchuk_normalized(d: int, j: int, m: B.Int) -> B.Float:
+def kravchuk_normalized(
+    d: int,
+    j: int,
+    m: B.Int,
+    kravchuk_normalized_j_minus_1: Optional[B.Float] = None,
+    kravchuk_normalized_j_minus_2: Optional[B.Float] = None,
+) -> B.Float:
     r"""
     This function returns $G_{d, j, m}/G_{d, j, 0}$ where $G_{d, j, m}$ is the
     Kravchuk polynomial defined below.
@@ -79,6 +85,12 @@ def kravchuk_normalized(d: int, j: int, m: B.Int) -> B.Float:
     :param m:
         The independent variable, an integer 0 <= m <= d.
         Maps to x in :cite:t:`macwilliams1977`.
+    :param kravchuk_normalized_j_minus_1:
+        The optional precomputed value of $G_{d, j-1, m}/G_{d, j-1, 0}$, helps
+        to avoid exponential complexity growth due to the recursion.
+    :param kravchuk_normalized_j_minus_2:
+        The optional precomputed value of $G_{d, j-2, m}/G_{d, j-2, 0}$, helps
+        to avoid exponential complexity growth due to the recursion.
 
     :return:
         $G_{d, j, m}/G_{d, j, 0}$ where $G_{d, j, m}$ is the Kravchuk polynomial.
@@ -94,8 +106,12 @@ def kravchuk_normalized(d: int, j: int, m: B.Int) -> B.Float:
     elif j == 1:
         return 1 - 2 * m / d
     else:
-        rhs_1 = (d - 2 * m) * kravchuk_normalized(d, j - 1, m)
-        rhs_2 = -(j - 1) * kravchuk_normalized(d, j - 2, m)
+        if kravchuk_normalized_j_minus_1 is None:
+            kravchuk_normalized_j_minus_1 = kravchuk_normalized(d, j - 1, m)
+        if kravchuk_normalized_j_minus_2 is None:
+            kravchuk_normalized_j_minus_2 = kravchuk_normalized(d, j - 2, m)
+        rhs_1 = (d - 2 * m) * kravchuk_normalized_j_minus_1
+        rhs_2 = -(j - 1) * kravchuk_normalized_j_minus_2
         return (rhs_1 + rhs_2) / (d - j + 1)
 
 

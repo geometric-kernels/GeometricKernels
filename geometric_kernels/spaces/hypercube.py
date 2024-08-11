@@ -68,13 +68,23 @@ class WalshFunctions(EigenfunctionsWithAdditionTheorem):
 
         hamming_distances = hamming_distance(X, X2)
 
-        values = [
-            comb(self.dim, level)
-            * kravchuk_normalized(self.dim, level, hamming_distances)[
-                ..., None
-            ]  # [N, N2, 1]
-            for level in range(self.num_levels)
-        ]
+        values = []
+
+        kravchuk_normalized_j_minus_1, kravchuk_normalized_j_minus_2 = None, None
+        for level in range(self.num_levels):
+            cur_kravchuk_normalized = kravchuk_normalized(
+                self.dim,
+                level,
+                hamming_distances,
+                kravchuk_normalized_j_minus_1,
+                kravchuk_normalized_j_minus_2,
+            )  # [N, N2]
+            kravchuk_normalized_j_minus_2 = kravchuk_normalized_j_minus_1
+            kravchuk_normalized_j_minus_1 = cur_kravchuk_normalized
+
+            values.append(
+                comb(self.dim, level) * cur_kravchuk_normalized[..., None]  # [N, N2, 1]
+            )
 
         return B.concat(*values, axis=-1)  # [N, N2, L]
 
@@ -100,15 +110,28 @@ class WalshFunctions(EigenfunctionsWithAdditionTheorem):
 
         hamming_distances = hamming_distance(X, X2)
 
-        # Instead of multiplying weights by binomial coefficients, we sum their
-        # logs and then exponentiate the result for numerical stability.
-        result = sum(
-            B.exp(B.log(weights[level]) + log_binomial(self.dim, level))
-            * kravchuk_normalized(self.dim, level, hamming_distances)[..., None]
-            for level in range(self.num_levels)
-        )  # [N, N2, 1]
+        result = B.zeros(B.dtype(weights), X.shape[0], X2.shape[0])  # [N, N2]
+        kravchuk_normalized_j_minus_1, kravchuk_normalized_j_minus_2 = None, None
+        for level in range(self.num_levels):
+            cur_kravchuk_normalized = kravchuk_normalized(
+                self.dim,
+                level,
+                hamming_distances,
+                kravchuk_normalized_j_minus_1,
+                kravchuk_normalized_j_minus_2,
+            )
+            kravchuk_normalized_j_minus_2 = kravchuk_normalized_j_minus_1
+            kravchuk_normalized_j_minus_1 = cur_kravchuk_normalized
 
-        return B.reshape(result, *result.shape[:-1])  # [N, N2]
+            # Instead of multiplying weights by binomial coefficients, we sum their
+            # logs and then exponentiate the result for numerical stability.
+            # Furthermore, we save the computed Kravchuk polynomials for next iterations.
+            result += (
+                B.exp(B.log(weights[level]) + log_binomial(self.dim, level))
+                * cur_kravchuk_normalized
+            )
+
+        return result  # [N, N2]
 
     def weighted_outerproduct_diag(
         self, weights: B.Numeric, X: B.Numeric, **kwargs

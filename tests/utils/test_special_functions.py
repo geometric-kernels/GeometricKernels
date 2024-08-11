@@ -85,6 +85,35 @@ def test_kravchuk_polynomials(all_xs_and_combs, backend):
         cur_ind += num_walsh
 
 
+@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
+def test_kravchuk_precomputed(all_xs_and_combs, backend):
+    d, x, _ = all_xs_and_combs
+
+    x0 = np.zeros((1, d), dtype=bool)
+
+    kravchuk_normalized_j_minus_1, kravchuk_normalized_j_minus_2 = None, None
+    for j in range(d + 1):
+
+        cur_kravchuk_normalized = kravchuk_normalized(d, j, hamming_distance(x0, x))
+
+        # Checks that Kravchuk polynomials coincide with certain sums of
+        # the Walsh functions.
+        check_function_with_backend(
+            backend,
+            cur_kravchuk_normalized,
+            lambda x0, x, kn1, kn2: kravchuk_normalized(
+                d, j, hamming_distance(x0, x), kn1, kn2
+            ),
+            x0,
+            x,
+            kravchuk_normalized_j_minus_1,
+            kravchuk_normalized_j_minus_2,
+        )
+
+        kravchuk_normalized_j_minus_2 = kravchuk_normalized_j_minus_1
+        kravchuk_normalized_j_minus_1 = cur_kravchuk_normalized
+
+
 @pytest.mark.parametrize("d", [1, 5, 10])
 @pytest.mark.parametrize("lengthscale", [1.0, 5.0, 10.0])
 @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
