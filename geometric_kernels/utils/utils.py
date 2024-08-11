@@ -11,7 +11,7 @@ from itertools import combinations
 import einops
 import lab as B
 import numpy as np
-from beartype.door import is_bearable
+from beartype.door import die_if_unbearable, is_bearable
 from beartype.typing import Any, Callable, Generator, List, Optional, Set, Tuple, Union
 from plum import ModuleType, resolve_type_hint
 
@@ -421,7 +421,7 @@ def check_function_with_backend(
     backend: str,
     result: Any,
     f: Callable,
-    *args: B.NPNumeric,
+    *args: Any,
     compare_to_result: Optional[Callable] = None,
     atol=1e-4,
 ):
@@ -442,7 +442,8 @@ def check_function_with_backend(
     :param f:
         The backend-independent function to run.
     :param args:
-        The arguments to pass to the function `f`, expected to be numpy arrays.
+        The arguments to pass to the function `f`, expected to be numpy arrays
+        or non-array arguments.
     :param compare_to_result:
         A function that takes two arguments, the computed result and the
         expected result, and returns a boolean.
@@ -451,11 +452,17 @@ def check_function_with_backend(
         the expected result.
     """
 
-    args_casted = [np_to_backend(arg, backend) for arg in args]
+    args_casted = []
+    for arg in args:
+        if is_bearable(arg, B.Numeric):
+            # We only expect numpy arrays here
+            die_if_unbearable(arg, B.NPNumeric)
+            args_casted.append(np_to_backend(arg, backend))
+        else:
+            args_casted.append(arg)
     f_output = f(*args_casted)
     assert is_bearable(f_output, array_type(backend))
     if compare_to_result is None:
-        # assert np.allclose(B.to_numpy(f_output), result, atol=atol)
         np.testing.assert_allclose(B.to_numpy(f_output), result, atol=atol)
     else:
         assert compare_to_result(result, f_output)
