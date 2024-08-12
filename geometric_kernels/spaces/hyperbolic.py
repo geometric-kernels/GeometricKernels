@@ -5,7 +5,6 @@ This module provides the :class:`Hyperbolic` space.
 import geomstats as gs
 import lab as B
 from beartype.typing import Optional
-from opt_einsum import contract as einsum
 
 from geometric_kernels.lab_extras import (
     complex_like,
@@ -134,7 +133,7 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
         p = 1
         diagonal = from_numpy(vector_a, [-1.0] * p + [1.0] * q)  # (n+1)
         diagonal = B.cast(B.dtype(vector_a), diagonal)
-        return einsum("...i,...i->...", diagonal * vector_a, vector_b)
+        return B.einsum("...i,...i->...", diagonal * vector_a, vector_b)
 
     def inv_harish_chandra(self, lam: B.Numeric) -> B.Numeric:
         lam = B.squeeze(lam, -1)
