@@ -13,7 +13,6 @@ from typing import List, Tuple
 import lab as B
 import numpy as np
 from beartype.typing import Dict, List, Optional, Tuple
-from opt_einsum import contract as einsum
 from sympy import Poly, Product, symbols
 
 from geometric_kernels.lab_extras import (
@@ -85,7 +84,7 @@ def student_t_sample(
     shape_sqrt = B.chol(shape)
     dtype = dtype or dtype_double(key)
     key, z = B.randn(key, dtype, *size, n)
-    z = einsum("...i,ji->...j", z, shape_sqrt)
+    z = B.einsum("...i,ji->...j", z, shape_sqrt)
 
     key, g = B.randgamma(
         key,
