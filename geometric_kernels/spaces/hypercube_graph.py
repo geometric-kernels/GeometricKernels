@@ -1,5 +1,5 @@
 """
-This module provides the :class:`Hypercube` space and the respective
+This module provides the :class:`HypercubeGraph` space and the respective
 :class:`~.eigenfunctions.Eigenfunctions` subclass :class:`WalshFunctions`.
 """
 
@@ -25,8 +25,9 @@ from geometric_kernels.utils.utils import chain, hamming_distance, log_binomial
 
 class WalshFunctions(EigenfunctionsWithAdditionTheorem):
     r"""
-    Eigenfunctions of graph Laplacian on the hypercube $C^d = \{0, 1\}^d$ are
-    Walsh functions $w_T: C^d \to \{-1, 1\}$ given by
+    Eigenfunctions of graph Laplacian on the hypercube graph $C^d$ whose nodes
+    are index by binary vectors in $\{0, 1\}^d$ are the Walsh
+    functions $w_T: C^d \to \{-1, 1\}$ given by
 
     .. math:: w_T(x_0, .., x_{d-1}) = (-1)^{\sum_{i \in T} x_i},
 
@@ -37,7 +38,7 @@ class WalshFunctions(EigenfunctionsWithAdditionTheorem):
     certain discrete orthogonal polynomials called Kravchuk polynomials.
 
     :param dim:
-        Dimension $d$ of the hypercube.
+        Dimension $d$ of the hypercube graph.
 
     :param num_levels:
         Specifies the number of levels of the Walsh functions.
@@ -162,7 +163,7 @@ class WalshFunctions(EigenfunctionsWithAdditionTheorem):
         return [comb(self.dim, level) for level in range(self.num_levels)]
 
 
-class Hypercube(DiscreteSpectrumSpace):
+class HypercubeGraph(DiscreteSpectrumSpace):
     r"""
     The GeometricKernels space representing the d-dimensional hypercube graph
     $C^d = \{0, 1\}^d$, the combinatorial space of binary vectors of length $d$.
@@ -173,15 +174,15 @@ class Hypercube(DiscreteSpectrumSpace):
 
     .. note::
         A tutorial on how to use this space is available in the
-        :doc:`Hypersphere.ipynb </examples/Hypercube>` notebook.
+        :doc:`HypercubeGraph.ipynb </examples/HypercubeGraph>` notebook.
 
     .. note::
         Since the degree matrix is a constant multiple of the identity, all
-        types of the graph Laplacian coincide on the hypercube up to a constant,
-        we choose the normalized Laplacian for numerical stability.
+        types of the graph Laplacian coincide on the hypercube graph up to a
+        constant, we choose the normalized Laplacian for numerical stability.
 
     :param dim:
-        Dimension $d$ of the hypercube $C^d = \{0, 1\}^d$, a positive integer.
+        Dimension $d$ of the hypercube graph $C^d$, a positive integer.
 
     .. admonition:: Citation
 
@@ -202,7 +203,7 @@ class Hypercube(DiscreteSpectrumSpace):
         .. note:
             Although this is a graph, and graphs are generally treated as
             0-dimensional throughout GeometricKernels, we make an exception for
-            the hypercube. This is because it helps maintain good behavior of
+            HypercubeGraph. This is because it helps maintain good behavior of
             Matérn kernels with the usual values of the smoothness parameter
             nu, i.e. nu = 1/2, nu = 3/2, nu = 5/2.
         """
@@ -240,7 +241,7 @@ class Hypercube(DiscreteSpectrumSpace):
 
     def random(self, key: B.RandomState, number: int) -> B.Numeric:
         r"""
-        Sample uniformly random points on the hypercube $C^d = \{0, 1\}^d$.
+        Sample uniformly random points on the hypercube graph $C^d$.
 
         Always returns [N, D] boolean array of the `key`'s backend.
 

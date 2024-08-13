@@ -3,7 +3,7 @@
 ################################
 
 .. warning::
-    You can get by fine without reading this page for almost all use cases, just use the standard :class:`~.kernels.MaternGeometricKernel`, following the respective :doc:`example notebook </examples/Hypercube>`.
+    You can get by fine without reading this page for almost all use cases, just use the standard :class:`~.kernels.MaternGeometricKernel`, following the respective :doc:`example notebook </examples/HypercubeGraph>`.
 
     This is optional material meant to explain the basic theory and based mainly on :cite:t:`borovitskiy2023`.
 
@@ -11,7 +11,7 @@
 Motivation
 ==========================
 
-The :class:`~.spaces.Hypercube` space $C^d$ can be used to model $d$-dimensional *binary vector* inputs.
+The :class:`~.spaces.HypercubeGraph` space $C^d$ can be used to model $d$-dimensional *binary vector* inputs.
 
 There are many settings where inputs are binary vectors or can be represented as such. For instance, upon flattening, binary vectors represent adjacency matrices of *unweighted labeled graphs* [#]_. 
 
@@ -97,7 +97,7 @@ where $m$ is the Hamming distance between $x$ and $x'$, and $L \leq d + 1$ is th
 
 **Notes:**
 
-#. We define the dimension of the :class:`~.spaces.Hypercube` space $C^d$ to be $d$, in contrast to the graphs represented by the :class:`~.spaces.Graph` space, whose dimension is defined to be $0$.
+#. We define the dimension of the :class:`~.spaces.HypercubeGraph` space $C^d$ to be $d$, in contrast to the graphs represented by the :class:`~.spaces.Graph` space, whose dimension is defined to be $0$.
 
    Because of this, much like in the Euclidean or the manifold case, the $1/2, 3/2, 5/2$ *are* in fact reasonable values of for the smoothness parameter $\nu$.
 

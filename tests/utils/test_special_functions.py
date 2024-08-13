@@ -5,9 +5,9 @@ import numpy as np
 import pytest
 from sklearn.metrics.pairwise import rbf_kernel
 
-from geometric_kernels.spaces import Hypercube
+from geometric_kernels.spaces import HypercubeGraph
 from geometric_kernels.utils.special_functions import (
-    hypercube_heat_kernel,
+    hypercube_graph_heat_kernel,
     kravchuk_normalized,
     walsh_function,
 )
@@ -117,8 +117,8 @@ def test_kravchuk_precomputed(all_xs_and_combs, backend):
 @pytest.mark.parametrize("d", [1, 5, 10])
 @pytest.mark.parametrize("lengthscale", [1.0, 5.0, 10.0])
 @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
-def test_hypercube_heat_kernel(d, lengthscale, backend):
-    space = Hypercube(d)
+def test_hypercube_graph_heat_kernel(d, lengthscale, backend):
+    space = HypercubeGraph(d)
 
     key = np.random.RandomState()
     N, N2 = key.randint(low=1, high=min(2**d, 10) + 1, size=2)
@@ -128,12 +128,12 @@ def test_hypercube_heat_kernel(d, lengthscale, backend):
     gamma = -log(tanh(lengthscale**2 / 2))
     result = rbf_kernel(X, X2, gamma=gamma)
 
-    # Checks that the heat kernel on the hypercube coincides with the RBF kernel
+    # Checks that the heat kernel on the hypercube graph coincides with the RBF
     # restricted onto binary vectors, with appropriately redefined length scale.
     check_function_with_backend(
         backend,
         result,
-        lambda lengthscale, X, X2: hypercube_heat_kernel(
+        lambda lengthscale, X, X2: hypercube_graph_heat_kernel(
             lengthscale, X, X2, normalized_laplacian=False
         ),
         np.array([lengthscale]),
@@ -148,10 +148,10 @@ def test_hypercube_heat_kernel(d, lengthscale, backend):
         X_second = X[0:1, 3:]
         X2_second = X2[0:1, 3:]
 
-        K_first = hypercube_heat_kernel(
+        K_first = hypercube_graph_heat_kernel(
             np.array([lengthscale]), X_first, X2_first, normalized_laplacian=False
         )
-        K_second = hypercube_heat_kernel(
+        K_second = hypercube_graph_heat_kernel(
             np.array([lengthscale]), X_second, X2_second, normalized_laplacian=False
         )
 
@@ -162,7 +162,7 @@ def test_hypercube_heat_kernel(d, lengthscale, backend):
         check_function_with_backend(
             backend,
             result,
-            lambda lengthscale, X, X2: hypercube_heat_kernel(
+            lambda lengthscale, X, X2: hypercube_graph_heat_kernel(
                 lengthscale, X, X2, normalized_laplacian=False
             ),
             np.array([lengthscale]),

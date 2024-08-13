@@ -63,7 +63,7 @@ def kravchuk_normalized(
 
     .. math:: G_{d, j, m} = \sum_{T \subseteq \{0, .., d-1\}, |T| = j} w_T(x).
 
-    Here $w_T$ are the Walsh functions on the hypercube $C^d = \{0, 1\}^d$ and
+    Here $w_T$ are the Walsh functions on the hypercube graph $C^d$ and
     $x \in C^d$ is an arbitrary binary vector with $m$ ones (the right-hand side
     does not depend on the choice of a particular vector of the kind).
 
@@ -115,15 +115,15 @@ def kravchuk_normalized(
         return (rhs_1 + rhs_2) / (d - j + 1)
 
 
-def hypercube_heat_kernel(
+def hypercube_graph_heat_kernel(
     lengthscale: B.Numeric,
     X: B.Numeric,
     X2: Optional[B.Numeric] = None,
     normalized_laplacian: bool = True,
 ):
     """
-    Analytic formula for the heat kernel on the hypercube, see Equation (14) in
-    :cite:t:`borovitskiy2023`.
+    Analytic formula for the heat kernel on the hypercube graph, see
+    Equation (14) in :cite:t:`borovitskiy2023`.
 
     :param lengthscale:
         The length scale of the kernel, an array of shape [1].

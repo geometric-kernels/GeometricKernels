@@ -24,7 +24,7 @@ from geometric_kernels.spaces import (
     DiscreteSpectrumSpace,
     Graph,
     Hyperbolic,
-    Hypercube,
+    HypercubeGraph,
     Hypersphere,
     Mesh,
     NoncompactSymmetricSpace,
@@ -200,7 +200,7 @@ def default_num(space: DiscreteSpectrumSpace) -> int:
         return min(
             MaternGeometricKernel._DEFAULT_NUM_EIGENFUNCTIONS, space.num_vertices
         )
-    elif isinstance(space, Hypercube):
+    elif isinstance(space, HypercubeGraph):
         return min(MaternGeometricKernel._DEFAULT_NUM_LEVELS, space.dim + 1)
     else:
         return MaternGeometricKernel._DEFAULT_NUM_LEVELS

@@ -5,8 +5,8 @@ from opt_einsum import contract as einsum
 from plum import Tuple
 
 from geometric_kernels.kernels import MaternGeometricKernel
-from geometric_kernels.spaces import Hypercube
-from geometric_kernels.utils.special_functions import hypercube_heat_kernel
+from geometric_kernels.spaces import HypercubeGraph
+from geometric_kernels.utils.special_functions import hypercube_graph_heat_kernel
 from geometric_kernels.utils.utils import (
     binary_vectors_and_subsets,
     chain,
@@ -18,13 +18,13 @@ from geometric_kernels.utils.utils import (
 def inputs(request) -> Tuple[B.Numeric]:
     """
     Returns a tuple (space, eigenfunctions, X, X2) where:
-    - space is a Hypercube object with dimension equal to request.param,
+    - space is a HypercubeGraph object with dimension equal to request.param,
     - eigenfunctions is the respective Eigenfunctions object with at most 5 levels,
     - X is a random sample of random size from the space,
     - X2 is another random sample of random size from the space.
     """
     d = request.param
-    space = Hypercube(d)
+    space = HypercubeGraph(d)
     eigenfunctions = space.get_eigenfunctions(min(space.dim + 1, 5))
 
     key = np.random.RandomState()
@@ -164,7 +164,7 @@ def test_weighted_outerproduct_against_phi_product(inputs, backend):
     weights = np.random.rand(num_levels, 1)
     result = B.einsum("id,...nki->...nk", weights, sum_phi_phi_for_level)
 
-    # Check that `weighted_outerproduct`, which for the hypercube has a
+    # Check that `weighted_outerproduct`, which for HypercubeGraph has a
     # dedicated implementation, returns the same result as the usual way of
     # computing the `weighted_outerproduct` (based on the `phi_product` method).
     check_function_with_backend(
@@ -182,7 +182,7 @@ def test_weighted_outerproduct_diag_against_phi_product(inputs, backend):
     weights = np.random.rand(num_levels, 1)
     result = B.einsum("id,ni->n", weights, phi_product_diag)  # [N,]
 
-    # Check that `weighted_outerproduct_diag`, which for the hypercube has a
+    # Check that `weighted_outerproduct_diag`, which for HypercubeGraph has a
     # dedicated implementation, returns the same result as the usual way of
     # computing the `weighted_outerproduct_diag` (based on the
     # `phi_product_diag` method).
@@ -196,13 +196,13 @@ def test_weighted_outerproduct_diag_against_phi_product(inputs, backend):
 def test_against_analytic_heat_kernel(inputs, lengthscale, backend):
     space, _, X, X2 = inputs
     lengthscale = np.array([lengthscale])
-    result = hypercube_heat_kernel(lengthscale, X, X2)
+    result = hypercube_graph_heat_kernel(lengthscale, X, X2)
 
     kernel = MaternGeometricKernel(space)
 
-    # Check that MaternGeometricKernel on the hypercube with nu=infinity
+    # Check that MaternGeometricKernel on HypercubeGraph with nu=infinity
     # coincides with the closed form expression for the heat kernel on the
-    # hypercube.
+    # hypercube graph.
     check_function_with_backend(
         backend,
         result,
