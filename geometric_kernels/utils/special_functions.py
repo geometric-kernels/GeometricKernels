@@ -102,7 +102,7 @@ def kravchuk_normalized(
     m = B.cast(B.dtype_float(m), m)
 
     if j == 0:
-        return 1 + 0 * m  # 0*m is a hack to make the output have the same shape as m
+        return B.ones(m)
     elif j == 1:
         return 1 - 2 * m / d
     else:
