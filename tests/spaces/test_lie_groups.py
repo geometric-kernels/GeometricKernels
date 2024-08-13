@@ -4,7 +4,6 @@ import lab as B
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
-from opt_einsum import contract as einsum
 
 from geometric_kernels.feature_maps import RandomPhaseFeatureMapCompact
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
@@ -127,6 +126,6 @@ def test_feature_map(group_and_eigf):
 
     K_xx = (kernel.K(param, x, x)).real
     key, embed_x = feature_map(x, param, key=key, normalize=True)
-    F_xx = (einsum("ni,mi-> nm", embed_x, embed_x.conj())).real
+    F_xx = (B.einsum("ni,mi-> nm", embed_x, embed_x.conj())).real
 
     assert_allclose(K_xx, F_xx, atol=5e-2)

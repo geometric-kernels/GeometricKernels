@@ -3,7 +3,6 @@ import numpy as np
 import pytest
 import tensorflow as tf
 import torch
-from opt_einsum import contract as einsum
 from plum import Tuple
 
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
@@ -89,7 +88,7 @@ def test_weighted_outerproduct_with_addition_theorem(
 
     Phi_X = eigenfunctions(inputs)
     Phi_X2 = eigenfunctions(inputs2)
-    expected = einsum("ni,ki,i->nk", Phi_X, Phi_X2, chained_weights)
+    expected = B.einsum("ni,ki,i->nk", Phi_X, Phi_X2, chained_weights)
     np.testing.assert_array_almost_equal(actual, expected)
 
 
@@ -124,7 +123,7 @@ def test_weighted_outerproduct_diag_with_addition_theorem(
     actual = eigenfunctions.weighted_outerproduct_diag(weights, inputs)
 
     Phi_X = eigenfunctions(inputs)
-    expected = einsum("ni,i->n", Phi_X**2, chained_weights)
+    expected = B.einsum("ni,i->n", Phi_X**2, chained_weights)
     np.testing.assert_array_almost_equal(B.to_numpy(actual), B.to_numpy(expected))
 
 

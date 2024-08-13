@@ -1,6 +1,5 @@
 import lab as B
 import numpy as np
-from opt_einsum import contract as einsum
 
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel, ProductGeometricKernel
 from geometric_kernels.lab_extras.extras import from_numpy
@@ -43,7 +42,7 @@ def test_circle_product_eigenfunctions():
     weights = B.expand_dims(weights, -1)
     actual = B.to_numpy(eigenfunctions.weighted_outerproduct(weights, X, X))
 
-    expected = einsum("ni,mi,i->nm", Phi_X, Phi_X2, chained_weights)
+    expected = B.einsum("ni,mi,i->nm", Phi_X, Phi_X2, chained_weights)
     np.testing.assert_array_almost_equal(actual, expected)
 
 
