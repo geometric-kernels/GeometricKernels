@@ -7,11 +7,9 @@ from plum import Tuple
 from geometric_kernels.kernels import MaternGeometricKernel
 from geometric_kernels.spaces import HypercubeGraph
 from geometric_kernels.utils.special_functions import hypercube_graph_heat_kernel
-from geometric_kernels.utils.utils import (
-    binary_vectors_and_subsets,
-    chain,
-    check_function_with_backend,
-)
+from geometric_kernels.utils.utils import binary_vectors_and_subsets, chain
+
+from ..helper import check_function_with_backend
 
 
 @pytest.fixture(params=[1, 2, 3, 5, 10])

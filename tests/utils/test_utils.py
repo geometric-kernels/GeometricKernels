@@ -3,10 +3,11 @@ import pytest
 
 from geometric_kernels.utils.utils import (
     binary_vectors_and_subsets,
-    check_function_with_backend,
     hamming_distance,
     log_binomial,
 )
+
+from ..helper import check_function_with_backend
 
 
 @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])

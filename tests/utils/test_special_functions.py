@@ -11,11 +11,9 @@ from geometric_kernels.utils.special_functions import (
     kravchuk_normalized,
     walsh_function,
 )
-from geometric_kernels.utils.utils import (
-    binary_vectors_and_subsets,
-    check_function_with_backend,
-    hamming_distance,
-)
+from geometric_kernels.utils.utils import binary_vectors_and_subsets, hamming_distance
+
+from ..helper import check_function_with_backend
 
 
 @pytest.fixture(params=[1, 2, 3, 5, 10])
