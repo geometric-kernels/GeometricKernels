@@ -41,7 +41,7 @@ def test_call_eigenfunctions(inputs: Tuple[B.NPNumeric, B.NPNumeric], backend):
     check_function_with_backend(
         backend,
         (X.shape[0], eigenfunctions.num_eigenfunctions),
-        lambda X: eigenfunctions(X),
+        eigenfunctions,
         X,
         compare_to_result=lambda res, f_out: f_out.shape == res,
     )
