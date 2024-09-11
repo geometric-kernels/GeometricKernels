@@ -7,6 +7,8 @@ It wraps around different kernels and feature maps, dispatching on the space.
 Unless you know exactly what you are doing, use :class:`MaternGeometricKernel`.
 """
 
+import logging
+
 from plum import dispatch, overload
 
 from geometric_kernels.feature_maps import (
@@ -72,16 +74,7 @@ def default_feature_map(
 
 @overload
 def feature_map_from_kernel(kernel: MaternKarhunenLoeveKernel):
-    if isinstance(kernel.space, CompactMatrixLieGroup):
-        # Because `CompactMatrixLieGroup` does not currently support explicit
-        # eigenfunction computation (they only support addition theorem).
-        return RandomPhaseFeatureMapCompact(
-            kernel.space,
-            kernel.num_levels,
-            MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES,
-        )
-    else:
-        return DeterministicFeatureMapCompact(kernel.space, kernel.num_levels)
+    return feature_map_from_space(kernel.space, kernel.num_levels)
 
 
 @overload
@@ -132,13 +125,29 @@ def feature_map_from_space(space: DiscreteSpectrumSpace, num: int):
             space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
         )
     elif isinstance(space, Hypersphere):
-        num_computed_levels = space.num_computed_levels
+        num_computed_levels = space.get_eigenfunctions(num).num_computed_levels  # type: ignore[attr-defined]
+        # Individual spherical harmonics are only computed for lower dimensions.
+        # For higher dimensions, we use random phase features.
         if num_computed_levels > 0:
             return DeterministicFeatureMapCompact(space, min(num, num_computed_levels))
         else:
             return RandomPhaseFeatureMapCompact(
-                space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
+                space, num, int(MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES / num)
             )
+    elif isinstance(space, HypercubeGraph) and space.dim > 10:
+        # The number of eigenfunctions grows exponentially with the dimension,
+        # thus we only use the eigenfunction-based feature map for low
+        # dimensions, switching to random phase features for higher dimensions.
+        logging.getLogger(__name__).warning(
+            "Using RandomPhaseFeatureMapCompact. For HypercubeGraph, this"
+            " approximate feature map will probably be of poor quality."
+            " However, the eigenfunction-based feature map is going to be"
+            " infeasible because the number of eigenfunctions at level l"
+            " grows too quickly with dim (as dim^l). Any port in a storm."
+        )
+        return RandomPhaseFeatureMapCompact(
+            space, num, int(MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES / num)
+        )
     else:
         return DeterministicFeatureMapCompact(space, num)
 
@@ -201,7 +210,9 @@ def default_num(space: DiscreteSpectrumSpace) -> int:
             MaternGeometricKernel._DEFAULT_NUM_EIGENFUNCTIONS, space.num_vertices
         )
     elif isinstance(space, HypercubeGraph):
-        return min(MaternGeometricKernel._DEFAULT_NUM_LEVELS, space.dim + 1)
+        return min(
+            MaternGeometricKernel._DEFAULT_NUM_LEVELS_HYPERCUBE_GRAPH, space.dim + 1
+        )
     else:
         return MaternGeometricKernel._DEFAULT_NUM_LEVELS
 
@@ -256,6 +267,7 @@ class MaternGeometricKernel:
 
     _DEFAULT_NUM_EIGENFUNCTIONS = 1000
     _DEFAULT_NUM_LEVELS = 25
+    _DEFAULT_NUM_LEVELS_HYPERCUBE_GRAPH = 15
     _DEFAULT_NUM_LEVELS_LIE_GROUP = 20
     _DEFAULT_NUM_RANDOM_PHASES = 3000
 
@@ -324,7 +336,10 @@ class MaternGeometricKernel:
         kernel: BaseGeometricKernel
         if isinstance(space, DiscreteSpectrumSpace):
             num = num or default_num(space)
-            kernel = MaternKarhunenLoeveKernel(space, num, normalize=normalize)
+            log_spectrum_on = isinstance(space, HypercubeGraph)
+            kernel = MaternKarhunenLoeveKernel(
+                space, num, normalize=normalize, log_spectrum_on=log_spectrum_on
+            )
             if return_feature_map:
                 feature_map = default_feature_map(kernel=kernel)
 

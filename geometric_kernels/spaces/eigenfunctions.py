@@ -23,7 +23,12 @@ import abc
 import lab as B
 from beartype.typing import List, Optional
 
-from geometric_kernels.lab_extras import complex_like, is_complex, take_along_axis
+from geometric_kernels.lab_extras import (
+    complex_like,
+    from_numpy,
+    is_complex,
+    take_along_axis,
+)
 
 
 class Eigenfunctions(abc.ABC):
@@ -252,6 +257,85 @@ class EigenfunctionsWithAdditionTheorem(Eigenfunctions):
         """
         raise NotImplementedError
 
+    def normalized_phi_product(
+        self, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs
+    ) -> B.Numeric:
+        r"""
+        Computes the level-wise sums of outer products of eigenfunctions,
+        normalized by the number of eigenfunctions per level:
+
+        .. math:: d_l^{-1} \sum_{s=1}^{d_l} f_{l s}(x_1) f_{l s}(x_2)
+
+        for all $x_1$ in `X`, all $x_2$ in `X2`, and $0 \leq l < L$.
+
+        **Motivation:** for some spaces (e.g. :class:`~.spaces.HypercubeGraph`),
+        the values $d_l$ can be extremely large, not even fitting int64. In this
+        case, the usual :meth:`phi_product` can give extremely large outputs,
+        leading to numerical instabilities. This method is provided to avoid
+        this issue. Downstream, it allows computing the weighted sums of form
+
+        .. math:: w_l \sum_{s=1}^{d_l} f_{l s}(x_1) f_{l s}(x_2)
+
+        in a numerically stable way, by first computing the renormalized
+        weights $w_l' = \exp(\log(w_l) + \log(d_l))$ in the log space, and
+        then multiplying the output of this method by $w_l'$.
+
+        :param X:
+            The first of the two batches of points to evaluate the normalized
+            phi product at. An array of shape [N, <axis>], where N is the
+            number of points and <axis> is the shape of the arrays that
+            represent the points in a given space.
+        :param X2:
+            The second of the two batches of points to evaluate the normalized
+            phi product at. An array of shape [N2, <axis>], where N2 is the
+            number of points and <axis> is the shape of the arrays that
+            represent the points in a given space.
+
+            Defaults to None, in which case X is used for X2.
+        :param ``**kwargs``:
+            Any additional parameters.
+
+        :return:
+            An array of shape [N, N2, L].
+
+        .. note::
+            By default, a trivial implementation is provided that simply
+            divides the output of :meth:`phi_product` by the number of
+            eigenfunctions per level. The individual subclasses should
+            consider implementing this method in a more efficient way.
+        """
+
+        num_eigenfunctions_per_level = B.cast(
+            B.dtype(X), from_numpy(X, self.num_eigenfunctions_per_level)[None, :]
+        )
+
+        return self.phi_product(X, X2, **kwargs) / num_eigenfunctions_per_level
+
+    def normalized_phi_product_diag(self, X: B.Numeric, **kwargs) -> B.Numeric:
+        r"""
+        Computes the diagonals of the matrices
+        ``normalized_phi_product(X, X, **kwargs)[:, :, l]``, $0 \leq l < L$.
+
+        :param X:
+            As in :meth:`normalized_phi_product`.
+        :param ``**kwargs``:
+            As in :meth:`normalized_phi_product`.
+
+        :return:
+            An array of shape [N, L].
+
+        .. note::
+            By default, a trivial implementation is provided that simply
+            divides the output of :meth:`phi_product_diag` by the number of
+            eigenfunctions per level. The individual subclasses should
+            consider implementing this method in a more efficient way.
+        """
+        num_eigenfunctions_per_level = B.cast(
+            B.dtype(X), from_numpy(X, self.num_eigenfunctions_per_level)[None, :]
+        )
+
+        return self.phi_product_diag(X, **kwargs) / num_eigenfunctions_per_level
+
 
 class EigenfunctionsFromEigenvectors(Eigenfunctions):
     """
@@ -274,11 +358,13 @@ class EigenfunctionsFromEigenvectors(Eigenfunctions):
         X2: Optional[B.Numeric] = None,  # type: ignore
         **kwargs,
     ) -> B.Numeric:
-        Phi_X = self.__call__(X, **kwargs)  # [N, J]
+        if kwargs:
+            raise ValueError("This method does not support additional arguments.")
+        Phi_X = self.__call__(X)  # [N, J]
         if X2 is None:
             Phi_X2 = Phi_X
         else:
-            Phi_X2 = self.__call__(X2, **kwargs)  # [N2, J]
+            Phi_X2 = self.__call__(X2)  # [N2, J]
 
         Phi_X = B.cast(B.dtype(weights), Phi_X)
         Phi_X2 = B.cast(B.dtype(weights), Phi_X2)
@@ -289,21 +375,27 @@ class EigenfunctionsFromEigenvectors(Eigenfunctions):
     def weighted_outerproduct_diag(
         self, weights: B.Numeric, X: B.Numeric, **kwargs
     ) -> B.Numeric:
-        Phi_X = self.__call__(X, **kwargs)  # [N, J]
+        if kwargs:
+            raise ValueError("This method does not support additional arguments.")
+        Phi_X = self.__call__(X)  # [N, J]
         Kx = B.sum(B.transpose(weights) * Phi_X**2, axis=1)  # [N,]
         return Kx
 
     def phi_product(
         self, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs
     ) -> B.Numeric:
+        if kwargs:
+            raise ValueError("This method does not support additional arguments.")
         if X2 is None:
             X2 = X
-        Phi_X = self.__call__(X, **kwargs)  # [N, J]
-        Phi_X2 = self.__call__(X2, **kwargs)  # [N2, J]
+        Phi_X = self.__call__(X)  # [N, J]
+        Phi_X2 = self.__call__(X2)  # [N2, J]
         return B.einsum("nl,ml->nml", Phi_X, Phi_X2)  # [N, N2, J]
 
     def phi_product_diag(self, X: B.Numeric, **kwargs):
-        Phi_X = self.__call__(X, **kwargs)  # [N, J]
+        if kwargs:
+            raise ValueError("This method does not support additional arguments.")
+        Phi_X = self.__call__(X)  # [N, J]
         return Phi_X**2
 
     def __call__(self, X: B.Numeric, **kwargs) -> B.Numeric:
@@ -313,13 +405,13 @@ class EigenfunctionsFromEigenvectors(Eigenfunctions):
 
         :param X:
             Indices, an array of shape [N, 1].
-        :param ``**kwargs``:
-            Ignored.
 
         :return:
             An array of shape [N, J], whose element with index (n, j)
             corresponds to the X[n]-th element of the j-th eigenvector.
         """
+        if kwargs:
+            raise ValueError("This method does not support additional arguments.")
         indices = B.cast(B.dtype_int(X), X)
         Phi = take_along_axis(self.eigenvectors, indices, axis=0)
         return Phi

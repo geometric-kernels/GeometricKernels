@@ -34,6 +34,8 @@ class SinCosEigenfunctions(EigenfunctionsWithAdditionTheorem):
         self._num_levels = num_levels
 
     def __call__(self, X: B.Numeric, **kwargs) -> B.Numeric:
+        if kwargs:
+            raise ValueError("This method does not support additional arguments.")
         N = B.shape(X)[0]
         theta = X
         const = 2.0**0.5
@@ -71,12 +73,12 @@ class SinCosEigenfunctions(EigenfunctionsWithAdditionTheorem):
             represent the points in a given space.
 
             Defaults to None, in which case X is used for X2.
-        :param ``**kwargs``:
-            Any additional parameters.
 
         :return:
             An array of shape [N, N2, L].
         """
+        if kwargs:
+            raise ValueError("This method does not support additional arguments.")
         theta1, theta2 = X, X2
         angle_between = theta1[:, None, :] - theta2[None, :, :]  # [N, N2, 1]
         freqs = B.range(B.dtype(X), self.num_levels)  # [L]
@@ -95,6 +97,8 @@ class SinCosEigenfunctions(EigenfunctionsWithAdditionTheorem):
         :return:
             Array `result`, such that result[n, l] = 1 if l = 0 or 2 otherwise.
         """
+        if kwargs:
+            raise ValueError("This method does not support additional arguments.")
         N = X.shape[0]
         ones = B.ones(B.dtype(X), N, self.num_levels)  # [N, L]
         value = ones * B.cast(
