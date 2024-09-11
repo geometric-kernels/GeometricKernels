@@ -19,7 +19,8 @@ def inputs(request) -> Tuple[B.Numeric]:
     - space is a HypercubeGraph object with dimension equal to request.param,
     - eigenfunctions is the respective Eigenfunctions object with at most 5 levels,
     - X is a random sample of random size from the space,
-    - X2 is another random sample of random size from the space.
+    - X2 is another random sample of random size from the space,
+    - weights is an array of positive numbers of shape (eigenfunctions.num_levels, 1).
     """
     d = request.param
     space = HypercubeGraph(d)
@@ -30,12 +31,16 @@ def inputs(request) -> Tuple[B.Numeric]:
     key, X = space.random(key, N)
     key, X2 = space.random(key, N2)
 
-    return space, eigenfunctions, X, X2
+    # These weights are used for testing the weighted outerproduct, they
+    # should be positive.
+    weights = np.random.rand(eigenfunctions.num_levels, 1) ** 2 + 0.01
+
+    return space, eigenfunctions, X, X2, weights
 
 
 @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
 def test_call_eigenfunctions(inputs: Tuple[B.NPNumeric, B.NPNumeric], backend):
-    _, eigenfunctions, X, _ = inputs
+    _, eigenfunctions, X, _, _ = inputs
 
     # Check that the eigenfunctions can be called, returning the right type and shape.
     check_function_with_backend(
@@ -48,7 +53,7 @@ def test_call_eigenfunctions(inputs: Tuple[B.NPNumeric, B.NPNumeric], backend):
 
 
 def test_numbers_of_eigenfunctions(inputs):
-    space, eigenfunctions, _, _ = inputs
+    space, eigenfunctions, _, _, _ = inputs
     num_levels = eigenfunctions.num_levels
     # Check that the length of the `num_eigenfunctions_per_level` list is correct.
     assert len(eigenfunctions.num_eigenfunctions_per_level) == num_levels
@@ -71,7 +76,7 @@ def test_numbers_of_eigenfunctions(inputs):
 
 @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
 def test_orthonormality(inputs, backend):
-    space, _, _, _ = inputs
+    space, _, _, _, _ = inputs
 
     if space.dim > 5:
         pytest.skip("Test is too slow for dim > 5")
@@ -92,10 +97,8 @@ def test_orthonormality(inputs, backend):
 
 @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
 def test_weighted_outerproduct_with_addition_theorem(inputs, backend):
-    _, eigenfunctions, X, X2 = inputs
-    num_levels = eigenfunctions.num_levels
+    _, eigenfunctions, X, X2, weights = inputs
 
-    weights = np.random.rand(num_levels, 1)
     chained_weights = chain(
         weights.squeeze(), eigenfunctions.num_eigenfunctions_per_level
     )
@@ -114,10 +117,7 @@ def test_weighted_outerproduct_with_addition_theorem(inputs, backend):
 
 @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
 def test_weighted_outerproduct_with_addition_theorem_one_input(inputs, backend):
-    _, eigenfunctions, X, _ = inputs
-    num_levels = eigenfunctions.num_levels
-
-    weights = np.random.rand(num_levels, 1)
+    _, eigenfunctions, X, _, weights = inputs
 
     result = eigenfunctions.weighted_outerproduct(weights, X, X)
 
@@ -134,10 +134,7 @@ def test_weighted_outerproduct_with_addition_theorem_one_input(inputs, backend):
 
 @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
 def test_weighted_outerproduct_diag(inputs, backend):
-    _, eigenfunctions, X, _ = inputs
-    num_levels = eigenfunctions.num_levels
-
-    weights = np.random.rand(num_levels, 1)
+    _, eigenfunctions, X, _, weights = inputs
 
     result = np.diag(eigenfunctions.weighted_outerproduct(weights, X, X))
 
@@ -154,12 +151,10 @@ def test_weighted_outerproduct_diag(inputs, backend):
 
 @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
 def test_weighted_outerproduct_against_phi_product(inputs, backend):
-    _, eigenfunctions, X, X2 = inputs
-    num_levels = eigenfunctions.num_levels
+    _, eigenfunctions, X, X2, weights = inputs
 
     sum_phi_phi_for_level = eigenfunctions.phi_product(X, X2)
 
-    weights = np.random.rand(num_levels, 1)
     result = B.einsum("id,...nki->...nk", weights, sum_phi_phi_for_level)
 
     # Check that `weighted_outerproduct`, which for HypercubeGraph has a
@@ -172,12 +167,10 @@ def test_weighted_outerproduct_against_phi_product(inputs, backend):
 
 @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
 def test_weighted_outerproduct_diag_against_phi_product(inputs, backend):
-    _, eigenfunctions, X, _ = inputs
-    num_levels = eigenfunctions.num_levels
+    _, eigenfunctions, X, _, weights = inputs
 
     phi_product_diag = eigenfunctions.phi_product_diag(X)
 
-    weights = np.random.rand(num_levels, 1)
     result = B.einsum("id,ni->n", weights, phi_product_diag)  # [N,]
 
     # Check that `weighted_outerproduct_diag`, which for HypercubeGraph has a
@@ -192,7 +185,7 @@ def test_weighted_outerproduct_diag_against_phi_product(inputs, backend):
 @pytest.mark.parametrize("lengthscale", [1.0, 5.0, 10.0])
 @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
 def test_against_analytic_heat_kernel(inputs, lengthscale, backend):
-    space, _, X, X2 = inputs
+    space, _, X, X2, _ = inputs
     lengthscale = np.array([lengthscale])
     result = hypercube_graph_heat_kernel(lengthscale, X, X2)
 
