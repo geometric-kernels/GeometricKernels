@@ -224,12 +224,12 @@ class WeylAdditionTheorem(EigenfunctionsWithAdditionTheorem):
             An [N2, n, n]-shaped array, a batch of N2 matrices of size nxn.
 
             Defaults to None, in which case X is used for X2.
-        :param ``**kwargs``:
-            Any additional parameters.
 
         :return:
             An array of shape [N, N2, L].
         """
+        if kwargs:
+            raise ValueError("This method does not support additional arguments.")
         if X2 is None:
             X2 = X
         diff = self._difference(X, X2)
@@ -247,12 +247,12 @@ class WeylAdditionTheorem(EigenfunctionsWithAdditionTheorem):
 
         :param X:
             As in :meth:`_addition_theorem`.
-        :param ``**kwargs``:
-            As in :meth:`_addition_theorem`.
 
         :return:
             An array of shape [N, L].
         """
+        if kwargs:
+            raise ValueError("This method does not support additional arguments.")
         ones = B.ones(B.dtype(X), *X.shape[:-2], 1)
         values = [
             repr_dim * repr_dim * ones  # [N, 1], because chi(X*inv(X))=repr_dim

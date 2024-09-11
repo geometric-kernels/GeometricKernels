@@ -95,7 +95,7 @@ def test_weighted_outerproduct_with_addition_theorem(inputs, backend):
     _, eigenfunctions, X, X2 = inputs
     num_levels = eigenfunctions.num_levels
 
-    weights = np.random.rand(num_levels, 1)
+    weights = np.random.rand(num_levels, 1) ** 2 + 0.01  # Must be positive.
     chained_weights = chain(
         weights.squeeze(), eigenfunctions.num_eigenfunctions_per_level
     )
@@ -103,6 +103,8 @@ def test_weighted_outerproduct_with_addition_theorem(inputs, backend):
     Phi_X = eigenfunctions(X)
     Phi_X2 = eigenfunctions(X2)
     result = einsum("ni,ki,i->nk", Phi_X, Phi_X2, chained_weights)
+
+    np.seterr(invalid="raise")
 
     # Check that `weighted_outerproduct`, which is based on the addition theorem,
     # returns the same result as the direct computation involving individual
@@ -117,7 +119,7 @@ def test_weighted_outerproduct_with_addition_theorem_one_input(inputs, backend):
     _, eigenfunctions, X, _ = inputs
     num_levels = eigenfunctions.num_levels
 
-    weights = np.random.rand(num_levels, 1)
+    weights = np.random.rand(num_levels, 1) ** 2 + 0.01  # Must be positive.
 
     result = eigenfunctions.weighted_outerproduct(weights, X, X)
 
@@ -137,7 +139,7 @@ def test_weighted_outerproduct_diag(inputs, backend):
     _, eigenfunctions, X, _ = inputs
     num_levels = eigenfunctions.num_levels
 
-    weights = np.random.rand(num_levels, 1)
+    weights = np.random.rand(num_levels, 1) ** 2 + 0.01  # Must be positive.
 
     result = np.diag(eigenfunctions.weighted_outerproduct(weights, X, X))
 
@@ -159,7 +161,7 @@ def test_weighted_outerproduct_against_phi_product(inputs, backend):
 
     sum_phi_phi_for_level = eigenfunctions.phi_product(X, X2)
 
-    weights = np.random.rand(num_levels, 1)
+    weights = np.random.rand(num_levels, 1) ** 2 + 0.01  # Must be positive.
     result = B.einsum("id,...nki->...nk", weights, sum_phi_phi_for_level)
 
     # Check that `weighted_outerproduct`, which for HypercubeGraph has a
@@ -177,7 +179,7 @@ def test_weighted_outerproduct_diag_against_phi_product(inputs, backend):
 
     phi_product_diag = eigenfunctions.phi_product_diag(X)
 
-    weights = np.random.rand(num_levels, 1)
+    weights = np.random.rand(num_levels, 1) ** 2 + 0.01  # Must be positive.
     result = B.einsum("id,ni->n", weights, phi_product_diag)  # [N,]
 
     # Check that `weighted_outerproduct_diag`, which for HypercubeGraph has a

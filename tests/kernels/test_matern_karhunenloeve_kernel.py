@@ -28,7 +28,7 @@ def test_eigenfunctions(kernel: MaternKarhunenLoeveKernel):
     Phi = kernel.eigenfunctions
     X = np.random.randint(low=0, high=kernel.space.num_vertices, size=(num_data, 1))
 
-    assert Phi(X, lengthscale=np.r_[0.93]).shape == (num_data, _TRUNCATION_LEVEL)
+    assert Phi(X).shape == (num_data, _TRUNCATION_LEVEL)
 
 
 def test_K_shapes(kernel: MaternKarhunenLoeveKernel):

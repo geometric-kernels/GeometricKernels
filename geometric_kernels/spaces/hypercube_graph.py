@@ -10,7 +10,7 @@ import lab as B
 import numpy as np
 from beartype.typing import List, Optional
 
-from geometric_kernels.lab_extras import dtype_double, float_like
+from geometric_kernels.lab_extras import dtype_double, float_like, from_numpy
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import (
     Eigenfunctions,
@@ -51,6 +51,8 @@ class WalshFunctions(EigenfunctionsWithAdditionTheorem):
         self._num_eigenfunctions: Optional[int] = None  # To be computed when needed.
 
     def __call__(self, X: B.Bool, **kwargs) -> B.Float:
+        if kwargs:
+            raise ValueError("This method does not support additional arguments.")
         return B.stack(
             *[
                 walsh_function(self.dim, list(cur_combination), X)
@@ -60,10 +62,11 @@ class WalshFunctions(EigenfunctionsWithAdditionTheorem):
             axis=1,
         )
 
-    def _addition_theorem(
+    def normalized_phi_product(
         self, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs
     ) -> B.Numeric:
-
+        if kwargs:
+            raise ValueError("This method does not support additional arguments.")
         if X2 is None:
             X2 = X
 
@@ -83,31 +86,63 @@ class WalshFunctions(EigenfunctionsWithAdditionTheorem):
             kravchuk_normalized_j_minus_2 = kravchuk_normalized_j_minus_1
             kravchuk_normalized_j_minus_1 = cur_kravchuk_normalized
 
-            values.append(
-                comb(self.dim, level) * cur_kravchuk_normalized[..., None]  # [N, N2, 1]
-            )
+            values.append(cur_kravchuk_normalized[..., None])  # [N, N2, 1]
 
         return B.concat(*values, axis=-1)  # [N, N2, L]
 
-    def _addition_theorem_diag(self, X: B.Numeric, **kwargs) -> B.Numeric:
-        """
-        These are certain easy to compute constants.
-        """
+    def _addition_theorem(
+        self, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs
+    ) -> B.Numeric:
+        if kwargs:
+            raise ValueError("This method does not support additional arguments.")
+
+        num_eigenfunctions_per_level = B.cast(
+            B.dtype(X), from_numpy(X, self.num_eigenfunctions_per_level)[None, :]
+        )
+
+        return self.normalized_phi_product(X, X2) * num_eigenfunctions_per_level
+
+    def normalized_phi_product_diag(self, X: B.Numeric, **kwargs) -> B.Numeric:
+        if kwargs:
+            raise ValueError("This method does not support additional arguments.")
+        # These are certain easy to compute constants.
         values = [
-            comb(self.dim, level) * B.ones(float_like(X), *X.shape[:-1], 1)  # [N, 1]
-            for level in range(self.num_levels)
+            B.ones(float_like(X), *X.shape[:-1], 1)  # [N, 1]
+            for _ in range(self.num_levels)
         ]
         return B.concat(*values, axis=1)  # [N, L]
+
+    def _addition_theorem_diag(self, X: B.Numeric, **kwargs) -> B.Numeric:
+        if kwargs:
+            raise ValueError("This method does not support additional arguments.")
+        num_eigenfunctions_per_level = B.cast(
+            B.dtype(X), from_numpy(X, self.num_eigenfunctions_per_level)[None, :]
+        )
+
+        return self.normalized_phi_product_diag(X) * num_eigenfunctions_per_level
 
     def weighted_outerproduct(
         self,
         weights: B.Numeric,
         X: B.Numeric,
         X2: Optional[B.Numeric] = None,  # type: ignore
+        *,
+        log_weights_on: bool = False,  # If True, weights are log weights.
         **kwargs,
     ) -> B.Numeric:
+        if kwargs:
+            raise ValueError(
+                "This method does not support keyword arguments beyond log_weights_on."
+            )
+
         if X2 is None:
             X2 = X
+
+        # Instead of multiplying weights by binomial coefficients, we sum their
+        # logs and then exponentiate the result for numerical stability.
+        # Furthermore, we save the computed Kravchuk polynomials for next iterations.
+        if not log_weights_on:
+            weights = B.log(weights)
 
         hamming_distances = hamming_distance(X, X2)
 
@@ -124,24 +159,33 @@ class WalshFunctions(EigenfunctionsWithAdditionTheorem):
             kravchuk_normalized_j_minus_2 = kravchuk_normalized_j_minus_1
             kravchuk_normalized_j_minus_1 = cur_kravchuk_normalized
 
-            # Instead of multiplying weights by binomial coefficients, we sum their
-            # logs and then exponentiate the result for numerical stability.
-            # Furthermore, we save the computed Kravchuk polynomials for next iterations.
             result += (
-                B.exp(B.log(weights[level]) + log_binomial(self.dim, level))
+                B.exp(weights[level] + log_binomial(self.dim, level))
                 * cur_kravchuk_normalized
             )
 
         return result  # [N, N2]
 
     def weighted_outerproduct_diag(
-        self, weights: B.Numeric, X: B.Numeric, **kwargs
+        self,
+        weights: B.Numeric,
+        X: B.Numeric,
+        *,
+        log_weights_on: bool = False,  # If True, weights are log weights.
+        **kwargs,
     ) -> B.Numeric:
+        if kwargs:
+            raise ValueError(
+                "This method does not support keyword arguments beyond log_weights_on."
+            )
 
         # Instead of multiplying weights by binomial coefficients, we sum their
         # logs and then exponentiate the result for numerical stability.
+        if not log_weights_on:
+            weights = B.log(weights)
+
         result = sum(
-            B.exp(B.log(weights[level]) + log_binomial(self.dim, level))
+            B.exp(weights[level] + log_binomial(self.dim, level))
             * B.ones(float_like(X), *X.shape[:-1], 1)
             for level in range(self.num_levels)
         )  # [N, 1]
@@ -161,6 +205,10 @@ class WalshFunctions(EigenfunctionsWithAdditionTheorem):
     @property
     def num_eigenfunctions_per_level(self) -> List[int]:
         return [comb(self.dim, level) for level in range(self.num_levels)]
+
+    @property
+    def log_num_eigenfunctions_per_level(self) -> List[int]:
+        return [log_binomial(self.dim, level) for level in range(self.num_levels)]
 
 
 class HypercubeGraph(DiscreteSpectrumSpace):
@@ -234,7 +282,9 @@ class HypercubeGraph(DiscreteSpectrumSpace):
 
         eigenfunctions = WalshFunctions(self.dim, num)
         eigenvalues = chain(
-            B.squeeze(eigenvalues_per_level),
+            eigenvalues_per_level[
+                :, 0
+            ],  # This is better than squeeze because we want to keep the 0-st dim even if it's equal to 1.
             eigenfunctions.num_eigenfunctions_per_level,
         )  # [J,]
         return B.reshape(eigenvalues, -1, 1)  # [J, 1]

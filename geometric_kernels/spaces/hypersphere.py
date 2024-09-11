@@ -57,6 +57,8 @@ class SphericalHarmonics(EigenfunctionsWithAdditionTheorem):
         return num
 
     def __call__(self, X: B.Numeric, **kwargs) -> B.Numeric:
+        if kwargs:
+            raise ValueError("This method does not support additional arguments.")
         return self._spherical_harmonics(X)
 
     def _addition_theorem(
@@ -81,12 +83,12 @@ class SphericalHarmonics(EigenfunctionsWithAdditionTheorem):
             represent the points in a given space.
 
             Defaults to None, in which case X is used for X2.
-        :param ``**kwargs``:
-            Any additional parameters.
 
         :return:
             An array of shape [N, N2, L].
         """
+        if kwargs:
+            raise ValueError("This method does not support additional arguments.")
         values = [
             level.addition(X, X2)[..., None]  # [N, N2, 1]
             for level in self._spherical_harmonics.harmonic_levels
@@ -97,6 +99,8 @@ class SphericalHarmonics(EigenfunctionsWithAdditionTheorem):
         """
         These are certain easy to compute constants.
         """
+        if kwargs:
+            raise ValueError("This method does not support additional arguments.")
         values = [
             level.addition_at_1(X)  # [N, 1]
             for level in self._spherical_harmonics.harmonic_levels

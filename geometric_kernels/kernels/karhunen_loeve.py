@@ -3,6 +3,9 @@ This module provides the :class:`MaternKarhunenLoeveKernel` kernel, the basic
 kernel for discrete spectrum spaces, subclasses of :class:`DiscreteSpectrumSpace`.
 """
 
+import logging
+from math import log
+
 import lab as B
 import numpy as np
 from beartype.typing import Dict, Optional
@@ -50,20 +53,25 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
     :param num_levels:
         Number of levels to include in the summation.
     :param normalize:
-        Whether to normalize kernel to have unit average variance.
+        Whether to normalize kernel to have unit average variance. Keyword-only.
+    :param log_spectrum_on:
+        If True, the spectrum is computed in the log domain. Keyword-only.
     """
 
     def __init__(
         self,
         space: DiscreteSpectrumSpace,
         num_levels: int,
+        *,
         normalize: bool = True,
+        log_spectrum_on=False,
     ):
         super().__init__(space)
         self.num_levels = num_levels  # in code referred to as `L`.
         self._eigenvalues_laplacian = self.space.get_eigenvalues(self.num_levels)
         self._eigenfunctions = self.space.get_eigenfunctions(self.num_levels)
         self.normalize = normalize
+        self.log_spectrum_on = log_spectrum_on
 
     @property
     def space(self) -> DiscreteSpectrumSpace:
@@ -94,7 +102,12 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         return params
 
     def _spectrum(
-        self, s: B.Numeric, nu: B.Numeric, lengthscale: B.Numeric
+        self,
+        s: B.Numeric,
+        nu: B.Numeric,
+        lengthscale: B.Numeric,
+        *,
+        log_spectrum_on: Optional[bool] = None,
     ) -> B.Numeric:
         """
         The spectrum of the Matérn kernel with hyperparameters `nu` and
@@ -106,25 +119,40 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             The smoothness parameter of the kernel.
         :param lengthscale:
             The length scale parameter of the kernel.
+        :param log_spectrum_on:
+            If True, the spectrum is computed in the log domain. Keyword-only.
+            If not provided or None, the value of `self.log_spectrum_on` is used.
 
         :return:
-            The spectrum of the Matérn kernel.
+            The spectrum of the Matérn kernel (or the log thereof, if
+            `log_spectrum_on` is set to True).
         """
         assert lengthscale.shape == (1,)
         assert nu.shape == (1,)
+
+        if log_spectrum_on is None:
+            log_spectrum_on = self.log_spectrum_on
 
         # Note: 1.0 in safe_nu can be replaced by any finite positive value
         safe_nu = B.where(nu == np.inf, B.cast(B.dtype(lengthscale), np.r_[1.0]), nu)
 
         # for nu == np.inf
-        spectral_values_nu_infinite = B.exp(
-            -(lengthscale**2) / 2.0 * B.cast(B.dtype(lengthscale), s)
-        )
+        if log_spectrum_on:
+            spectral_values_nu_infinite = (
+                -(lengthscale**2) / 2.0 * B.cast(B.dtype(lengthscale), s)
+            )
+        else:
+            spectral_values_nu_infinite = B.exp(
+                -(lengthscale**2) / 2.0 * B.cast(B.dtype(lengthscale), s)
+            )
 
         # for nu < np.inf
         power = -safe_nu - self.space.dimension / 2.0
         base = 2.0 * safe_nu / lengthscale**2 + B.cast(B.dtype(safe_nu), s)
-        spectral_values_nu_finite = base**power
+        if log_spectrum_on:
+            spectral_values_nu_finite = B.log(base) * power
+        else:
+            spectral_values_nu_finite = base**power
 
         return B.where(
             nu == np.inf, spectral_values_nu_infinite, spectral_values_nu_finite
@@ -145,7 +173,11 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         return self._eigenvalues_laplacian
 
     def eigenvalues(
-        self, params: Dict[str, B.Numeric], normalize: Optional[bool] = None
+        self,
+        params: Dict[str, B.Numeric],
+        normalize: Optional[bool] = None,
+        *,
+        log_spectrum_on: Optional[bool] = None,
     ) -> B.Numeric:
         """
         Eigenvalues of the kernel.
@@ -159,6 +191,9 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             If None, uses `self.normalize` to decide.
 
             Defaults to None.
+        :param log_spectrum_on:
+            If True, the spectrum is computed in the log domain. Keyword-only.
+            If not provided or None, the value of `self.log_spectrum_on` is used.
 
         :return:
             An [L, 1]-shaped array.
@@ -168,24 +203,51 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         assert "nu" in params
         assert params["nu"].shape == (1,)
 
+        if log_spectrum_on is None:
+            log_spectrum_on = self.log_spectrum_on
+
         spectral_values = self._spectrum(
             self.eigenvalues_laplacian,
             nu=params["nu"],
             lengthscale=params["lengthscale"],
+            log_spectrum_on=log_spectrum_on,
         )
+
         normalize = normalize or (normalize is None and self.normalize)
+
         if normalize:
-            normalizer = B.sum(
-                spectral_values
-                * B.cast(
-                    B.dtype(spectral_values),
-                    from_numpy(
-                        spectral_values,
-                        self.eigenfunctions.num_eigenfunctions_per_level,
-                    )[:, None],
+
+            if log_spectrum_on:
+                if hasattr(self.eigenfunctions, "log_num_eigenfunctions_per_level"):
+                    num_eigenfunctions_per_level = (
+                        self.eigenfunctions.log_num_eigenfunctions_per_level
+                    )
+                else:
+                    logging.getLogger(__name__).warning(
+                        "Using log_spectrum_on on a space without"
+                        " log_num_eigenfunctions_per_level."
+                    )
+
+                    num_eigenfunctions_per_level = list(
+                        map(log, self.eigenfunctions.num_eigenfunctions_per_level)
+                    )
+            else:
+                num_eigenfunctions_per_level = (
+                    self.eigenfunctions.num_eigenfunctions_per_level
                 )
+
+            num_eigenfunctions_per_level = B.cast(
+                B.dtype(spectral_values),
+                from_numpy(spectral_values, num_eigenfunctions_per_level)[:, None],
             )
-            return spectral_values / normalizer
+
+            if log_spectrum_on:
+                normalizer = B.logsumexp(spectral_values + num_eigenfunctions_per_level)
+                return spectral_values - normalizer
+            else:
+                normalizer = B.sum(spectral_values * num_eigenfunctions_per_level)
+                return spectral_values / normalizer
+
         return spectral_values
 
     def K(
@@ -196,7 +258,19 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         assert "nu" in params
         assert params["nu"].shape == (1,)
 
-        weights = B.cast(B.dtype(params["nu"]), self.eigenvalues(params))  # [L, 1]
+        if "log_spectrum_on" in kwargs:
+            log_spectrum_on = kwargs["log_spectrum_on"]
+            kwargs["log_weights_on"] = log_spectrum_on
+            kwargs.pop("log_spectrum_on")
+        else:
+            log_spectrum_on = self.log_spectrum_on
+            if log_spectrum_on:
+                kwargs["log_weights_on"] = True
+
+        weights = B.cast(
+            B.dtype(params["nu"]),
+            self.eigenvalues(params, log_spectrum_on=log_spectrum_on),
+        )  # [L, 1]
         Phi = self.eigenfunctions
         K = Phi.weighted_outerproduct(weights, X, X2, **kwargs)  # [N, N2]
         if is_complex(K):
@@ -210,7 +284,19 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         assert "nu" in params
         assert params["nu"].shape == (1,)
 
-        weights = B.cast(B.dtype(params["nu"]), self.eigenvalues(params))  # [L, 1]
+        if "log_spectrum_on" in kwargs:
+            log_spectrum_on = kwargs["log_spectrum_on"]
+            kwargs["log_weights_on"] = log_spectrum_on
+            kwargs.pop("log_spectrum_on")
+        else:
+            log_spectrum_on = self.log_spectrum_on
+            if log_spectrum_on:
+                kwargs["log_weights_on"] = True
+
+        weights = B.cast(
+            B.dtype(params["nu"]),
+            self.eigenvalues(params, log_spectrum_on=log_spectrum_on),
+        )  # [L, 1]
         Phi = self.eigenfunctions
         K_diag = Phi.weighted_outerproduct_diag(weights, X, **kwargs)  # [N,]
         if is_complex(K_diag):

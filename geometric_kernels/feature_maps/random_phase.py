@@ -12,6 +12,8 @@ specialized per-space implementation is available, like the ones in the module
 :mod:`geometric_kernels.feature_maps.rejection_sampling`.
 """
 
+from math import log
+
 import lab as B
 from beartype.typing import Dict, Optional, Tuple
 
@@ -46,7 +48,11 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
         self.space = space
         self.num_levels = num_levels
         self.num_random_phases = num_random_phases
-        self.kernel = MaternKarhunenLoeveKernel(space, num_levels)
+        self.kernel = MaternKarhunenLoeveKernel(
+            space,
+            num_levels,
+            normalize=False,  # RandomPhaseFeatureMapCompact uses its own normalization.
+        )
 
     def __call__(
         self,
@@ -54,8 +60,7 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
         params: Dict[str, B.Numeric],
         *,
         key: B.RandomState,
-        normalize: Optional[bool] = None,
-        **kwargs,
+        normalize: bool = True,
     ) -> Tuple[B.RandomState, B.Numeric]:
         """
         :param X:
@@ -80,11 +85,7 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
                 does this for you.
 
         :param normalize:
-            Normalize to have unit average variance (if omitted
-            or None, follows the standard behavior of
-            :class:`kernels.MaternKarhunenLoeveKernel`).
-        :param ``**kwargs``:
-            Unused.
+            Normalize to have constant unit variance. Defaults to `True`.
 
         :return:
             `Tuple(key, features)` where `features` is an [N, O] array, N
@@ -93,12 +94,11 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
             state (generator) for any other backends.
         """
         key, random_phases = self.space.random(key, self.num_random_phases)  # [O, D]
-        eigenvalues = self.kernel.eigenvalues_laplacian
 
-        spectrum = self.kernel._spectrum(
-            eigenvalues,
-            nu=params["nu"],
-            lengthscale=params["lengthscale"],
+        log_spectrum = self.kernel.eigenvalues(
+            params,
+            normalize=True,  # Will be overridden by the normalization below but helps with numerical stability.
+            log_spectrum_on=True,
         )
 
         if is_complex(X):
@@ -106,12 +106,32 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
         else:
             dtype = B.dtype(params["lengthscale"])
 
-        weights = B.power(spectrum, 0.5)  # [L, 1]
+        log_weights = 0.5 * log_spectrum  # [L, 1]
+
+        eigenfunctions = self.kernel.eigenfunctions
+        if hasattr(eigenfunctions, "log_num_eigenfunctions_per_level"):
+            log_num_eigenfunctions_per_level = (
+                eigenfunctions.log_num_eigenfunctions_per_level
+            )  # [L]
+        else:
+            log_num_eigenfunctions_per_level = list(
+                map(log, eigenfunctions.num_eigenfunctions_per_level)
+            )  # [L]
+
+        log_num_eigenfunctions_per_level = B.cast(
+            B.dtype(params["lengthscale"]),
+            from_numpy(params["lengthscale"], log_num_eigenfunctions_per_level)[
+                :, None
+            ],
+        )  # [L, 1]
+
+        log_weights = log_weights + log_num_eigenfunctions_per_level
+        weights = B.exp(log_weights)  # [L, 1]
 
         random_phases_b = B.cast(dtype, from_numpy(X, random_phases))
 
-        phi_product = self.kernel.eigenfunctions.phi_product(
-            X, random_phases_b, **params
+        phi_product = self.kernel.eigenfunctions.normalized_phi_product(  # type: ignore[attr-defined]
+            X, random_phases_b
         )  # [N, O, L]
 
         embedding = B.cast(dtype, phi_product)  # [N, O, L]
@@ -121,7 +141,6 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
         if is_complex(features):
             features = B.concat(B.real(features), B.imag(features), axis=1)
 
-        normalize = normalize or (normalize is None and self.kernel.normalize)
         if normalize:
             normalizer = B.sqrt(B.sum(features**2, axis=-1, squeeze=False))
             features = features / normalizer
@@ -165,7 +184,6 @@ class RandomPhaseFeatureMapNoncompact(FeatureMap):
         *,
         key: B.RandomState,
         normalize: Optional[bool] = True,
-        **kwargs,
     ) -> Tuple[B.RandomState, B.Numeric]:
         """
         :param X:
@@ -189,8 +207,6 @@ class RandomPhaseFeatureMapNoncompact(FeatureMap):
 
         :param normalize:
             Normalize to have unit average variance (`True` by default).
-        :param ``**kwargs``:
-            Unused.
 
         :return: `Tuple(key, features)` where `features` is an [N, O] array, N
             is the number of inputs and O is the dimension of the feature map;

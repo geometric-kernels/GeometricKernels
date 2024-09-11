@@ -22,6 +22,13 @@ class DeterministicFeatureMapCompact(FeatureMap):
         A :class:`~.spaces.DiscreteSpectrumSpace` space.
     :param num_levels:
         Number of levels in the kernel approximation.
+
+    .. note::
+         This feature map does not support a "`log_spectrum` mode", unlike the
+         :class:`~.feature_maps.RandomPhaseFeatureMapCompact` feature map or
+         the :class:`~.kernels.MaternKarhunenLoeveKernel` kernel.
+         The reason is simple: if the number of eigenfunctions per level
+         becomes large, this feature map is infeasible anyway.
     """
 
     def __init__(self, space: DiscreteSpectrumSpace, num_levels: int):
@@ -36,8 +43,9 @@ class DeterministicFeatureMapCompact(FeatureMap):
         self,
         X: B.Numeric,
         params: Dict[str, B.Numeric],
+        *,
         normalize: Optional[bool] = None,
-        **kwargs,
+        key: Optional[B.RandomState] = None,
     ) -> Tuple[None, B.Numeric]:
         """
         :param X:
@@ -48,15 +56,24 @@ class DeterministicFeatureMapCompact(FeatureMap):
             Normalize to have unit average variance (if omitted
             or None, follows the standard behavior of
             :class:`~.kernels.MaternKarhunenLoeveKernel`).
-        :param ``**kwargs``:
-            Unused.
+        :param key:
+            Random state, either `np.random.RandomState`,
+            `tf.random.Generator`, `torch.Generator` or `jax.tensor` (which
+            represents a random state).
+
+            Keyword-only. Only accepted for compatibility with randomized
+            feature maps. If provided, the key is returned as the first
+            element of the tuple.
 
         :return:
-            `Tuple(None, features)` where `features` is an [N, O] array, N
-            is the number of inputs and O is the dimension of the feature map.
+            `Tuple(key, features)` where `features` is an [N, O] array, N
+            is the number of inputs and O is the dimension of the feature map,
+            while `key` is the `key` keyword argument, unchanged.
 
         .. note::
-           The first element of the returned tuple is the simple None and
+           The first element of the returned tuple is the value of the `key`
+           keyword argument, unchanged. When this argument is omitted (which is
+           expected to be the typical use case), it is a simple None and
            should be ignored. It is only there to support the abstract
            interface: for some other subclasses of :class:`FeatureMap`, this
            first element may be an updated random key.
@@ -72,9 +89,9 @@ class DeterministicFeatureMapCompact(FeatureMap):
             spectrum = spectrum / normalizer
 
         weights = B.transpose(B.power(spectrum, 0.5))  # [1, M]
-        eigenfunctions = self.kernel.eigenfunctions(X, **params)  # [N, M]
+        eigenfunctions = self.kernel.eigenfunctions(X)  # [N, M]
 
         features = B.cast(B.dtype(params["lengthscale"]), eigenfunctions) * B.cast(
             B.dtype(params["lengthscale"]), weights
         )  # [N, M]
-        return None, features
+        return key, features
