@@ -47,10 +47,14 @@ class SUEigenfunctions(WeylAdditionTheorem):
             )
         )
         signatures = [sgn + (0,) for sgn in signatures]
+         
+        eig_and_signature = [
+            (round(4 * (len(signature)**2) 
+            * self._compute_eigenvalue(signature)), signature) 
+              for signature in signatures]
 
-        keys = [self._compute_keys_sorting_sgn(signature) for signature in signatures]
-        min_ind = np.argsort(keys)[:num_levels]
-        signatures = [signatures[i] for i in min_ind]
+        eig_and_signature.sort()
+        signatures = [eig_sgn[1] for eig_sgn in eig_and_signature][:num_levels]
         return signatures
 
     def _compute_dimension(self, signature: Tuple[int, ...]) -> int:
@@ -69,17 +73,6 @@ class SUEigenfunctions(WeylAdditionTheorem):
             ),
         )
         return int(round(rep_dim))
-
-    def _compute_keys_sorting_sgn(self, signature):
-        normalized_signature = 2*len(signature) * np.asarray(signature, dtype=np.int64) - 2*np.sum(
-            signature
-        )
-        norm_rho = len(signature) * np.arange(self.n - 1, -self.n, -2)
-        lb_eigenvalue = (
-            np.sum((norm_rho + normalized_signature) ** 2)
-            - np.sum(norm_rho** 2) 
-        )
-        return (lb_eigenvalue, signature)
 
     def _compute_eigenvalue(self, signature: Tuple[int, ...]) -> B.Float:
         normalized_signature = np.asarray(signature, dtype=np.float64) - np.mean(
