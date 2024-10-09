@@ -5,52 +5,38 @@ import lab as B
 import numpy as np
 import scipy.sparse as sp
 import torch
+import networkx as nx
 
 from geometric_kernels.jax import *  # noqa
-from geometric_kernels.kernels import MaternKarhunenLoeveKernel
+from geometric_kernels.kernels import (
+    MaternKarhunenLoeveKernel, 
+    MaternKarhunenLoeveKernel_HodgeCompositionEdge
+)
 from geometric_kernels.spaces.graph_edge import GraphEdge
 from geometric_kernels.torch import *  # noqa
 
 warnings.filterwarnings("ignore", category=RuntimeWarning, module="scipy")
 
-B1 = np.array(
-    [
-        [-1, -1, -1, 0, 0, 0],
-        [1, 0, 0, -1, 0, 0],
-        [0, 1, 0, 1, -1, 0],
-        [0, 0, 1, 0, 0, -1],
-        [0, 0, 0, 0, 1, 1],
-    ]
-).astype(np.float64)
+G = nx.Graph()
+G.add_edge(1, 2)
+G.add_edge(1, 3)
+G.add_edge(1, 5)
+G.add_edge(2, 3)
+G.add_edge(3, 4)
+G.add_edge(4, 5)
 
-B2 = np.array(
-    [
-        [1],
-        [-1],
-        [0],
-        [1],
-        [0],
-        [0],
-    ]
-).astype(np.float64)
+triangles = [(1,2,3)]
 
 
-def run_tests_with_adj(B1, B2, tol=1e-7, tol_m=1e-4):
+def run_tests_with_lap(tol=1e-7, tol_m=1e-4):
     ##############################################
     # Inits
-
-    m = B1.shape[1]
-    sc = GraphEdge(B1, B2)
+    sc = GraphEdge(G,triangle_list=triangles, sc_lifting=True)
+    m = sc.num_edges
 
     ##############################################
     # Laplacian computation
-    L = B.matmul(B1, B1, tr_a=True) + B.matmul(B2, B2, tr_b=True)
-    comparison = sc._edge_laplacian == L
-
-    if sp.issparse(comparison):
-        comparison = comparison.toarray()
-
-    assert B.all(comparison), "Laplacian does not match."
+    L = sc.edge_laplacian
 
     ##############################################
     # Eigendecomposition checks
@@ -77,16 +63,17 @@ def run_tests_with_adj(B1, B2, tol=1e-7, tol_m=1e-4):
             np.abs(evecs)[:, [1, 0]], np.abs(evecs_np)[:, :2], atol=tol, rtol=tol
         )
 
+
     ##############################################
     # Kernel init checks
 
     K_cons = MaternKarhunenLoeveKernel(sc, m, normalize=False)
     params = K_cons.init_params()
 
-    idx = B.cast(B.dtype(B1), np.arange(m)[:, None])
+    idx = B.cast(B.dtype(L), np.arange(m)[:, None])
 
-    nu = B.cast(B.dtype(B1), np.array([1.0]))
-    lscale = B.cast(B.dtype(B1), np.array([1.0]))
+    nu = B.cast(B.dtype(L), np.array([1.0]))
+    lscale = B.cast(B.dtype(L), np.array([1.0]))
 
     K_normed_cons = MaternKarhunenLoeveKernel(sc, m, normalize=False)
     normed_params = K_normed_cons.init_params()
@@ -105,7 +92,7 @@ def run_tests_with_adj(B1, B2, tol=1e-7, tol_m=1e-4):
     ##############################################
     # Matern 2 check
 
-    nu = B.cast(B.dtype(B1), np.array([2.0]))
+    nu = B.cast(B.dtype(L), np.array([2.0]))
     params["nu"], params["lengthscale"] = nu, lscale
     Kg = K_cons.K(params, idx)
     K2 = evecs_np @ np.diag(np.power(evals_np + 4, -2)) @ evecs_np.T
@@ -114,7 +101,7 @@ def run_tests_with_adj(B1, B2, tol=1e-7, tol_m=1e-4):
     ##############################################
     # RBF check
 
-    nu = B.cast(B.dtype(B1), np.array([np.inf]))
+    nu = B.cast(B.dtype(L), np.array([np.inf]))
     params["nu"], params["lengthscale"] = nu, lscale
     Kg = K_cons.K(params, idx)
     Ki = evecs_np @ np.diag(np.exp(-0.5 * evals_np)) @ evecs_np.T
@@ -146,7 +133,7 @@ def run_tests_with_adj(B1, B2, tol=1e-7, tol_m=1e-4):
     K_cons = MaternKarhunenLoeveKernel(sc, m, normalize=False)
     params = K_cons.init_params()
 
-    nu = B.cast(B.dtype(B1), np.array([np.inf]))
+    nu = B.cast(B.dtype(L), np.array([np.inf]))
     params["nu"], params["lengthscale"] = nu, lscale
     Kg = K_cons.K(params, idx)
     Ki = evecs_np @ np.diag(np.exp(-0.5 * evals_np)) @ evecs_np.T
@@ -154,21 +141,20 @@ def run_tests_with_adj(B1, B2, tol=1e-7, tol_m=1e-4):
 
 
 def test_graphs_numpy():
-    run_tests_with_adj(B1, B2)
-
+    run_tests_with_lap()
 
 def test_graphs_torch():
-    run_tests_with_adj(torch.tensor(B1), torch.tensor(B2))
+    run_tests_with_lap()
 
 
 def test_graphs_jax():
-    run_tests_with_adj(jax.numpy.array(B1), jax.numpy.array(B2), 1e-4, 1e-4)
+    run_tests_with_lap(1e-4, 1e-4)
 
 
 def test_graphs_torch_cuda():
     if torch.cuda.is_available():
-        m = B1.shape[1]
-        sc = GraphEdge(torch.tensor(B1).cuda(), torch.tensor(B2).cuda())
+        sc = GraphEdge(G,triangle_list=triangles, sc_lifting=True)
+        m = sc.num_edges
 
         K_cons = MaternKarhunenLoeveKernel(sc, m, normalize=False)
         params = K_cons.init_params()

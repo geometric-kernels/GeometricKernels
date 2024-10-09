@@ -7,7 +7,9 @@ A brief introduction into the theory can be found on :doc:`this page
 
 # noqa: F401
 from geometric_kernels.feature_maps.base import FeatureMap
-from geometric_kernels.feature_maps.deterministic import DeterministicFeatureMapCompact
+from geometric_kernels.feature_maps.deterministic import (
+    DeterministicFeatureMapCompact, DeterministicFeatureMapCompact_HodgeCompositional
+)
 from geometric_kernels.feature_maps.random_phase import (
     RandomPhaseFeatureMapCompact,
     RandomPhaseFeatureMapNoncompact,

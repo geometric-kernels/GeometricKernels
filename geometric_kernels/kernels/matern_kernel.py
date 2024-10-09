@@ -11,6 +11,7 @@ from plum import dispatch, overload
 
 from geometric_kernels.feature_maps import (
     DeterministicFeatureMapCompact,
+    DeterministicFeatureMapCompact_HodgeCompositional,
     RandomPhaseFeatureMapCompact,
     RandomPhaseFeatureMapNoncompact,
     RejectionSamplingFeatureMapHyperbolic,
@@ -18,11 +19,15 @@ from geometric_kernels.feature_maps import (
 )
 from geometric_kernels.kernels.base import BaseGeometricKernel
 from geometric_kernels.kernels.feature_map import MaternFeatureMapKernel
-from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
+from geometric_kernels.kernels.karhunen_loeve import (
+    MaternKarhunenLoeveKernel, 
+    MaternKarhunenLoeveKernel_HodgeCompositionEdge
+    )
 from geometric_kernels.spaces import (
     CompactMatrixLieGroup,
     DiscreteSpectrumSpace,
     Graph,
+    GraphEdge,
     Hyperbolic,
     Hypersphere,
     Mesh,
@@ -82,6 +87,11 @@ def feature_map_from_kernel(kernel: MaternKarhunenLoeveKernel):
     else:
         return DeterministicFeatureMapCompact(kernel.space, kernel.num_levels)
 
+@overload
+def feature_map_from_kernel(kernel: MaternKarhunenLoeveKernel_HodgeCompositionEdge):
+    "For Hodge-compositional edge kernels ONLY"
+    assert isinstance(kernel.space, GraphEdge)
+    return DeterministicFeatureMapCompact_HodgeCompositional(kernel.space, kernel.num_levels)
 
 @overload
 def feature_map_from_kernel(kernel: MaternFeatureMapKernel):
@@ -139,6 +149,7 @@ def feature_map_from_space(space: DiscreteSpectrumSpace, num: int):
                 space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
             )
     else:
+        
         return DeterministicFeatureMapCompact(space, num)
 
 
@@ -198,6 +209,10 @@ def default_num(space: DiscreteSpectrumSpace) -> int:
     elif isinstance(space, (Graph, Mesh)):
         return min(
             MaternGeometricKernel._DEFAULT_NUM_EIGENFUNCTIONS, space.num_vertices
+        )
+    elif isinstance(space, GraphEdge):
+        return min(
+            MaternGeometricKernel._DEFAULT_NUM_EIGENFUNCTIONS, space.num_edges
         )
     else:
         return MaternGeometricKernel._DEFAULT_NUM_LEVELS
@@ -262,6 +277,7 @@ class MaternGeometricKernel:
         num: int = None,
         normalize: bool = True,
         return_feature_map: bool = False,
+        use_hodge_composition: bool = None,
         **kwargs,
     ):
         r"""
@@ -308,6 +324,12 @@ class MaternGeometricKernel:
             from Gaussian processes) along with the kernel.
 
             Default is False.
+            
+        :param use_hodge_composition:
+            If `True`, use the Hodge compositional kernel on the
+            edges of a graph or a simplicial complex. This is only relevant for the :class:`~.spaces.GraphEdge`
+            space.
+                
         :param ``**kwargs``:
             Any additional keyword arguments to be passed to the kernel
             (like `key`).
@@ -321,7 +343,13 @@ class MaternGeometricKernel:
         kernel: BaseGeometricKernel
         if isinstance(space, DiscreteSpectrumSpace):
             num = num or default_num(space)
-            kernel = MaternKarhunenLoeveKernel(space, num, normalize=normalize)
+            if isinstance(space, GraphEdge):
+                if use_hodge_composition:
+                    kernel = MaternKarhunenLoeveKernel_HodgeCompositionEdge(space, num, normalize=normalize)
+                else:
+                    kernel = MaternKarhunenLoeveKernel(space, num, normalize=normalize)
+            else:
+                kernel = MaternKarhunenLoeveKernel(space, num, normalize=normalize)
             if return_feature_map:
                 feature_map = default_feature_map(kernel=kernel)
 
@@ -349,3 +377,4 @@ class MaternGeometricKernel:
             return kernel, feature_map
         else:
             return kernel
+        
