@@ -13,12 +13,12 @@ in the code and run the script as.
 import itertools
 import json
 import sys
-from tqdm import tqdm
 
 import more_itertools
 import sympy
 from beartype.typing import Union
 from sympy.matrices.determinant import _det as sp_det
+from tqdm import tqdm
 
 from geometric_kernels.spaces.so import SOEigenfunctions
 from geometric_kernels.spaces.su import SUEigenfunctions  # noqa
