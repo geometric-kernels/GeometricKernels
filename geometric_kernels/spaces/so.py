@@ -65,7 +65,7 @@ class SOEigenfunctions(WeylAdditionTheorem):
 
         eig_and_signature = [
             (round(4*self._compute_eigenvalue(signature)), signature)
-                for signature in signatures]
+              for signature in signatures]
         eig_and_signature.sort()
         signatures = [eig_sgn[1] for eig_sgn in eig_and_signature][:num_levels]
         return signatures
