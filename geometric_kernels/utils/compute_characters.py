@@ -45,6 +45,7 @@ groups = [
     ("SO", 8, SOEigenfunctions),
     ("SO", 9, SOEigenfunctions),
     ("SO", 10, SOEigenfunctions),
+    ("SU", 2, SUEigenfunctions),
     ("SU", 3, SUEigenfunctions),
     ("SU", 4, SUEigenfunctions),
     ("SU", 5, SUEigenfunctions),
