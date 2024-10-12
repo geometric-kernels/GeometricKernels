@@ -49,9 +49,10 @@ class SUEigenfunctions(WeylAdditionTheorem):
         signatures = [sgn + (0,) for sgn in signatures]
 
         eig_and_signature = [
-            (round(4 * (len(signature)**2)
-              * self._compute_eigenvalue(signature)), signature)
-                for signature in signatures]
+            (round(4 * (len(signature) ** 2)
+                   * self._compute_eigenvalue(signature)), signature)
+            for signature in signatures
+        ]
 
         eig_and_signature.sort()
         signatures = [eig_sgn[1] for eig_sgn in eig_and_signature][:num_levels]
