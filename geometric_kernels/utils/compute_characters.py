@@ -18,6 +18,7 @@ import more_itertools
 import sympy
 from beartype.typing import Union
 from sympy.matrices.determinant import _det as sp_det
+from tqdm import tqdm
 
 from geometric_kernels.spaces.so import SOEigenfunctions
 from geometric_kernels.spaces.su import SUEigenfunctions  # noqa
@@ -44,6 +45,7 @@ groups = [
     ("SO", 8, SOEigenfunctions),
     ("SO", 9, SOEigenfunctions),
     ("SO", 10, SOEigenfunctions),
+    ("SU", 2, SUEigenfunctions),
     ("SU", 3, SUEigenfunctions),
     ("SU", 4, SUEigenfunctions),
     ("SU", 5, SUEigenfunctions),
@@ -312,10 +314,10 @@ if __name__ == "__main__":
     for name, n, eigenfunctions_class in groups:
         group_name = "{}({})".format(name, n)
         print(group_name)
-        eigenfunctions = eigenfunctions_class(order, n, compute_characters=False)
+        eigenfunctions = eigenfunctions_class(n, order, compute_characters=False)
         if recalculate or (not recalculate and group_name not in characters):
             characters[group_name] = {}
-        for signature in eigenfunctions._signatures:
+        for signature in tqdm(eigenfunctions._signatures):
             if str(signature) not in characters[group_name]:
                 sys.stdout.write("{}: ".format(str(signature)))
                 if isinstance(eigenfunctions, SOEigenfunctions):
