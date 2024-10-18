@@ -1,3 +1,5 @@
+import sys
+
 import lab as B
 import tensorflow as tf
 import tensorflow_probability as tfp
@@ -13,7 +15,11 @@ def take_along_axis(a: _Numeric, index: _Numeric, axis: int = 0) -> _Numeric:  #
     """
     Gathers elements of `a` along `axis` at `index` locations.
     """
-    return tf.experimental.numpy.take_along_axis(a, index, axis=axis)
+    if sys.version_info[:2] <= (3, 9):
+        index = tf.cast(index, tf.int32)
+    return tf.experimental.numpy.take_along_axis(
+        a, index, axis=axis
+    )  # the absence of explicit cast to int64 causes an error for Python 3.9 and below
 
 
 @dispatch
