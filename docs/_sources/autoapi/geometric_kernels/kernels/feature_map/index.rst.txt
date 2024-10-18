@@ -1,0 +1,177 @@
+geometric_kernels.kernels.feature_map
+=====================================
+
+.. py:module:: geometric_kernels.kernels.feature_map
+
+.. autoapi-nested-parse::
+
+   This module provides the :class:`MaternFeatureMapKernel` kernel, the basic
+   kernel for non-compact symmetric spaces, subclasses of
+   :class:`~.spaces.NoncompactSymmetricSpace`.
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:class:: MaternFeatureMapKernel(space, feature_map, key, normalize = True)
+
+   Bases: :py:obj:`geometric_kernels.kernels.base.BaseGeometricKernel`
+
+
+   This class computes a (Matérn) kernel based on a feature map.
+
+   .. math :: k_{\nu, \kappa}(x, y) = \langle \phi_{\nu, \kappa}(x), \phi_{\nu, \kappa}(y) \rangle_{\mathbb{R}^n}
+
+   where $\langle \cdot , \cdot \rangle_{\mathbb{R}^n}$ is the standard inner
+   product in $\mathbb{R}^n$ and $\phi_{\nu, \kappa}: X \to \mathbb{R}^n$ is
+   an arbitrary function called *feature map*. We assume that it depends
+   on the smoothness and length scale parameters $\nu$ and $\kappa$,
+   respectively, which makes this kernel specifically Matérn.
+
+   .. note::
+       A brief introduction into feature maps and related kernels can be
+       found on :doc:`this page </theory/feature_maps>`.
+
+       Note that the finite-dimensional feature maps this kernel is meant to
+       be used with are, in most cases, some approximations of the
+       intractable infinite-dimensional feature maps.
+
+   :param space:
+       The space on which the kernel is defined.
+   :param feature_map:
+       A :class:`~.feature_maps.FeatureMap` object that represents an
+       arbitrary function $\phi_{\nu, \kappa}: X \to \mathbb{R}^n$, where
+       $X$ is the `space`, $n$ can be an arbitrary finite integer, and
+       $\nu, \kappa$ are the smoothness and length scale parameters.
+   :param key:
+       Random state, either `np.random.RandomState`,
+       `tf.random.Generator`, `torch.Generator` or `jax.tensor` (which
+       represents a random state).
+
+       Many feature maps used in the library are randomized, thus requiring a
+       `key` to work. The :class:`MaternFeatureMapKernel` uses this `key` to
+       make them (and thus the kernel) deterministic, applying the utility
+       function :func:`~.make_deterministic` to the pair `feature_map, key`.
+
+       .. note::
+          Even if the `feature_map` is deterministic, you need to provide a
+          valid key, although it will essentially be ignored. In the future,
+          we should probably make the `key` parameter optional.
+
+   :param normalize:
+       This parameter is directly passed on to the `feature_map` as a keyword
+       argument "normalize". If normalize=True, then either $k(x, x) = 1$ for
+       all $x \in X$, or $\int_X k(x, x) d x = 1$, depending on the type of
+       the feature map and on the space $X$.
+
+       .. note::
+           For many kernel methods, $k(\cdot, \cdot)$ and $a k(\cdot, \cdot)$
+           are indistinguishable, whatever the positive constant $a$ is. For
+           these, it makes sense to use normalize=False to save up some
+           computational overhead. For others, like for the Gaussian process
+           regression, the normalization of the kernel might be important. In
+           these cases, you will typically want to set normalize=True.
+
+
+   .. py:method:: K(params, X, X2 = None, **kwargs)
+
+      Compute the cross-covariance matrix between two batches of vectors of
+      inputs, or batches of matrices of inputs, depending on the space.
+
+      :param params:
+          A dict of kernel parameters, typically containing two keys:
+          `"lengthscale"` for length scale and `"nu"` for smoothness.
+
+          The types of values in the params dict determine the output type
+          and the backend used for the internal computations, see the
+          warning below for more details.
+
+          .. note::
+              The values `params["lengthscale"]` and `params["nu"]` are
+              typically (1,)-shaped arrays of the suitable backend. This
+              serves to point at the backend to be used for internal
+              computations.
+
+              In some cases, for example, when the kernel is
+              :class:`~.kernels.ProductGeometricKernel`, the values of
+              `params` may be (s,)-shaped arrays instead, where `s` is the
+              number of factors.
+
+          .. note::
+              Finite values of `params["nu"]` typically correspond to the
+              generalized (geometric) Matérn kernels.
+
+              Infinite `params["nu"]` typically corresponds to the heat
+              kernel (a.k.a. diffusion kernel, generalized squared
+              exponential kernel, generalized Gaussian kernel,
+              generalized RBF kernel). Although it is often considered to be
+              a separate entity, we treat the heat kernel as a member of
+              the Matérn family, with smoothness parameter equal to infinity.
+
+      :param X:
+          A batch of N inputs, each of which is a vector or a matrix,
+          depending on how the elements of the `self.space` are represented.
+      :param X2:
+          A batch of M inputs, each of which is a vector or a matrix,
+          depending on how the elements of the `self.space` are represented.
+
+          `X2=None` sets `X2=X1`.
+
+          Defaults to None.
+
+      :return:
+          The N x M cross-covariance matrix.
+
+      .. warning::
+         The types of values in the `params` dict determine the backend
+         used for internal computations and the output type.
+
+         Even if, say, `geometric_kernels.jax` is imported but the values in
+         the `params` dict are NumPy arrays, the output type will be a NumPy
+         array, and NumPy will be used for internal computations. To get a
+         JAX array as an output and use JAX for internal computations, all
+         the values in the `params` dict must be JAX arrays.
+
+
+
+   .. py:method:: K_diag(params, X, **kwargs)
+
+      Returns the diagonal of the covariance matrix `self.K(params, X, X)`,
+      typically in a more efficient way than actually computing the full
+      covariance matrix with `self.K(params, X, X)` and then extracting its
+      diagonal.
+
+      :param params:
+          Same as for :meth:`~.K`.
+
+      :param X:
+          A batch of N inputs, each of which is a vector or a matrix,
+          depending on how the elements of the `self.space` are represented.
+
+      :return:
+          The N-dimensional vector representing the diagonal of the
+          covariance matrix `self.K(params, X, X)`.
+
+
+
+   .. py:method:: init_params()
+
+      Initializes the dict of the trainable parameters of the kernel.
+
+      Returns `dict(nu=np.array([np.inf]), lengthscale=np.array([1.0]))`.
+
+      This dict can be modified and is passed around into such methods as
+      :meth:`~.K` or :meth:`~.K_diag`, as the `params` argument.
+
+      .. note::
+          The values in the returned dict are always of the NumPy array type.
+          Thus, if you want to use some other backend for internal
+          computations when calling :meth:`~.K` or :meth:`~.K_diag`, you
+          need to replace the values with the analogs typed as arrays of
+          the desired backend.
+
+
+
