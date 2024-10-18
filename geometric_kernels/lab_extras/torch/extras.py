@@ -14,7 +14,7 @@ def take_along_axis(a: Union[_Numeric, B.Numeric], index: _Numeric, axis: int = 
     """
     if not torch.is_tensor(a):
         a = torch.tensor(a).to(index.device)  # type: ignore
-    return torch.index_select(a, axis, B.flatten(index))
+    return torch.take_along_dim(a, index.long(), axis)  # long is required by torch
 
 
 @dispatch

@@ -92,6 +92,7 @@ class WeylAdditionTheorem(EigenfunctionsWithAdditionTheorem):
             self._characters = [
                 self._compute_character(n, signature) for signature in self._signatures
             ]
+        self._num_eigenfunctions: Optional[int] = None  # To be computed when needed.
 
     @abc.abstractmethod
     def _generate_signatures(self, num_levels: int) -> List[Tuple[int, ...]]:
@@ -202,8 +203,8 @@ class WeylAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         X_ = B.tile(X[..., None, :, :], 1, X2_inv.shape[0], 1, 1)  # (N, N2, n, n)
         X2_inv_ = B.tile(X2_inv[None, ..., :, :], X.shape[0], 1, 1, 1)  # (N, N2, n, n)
 
-        diff = B.matmul(X_, X2_inv_).reshape(
-            X.shape[0], X2_inv.shape[0], X.shape[-1], X.shape[-1]
+        diff = B.reshape(
+            B.matmul(X_, X2_inv_), X.shape[0], X2_inv.shape[0], X.shape[-1], X.shape[-1]
         )  # (N, N2, n, n)
         return diff
 
@@ -266,7 +267,9 @@ class WeylAdditionTheorem(EigenfunctionsWithAdditionTheorem):
 
     @property
     def num_eigenfunctions(self) -> int:
-        return B.sum(self.num_eigenfunctions_per_level)
+        if self._num_eigenfunctions is None:
+            self._num_eigenfunctions = sum(self.num_eigenfunctions_per_level)
+        return self._num_eigenfunctions
 
     @property
     def num_eigenfunctions_per_level(self) -> List[int]:

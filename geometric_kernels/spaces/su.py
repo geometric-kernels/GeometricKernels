@@ -182,6 +182,9 @@ class SpecialUnitary(CompactMatrixLieGroup):
         self.rank = n - 1
         super().__init__()
 
+    def __str__(self):
+        return f"SpecialUnitary({self.n})"
+
     @property
     def dimension(self) -> int:
         """

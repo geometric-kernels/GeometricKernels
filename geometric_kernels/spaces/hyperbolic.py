@@ -53,6 +53,9 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
     def __init__(self, dim=2):
         super().__init__(dim=dim)
 
+    def __str__(self):
+        return f"Hyperbolic({self.dimension})"
+
     @property
     def dimension(self) -> int:
         """

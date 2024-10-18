@@ -61,6 +61,9 @@ class Graph(DiscreteSpectrumSpace):
         self._checks(adjacency_matrix)
         self._set_laplacian(adjacency_matrix, normalize_laplacian)  # type: ignore
 
+    def __str__(self):
+        return f"Graph({self.num_vertices})"
+
     @staticmethod
     def _checks(adjacency):
         """
