@@ -14,7 +14,15 @@ import lab as B
 import numpy as np
 from beartype.typing import List, Tuple
 
-from geometric_kernels.lab_extras import dtype_double, from_numpy, qr, take_along_axis
+from geometric_kernels.lab_extras import (
+    complex_conj,
+    complex_like,
+    create_complex,
+    dtype_double,
+    from_numpy,
+    qr,
+    take_along_axis,
+)
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 from geometric_kernels.spaces.lie_groups import (
     CompactMatrixLieGroup,
@@ -125,7 +133,7 @@ class SOEigenfunctions(WeylAdditionTheorem):
             real = (trace - 1) / 2
             zeros = real * 0
             imag = B.sqrt(B.maximum(1 - real * real, zeros))
-            gamma = real + 1j * imag
+            gamma = create_complex(real, imag)
         elif self.n % 2 == 1:
             # In SO(2n+1) the torus representative is determined by the (unordered) non-trivial eigenvalues
             eigvals = B.eig(X, False)
@@ -143,17 +151,30 @@ class SOEigenfunctions(WeylAdditionTheorem):
                 -1,
             )
             # c is a matrix transforming x into its canonical form (with 2x2 blocks)
-            c = 0 * eigvecs
-            c[..., ::2] = eigvecs[..., ::2] + eigvecs[..., 1::2]
-            c[..., 1::2] = eigvecs[..., ::2] - eigvecs[..., 1::2]
+            c = B.reshape(
+                B.stack(
+                    eigvecs[..., ::2] + eigvecs[..., 1::2],
+                    eigvecs[..., ::2] - eigvecs[..., 1::2],
+                    axis=-1,
+                ),
+                *eigvecs.shape[:-1],
+                -1,
+            )
             # eigenvectors calculated by LAPACK are either real or purely imaginary, make everything real
             # WARNING: might depend on the implementation of the eigendecomposition!
-            c = c.real + c.imag
+            c = B.real(c) + B.real(c)
             # normalize s.t. det(c)≈±1, probably unnecessary
             c /= math.sqrt(2)
-            eigvals[..., 0] = B.power(eigvals[..., 0], B.sign(B.det(c)))
+            eigvals = B.concat(
+                B.expand_dims(
+                    B.power(eigvals[..., 0], B.cast(complex_like(c), B.sign(B.det(c)))),
+                    axis=-1,
+                ),
+                eigvals[..., 1:],
+                axis=-1,
+            )
             gamma = eigvals[..., ::2]
-        gamma = B.concat(gamma, gamma.conj(), axis=-1)
+        gamma = B.concat(gamma, complex_conj(gamma), axis=-1)
         return gamma
 
     def inverse(self, X: B.Numeric) -> B.Numeric:
@@ -203,7 +224,9 @@ class SOCharacter(LieGroupCharacter):
     def __call__(self, gammas: B.Numeric) -> B.Numeric:
         char_val = B.zeros(B.dtype(gammas), *gammas.shape[:-1])
         for coeff, monom in zip(self.coeffs, self.monoms):
-            char_val += coeff * B.prod(gammas ** from_numpy(gammas, monom), axis=-1)
+            char_val += coeff * B.prod(
+                gammas ** B.cast(B.dtype(gammas), from_numpy(gammas, monom)), axis=-1
+            )
         return char_val
 
 
@@ -244,6 +267,9 @@ class SpecialOrthogonal(CompactMatrixLieGroup):
         self.dim = n * (n - 1) // 2
         self.rank = n // 2
         super().__init__()
+
+    def __str__(self):
+        return f"SpecialOrthogonal({self.n})"
 
     @property
     def dimension(self) -> int:

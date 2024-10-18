@@ -54,6 +54,9 @@ class SymmetricPositiveDefiniteMatrices(
     def __init__(self, n):
         super().__init__(n)
 
+    def __str__(self):
+        return f"SpecialOrthogonal({self.n})"
+
     @property
     def dimension(self) -> int:
         """

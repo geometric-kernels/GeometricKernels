@@ -440,6 +440,9 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
             self.factor_space_eigenindices,
         ].sum(axis=1)
 
+    def __str__(self):
+        return f"ProductDiscreteSpectrumSpace({', '.join(str(space) for space in self.factor_spaces)})"
+
     @property
     def dimension(self) -> int:
         """

@@ -195,6 +195,9 @@ class HypercubeGraph(DiscreteSpectrumSpace):
             raise ValueError("dim must be a positive integer.")
         self.dim = dim
 
+    def __str__(self):
+        return f"HypercubeGraph({self.dim})"
+
     @property
     def dimension(self) -> int:
         """
