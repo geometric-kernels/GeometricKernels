@@ -13,7 +13,6 @@ from functools import reduce
 import lab as B
 import numpy as np
 from beartype.typing import List, Tuple
-from opt_einsum import contract as einsum
 
 from geometric_kernels.lab_extras import dtype_double, from_numpy, qr, take_along_axis
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
@@ -64,9 +63,13 @@ class SOEigenfunctions(WeylAdditionTheorem):
                         signature[-1] = -signature[-1]
                         signatures.append(tuple(signature))
 
-        eigenvalues = [self._compute_eigenvalue(signature) for signature in signatures]
-        min_ind = np.argsort(eigenvalues)[:num_levels]
-        signatures = [signatures[i] for i in min_ind]
+        eig_and_signature = [
+            (round(4 * self._compute_eigenvalue(signature)), signature)
+            for signature in signatures
+        ]
+
+        eig_and_signature.sort()
+        signatures = [eig_sgn[1] for eig_sgn in eig_and_signature][:num_levels]
         return signatures
 
     def _compute_dimension(self, signature: Tuple[int, ...]) -> int:
@@ -300,7 +303,7 @@ class SpecialOrthogonal(CompactMatrixLieGroup):
             # explicit parametrization via the double cover SU(2) = S^3
             key, sphere_point = B.random.randn(key, dtype_double(key), number, 4)
             sphere_point /= B.reshape(
-                B.sqrt(einsum("ij,ij->i", sphere_point, sphere_point)), -1, 1
+                B.sqrt(B.einsum("ij,ij->i", sphere_point, sphere_point)), -1, 1
             )
 
             x, y, z, w = (B.reshape(sphere_point[..., i], -1, 1) for i in range(4))
@@ -317,7 +320,7 @@ class SpecialOrthogonal(CompactMatrixLieGroup):
             # qr decomposition is not in the lab package, so numpy is used.
             key, h = B.random.randn(key, dtype_double(key), number, self.n, self.n)
             q, r = qr(h, mode="complete")
-            r_diag_sign = B.sign(einsum("...ii->...i", r))
+            r_diag_sign = B.sign(B.einsum("...ii->...i", r))
             q *= r_diag_sign[:, None]
             q_det_sign = B.sign(B.det(q))
             q[:, :, 0] *= q_det_sign[:, None]

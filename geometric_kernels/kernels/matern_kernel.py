@@ -29,6 +29,7 @@ from geometric_kernels.spaces import (
     Graph,
     GraphEdge,
     Hyperbolic,
+    HypercubeGraph,
     Hypersphere,
     Mesh,
     NoncompactSymmetricSpace,
@@ -214,6 +215,8 @@ def default_num(space: DiscreteSpectrumSpace) -> int:
         return min(
             MaternGeometricKernel._DEFAULT_NUM_EIGENFUNCTIONS, space.num_edges
         )
+    elif isinstance(space, HypercubeGraph):
+        return min(MaternGeometricKernel._DEFAULT_NUM_LEVELS, space.dim + 1)
     else:
         return MaternGeometricKernel._DEFAULT_NUM_LEVELS
 

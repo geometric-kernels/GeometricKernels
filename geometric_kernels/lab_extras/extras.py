@@ -308,3 +308,38 @@ def complex_conj(x: B.Numeric):
     :param x:
         Array of any backend.
     """
+
+
+@dispatch
+@abstract()
+def logical_xor(x1: B.Bool, x2: B.Bool):
+    """
+    Return logical XOR of two arrays.
+
+    :param x1:
+        Array of any backend.
+    :param x2:
+        Array of any backend.
+    """
+
+
+@dispatch
+@abstract()
+def count_nonzero(x: B.Numeric, axis=None):
+    """
+    Count non-zero elements in an array.
+
+    :param x:
+        Array of any backend and of any shape.
+    """
+
+
+@dispatch
+@abstract()
+def dtype_bool(reference: B.RandomState):
+    """
+    Return `bool` dtype of a backend based on the reference.
+
+    :param reference:
+        A random state to infer the backend from.
+    """

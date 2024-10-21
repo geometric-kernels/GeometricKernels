@@ -12,6 +12,7 @@ from geometric_kernels.spaces.circle import Circle
 from geometric_kernels.spaces.graph import Graph
 from geometric_kernels.spaces.graph_edge import GraphEdge
 from geometric_kernels.spaces.hyperbolic import Hyperbolic
+from geometric_kernels.spaces.hypercube_graph import HypercubeGraph
 from geometric_kernels.spaces.hypersphere import Hypersphere
 from geometric_kernels.spaces.lie_groups import CompactMatrixLieGroup
 from geometric_kernels.spaces.mesh import Mesh
