@@ -15,6 +15,7 @@ from beartype.typing import List, Tuple
 
 from geometric_kernels.lab_extras import (
     complex_conj,
+    complex_like,
     create_complex,
     dtype_double,
     from_numpy,
@@ -142,7 +143,12 @@ class SUCharacter(LieGroupCharacter):
     def __call__(self, gammas: B.Numeric) -> B.Numeric:
         char_val = B.zeros(B.dtype(gammas), *gammas.shape[:-1])
         for coeff, monom in zip(self.coeffs, self.monoms):
-            char_val += coeff * B.prod(gammas ** from_numpy(gammas, monom), axis=-1)
+            char_val += coeff * B.prod(
+                B.power(
+                    gammas, B.cast(complex_like(gammas), from_numpy(gammas, monom))
+                ),
+                axis=-1,
+            )
         return char_val
 
 

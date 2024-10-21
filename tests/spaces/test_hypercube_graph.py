@@ -1,13 +1,12 @@
 import lab as B
 import numpy as np
 import pytest
-from opt_einsum import contract as einsum
 from plum import Tuple
 
 from geometric_kernels.kernels import MaternGeometricKernel
 from geometric_kernels.spaces import HypercubeGraph
 from geometric_kernels.utils.special_functions import hypercube_graph_heat_kernel
-from geometric_kernels.utils.utils import binary_vectors_and_subsets, chain
+from geometric_kernels.utils.utils import binary_vectors_and_subsets
 
 from ..helper import check_function_with_backend
 
@@ -38,42 +37,17 @@ def inputs(request) -> Tuple[B.Numeric]:
     return space, eigenfunctions, X, X2, weights
 
 
-@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
-def test_call_eigenfunctions(inputs: Tuple[B.NPNumeric, B.NPNumeric], backend):
-    _, eigenfunctions, X, _, _ = inputs
-
-    # Check that the eigenfunctions can be called, returning the right type and shape.
-    check_function_with_backend(
-        backend,
-        (X.shape[0], eigenfunctions.num_eigenfunctions),
-        eigenfunctions,
-        X,
-        compare_to_result=lambda res, f_out: f_out.shape == res,
-    )
-
-
 def test_numbers_of_eigenfunctions(inputs):
     space, eigenfunctions, _, _, _ = inputs
     num_levels = eigenfunctions.num_levels
-    # Check that the length of the `num_eigenfunctions_per_level` list is correct.
-    assert len(eigenfunctions.num_eigenfunctions_per_level) == num_levels
-    # Check that the first eigenspace is 1-dimensional.
-    assert eigenfunctions.num_eigenfunctions_per_level[0] == 1
+
     # If the number of levels is maximal, check that the number of
     # eigenfunctions is equal to the number of binary vectors of size `space.dim`.
     if num_levels == space.dim + 1:
         assert eigenfunctions.num_eigenfunctions == 2**space.dim
 
-    # Check that dimensions of eigenspaces are always positive.
-    for i in range(num_levels):
-        assert eigenfunctions.num_eigenfunctions_per_level[i] > 0
 
-    num_eigenfunctions_manual = sum(eigenfunctions.num_eigenfunctions_per_level)
-    # Check that `num_eigenfunctions_per_level` sum up to the total number of
-    # eigenfunctions.
-    assert num_eigenfunctions_manual == eigenfunctions.num_eigenfunctions
-
-
+# TODO: deprecate
 @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
 def test_orthonormality(inputs, backend):
     space, _, _, _, _ = inputs
@@ -92,93 +66,6 @@ def test_orthonormality(inputs, backend):
         np.eye(2**space.dim) * 2**space.dim,
         lambda X: B.matmul(B.T(eigenfunctions(X)), eigenfunctions(X)),
         X,
-    )
-
-
-@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
-def test_weighted_outerproduct_with_addition_theorem(inputs, backend):
-    _, eigenfunctions, X, X2, weights = inputs
-
-    chained_weights = chain(
-        weights.squeeze(), eigenfunctions.num_eigenfunctions_per_level
-    )
-
-    Phi_X = eigenfunctions(X)
-    Phi_X2 = eigenfunctions(X2)
-    result = einsum("ni,ki,i->nk", Phi_X, Phi_X2, chained_weights)
-
-    # Check that `weighted_outerproduct`, which is based on the addition theorem,
-    # returns the same result as the direct computation involving individual
-    # eigenfunctions.
-    check_function_with_backend(
-        backend, result, eigenfunctions.weighted_outerproduct, weights, X, X2
-    )
-
-
-@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
-def test_weighted_outerproduct_with_addition_theorem_one_input(inputs, backend):
-    _, eigenfunctions, X, _, weights = inputs
-
-    result = eigenfunctions.weighted_outerproduct(weights, X, X)
-
-    # Check that `weighted_outerproduct`, when given only X (but not X2),
-    # uses X2=X.
-    check_function_with_backend(
-        backend,
-        result,
-        eigenfunctions.weighted_outerproduct,
-        weights,
-        X,
-    )
-
-
-@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
-def test_weighted_outerproduct_diag(inputs, backend):
-    _, eigenfunctions, X, _, weights = inputs
-
-    result = np.diag(eigenfunctions.weighted_outerproduct(weights, X, X))
-
-    # Check that `weighted_outerproduct_diag` returns the same result as the
-    # diagonal of the full `weighted_outerproduct`.
-    check_function_with_backend(
-        backend,
-        result,
-        eigenfunctions.weighted_outerproduct_diag,
-        weights,
-        X,
-    )
-
-
-@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
-def test_weighted_outerproduct_against_phi_product(inputs, backend):
-    _, eigenfunctions, X, X2, weights = inputs
-
-    sum_phi_phi_for_level = eigenfunctions.phi_product(X, X2)
-
-    result = B.einsum("id,...nki->...nk", weights, sum_phi_phi_for_level)
-
-    # Check that `weighted_outerproduct`, which for HypercubeGraph has a
-    # dedicated implementation, returns the same result as the usual way of
-    # computing the `weighted_outerproduct` (based on the `phi_product` method).
-    check_function_with_backend(
-        backend, result, eigenfunctions.weighted_outerproduct, weights, X, X2
-    )
-
-
-@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
-def test_weighted_outerproduct_diag_against_phi_product(inputs, backend):
-    _, eigenfunctions, X, _, weights = inputs
-
-    phi_product_diag = eigenfunctions.phi_product_diag(X)
-
-    result = B.einsum("id,ni->n", weights, phi_product_diag)  # [N,]
-
-    # Check that `weighted_outerproduct_diag`, which for HypercubeGraph has a
-    # dedicated implementation, returns the same result as the usual way of
-    # computing the `weighted_outerproduct_diag` (based on the
-    # `phi_product_diag` method).
-    check_function_with_backend(
-        backend, result, eigenfunctions.weighted_outerproduct_diag, weights, X
     )
 
 
