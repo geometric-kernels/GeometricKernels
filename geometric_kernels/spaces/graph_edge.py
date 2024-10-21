@@ -52,9 +52,13 @@ class GraphEdge(DiscreteSpectrumSpace):
     """
 
     def __init__(self, G, triangle_list=None, sc_lifting=False):  # type: ignore
-        self.G = G 
+        self.G = nx.Graph()
         self.cache: Dict[int, Tuple[B.Numeric, B.Numeric]] = {}
-        self.incidence_matrix = nx.incidence_matrix(G, oriented=True).toarray() # "obtain the oriented incidence matrix"
+        # reorder the edges in the graph based on the order of the nodes
+        self.nodes = list(G.nodes)
+        self.edges = [(min(u, v), max(u, v)) for u, v in G.edges]
+        self.G.add_edges_from(self.edges)
+        self.incidence_matrix = nx.incidence_matrix(self.G, oriented=True).toarray() # "obtain the oriented incidence matrix"
         if sc_lifting is not False:
             if triangle_list is None:
                 print("No list of triangles is provided, we consider all triangles in the graph as 2-simplices.")
@@ -110,8 +114,8 @@ class GraphEdge(DiscreteSpectrumSpace):
     def sc_simplices(self):
         """return the nodes, edges and triangles in the graph"""
         print('----Simplicial 2-complex summary---')
-        print('nodes: ', list(self.G.nodes))
-        print('edges: ', list(self.G.edges))
+        print('nodes: ', self.nodes)
+        print('edges: ', self.edges)
         print('triangles: ', self.triangles)
         return None 
 
@@ -150,6 +154,21 @@ class GraphEdge(DiscreteSpectrumSpace):
         else:
             return self._edge_laplacian, self._down_edge_laplacian, self._up_edge_laplacian
        
+    def get_edge_index(self, edges):
+        """
+        Get the indices of some provided edges in the edge list.
+
+        Args:
+            edges (list): Edges.
+
+        Returns:
+            list: Indices of the edges.
+        """
+        assert isinstance(edges, list) # "The edges should be a list."
+        # each edge should be in the edge list
+        assert all(edge in self.edges for edge in edges)
+        return B.to_numpy([self.edges.index(edge) for edge in edges])
+       
     def triangles_all_clique(self) -> list:
         """
         Get a list of triangles in the graph.
@@ -181,23 +200,23 @@ class GraphEdge(DiscreteSpectrumSpace):
         Returns:
             np.ndarray: B2 matrix.
         """
-        edges = list(self.G.edges)
+        
         triangles = self.triangles
-        B2 = np.zeros((len(edges), len(triangles)))
+        B2 = np.zeros((len(self.edges), len(triangles)))
         for j, triangle in enumerate(triangles):
             a, b, c = triangle
             try:
-                index_a = edges.index((a, b))
+                index_a = self.edges.index((a, b))
             except ValueError:
-                index_a = edges.index((b, a))
+                index_a = self.edges.index((b, a))
             try:
-                index_b = edges.index((b, c))
+                index_b = self.edges.index((b, c))
             except ValueError:
-                index_b = edges.index((c, b))
+                index_b = self.edges.index((c, b))
             try:
-                index_c = edges.index((a, c))
+                index_c = self.edges.index((a, c))
             except ValueError:
-                index_c = edges.index((c, a))
+                index_c = self.edges.index((c, a))
 
             B2[index_a, j] = 1
             B2[index_c, j] = -1
@@ -363,11 +382,13 @@ class GraphEdge(DiscreteSpectrumSpace):
 
     def random(self, key, number):
         num_edges = B.shape(self._edge_laplacian)[0]
-        key, random_edges = B.randint(
+        key, random_edges_idx = B.randint(
             key, dtype_integer(key), number, 1, lower=0, upper=num_edges,
         )
-
-        return key, random_edges
+            
+        random_edges = [self.edges[i] for i in random_edges_idx.flatten().tolist()]
+        
+        return key, random_edges, random_edges_idx
 
     @property
     def element_shape(self):
