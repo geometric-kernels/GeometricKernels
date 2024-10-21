@@ -14,26 +14,9 @@ from geometric_kernels.utils.special_functions import (
 from ..helper import check_function_with_backend
 
 
-# TODO: deprecate
-@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
-def test_orthonormality(backend):
-    eigenfunctions = Circle().get_eigenfunctions(10)
-    theta = np.linspace(-np.pi, np.pi, 5_000).reshape(-1, 1)  # [N, 1]
-
-    check_function_with_backend(
-        backend,
-        np.eye(eigenfunctions.num_eigenfunctions),
-        lambda theta: B.matmul(B.T(eigenfunctions(theta)), eigenfunctions(theta))
-        / len(theta),
-        theta,
-        atol=1e-2,
-    )
-
-
 @pytest.mark.parametrize("nu, atol", [(0.5, 1), (1.5, 3), (2.5, 5), (np.inf, 6)])
 @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
 def test_equivalence_kernel(nu, atol, backend):
-
     if nu == 0.5:
         analytic_kernel = matern_12_kernel
     elif nu == 1.5:

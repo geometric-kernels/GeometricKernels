@@ -1,32 +1,7 @@
 import lab as B
 import numpy as np
-import pytest
 
 from geometric_kernels.spaces import Hypersphere
-
-from ..helper import check_function_with_backend
-
-
-# TODO: deprecate
-@pytest.mark.parametrize("dim, num_levels", [(2, 5), (3, 5), (19, 2)])
-@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
-def test_orthonormality(dim, num_levels, backend):
-    space = Hypersphere(dim)
-    eigenfunctions = space.get_eigenfunctions(num_levels)
-
-    key = np.random.RandomState(1234)
-
-    key, xs = space.random(key, 10000)
-
-    # print(B.matmul(B.T(eigenfunctions(xs)), eigenfunctions(xs)) / xs.shape[0])
-
-    check_function_with_backend(
-        backend,
-        np.eye(eigenfunctions.num_eigenfunctions),
-        lambda xs: B.matmul(B.T(eigenfunctions(xs)), eigenfunctions(xs)) / xs.shape[0],
-        xs,
-        atol=1e-1,
-    )
 
 
 def test_sphere_heat_kernel():

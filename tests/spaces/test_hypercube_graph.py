@@ -6,7 +6,6 @@ from plum import Tuple
 from geometric_kernels.kernels import MaternGeometricKernel
 from geometric_kernels.spaces import HypercubeGraph
 from geometric_kernels.utils.special_functions import hypercube_graph_heat_kernel
-from geometric_kernels.utils.utils import binary_vectors_and_subsets
 
 from ..helper import check_function_with_backend
 
@@ -45,28 +44,6 @@ def test_numbers_of_eigenfunctions(inputs):
     # eigenfunctions is equal to the number of binary vectors of size `space.dim`.
     if num_levels == space.dim + 1:
         assert eigenfunctions.num_eigenfunctions == 2**space.dim
-
-
-# TODO: deprecate
-@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
-def test_orthonormality(inputs, backend):
-    space, _, _, _, _ = inputs
-
-    if space.dim > 5:
-        pytest.skip("Test is too slow for dim > 5")
-
-    eigenfunctions = space.get_eigenfunctions(space.dim + 1)
-
-    X, _ = binary_vectors_and_subsets(space.dim)
-
-    # Check that the eigenfunctions are orthonormal with respect to the inner
-    # product <x, y> = 2**(-d) sum_i x_i y_i.
-    check_function_with_backend(
-        backend,
-        np.eye(2**space.dim) * 2**space.dim,
-        lambda X: B.matmul(B.T(eigenfunctions(X)), eigenfunctions(X)),
-        X,
-    )
 
 
 @pytest.mark.parametrize("lengthscale", [1.0, 5.0, 10.0])
