@@ -221,3 +221,27 @@ def complex_conj(x: B.JAXNumeric):
     Return complex conjugate
     """
     return jnp.conj(x)
+
+
+@dispatch
+def logical_xor(x1: B.JAXNumeric, x2: B.JAXNumeric):
+    """
+    Return logical XOR of two arrays.
+    """
+    return jnp.logical_xor(x1, x2)
+
+
+@dispatch
+def count_nonzero(x: B.JAXNumeric, axis=None):
+    """
+    Count non-zero elements in an array.
+    """
+    return jnp.count_nonzero(x, axis=axis)
+
+
+@dispatch
+def dtype_bool(reference: B.JAXRandomState):  # type: ignore
+    """
+    Return `bool` dtype of a backend based on the reference.
+    """
+    return bool

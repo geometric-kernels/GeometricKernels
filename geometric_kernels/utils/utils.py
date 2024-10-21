@@ -6,13 +6,20 @@ import inspect
 import sys
 from contextlib import contextmanager
 from importlib import resources as impresources
+from itertools import combinations
 
 import einops
 import lab as B
+import numpy as np
 from beartype.typing import Callable, Generator, List, Set, Tuple
 
 from geometric_kernels import resources
-from geometric_kernels.lab_extras import get_random_state, restore_random_state
+from geometric_kernels.lab_extras import (
+    count_nonzero,
+    get_random_state,
+    logical_xor,
+    restore_random_state,
+)
 
 
 def chain(elements: B.Numeric, repetitions: List[int]) -> B.Numeric:
@@ -289,3 +296,63 @@ def get_resource_file_path(filename: str):
     else:
         with impresources.path(resources, filename) as path:
             yield path
+
+
+def hamming_distance(x1: B.Bool, x2: B.Bool):
+    """
+    Hamming distance between two batches of boolean vectors.
+
+    :param x1:
+        Array of any backend, of shape [N, D].
+    :param x2:
+        Array of any backend, of shape [M, D].
+
+    :return:
+        An array of shape [N, M] whose entry n, m contains the Hamming distance
+        between x1[n, :] and x2[m, :]. It is of the same backend as x1 and x2.
+    """
+    return count_nonzero(logical_xor(x1[:, None, :], x2[None, :, :]), axis=-1)
+
+
+def log_binomial(n: B.Int, k: B.Int) -> B.Float:
+    """
+    Compute the logarithm of the binomial coefficient.
+
+    :param n:
+        The number of elements in the set.
+    :param k:
+        The number of elements to choose.
+
+    :return:
+        The logarithm of the binomial coefficient binom(n, k).
+    """
+    assert B.all(0 <= k <= n)
+
+    return B.loggamma(n + 1) - B.loggamma(k + 1) - B.loggamma(n - k + 1)
+
+
+def binary_vectors_and_subsets(d: int):
+    r"""
+    Generates all possible binary vectors of size d and all possible subsets of
+    the set $\{0, .., d-1\}$ as a byproduct.
+
+    :param d:
+        The dimension of binary vectors and the size of the set to take subsets of.
+
+    :return:
+        A tuple (x, combs), where x is a matrix of size (2**d, d) whose rows
+        are all possible binary vectors of size d, and combs is a list of all
+        possible subsets of the set $\{0, .., d-1\}$, each subset being
+        represented by a list of integers itself.
+    """
+    x = np.zeros((2**d, d), dtype=bool)
+    combs = []
+    i = 0
+    for level in range(d + 1):
+        for cur_combination in combinations(range(d), level):
+            indices = list(cur_combination)
+            combs.append(indices)
+            x[i, indices] = 1
+            i += 1
+
+    return x, combs

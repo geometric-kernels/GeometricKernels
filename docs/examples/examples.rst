@@ -8,10 +8,11 @@ Spaces
 
    Graph <Graph>
    Hyperbolic <Hyperbolic>
+   Hypercube <Hypercube>
    Hypersphere <Hypersphere>
    Mesh <Mesh>
-   SpecialOrthogonal <SpecialOrthogonal>
    SPD <SPD>
+   SpecialOrthogonal <SpecialOrthogonal>
    SpecialUnitary <SpecialUnitary>
    Torus <Torus>
 

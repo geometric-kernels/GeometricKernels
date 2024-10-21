@@ -7,7 +7,6 @@ kernel for non-compact symmetric spaces, subclasses of
 import lab as B
 import numpy as np
 from beartype.typing import Dict, Optional
-from opt_einsum import contract as einsum
 
 from geometric_kernels.feature_maps import FeatureMap
 from geometric_kernels.kernels.base import BaseGeometricKernel
@@ -124,7 +123,7 @@ class MaternFeatureMapKernel(BaseGeometricKernel):
         else:
             features_X2 = features_X
 
-        feature_product = einsum("...no,...mo->...nm", features_X, features_X2)
+        feature_product = B.einsum("...no,...mo->...nm", features_X, features_X2)
         return feature_product
 
     def K_diag(self, params: Dict[str, B.Numeric], X: B.Numeric, **kwargs):

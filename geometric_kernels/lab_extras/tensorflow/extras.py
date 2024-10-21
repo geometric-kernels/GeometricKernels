@@ -227,3 +227,27 @@ def complex_conj(x: B.TFNumeric):
     Return complex conjugate
     """
     return tf.math.conj(x)
+
+
+@dispatch
+def logical_xor(x1: B.TFNumeric, x2: B.TFNumeric):
+    """
+    Return logical XOR of two arrays.
+    """
+    return tf.math.logical_xor(x1, x2)
+
+
+@dispatch
+def count_nonzero(x: B.TFNumeric, axis=None):
+    """
+    Count non-zero elements in an array.
+    """
+    return tf.math.count_nonzero(x, axis=axis)
+
+
+@dispatch
+def dtype_bool(reference: B.TFRandomState):  # type: ignore
+    """
+    Return `bool` dtype of a backend based on the reference.
+    """
+    return tf.bool
