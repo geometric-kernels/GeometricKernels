@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import lab as B
 import numpy as np
 from beartype.door import die_if_unbearable, is_bearable
@@ -5,6 +7,35 @@ from beartype.typing import Any, Callable, Optional, Union
 from plum import ModuleType, resolve_type_hint
 
 EagerTensor = ModuleType("tensorflow.python.framework.ops", "EagerTensor")
+
+TEST_MESH_PATH = str(Path(__file__).parent.resolve() / "teddy.obj")
+
+TEST_GRAPH_ADJACENCY = np.array(
+    [
+        [0, 1, 0, 0, 0, 0, 0],
+        [1, 0, 1, 1, 1, 0, 0],
+        [0, 1, 0, 0, 0, 1, 0],
+        [0, 1, 0, 0, 1, 0, 0],
+        [0, 1, 0, 1, 0, 0, 0],
+        [0, 0, 1, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0, 0],
+    ]
+).astype(np.float64)
+
+
+TEST_GRAPH_LAPLACIAN = np.array(
+    [
+        [1, -1, 0, 0, 0, 0, 0],
+        [-1, 4, -1, -1, -1, 0, 0],
+        [0, -1, 2, 0, 0, -1, 0],
+        [0, -1, 0, 2, -1, 0, 0],
+        [0, -1, 0, -1, 2, 0, 0],
+        [0, 0, -1, 0, 0, 1, 0],
+        [0, 0, 0, 0, 0, 0, 0],
+    ]
+).astype(
+    np.float64
+)  # corresponds to TEST_GRAPH_ADJACENCY, unnormalized Laplacian
 
 
 def np_to_backend(value: B.NPNumeric, backend: str):

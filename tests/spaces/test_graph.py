@@ -13,31 +13,12 @@ from geometric_kernels.spaces import Graph
 from geometric_kernels.tensorflow import *  # noqa
 from geometric_kernels.torch import *  # noqa
 
+from ..helper import TEST_GRAPH_ADJACENCY, TEST_GRAPH_LAPLACIAN
+
 warnings.filterwarnings("ignore", category=RuntimeWarning, module="scipy")
 
-A = np.array(
-    [
-        [0, 1, 0, 0, 0, 0, 0],
-        [1, 0, 1, 1, 1, 0, 0],
-        [0, 1, 0, 0, 0, 1, 0],
-        [0, 1, 0, 0, 1, 0, 0],
-        [0, 1, 0, 1, 0, 0, 0],
-        [0, 0, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0],
-    ]
-).astype(np.float64)
-
-L = np.array(
-    [
-        [1, -1, 0, 0, 0, 0, 0],
-        [-1, 4, -1, -1, -1, 0, 0],
-        [0, -1, 2, 0, 0, -1, 0],
-        [0, -1, 0, 2, -1, 0, 0],
-        [0, -1, 0, -1, 2, 0, 0],
-        [0, 0, -1, 0, 0, 1, 0],
-        [0, 0, 0, 0, 0, 0, 0],
-    ]
-).astype(np.float64)
+A = TEST_GRAPH_ADJACENCY
+L = TEST_GRAPH_LAPLACIAN
 
 
 def run_tests_with_adj(A, L, tol=1e-7, tol_m=1e-4):

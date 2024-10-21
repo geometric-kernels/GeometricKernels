@@ -9,14 +9,16 @@ from geometric_kernels.kernels.matern_kernel import default_num
 from geometric_kernels.spaces import (
     Circle,
     CompactMatrixLieGroup,
+    Graph,
     HypercubeGraph,
     Hypersphere,
+    Mesh,
     SpecialOrthogonal,
     SpecialUnitary,
 )
 from geometric_kernels.utils.utils import chain
 
-from ..helper import check_function_with_backend
+from ..helper import TEST_GRAPH_ADJACENCY, TEST_MESH_PATH, check_function_with_backend
 
 jax.config.update("jax_enable_x64", True)  # enable float64 in JAX
 
@@ -26,7 +28,7 @@ jax.config.update("jax_enable_x64", True)  # enable float64 in JAX
         Circle(),
         HypercubeGraph(1),
         HypercubeGraph(3),
-        HypercubeGraph(10),
+        HypercubeGraph(6),
         Hypersphere(2),
         Hypersphere(3),
         Hypersphere(10),
@@ -34,6 +36,9 @@ jax.config.update("jax_enable_x64", True)  # enable float64 in JAX
         SpecialOrthogonal(8),
         SpecialUnitary(2),
         SpecialUnitary(5),
+        Mesh.load_mesh(TEST_MESH_PATH),
+        Graph(TEST_GRAPH_ADJACENCY, normalize_laplacian=False),
+        Graph(TEST_GRAPH_ADJACENCY, normalize_laplacian=True),
     ],
     ids=str,
 )
@@ -55,6 +60,10 @@ def inputs(request) -> Tuple[B.Numeric]:
         num_levels = min(
             10, num_levels, space.get_eigenfunctions(num_levels).num_computed_levels
         )
+    elif isinstance(space, Mesh):
+        # We limit the number of levels to 50 to avoid excessive computation
+        # and increased numerical error for higher order eigenfunctions.
+        num_levels = min(50, num_levels)
     eigenfunctions = space.get_eigenfunctions(num_levels)
 
     key = np.random.RandomState()
