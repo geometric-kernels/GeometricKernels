@@ -3,48 +3,23 @@ import lab as B
 import numpy as np
 import pytest
 from opt_einsum import contract as einsum
-from plum import Tuple
 
 from geometric_kernels.kernels.matern_kernel import default_num
-from geometric_kernels.spaces import (
-    Circle,
-    CompactMatrixLieGroup,
-    Graph,
-    HypercubeGraph,
-    Hypersphere,
-    Mesh,
-    SpecialOrthogonal,
-    SpecialUnitary,
-)
+from geometric_kernels.spaces import CompactMatrixLieGroup, Hypersphere, Mesh
 from geometric_kernels.utils.utils import chain
 
-from ..helper import TEST_GRAPH_ADJACENCY, TEST_MESH_PATH, check_function_with_backend
+from ..helper import check_function_with_backend, discrete_spectrum_spaces
 
 jax.config.update("jax_enable_x64", True)  # enable float64 in JAX
 
 
 @pytest.fixture(
-    params=[
-        Circle(),
-        HypercubeGraph(1),
-        HypercubeGraph(3),
-        HypercubeGraph(6),
-        Hypersphere(2),
-        Hypersphere(3),
-        Hypersphere(10),
-        SpecialOrthogonal(3),
-        SpecialOrthogonal(8),
-        SpecialUnitary(2),
-        SpecialUnitary(5),
-        Mesh.load_mesh(TEST_MESH_PATH),
-        Graph(TEST_GRAPH_ADJACENCY, normalize_laplacian=False),
-        Graph(TEST_GRAPH_ADJACENCY, normalize_laplacian=True),
-    ],
+    params=discrete_spectrum_spaces(),
     ids=str,
 )
-def inputs(request) -> Tuple[B.Numeric]:
+def inputs(request):
     """
-    Returns a tuple (space, eigenfunctions, X, X2) where:
+    Returns a tuple (space, eigenfunctions, X, X2, weights) where:
     - space = request.param,
     - eigenfunctions = space.get_eigenfunctions(num_levels), with reasonable num_levels
     - X is a random sample of random size from the space,
@@ -68,7 +43,6 @@ def inputs(request) -> Tuple[B.Numeric]:
 
     key = np.random.RandomState()
     N, N2 = key.randint(low=1, high=100 + 1, size=2)
-    # N, N2 = 2, 3  # TODO: fixme
     key, X = space.random(key, N)
     key, X2 = space.random(key, N2)
 
@@ -164,7 +138,6 @@ def test_weighted_outerproduct_with_addition_theorem(inputs, backend):
     )
 
 
-# @pytest.mark.parametrize("backend", ["numpy"])
 @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
 def test_weighted_outerproduct_with_addition_theorem_one_input(inputs, backend):
     _, eigenfunctions, X, _, weights = inputs

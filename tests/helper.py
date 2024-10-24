@@ -1,41 +1,49 @@
-from pathlib import Path
-
 import lab as B
 import numpy as np
 from beartype.door import die_if_unbearable, is_bearable
-from beartype.typing import Any, Callable, Optional, Union
+from beartype.typing import Any, Callable, List, Optional, Union
 from plum import ModuleType, resolve_type_hint
+
+from geometric_kernels.lab_extras import SparseArray
+from geometric_kernels.spaces import (
+    Circle,
+    DiscreteSpectrumSpace,
+    Graph,
+    HypercubeGraph,
+    Hypersphere,
+    Mesh,
+    ProductDiscreteSpectrumSpace,
+    SpecialOrthogonal,
+    SpecialUnitary,
+)
+
+from .data import TEST_GRAPH_ADJACENCY, TEST_MESH_PATH
 
 EagerTensor = ModuleType("tensorflow.python.framework.ops", "EagerTensor")
 
-TEST_MESH_PATH = str(Path(__file__).parent.resolve() / "teddy.obj")
 
-TEST_GRAPH_ADJACENCY = np.array(
-    [
-        [0, 1, 0, 0, 0, 0, 0],
-        [1, 0, 1, 1, 1, 0, 0],
-        [0, 1, 0, 0, 0, 1, 0],
-        [0, 1, 0, 0, 1, 0, 0],
-        [0, 1, 0, 1, 0, 0, 0],
-        [0, 0, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0],
+def discrete_spectrum_spaces() -> List[DiscreteSpectrumSpace]:
+    return [
+        Circle(),
+        HypercubeGraph(1),
+        HypercubeGraph(3),
+        HypercubeGraph(6),
+        Hypersphere(2),
+        Hypersphere(3),
+        Hypersphere(10),
+        SpecialOrthogonal(3),
+        SpecialOrthogonal(8),
+        SpecialUnitary(2),
+        SpecialUnitary(5),
+        Mesh.load_mesh(TEST_MESH_PATH),
+        Graph(TEST_GRAPH_ADJACENCY, normalize_laplacian=False),
+        Graph(TEST_GRAPH_ADJACENCY, normalize_laplacian=True),
+        ProductDiscreteSpectrumSpace(Circle(), Hypersphere(3), Circle()),
+        ProductDiscreteSpectrumSpace(
+            Circle(), Graph(np.kron(TEST_GRAPH_ADJACENCY, TEST_GRAPH_ADJACENCY))
+        ),  # TEST_GRAPH_ADJACENCY is too small for default parameters of the ProductDiscreteSpectrumSpace
+        ProductDiscreteSpectrumSpace(Mesh.load_mesh(TEST_MESH_PATH), Hypersphere(2)),
     ]
-).astype(np.float64)
-
-
-TEST_GRAPH_LAPLACIAN = np.array(
-    [
-        [1, -1, 0, 0, 0, 0, 0],
-        [-1, 4, -1, -1, -1, 0, 0],
-        [0, -1, 2, 0, 0, -1, 0],
-        [0, -1, 0, 2, -1, 0, 0],
-        [0, -1, 0, -1, 2, 0, 0],
-        [0, 0, -1, 0, 0, 1, 0],
-        [0, 0, 0, 0, 0, 0, 0],
-    ]
-).astype(
-    np.float64
-)  # corresponds to TEST_GRAPH_ADJACENCY, unnormalized Laplacian
 
 
 def np_to_backend(value: B.NPNumeric, backend: str):
@@ -67,6 +75,10 @@ def np_to_backend(value: B.NPNumeric, backend: str):
         import jax.numpy as jnp
 
         return jnp.array(value)
+    elif backend == "scipy_sparse":
+        import scipy.sparse as sp
+
+        return sp.csr_array(value)
     else:
         raise ValueError("Unknown backend: {}".format(backend))
 
@@ -76,7 +88,8 @@ def array_type(backend: str):
     Returns the array type corresponding to the given backend.
 
     :param backend:
-        The backend to use, one of the strings "tensorflow", "torch", "numpy", "jax".
+        The backend to use, one of the strings "tensorflow", "torch", "numpy",
+        "jax", "scipy_sparse".
 
     :return:
         The array type corresponding to the given backend.
@@ -89,6 +102,8 @@ def array_type(backend: str):
         return resolve_type_hint(B.NPNumeric)
     elif backend == "jax":
         return resolve_type_hint(B.JAXNumeric)
+    elif backend == "scipy_sparse":
+        return resolve_type_hint(SparseArray)
     else:
         raise ValueError(f"Unknown backend: {backend}")
 
@@ -139,6 +154,11 @@ def check_function_with_backend(
     f_output = f(*args_casted)
     assert is_bearable(f_output, array_type(backend))
     if compare_to_result is None:
-        np.testing.assert_allclose(B.to_numpy(f_output), result, atol=atol)
+        # we convert `f_output` to numpy array to compare with `result``
+        if is_bearable(f_output, SparseArray):
+            f_output = f_output.toarray()
+        else:
+            f_output = B.to_numpy(f_output)
+        np.testing.assert_allclose(f_output, result, atol=atol)
     else:
         assert compare_to_result(result, f_output)
