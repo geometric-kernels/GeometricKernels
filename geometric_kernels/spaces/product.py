@@ -15,7 +15,7 @@ import lab as B
 import numpy as np
 from beartype.typing import List, Optional, Tuple
 
-from geometric_kernels.lab_extras import from_numpy, int_like
+from geometric_kernels.lab_extras import from_numpy, int_like, take_along_axis
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 from geometric_kernels.utils.product import make_product, project_product
@@ -286,20 +286,19 @@ class ProductEigenfunctions(Eigenfunctions):
 
         phis = B.stack(
             *[
-                eigenfunction.phi_product(X1, X2, **kwargs)
-                for eigenfunction, X1, X2 in zip(self.eigenfunctions, Xs, Xs2)
+                take_along_axis(
+                    eigenfunction.phi_product(X1, X2, **kwargs),
+                    from_numpy(X1, self.eigenindicies[None, None, :, s]),
+                    -1,
+                )
+                for s, (eigenfunction, X1, X2) in enumerate(
+                    zip(self.eigenfunctions, Xs, Xs2)
+                )
             ],
             axis=-1,
-        )  # [N, N2, LFactor, S] where `LFactor` is self.eigenfunctions[0].num_levels
+        )  # [N, N2, L, S]
 
-        prod_phis = phis[
-            :,
-            :,
-            self.eigenindicies,
-            B.range(self.eigenindicies.shape[1]),
-        ].prod(
-            axis=-1
-        )  # [N, N2, LFactor, S] -> [N, N2, L]
+        prod_phis = B.prod(phis, axis=-1)  # [N, N2, L, S] -> [N, N2, L]
 
         return prod_phis
 
@@ -308,19 +307,17 @@ class ProductEigenfunctions(Eigenfunctions):
 
         phis = B.stack(
             *[
-                eigenfunction.phi_product_diag(X1, **kwargs)
-                for eigenfunction, X1 in zip(self.eigenfunctions, Xs)
+                take_along_axis(
+                    eigenfunction.phi_product_diag(X1, **kwargs),
+                    from_numpy(X1, self.eigenindicies[None, :, s]),
+                    -1,
+                )
+                for s, (eigenfunction, X1) in enumerate(zip(self.eigenfunctions, Xs))
             ],
             axis=-1,
-        )  # [N, LFactor, S] where `LFactor` is self.eigenfunctions[0].num_levels
+        )  # [N, L, S]
 
-        prod_phis = phis[
-            :,
-            self.eigenindicies,
-            B.range(self.eigenindicies.shape[1]),
-        ].prod(
-            axis=-1
-        )  # [N, LFactor, S] -> [N, L]
+        prod_phis = B.prod(phis, axis=-1)  # [N, L, S] -> [N, L]
 
         return prod_phis
 
