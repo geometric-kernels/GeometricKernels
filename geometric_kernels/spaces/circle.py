@@ -143,6 +143,9 @@ class Circle(DiscreteSpectrumSpace):
         citing :cite:t:`borovitskiy2020`.
     """
 
+    def __str__(self):
+        return "Circle()"
+
     @property
     def dimension(self) -> int:
         """

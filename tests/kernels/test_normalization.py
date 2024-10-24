@@ -44,6 +44,7 @@ def test_normalization_matern_kl_kernel(space_name):
 
         space = Graph(A, normalize_laplacian=True)
         points = np.arange(space.num_vertices).reshape(-1, 1)
+        num_eigenfns = min(num_eigenfns, A.shape[0])
 
     else:
         raise ValueError(f"Unknown space {space}")
