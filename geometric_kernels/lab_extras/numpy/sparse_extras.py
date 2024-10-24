@@ -12,13 +12,8 @@ SparseArray defines a lab data type that covers all possible sparse
 scipy arrays, so that multiple dispatch works with such arrays.
 """
 SparseArray = Union[
-    sp.bsr_matrix,
-    sp.coo_matrix,
-    sp.csc_matrix,
-    sp.csr_matrix,
-    sp.dia_matrix,
-    sp.dok_matrix,
-    sp.lil_matrix,
+    sp.sparray,
+    sp.spmatrix,
 ]
 
 
