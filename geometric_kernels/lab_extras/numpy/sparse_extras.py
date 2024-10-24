@@ -1,3 +1,5 @@
+import sys
+
 import lab as B
 import scipy
 import scipy.sparse as sp
@@ -11,10 +13,21 @@ from .extras import _Numeric
 SparseArray defines a lab data type that covers all possible sparse
 scipy arrays, so that multiple dispatch works with such arrays.
 """
-SparseArray = Union[
-    sp.sparray,
-    sp.spmatrix,
-]
+if sys.version_info[:2] <= (3, 9):
+    SparseArray = Union[
+        sp.bsr_matrix,
+        sp.coo_matrix,
+        sp.csc_matrix,
+        sp.csr_matrix,
+        sp.dia_matrix,
+        sp.dok_matrix,
+        sp.lil_matrix,
+    ]
+else:
+    SparseArray = Union[
+        sp.sparray,
+        sp.spmatrix,
+    ]
 
 
 @dispatch
