@@ -13,7 +13,7 @@ from .extras import _Numeric
 SparseArray defines a lab data type that covers all possible sparse
 scipy arrays, so that multiple dispatch works with such arrays.
 """
-if sys.version_info[:2] <= (3, 9):
+if sys.version_info[:2] <= (3, 8):
     SparseArray = Union[
         sp.bsr_matrix,
         sp.coo_matrix,

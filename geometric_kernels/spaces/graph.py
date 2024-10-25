@@ -71,11 +71,10 @@ class Graph(DiscreteSpectrumSpace):
         Checks if `adjacency` is a square symmetric matrix.
         """
         assert (
-            len(B.shape(adjacency)) == 2 and adjacency.shape[0] == adjacency.shape[1]
+            len(adjacency.shape) == 2 and adjacency.shape[0] == adjacency.shape[1]
         ), "Matrix is not square."
 
-        # this is more efficient than (adj == adj.T).all()
-        assert not B.any(adjacency != B.T(adjacency)), "Adjacency is not symmetric."
+        assert not B.any(adjacency != B.T(adjacency)), "Adjacency is not symmetric"
 
     @property
     def dimension(self) -> int:
