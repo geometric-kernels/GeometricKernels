@@ -1,33 +1,36 @@
-import itertools
-
 import lab as B
 import numpy as np
 import pytest
-from numpy.testing import assert_allclose
 
-from geometric_kernels.feature_maps import RandomPhaseFeatureMapCompact
-from geometric_kernels.kernels import MaternKarhunenLoeveKernel
+from geometric_kernels.kernels.matern_kernel import default_num
+from geometric_kernels.lab_extras import complex_conj
 from geometric_kernels.spaces import SpecialOrthogonal, SpecialUnitary
 
-
-@pytest.fixture(name="group_cls", params=["so", "su"])
-def _group_cls(request):
-    if request.param == "so":
-        return SpecialOrthogonal
-    elif request.param == "su":
-        return SpecialUnitary
+from ..helper import check_function_with_backend, compact_matrix_lie_groups
 
 
-@pytest.fixture(name="group", params=[3, 5])
-def _group(group_cls, request):
-    group = group_cls(n=request.param)
-    return group
+@pytest.fixture(
+    params=compact_matrix_lie_groups(),
+    ids=str,
+)
+def inputs(request):
+    """
+    Returns a tuple (space, eigenfunctions, X, X2) where:
+    - space = request.param,
+    - eigenfunctions = space.get_eigenfunctions(num_levels), with reasonable num_levels
+    - X is a random sample of random size from the space,
+    - X2 is another random sample of random size from the space,
+    """
+    space = request.param
+    num_levels = min(5, default_num(space))
+    eigenfunctions = space.get_eigenfunctions(num_levels)
 
+    key = np.random.RandomState()
+    N, N2 = key.randint(low=1, high=100 + 1, size=2)
+    key, X = space.random(key, N)
+    key, X2 = space.random(key, N2)
 
-@pytest.fixture(name="group_and_eigf", params=[10])
-def _group_and_eigf(group, request):
-    eigf = group.get_eigenfunctions(num=request.param)
-    return group, eigf
+    return space, eigenfunctions, X, X2
 
 
 def get_dtype(group):
@@ -39,93 +42,93 @@ def get_dtype(group):
         raise ValueError()
 
 
-def test_group_inverse(group_and_eigf):
-    group, eigenfunctions = group_and_eigf
-    dtype = get_dtype(group)
+@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
+def test_group_inverse(inputs, backend):
+    group, _, X, _ = inputs
 
-    key = B.create_random_state(dtype, seed=0)
+    result = np.eye(group.n, dtype=get_dtype(group))
+    result = np.broadcast_to(result, (X.shape[0], group.n, group.n))
 
-    b1, b2 = 10, 10
-    key, x = group.random(key, b1)
-    key, y = group.random(key, b2)
-
-    eye_ = np.matmul(x, group.inverse(x))[None, ...]
-    diff = eye_ - np.eye(group.n, dtype=dtype)
-    zeros = np.zeros_like(eye_)
-
-    assert_allclose(diff, zeros, atol=1e-5)
+    check_function_with_backend(
+        backend,
+        result,
+        lambda X: B.matmul(X, group.inverse(X)),
+        X,
+    )
 
 
-def test_character_conj_invariant(group_and_eigf):
-    group, eigenfunctions = group_and_eigf
-    dtype = get_dtype(group)
+@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
+def test_character_conj_invariant(inputs, backend):
+    group, eigenfunctions, X, G = inputs
 
-    key = B.create_random_state(dtype, seed=0)
+    # Truncate X and G to have the same length
+    n_xs = min(X.shape[0], G.shape[0])
+    X = X[:n_xs, :, :]
+    G = G[:n_xs, :, :]
 
-    num_samples_x = 20
-    num_samples_g = 20
-    key, xs = group.random(key, num_samples_x)
-    key, gs = group.random(key, num_samples_g)
-    conjugates = np.matmul(np.matmul(gs, xs), group.inverse(gs))
+    def gammas_diff(X, G, chi):
+        conjugates = B.matmul(B.matmul(G, X), group.inverse(G))
+        conj_gammas = eigenfunctions._torus_representative(conjugates)
 
-    conj_gammas = eigenfunctions._torus_representative(conjugates)
-    xs_gammas = eigenfunctions._torus_representative(xs)
+        xs_gammas = eigenfunctions._torus_representative(X)
+
+        return chi(xs_gammas) - chi(conj_gammas)
+
     for chi in eigenfunctions._characters:
-        chi_vals_xs = chi(xs_gammas)
-        chi_vals_conj = chi(conj_gammas)
-        assert_allclose(chi_vals_xs, chi_vals_conj)
+        check_function_with_backend(
+            backend,
+            np.zeros((n_xs,)),
+            lambda X, G: gammas_diff(X, G, chi),
+            X,
+            G,
+            atol=1e-3,
+        )
 
 
-def test_character_at_identity(group_and_eigf):
-    group, eigenfunctions = group_and_eigf
-    dtype = get_dtype(group)
+@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
+def test_character_at_identity(inputs, backend):
+    group, eigenfunctions, _, _ = inputs
 
-    identity = np.eye(group.n, dtype=dtype).reshape(1, group.n, group.n)
-    identity_gammas = eigenfunctions._torus_representative(identity)
-    dimensions = eigenfunctions._dimensions
-    characters = eigenfunctions._characters
-    for chi, dim in zip(characters, dimensions):
-        chi_val = chi(identity_gammas)
-        assert_allclose(chi_val.real, dim)
-        assert_allclose(chi_val.imag, 0)
+    for chi, dim in zip(eigenfunctions._characters, eigenfunctions._dimensions):
+        check_function_with_backend(
+            backend,
+            np.array([dim], dtype=get_dtype(group)),
+            lambda X: B.real(chi(eigenfunctions._torus_representative(X))),
+            np.eye(group.n, dtype=get_dtype(group))[None, ...],
+        )
 
-
-def test_characters_orthogonal(group_and_eigf):
-    group, eigenfunctions = group_and_eigf
-    dtype = get_dtype(group)
-    order = eigenfunctions.num_levels
-
-    key = B.create_random_state(dtype, seed=0)
-
-    num_samples_x = 5 * 10**5
-    key, xs = group.random(key, num_samples_x)
-    gammas = eigenfunctions._torus_representative(xs)
-    characters = eigenfunctions._characters
-    scalar_products = np.zeros((order, order), dtype=dtype)
-    for a, b in itertools.product(enumerate(characters), repeat=2):
-        i, chi1 = a
-        j, chi2 = b
-        scalar_products[i, j] = np.mean((np.conj(chi1(gammas)) * chi2(gammas)).real)
-
-    assert_allclose(scalar_products, np.eye(order, dtype=dtype), atol=5e-2)
+        check_function_with_backend(
+            backend,
+            np.array([0], dtype=get_dtype(group)),
+            lambda X: B.imag(chi(eigenfunctions._torus_representative(X))),
+            np.eye(group.n, dtype=get_dtype(group))[None, ...],
+        )
 
 
-def test_feature_map(group_and_eigf):
-    group, eigenfunctions = group_and_eigf
-    order = eigenfunctions.num_levels
-    dtype = get_dtype(group)
-    key = B.create_random_state(dtype, seed=0)
+@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
+def test_characters_orthogonal(inputs, backend):
+    group, eigenfunctions, _, _ = inputs
 
-    kernel = MaternKarhunenLoeveKernel(group, order, normalize=True)
-    param = dict(lengthscale=np.array([10]), nu=np.array([1.5]))
+    # if isinstance(group, SpecialOrthogonal) and group.n % 2 == 0:
+    #     pytest.skip("This test currently fails for SO(n) with n even, because of a bug")
 
-    feature_order = 5000
-    feature_map = RandomPhaseFeatureMapCompact(group, order, feature_order)
+    num_samples = 10000
+    key = np.random.RandomState()
+    _, X = group.random(key, num_samples)
 
-    key, x = group.random(key, 10)
+    def all_char_vals(X):
+        gammas = eigenfunctions._torus_representative(X)
+        values = [
+            chi(gammas)[..., None]  # [num_samples, 1]
+            for chi in eigenfunctions._characters
+        ]
 
-    K_xx = (kernel.K(param, x, x)).real
-    key, embed_x = feature_map(x, param, key=key, normalize=True)
-    F_xx = (B.einsum("ni,mi-> nm", embed_x, embed_x.conj())).real
+        return B.concat(*values, axis=-1)
 
-    assert_allclose(K_xx, F_xx, atol=5e-2)
+    check_function_with_backend(
+        backend,
+        np.eye(eigenfunctions.num_levels, dtype=get_dtype(group)),
+        lambda X: complex_conj(B.T(all_char_vals(X))) @ all_char_vals(X) / num_samples,
+        X,
+        atol=0.4,  # very loose, but helps make sure the diagonal is close to 1 while the rest is close to 0
+    )

@@ -7,6 +7,7 @@ from plum import ModuleType, resolve_type_hint
 from geometric_kernels.lab_extras import SparseArray
 from geometric_kernels.spaces import (
     Circle,
+    CompactMatrixLieGroup,
     DiscreteSpectrumSpace,
     Graph,
     HypercubeGraph,
@@ -22,28 +23,42 @@ from .data import TEST_GRAPH_ADJACENCY, TEST_MESH_PATH
 EagerTensor = ModuleType("tensorflow.python.framework.ops", "EagerTensor")
 
 
-def discrete_spectrum_spaces() -> List[DiscreteSpectrumSpace]:
+def compact_matrix_lie_groups() -> List[CompactMatrixLieGroup]:
     return [
-        Circle(),
-        HypercubeGraph(1),
-        HypercubeGraph(3),
-        HypercubeGraph(6),
-        Hypersphere(2),
-        Hypersphere(3),
-        Hypersphere(10),
         SpecialOrthogonal(3),
         SpecialOrthogonal(8),
         SpecialUnitary(2),
         SpecialUnitary(5),
-        Mesh.load_mesh(TEST_MESH_PATH),
-        Graph(TEST_GRAPH_ADJACENCY, normalize_laplacian=False),
-        Graph(TEST_GRAPH_ADJACENCY, normalize_laplacian=True),
+    ]
+
+
+def product_discrete_spectrum_spaces() -> List[ProductDiscreteSpectrumSpace]:
+    return [
         ProductDiscreteSpectrumSpace(Circle(), Hypersphere(3), Circle()),
         ProductDiscreteSpectrumSpace(
             Circle(), Graph(np.kron(TEST_GRAPH_ADJACENCY, TEST_GRAPH_ADJACENCY))
         ),  # TEST_GRAPH_ADJACENCY is too small for default parameters of the ProductDiscreteSpectrumSpace
         ProductDiscreteSpectrumSpace(Mesh.load_mesh(TEST_MESH_PATH), Hypersphere(2)),
     ]
+
+
+def discrete_spectrum_spaces() -> List[DiscreteSpectrumSpace]:
+    return (
+        [
+            Circle(),
+            HypercubeGraph(1),
+            HypercubeGraph(3),
+            HypercubeGraph(6),
+            Hypersphere(2),
+            Hypersphere(3),
+            Hypersphere(10),
+            Mesh.load_mesh(TEST_MESH_PATH),
+            Graph(TEST_GRAPH_ADJACENCY, normalize_laplacian=False),
+            Graph(TEST_GRAPH_ADJACENCY, normalize_laplacian=True),
+        ]
+        + compact_matrix_lie_groups()
+        + product_discrete_spectrum_spaces()
+    )
 
 
 def np_to_backend(value: B.NPNumeric, backend: str):
