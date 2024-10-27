@@ -8,7 +8,7 @@ Spaces
 
    Graph <Graph>
    Hyperbolic <Hyperbolic>
-   Hypercube <Hypercube>
+   HypercubeGraph <HypercubeGraph>
    Hypersphere <Hypersphere>
    Mesh <Mesh>
    SPD <SPD>
