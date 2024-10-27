@@ -9,7 +9,6 @@ import lab as B
 from beartype.typing import Dict, Optional, Tuple
 
 from geometric_kernels.feature_maps.base import FeatureMap
-from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import DiscreteSpectrumSpace
 
 
@@ -25,6 +24,8 @@ class DeterministicFeatureMapCompact(FeatureMap):
     """
 
     def __init__(self, space: DiscreteSpectrumSpace, num_levels: int):
+        from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
+
         self.space = space
         self.num_levels = num_levels
         self.kernel = MaternKarhunenLoeveKernel(space, num_levels)
