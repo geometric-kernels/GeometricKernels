@@ -22,7 +22,7 @@ def inputs(request):
     - X2 is another random sample of random size from the space,
     """
     space = request.param
-    num_levels = min(5, default_num(space))
+    num_levels = min(10, default_num(space))
     eigenfunctions = space.get_eigenfunctions(num_levels)
 
     key = np.random.RandomState()
@@ -108,9 +108,6 @@ def test_character_at_identity(inputs, backend):
 @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
 def test_characters_orthogonal(inputs, backend):
     group, eigenfunctions, _, _ = inputs
-
-    # if isinstance(group, SpecialOrthogonal) and group.n % 2 == 0:
-    #     pytest.skip("This test currently fails for SO(n) with n even, because of a bug")
 
     num_samples = 10000
     key = np.random.RandomState()
