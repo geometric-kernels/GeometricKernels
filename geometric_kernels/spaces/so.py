@@ -166,7 +166,7 @@ class SOEigenfunctions(WeylAdditionTheorem):
             )
             # eigenvectors calculated by LAPACK are either real or purely imaginary, make everything real
             # WARNING: might depend on the implementation of the eigendecomposition!
-            c = B.real(c) + B.real(c)
+            c = B.real(c) + B.imag(c)
             # normalize s.t. det(c)≈±1, probably unnecessary
             c /= math.sqrt(2)
             eigvals = B.concat(
