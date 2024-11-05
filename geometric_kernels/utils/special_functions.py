@@ -69,9 +69,9 @@ def kravchuk_normalized(
 
     .. note::
         We are using the three term recurrence relation to compute the Kravchuk
-        polynomials. Cf. Equation (60) in MacWilliams and Sloane "The Theory of
-        Error-Correcting Codes", 1977. The parameters q and \gamma from
-        :cite:t:`macwilliams1977` are set to be q = 2; \gamma = q - 1 = 1.
+        polynomials. Cf. Equation (60) of Chapter 5 in MacWilliams and Sloane "The
+        Theory of Error-Correcting Codes", 1977. The parameters q and $\gamma$
+        from :cite:t:`macwilliams1977` are set to be q = 2; $\gamma = q - 1 = 1$.
 
     .. note::
         We use the fact that $G_{d, j, 0} = \binom{d}{j}$.
