@@ -176,4 +176,6 @@ def check_function_with_backend(
             f_output = B.to_numpy(f_output)
         np.testing.assert_allclose(f_output, result, atol=atol)
     else:
-        assert compare_to_result(result, f_output)
+        assert compare_to_result(
+            result, f_output
+        ), f"compare_to_result(result, f_output) failed with\n result:\n{result}\n\nf_output:\n{f_output}"

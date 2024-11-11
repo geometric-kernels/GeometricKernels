@@ -1,62 +1,205 @@
-from pathlib import Path
+from itertools import product
 
+import lab as B
 import numpy as np
-from pytest import fixture
+import pytest
 
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
+from geometric_kernels.kernels.matern_kernel import default_num
 from geometric_kernels.spaces import Mesh
 
-_TRUNCATION_LEVEL = 10
-_NU = np.r_[1 / 2.0]
+from ..helper import check_function_with_backend, discrete_spectrum_spaces
+
+_EPS = 1e-5
 
 
-@fixture(name="kernel")
-def fixture_mesh_kernel() -> MaternKarhunenLoeveKernel:
-    filename = Path(__file__).parent / "../teddy.obj"
-    mesh = Mesh.load_mesh(str(filename))
-    return MaternKarhunenLoeveKernel(mesh, _TRUNCATION_LEVEL)
+@pytest.fixture(
+    params=product(discrete_spectrum_spaces(), [True, False]),
+    ids=lambda tpl: f"{tpl[0]}{'-normalized' if tpl[1] else ''}",
+    scope="module",
+)
+def inputs(request):
+    """
+    Returns a tuple (space, num_levels, kernel, X, X2) where:
+    - space = request.param,
+    - num_levels = default_num(space),
+    - kernel = MaternKarhunenLoeveKernel(space, num_levels),
+    - X is a random sample of random size from the space,
+    - X2 is another random sample of random size from the space,
+    """
+    space, normalize = request.param
+    num_levels = default_num(space)
+    kernel = MaternKarhunenLoeveKernel(space, num_levels, normalize=normalize)
+
+    key = np.random.RandomState()
+    N, N2 = key.randint(low=1, high=100 + 1, size=2)
+    key, X = space.random(key, N)
+    key, X2 = space.random(key, N2)
+
+    return space, num_levels, kernel, X, X2
 
 
-def test_eigenvalues(kernel: MaternKarhunenLoeveKernel):
-    params = dict(lengthscale=np.r_[0.81], nu=_NU)
-
-    assert kernel.eigenvalues(params).shape == (_TRUNCATION_LEVEL, 1)
-
-
-def test_eigenfunctions(kernel: MaternKarhunenLoeveKernel):
-    num_data = 11
-    Phi = kernel.eigenfunctions
-    X = np.random.randint(low=0, high=kernel.space.num_vertices, size=(num_data, 1))
-
-    assert Phi(X, lengthscale=np.r_[0.93]).shape == (num_data, _TRUNCATION_LEVEL)
-
-
-def test_K_shapes(kernel: MaternKarhunenLoeveKernel):
-    params = kernel.init_params()
-    params["nu"] = _NU
-    params["lengthscale"] = np.r_[0.99]
-
-    N1, N2 = 11, 13
-    X = np.random.randint(low=0, high=kernel.space.num_vertices, size=(N1, 1))
-    X2 = np.random.randint(low=0, high=kernel.space.num_vertices, size=(N2, 1))
-
-    K = kernel.K(params, X, None)
-    assert K.shape == (N1, N1)
-
-    K = kernel.K(params, X, X2)
-    assert K.shape == (N1, N2)
-
-    K = kernel.K_diag(params, X)
-    assert K.shape == (N1,)
-
-
-def test_normalize(kernel: MaternKarhunenLoeveKernel):
-    random_points = np.arange(kernel.space.num_vertices).reshape(-1, 1)
+def test_params(inputs):
+    _, _, kernel, _, _ = inputs
 
     params = kernel.init_params()
-    params["nu"] = _NU
-    params["lengthscale"] = np.r_[0.99]
 
-    K = kernel.K_diag(params, random_points)  # (N, )
+    assert "lengthscale" in params
+    assert params["lengthscale"].shape == (1,)
+    assert "nu" in params
+    assert params["nu"].shape == (1,)
 
-    np.testing.assert_allclose(np.mean(K), 1.0)
+
+def test_num_levels(inputs):
+    _, num_levels, kernel, _, _ = inputs
+
+    assert kernel.eigenfunctions.num_levels == num_levels
+
+
+@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
+def test_eigenvalues_shape(inputs, backend):
+    _, num_levels, kernel, _, _ = inputs
+    params = kernel.init_params()
+
+    # Check that the eigenvalues have appropriate shape.
+    check_function_with_backend(
+        backend,
+        (num_levels, 1),
+        lambda nu, lengthscale: kernel.eigenvalues(
+            {"nu": nu, "lengthscale": lengthscale}
+        ),
+        params["nu"],
+        params["lengthscale"],
+        compare_to_result=lambda res, f_out: f_out.shape == res,
+    )
+
+
+@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
+def test_eigenvalues_positive(inputs, backend):
+    _, _, kernel, _, _ = inputs
+    params = kernel.init_params()
+
+    # Check that the eigenvalues are nonnegative.
+    check_function_with_backend(
+        backend,
+        None,
+        lambda nu, lengthscale: kernel.eigenvalues(
+            {"nu": nu, "lengthscale": lengthscale}
+        ),
+        params["nu"],
+        params["lengthscale"],
+        compare_to_result=lambda _, f_out: np.all(B.to_numpy(f_out) >= 0),
+    )
+
+
+@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
+def test_eigenvalues_ordered(inputs, backend):
+    _, _, kernel, _, _ = inputs
+    params = kernel.init_params()
+
+    # Check that the eigenvalues are sorted in descending order.
+    check_function_with_backend(
+        backend,
+        None,
+        lambda nu, lengthscale: kernel.eigenvalues(
+            {"nu": nu, "lengthscale": lengthscale}
+        ),
+        params["nu"],
+        params["lengthscale"],
+        compare_to_result=lambda _, f_out: np.all(
+            B.to_numpy(f_out)[:-1] >= B.to_numpy(f_out)[1:] - _EPS
+        ),
+    )
+
+
+@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
+def test_K(inputs, backend):
+    _, _, kernel, X, X2 = inputs
+    params = kernel.init_params()
+
+    result = kernel.K(params, X, X2)
+
+    assert result.shape == (X.shape[0], X2.shape[0]), "K has incorrect shape"
+
+    if backend != "numpy":
+        # Check that kernel.K computed using `backend` coincides with the numpy result.
+        check_function_with_backend(
+            backend,
+            result,
+            lambda nu, lengthscale, X, X2: kernel.K(
+                {"nu": nu, "lengthscale": lengthscale}, X, X2
+            ),
+            params["nu"],
+            params["lengthscale"],
+            X,
+            X2,
+        )
+
+
+@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
+def test_K_one_param(inputs, backend):
+    space, _, kernel, X, _ = inputs
+    params = kernel.init_params()
+
+    result = kernel.K(params, X, X)
+
+    # Check that kernel.K(X) coincides with kernel.K(X, X).
+    check_function_with_backend(
+        backend,
+        result,
+        lambda nu, lengthscale, X: kernel.K({"nu": nu, "lengthscale": lengthscale}, X),
+        params["nu"],
+        params["lengthscale"],
+        X,
+        atol=1e-2 if isinstance(space, Mesh) else _EPS,
+    )
+
+
+@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
+def test_K_diag(inputs, backend):
+    space, _, kernel, X, _ = inputs
+    params = kernel.init_params()
+
+    result = kernel.K(params, X).diagonal()
+
+    assert result.shape == (X.shape[0],), "The diagonal has incorrect shape"
+
+    # Check that kernel.K_diag coincides with the diagonal of kernel.K.
+    check_function_with_backend(
+        backend,
+        result,
+        lambda nu, lengthscale, X: kernel.K_diag(
+            {"nu": nu, "lengthscale": lengthscale}, X
+        ),
+        params["nu"],
+        params["lengthscale"],
+        X,
+        atol=1e-2 if isinstance(space, Mesh) else _EPS,
+    )
+
+
+@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
+def test_normalize(inputs, backend):
+    space, _, kernel, _, _ = inputs
+
+    if not kernel.normalize:
+        pytest.skip("No need to check normalization for an unnormalized kernel")
+
+    params = kernel.init_params()
+    key = np.random.RandomState()
+    key, X = space.random(
+        key, 1000
+    )  # we need a large sample to get a good estimate of the mean variance
+
+    # Check that the average variance of the kernel is 1.
+    check_function_with_backend(
+        backend,
+        np.array(1.0),
+        lambda nu, lengthscale, X: B.mean(
+            kernel.K_diag({"nu": nu, "lengthscale": lengthscale}, X), squeeze=False
+        ),
+        params["nu"],
+        params["lengthscale"],
+        X,
+        atol=0.1,  # very loose, but helps make sure the result is close to 1
+    )
