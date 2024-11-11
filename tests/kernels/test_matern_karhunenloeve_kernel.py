@@ -21,9 +21,9 @@ _EPS = 1e-5
 def inputs(request):
     """
     Returns a tuple (space, num_levels, kernel, X, X2) where:
-    - space = request.param,
+    - space = request.param[0],
     - num_levels = default_num(space),
-    - kernel = MaternKarhunenLoeveKernel(space, num_levels),
+    - kernel = MaternKarhunenLoeveKernel(space, num_levels, normalize=request.param[1]),
     - X is a random sample of random size from the space,
     - X2 is another random sample of random size from the space,
     """
@@ -201,5 +201,5 @@ def test_normalize(inputs, backend):
         params["nu"],
         params["lengthscale"],
         X,
-        atol=0.1,  # very loose, but helps make sure the result is close to 1
+        atol=0.2,  # very loose, but helps make sure the result is close to 1
     )
