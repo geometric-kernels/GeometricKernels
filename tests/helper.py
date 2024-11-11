@@ -10,12 +10,15 @@ from geometric_kernels.spaces import (
     CompactMatrixLieGroup,
     DiscreteSpectrumSpace,
     Graph,
+    Hyperbolic,
     HypercubeGraph,
     Hypersphere,
     Mesh,
+    NoncompactSymmetricSpace,
     ProductDiscreteSpectrumSpace,
     SpecialOrthogonal,
     SpecialUnitary,
+    SymmetricPositiveDefiniteMatrices,
 )
 
 from .data import TEST_GRAPH_ADJACENCY, TEST_MESH_PATH
@@ -61,6 +64,19 @@ def discrete_spectrum_spaces() -> List[DiscreteSpectrumSpace]:
     )
 
 
+def noncompact_symmetric_spaces() -> List[NoncompactSymmetricSpace]:
+    return [
+        Hyperbolic(2),
+        Hyperbolic(3),
+        Hyperbolic(8),
+        Hyperbolic(9),
+        SymmetricPositiveDefiniteMatrices(2),
+        SymmetricPositiveDefiniteMatrices(3),
+        SymmetricPositiveDefiniteMatrices(6),
+        SymmetricPositiveDefiniteMatrices(7),
+    ]
+
+
 def np_to_backend(value: B.NPNumeric, backend: str):
     """
     Converts a numpy array to the desired backend.
@@ -96,6 +112,11 @@ def np_to_backend(value: B.NPNumeric, backend: str):
         return sp.csr_array(value)
     else:
         raise ValueError("Unknown backend: {}".format(backend))
+
+
+def create_random_state(backend: str, seed: int = 0):
+    dtype = B.dtype(np_to_backend(np.array([1.0]), backend))
+    return B.create_random_state(dtype, seed=seed)
 
 
 def array_type(backend: str):
