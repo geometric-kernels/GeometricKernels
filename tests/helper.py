@@ -16,6 +16,7 @@ from geometric_kernels.spaces import (
     Mesh,
     NoncompactSymmetricSpace,
     ProductDiscreteSpectrumSpace,
+    Space,
     SpecialOrthogonal,
     SpecialUnitary,
     SymmetricPositiveDefiniteMatrices,
@@ -75,6 +76,10 @@ def noncompact_symmetric_spaces() -> List[NoncompactSymmetricSpace]:
         SymmetricPositiveDefiniteMatrices(6),
         SymmetricPositiveDefiniteMatrices(7),
     ]
+
+
+def spaces() -> List[Space]:
+    return discrete_spectrum_spaces() + noncompact_symmetric_spaces()
 
 
 def np_to_backend(value: B.NPNumeric, backend: str):
@@ -188,7 +193,9 @@ def check_function_with_backend(
         else:
             args_casted.append(arg)
     f_output = f(*args_casted)
-    assert is_bearable(f_output, array_type(backend))
+    assert is_bearable(
+        f_output, array_type(backend)
+    ), f"The output is not of the expected type. Expected: {array_type(backend)}, got: {type(f_output)}"
     if compare_to_result is None:
         # we convert `f_output` to numpy array to compare with `result``
         if is_bearable(f_output, SparseArray):
