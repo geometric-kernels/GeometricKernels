@@ -1,69 +1,79 @@
-from pathlib import Path
-
+import lab as B
 import numpy as np
 import pytest
 
+from geometric_kernels.feature_maps import RandomPhaseFeatureMapCompact
 from geometric_kernels.kernels import MaternGeometricKernel, default_feature_map
-from geometric_kernels.spaces.circle import Circle
-from geometric_kernels.spaces.graph import Graph
-from geometric_kernels.spaces.hyperbolic import Hyperbolic
-from geometric_kernels.spaces.hypersphere import Hypersphere
-from geometric_kernels.spaces.mesh import Mesh
-from geometric_kernels.spaces.spd import SymmetricPositiveDefiniteMatrices
+from geometric_kernels.kernels.matern_kernel import default_num
+from geometric_kernels.spaces import NoncompactSymmetricSpace
+from geometric_kernels.utils.utils import make_deterministic
+
+from ..helper import check_function_with_backend, create_random_state, spaces
 
 
-@pytest.mark.parametrize(
-    "space_name", ["circle", "hypersphere", "mesh", "graph", "hyperbolic", "spd"]
+@pytest.fixture(
+    params=spaces(),
+    ids=str,
 )
-def test_feature_maps(space_name):
-    key = np.random.RandomState(1234)
-    num_points = 5
+def feature_map_and_friends(request, backend):
+    """
+    Returns a tuple (feature_map, kernel, space) where:
+    - feature_map is the `default_feature_map` of the `kernel`,
+    - kernel is the `MaternGeometricKernel` on the `space`, with a reasonably
+      small value of `num`,
+    - space = request.param,
 
-    if space_name == "circle":
-        space = Circle()
-        kwargs = {}
-    elif space_name == "hypersphere":
-        space = Hypersphere(2)
-        kwargs = {}
-    elif space_name == "mesh":
-        filename = Path(__file__).parent / "../teddy.obj"
-        space = Mesh.load_mesh(str(filename))
-        kwargs = {}
-    elif space_name == "graph":
-        A = np.array(
-            [
-                [0, 1, 0, 0, 0, 0, 0],
-                [1, 0, 1, 1, 1, 0, 0],
-                [0, 1, 0, 0, 0, 1, 0],
-                [0, 1, 0, 0, 1, 0, 0],
-                [0, 1, 0, 1, 0, 0, 0],
-                [0, 0, 1, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0],
-            ]
-        ).astype("float")
+    `backend` parameter is required to create a random state for the feature
+    map, if it requires one.
+    """
+    space = request.param
 
-        space = Graph(A, normalize_laplacian=True)
-        kwargs = {}
-    elif space_name == "hyperbolic":
-        space = Hyperbolic(dim=2)
-        kwargs = {"key": key}
-    elif space_name == "spd":
-        space = SymmetricPositiveDefiniteMatrices(n=2)
-        kwargs = {"key": key}
+    if isinstance(space, NoncompactSymmetricSpace):
+        kernel = MaternGeometricKernel(
+            space, key=create_random_state(backend), num=min(default_num(space), 100)
+        )
     else:
-        raise ValueError(f"Unknown space {space}")
-
-    kernel = MaternGeometricKernel(space, **kwargs)
-    params = kernel.init_params()
-    params = {"nu": np.r_[2.5], "lengthscale": np.r_[1.0]}
+        kernel = MaternGeometricKernel(space, num=min(default_num(space), 3))
 
     feature_map = default_feature_map(kernel=kernel)
+    if isinstance(feature_map, RandomPhaseFeatureMapCompact):
+        # RandomPhaseFeatureMapCompact requires a key. Note: normally,
+        # RandomPhaseFeatureMapNoncompact, RejectionSamplingFeatureMapHyperbolic,
+        # and RejectionSamplingFeatureMapSPD also require a key, but when they
+        # are obtained from an already constructed kernel's feature map, the key
+        # is already provided and fixed in the similar way as we do just below.
+        feature_map = make_deterministic(feature_map, key=create_random_state(backend))
 
-    key, points = space.random(key, num_points)
+    return feature_map, kernel, space
 
-    _, embedding = feature_map(points, params, **kwargs)
 
-    kernel_mat = kernel.K(params, points, points)
-    kernel_mat_alt = np.matmul(embedding, embedding.T)
+@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
+def test_feature_map_approximates_kernel(backend, feature_map_and_friends):
+    feature_map, kernel, space = feature_map_and_friends
 
-    np.testing.assert_allclose(kernel_mat, kernel_mat_alt)
+    params = kernel.init_params()
+
+    key = np.random.RandomState()
+    key, X = space.random(key, 50)
+
+    def diff_kern_mats(params, X):
+        _, embedding = feature_map(X, params)
+
+        kernel_mat = kernel.K(params, X, X)
+        kernel_mat_alt = B.matmul(embedding, B.T(embedding))
+
+        return kernel_mat - kernel_mat_alt
+
+    # Check that, approximately, k(X, X) = <phi(X), phi(X)>, where k is the
+    # kernel and phi is the feature map.
+    check_function_with_backend(
+        backend,
+        np.zeros((X.shape[0], X.shape[0])),
+        lambda nu, lengthscale, X: diff_kern_mats(
+            {"nu": nu, "lengthscale": lengthscale}, X
+        ),
+        params["nu"],
+        params["lengthscale"],
+        X,
+        atol=0.1,
+    )
