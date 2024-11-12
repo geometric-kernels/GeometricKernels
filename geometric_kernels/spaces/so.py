@@ -349,8 +349,9 @@ class SpecialOrthogonal(CompactMatrixLieGroup):
             r_diag_sign = B.sign(B.einsum("...ii->...i", r))
             q *= r_diag_sign[:, None]
             q_det_sign = B.sign(B.det(q))
-            q[:, :, 0] *= q_det_sign[:, None]
-            return key, q
+            q_new = q[:, :, 0] * q_det_sign[:, None]
+            q_new = B.concat(q_new[:, :, None], q[:, :, 1:], axis=-1)
+            return key, q_new
 
     @property
     def element_shape(self):

@@ -251,12 +251,17 @@ class SpecialUnitary(CompactMatrixLieGroup):
             h = create_complex(real, imag) / B.sqrt(2)
             q, r = qr(h, mode="complete")
             r_diag = B.einsum("...ii->...i", r)
-            r_diag_inv_phase = complex_conj(r_diag / B.abs(r_diag))
+            r_diag_inv_phase = complex_conj(
+                r_diag / B.cast(B.dtype(r_diag), B.abs(r_diag))
+            )
             q *= r_diag_inv_phase[:, None]
             q_det = B.det(q)
-            q_det_inv_phase = complex_conj((q_det / B.abs(q_det)))
-            q[:, :, 0] *= q_det_inv_phase[:, None]
-            return key, q
+            q_det_inv_phase = complex_conj(
+                (q_det / B.cast(B.dtype(q_det), B.abs(q_det)))
+            )
+            q_new = q[:, :, 0] * q_det_inv_phase[:, None]
+            q_new = B.concat(q_new[:, :, None], q[:, :, 1:], axis=-1)
+            return key, q_new
 
     @property
     def element_shape(self):
