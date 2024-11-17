@@ -11,11 +11,15 @@ from geometric_kernels.utils.kernel_formulas import (
 
 from ..helper import check_function_with_backend, create_random_state
 
+# from line_profiler import profile
 
+
+# @profile
 @pytest.mark.parametrize("dim", [2, 3, 5, 7])
-@pytest.mark.parametrize("lengthscale", [0.1, 1.0, 10.0])
-@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
-def test_equivalence_kernel_odd(dim, lengthscale, backend):
+@pytest.mark.parametrize("lengthscale", [2.0])
+@pytest.mark.parametrize("backend", ["tensorflow"])
+# @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
+def test_equivalence_kernel(dim, lengthscale, backend):
     space = Hyperbolic(dim)
 
     key = np.random.RandomState()

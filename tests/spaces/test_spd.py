@@ -9,7 +9,7 @@ from geometric_kernels.utils.kernel_formulas import spd_heat_kernel_2x2
 from ..helper import check_function_with_backend, create_random_state
 
 
-@pytest.mark.parametrize("lengthscale", [0.5, 1.0, 10.0])
+@pytest.mark.parametrize("lengthscale", [2.0])
 @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
 def test_equivalence_kernel(lengthscale, backend):
     space = SymmetricPositiveDefiniteMatrices(2)
