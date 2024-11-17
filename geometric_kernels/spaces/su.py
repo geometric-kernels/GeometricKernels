@@ -108,7 +108,7 @@ class SUCharacter(LieGroupCharacter):
 
     These are polynomials whose coefficients are precomputed and stored in a
     file. By default, there are 20 precomputed characters for n from 2 to 6.
-    If you want more, use the `utils/compute_characters.py` script.
+    If you want more, use the `compute_characters.py` script.
 
     :param n:
         The order n of the SO(n) group.
@@ -177,7 +177,7 @@ class SpecialUnitary(CompactMatrixLieGroup):
     .. admonition:: Citation
 
         If you use this GeometricKernels space in your research, please consider
-        citing :cite:t:`azangulov2022`.
+        citing :cite:t:`azangulov2024a`.
     """
 
     def __init__(self, n: int):

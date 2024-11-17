@@ -5,7 +5,7 @@ from plum import Tuple
 
 from geometric_kernels.kernels import MaternGeometricKernel
 from geometric_kernels.spaces import HypercubeGraph
-from geometric_kernels.utils.special_functions import hypercube_graph_heat_kernel
+from geometric_kernels.utils.kernel_formulas import hypercube_graph_heat_kernel
 
 from ..helper import check_function_with_backend
 

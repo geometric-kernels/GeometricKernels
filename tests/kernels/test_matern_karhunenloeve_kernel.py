@@ -194,10 +194,13 @@ def test_normalize(inputs, backend):
     # Check that the average variance of the kernel is 1.
     check_function_with_backend(
         backend,
-        np.array(1.0),
-        lambda nu, lengthscale, X: B.mean(
-            kernel.K_diag({"nu": nu, "lengthscale": lengthscale}, X), squeeze=False
-        ),
+        np.array([1.0]),
+        lambda nu, lengthscale, X: B.reshape(
+            B.mean(
+                kernel.K_diag({"nu": nu, "lengthscale": lengthscale}, X), squeeze=False
+            ),
+            1,
+        ),  # the reshape shields from a bug in lab present at least up to version 1.6.6
         params["nu"],
         params["lengthscale"],
         X,

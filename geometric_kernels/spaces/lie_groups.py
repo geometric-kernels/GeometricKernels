@@ -43,7 +43,7 @@ class WeylAdditionTheorem(EigenfunctionsWithAdditionTheorem):
     is representation-theoretic: they are proportional to *characters* of
     irreducible unitary representations of the group. These characters, in their
     turn, can be algebraically computed using the *Weyl character formula*. See
-    :cite:t:`azangulov2022` for the mathematical details behind this class.
+    :cite:t:`azangulov2024a` for the mathematical details behind this class.
 
     :param n:
         The order of the Lie group, e.g. for SO(5) this is 5, for SU(3) this is 3.
@@ -196,7 +196,7 @@ class WeylAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         .. note::
             Doing X1[j, :, :] * inv(X2[i, :, :]) is as permissible as
             doing inv(X2[i, :, :]) * X1[j, :, :] which is actually used in
-            :cite:t:`azangulov2022`. This is because $\chi(x y x^{-1})=\chi(y)$
+            :cite:t:`azangulov2024a`. This is because $\chi(x y x^{-1})=\chi(y)$
             which implies that $\chi(x y) = \chi(y x)$.
         """
         X2_inv = self.inverse(X2)
@@ -217,7 +217,7 @@ class WeylAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         Laplace-Beltrami eigenfunctions that correspond to this level
         (representation). Uses the fact that such sums are equal to the
         character of the representation multiplied by the dimension of that
-        representation. See :cite:t:`azangulov2022` for mathematical details.
+        representation. See :cite:t:`azangulov2024a` for mathematical details.
 
         :param X:
             An [N, n, n]-shaped array, a batch of N matrices of size nxn.

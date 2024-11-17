@@ -116,7 +116,7 @@ class ProductGeometricKernel(BaseGeometricKernel):
 
         Xs = project_product(X, self.dimension_indices, self.element_shapes)
         X2s = project_product(X2, self.dimension_indices, self.element_shapes)
-        params_list = params_to_params_list(params)
+        params_list = params_to_params_list(len(self.kernels), params)
 
         return B.prod(
             B.stack(
@@ -131,7 +131,7 @@ class ProductGeometricKernel(BaseGeometricKernel):
 
     def K_diag(self, params, X):
         Xs = project_product(X, self.dimension_indices, self.element_shapes)
-        params_list = params_to_params_list(params)
+        params_list = params_to_params_list(len(self.kernels), params)
 
         return B.prod(
             B.stack(

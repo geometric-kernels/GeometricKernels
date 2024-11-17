@@ -6,13 +6,12 @@ import geomstats as gs
 import lab as B
 from beartype.typing import Optional
 
-from geometric_kernels.lab_extras import (
-    complex_like,
-    create_complex,
-    dtype_double,
-    from_numpy,
-)
+from geometric_kernels.lab_extras import complex_like, create_complex, dtype_double
 from geometric_kernels.spaces.base import NoncompactSymmetricSpace
+from geometric_kernels.utils.manifold_utils import (
+    hyperbolic_distance,
+    minkowski_inner_product,
+)
 
 
 class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
@@ -42,12 +41,12 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
         is a quotient G/H. For the hyperbolic space $\mathbb{H}_n$, the group
         of symmetries $G$ is the proper Lorentz group $SO(1, n)$,  while the
         isotropy subgroup $H$ is the special orthogonal group $SO(n)$. See the
-        mathematical details in :cite:t:`azangulov2023`.
+        mathematical details in :cite:t:`azangulov2024b`.
 
     .. admonition:: Citation
 
         If you use this GeometricKernels space in your research, please consider
-        citing :cite:t:`azangulov2023`.
+        citing :cite:t:`azangulov2024b`.
     """
 
     def __init__(self, dim=2):
@@ -67,76 +66,15 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
         self, x1: B.Numeric, x2: B.Numeric, diag: Optional[bool] = False
     ) -> B.Numeric:
         """
-        Compute the hyperbolic distance between `x1` and `x2`.
-
-        The code is a reimplementation of
-        `geomstats.geometry.hyperboloid.HyperbolicMetric` for `lab`.
-
-        :param x1:
-            An [N, n+1]-shaped array of points in the hyperbolic space.
-        :param x2:
-            An [M, n+1]-shaped array of points in the hyperbolic space.
-        :param diag:
-            If True, compute elementwise distance. Requires N = M.
-
-            Default False.
-
-        :return:
-            An [N, M]-shaped array if diag=False or [N,]-shaped array
-            if diag=True.
+        Calls :func:`~.hyperbolic_distance` on the same inputs.
         """
-        if diag:
-            # Compute a pointwise distance between `x1` and `x2`
-            x1_ = x1
-            x2_ = x2
-        else:
-            if B.rank(x1) == 1:
-                x1 = B.expand_dims(x1)
-            if B.rank(x2) == 1:
-                x2 = B.expand_dims(x2)
-
-            # compute pairwise distance between arrays of points `x1` and `x2`
-            # `x1` (N, n+1)
-            # `x2` (M, n+1)
-            x1_ = B.tile(x1[..., None, :], 1, x2.shape[0], 1)  # (N, M, n+1)
-            x2_ = B.tile(x2[None], x1.shape[0], 1, 1)  # (N, M, n+1)
-
-        sq_norm_1 = self.inner_product(x1_, x1_)
-        sq_norm_2 = self.inner_product(x2_, x2_)
-        inner_prod = self.inner_product(x1_, x2_)
-
-        cosh_angle = -inner_prod / B.sqrt(sq_norm_1 * sq_norm_2)
-
-        one = B.cast(B.dtype(cosh_angle), from_numpy(cosh_angle, [1.0]))
-        large_constant = B.cast(B.dtype(cosh_angle), from_numpy(cosh_angle, [1e24]))
-
-        # clip values into [1.0, 1e24]
-        cosh_angle = B.where(cosh_angle < one, one, cosh_angle)
-        cosh_angle = B.where(cosh_angle > large_constant, large_constant, cosh_angle)
-
-        dist = B.log(cosh_angle + B.sqrt(cosh_angle**2 - 1))  # arccosh
-        dist = B.cast(B.dtype(x1_), dist)
-        return dist
+        return hyperbolic_distance(x1, x2, diag)
 
     def inner_product(self, vector_a, vector_b):
         r"""
-        Computes the Minkowski inner product of vectors.
-
-        .. math:: \langle a, b \rangle = a_0 b_0 - a_1 b_1 - \ldots - a_n b_n.
-
-        :param vector_a:
-            An [..., n+1]-shaped array of points in the hyperbolic space.
-        :param vector_b:
-            An [..., n+1]-shaped array of points in the hyperbolic space.
-
-        :return:
-            An [...,]-shaped array of inner products.
+        Calls :func:`~.minkowski_inner_product` on `vector_a` and `vector_b`.
         """
-        q = self.dimension
-        p = 1
-        diagonal = from_numpy(vector_a, [-1.0] * p + [1.0] * q)  # (n+1)
-        diagonal = B.cast(B.dtype(vector_a), diagonal)
-        return B.einsum("...i,...i->...", diagonal * vector_a, vector_b)
+        return minkowski_inner_product(vector_a, vector_b)
 
     def inv_harish_chandra(self, lam: B.Numeric) -> B.Numeric:
         lam = B.squeeze(lam, -1)
@@ -208,7 +146,7 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
 
     def random(self, key, number):
         """
-        Geomstats-based non-uniform random sampling.
+        Non-uniform random sampling, reimplements the algorithm from geomstats.
 
         Always returns [N, n+1] float64 array of the `key`'s backend.
 
@@ -219,10 +157,15 @@ class Hyperbolic(NoncompactSymmetricSpace, gs.geometry.hyperboloid.Hyperboloid):
             Number of samples to draw.
 
         :return:
-            An array of `number` uniformly random samples on the space.
+            An array of `number` random samples on the space.
         """
 
-        return key, B.cast(dtype_double(key), self.random_point(number))
+        key, samples = B.rand(key, dtype_double(key), number, self.dim)
+
+        samples = 2.0 * (samples - 0.5)
+
+        coord_0 = B.sqrt(1.0 + B.sum(samples**2, axis=-1))
+        return key, B.concat(coord_0[..., None], samples, axis=-1)
 
     def element_shape(self):
         """

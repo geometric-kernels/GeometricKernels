@@ -4,6 +4,7 @@ import pytest
 
 from geometric_kernels.sampling import sampler
 
+from ..feature_maps.test_feature_maps import feature_map_and_friends  # noqa: F401
 from ..helper import check_function_with_backend, create_random_state
 
 _NUM_SAMPLES = 2

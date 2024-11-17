@@ -43,12 +43,12 @@ class SymmetricPositiveDefiniteMatrices(
         matrices $SPD(n)$, the group of symmetries $G$ is the identity component
         $GL(n)_+$ of the general linear group $GL(n)$, while the isotropy
         subgroup $H$ is the special orthogonal group $SO(n)$. See the
-        mathematical details in :cite:t:`azangulov2023`.
+        mathematical details in :cite:t:`azangulov2024b`.
 
     .. admonition:: Citation
 
         If you use this GeometricKernels space in your research, please consider
-        citing :cite:t:`azangulov2023`.
+        citing :cite:t:`azangulov2024b`.
     """
 
     def __init__(self, n):
@@ -120,7 +120,7 @@ class SymmetricPositiveDefiniteMatrices(
 
     def random(self, key, number):
         """
-        Geomstats-based non-uniform random sampling.
+        Non-uniform random sampling, reimplements the algorithm from geomstats.
 
         Always returns [N, n, n] float64 array of the `key`'s backend.
 
@@ -131,9 +131,14 @@ class SymmetricPositiveDefiniteMatrices(
             Number of samples to draw.
 
         :return:
-            An array of `number` uniformly random samples on the space.
+            An array of `number` random samples on the space.
         """
-        return key, B.cast(dtype_double(key), self.random_point(number))
+
+        key, mat = B.rand(key, dtype_double(key), number, self.n, self.n)
+        mat = 2 * mat - 1
+        mat_symm = 0.5 * (mat + B.transpose(mat, (0, 2, 1)))
+
+        return key, B.expm(mat_symm)
 
     @property
     def element_shape(self):

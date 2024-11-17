@@ -2,19 +2,15 @@
 Special mathematical functions used in the library.
 """
 
-from math import sqrt
-
 import lab as B
 from beartype.typing import List, Optional
 
 from geometric_kernels.lab_extras import (
     count_nonzero,
-    float_like,
     from_numpy,
     int_like,
     take_along_axis,
 )
-from geometric_kernels.utils.utils import hamming_distance
 
 
 def walsh_function(d: int, combination: List[int], x: B.Bool) -> B.Float:
@@ -113,135 +109,3 @@ def kravchuk_normalized(
         rhs_1 = (d - 2 * m) * kravchuk_normalized_j_minus_1
         rhs_2 = -(j - 1) * kravchuk_normalized_j_minus_2
         return (rhs_1 + rhs_2) / (d - j + 1)
-
-
-def hypercube_graph_heat_kernel(
-    lengthscale: B.Numeric,
-    X: B.Numeric,
-    X2: Optional[B.Numeric] = None,
-    normalized_laplacian: bool = True,
-):
-    """
-    Analytic formula for the heat kernel on the hypercube graph, see
-    Equation (14) in :cite:t:`borovitskiy2023`.
-
-    :param lengthscale:
-        The length scale of the kernel, an array of shape [1].
-    :param X:
-        A batch of inputs, an array of shape [N, d].
-    :param X2:
-        A batch of inputs, an array of shape [N2, d].
-
-    :return:
-        The kernel matrix, an array of shape [N, N2].
-    """
-    if X2 is None:
-        X2 = X
-
-    assert lengthscale.shape == (1,)
-    assert X.ndim == 2 and X2.ndim == 2
-    assert X.shape[-1] == X2.shape[-1]
-
-    if normalized_laplacian:
-        d = X.shape[-1]
-        lengthscale = lengthscale / sqrt(d)
-
-    # For TensorFlow, we need to explicitly cast the distances to double.
-    # Note: if we use B.dtype_float(X) instead of float_like(X), it gives
-    # float16 and TensorFlow is still complaining.
-    hamming_distances = B.cast(float_like(X), hamming_distance(X, X2))
-
-    return B.tanh(lengthscale**2 / 2) ** hamming_distances
-
-
-def matern_12_kernel(
-    r: B.Numeric,
-    lengthscale: Optional[float] = 1.0,
-):
-    """
-    Analytic formula for the Matérn 1/2 kernel on R^d, as a function of
-    distance `r` between inputs.
-
-    :param r:
-        A batch of distances, an array of shape [...].
-    :param lengthscale:
-        The length scale of the kernel, defaults to 1.
-
-    :return:
-        The kernel values evaluated at `r`, an array of shape [...].
-    """
-
-    assert B.all(r >= 0.0)
-
-    return B.exp(-r / lengthscale)
-
-
-def matern_32_kernel(
-    r: B.Numeric,
-    lengthscale: Optional[float] = 1.0,
-):
-    """
-    Analytic formula for the Matérn 3/2 kernel on R^d, as a function of
-    distance `r` between inputs.
-
-    :param r:
-        A batch of distances, an array of shape [...].
-    :param lengthscale:
-        The length scale of the kernel, defaults to 1.
-
-    :return:
-        The kernel values evaluated at `r`, an array of shape [...].
-    """
-
-    assert B.all(r >= 0.0)
-
-    sqrt3 = sqrt(3.0)
-    r = r / lengthscale
-    return (1.0 + sqrt3 * r) * B.exp(-sqrt3 * r)
-
-
-def matern_52_kernel(
-    r: B.Numeric,
-    lengthscale: Optional[float] = 1.0,
-):
-    """
-    Analytic formula for the Matérn 5/2 kernel on R^d, as a function of
-    distance `r` between inputs.
-
-    :param r:
-        A batch of distances, an array of shape [...].
-    :param lengthscale:
-        The length scale of the kernel, defaults to 1.
-
-    :return:
-        The kernel values evaluated at `r`, an array of shape [...].
-    """
-
-    assert B.all(r >= 0.0)
-
-    sqrt5 = sqrt(5.0)
-    r = r / lengthscale
-    return (1.0 + sqrt5 * r + 5.0 / 3.0 * (r**2)) * B.exp(-sqrt5 * r)
-
-
-def rbf_kernel(
-    r: B.Numeric,
-    lengthscale: Optional[float] = 1.0,
-):
-    """
-    Analytic formula for the RBF kernel on R^d, as a function of
-    distance `r` between inputs.
-
-    :param r:
-        A batch of distances, an array of shape [...].
-    :param lengthscale:
-        The length scale of the kernel, defaults to 1.
-
-    :return:
-        The kernel values evaluated at `r`, an array of shape [...].
-    """
-
-    assert B.all(r >= 0.0)
-
-    r = r / lengthscale
-    return B.exp(-0.5 * r**2)

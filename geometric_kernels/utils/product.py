@@ -4,18 +4,27 @@ import lab as B
 from beartype.typing import Dict, List
 
 
-def params_to_params_list(params: Dict[str, B.Numeric]) -> List[Dict[str, B.Numeric]]:
+def params_to_params_list(
+    number_of_factors: int, params: Dict[str, B.Numeric]
+) -> List[Dict[str, B.Numeric]]:
     """
     Takes a dictionary of parameters of a product kernel and returns a list of
-    dictionaries of parameters for the factor kernels.
+    dictionaries of parameters for the factor kernels. The shape of "lengthscale"
+    should be the same as the shame of "nu", and the length of both should be
+    either 1 or equal to `number_of_factors`.
 
+    :param number_of_factors:
+        Number of factors in the product kernel.
     :param params:
         Parameters of the product kernel.
     """
     assert params["lengthscale"].shape == params["nu"].shape
     assert len(params["nu"].shape) == 1
 
-    number_of_factors = params["nu"].shape[0]
+    if params["nu"].shape[0] == 1:
+        return [params] * number_of_factors
+
+    assert params["nu"].shape[0] == number_of_factors
 
     list_of_params: List[Dict[str, B.Numeric]] = []
     for i in range(number_of_factors):

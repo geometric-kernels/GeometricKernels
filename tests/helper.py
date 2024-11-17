@@ -202,6 +202,9 @@ def check_function_with_backend(
             f_output = f_output.toarray()
         else:
             f_output = B.to_numpy(f_output)
+        assert (
+            result.shape == f_output.shape
+        ), f"Shapes do not match: {result.shape} (for result) vs {f_output.shape} (for f_output)"
         np.testing.assert_allclose(f_output, result, atol=atol)
     else:
         assert compare_to_result(

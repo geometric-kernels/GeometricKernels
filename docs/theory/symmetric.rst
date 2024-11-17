@@ -5,7 +5,7 @@
 .. warning::
     You can get by fine without reading this page for almost all use cases, just use the standard :class:`~.kernels.MaternGeometricKernel`, following the example notebooks :doc:`on hyperbolic spaces </examples/Hyperbolic>` and :doc:`on the space of symmetric positive definite matrices (SPD) </examples/SPD>`.
 
-    This is optional material meant to explain the basic theory and based mainly on :cite:t:`azangulov2023`.
+    This is optional material meant to explain the basic theory and based mainly on :cite:t:`azangulov2024b`.
 
 =======
 Theory
@@ -20,7 +20,7 @@ In the Euclidean case, closed form expressions for kernels are available and ran
 No closed form expressions for kernels are usually available on other non-compact symmetric spaces.
 Because of that, random Fourier features are the basic means of computing the kernels in this case.
 
-A complete mathematical treatise can be found in :cite:t:`azangulov2023`.
+A complete mathematical treatise can be found in :cite:t:`azangulov2024b`.
 Here we briefly present the main ideas.
 Recall that the usual Euclidean random Fourier features boil down to
 

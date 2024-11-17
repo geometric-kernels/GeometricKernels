@@ -4,11 +4,11 @@ import pytest
 
 from geometric_kernels.kernels import MaternGeometricKernel
 from geometric_kernels.spaces.circle import Circle
-from geometric_kernels.utils.special_functions import (
-    matern_12_kernel,
-    matern_32_kernel,
-    matern_52_kernel,
-    rbf_kernel,
+from geometric_kernels.utils.kernel_formulas import (
+    euclidean_matern_12_kernel,
+    euclidean_matern_32_kernel,
+    euclidean_matern_52_kernel,
+    euclidean_rbf_kernel,
 )
 
 from ..helper import check_function_with_backend
@@ -18,13 +18,13 @@ from ..helper import check_function_with_backend
 @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
 def test_equivalence_kernel(nu, atol, backend):
     if nu == 0.5:
-        analytic_kernel = matern_12_kernel
+        analytic_kernel = euclidean_matern_12_kernel
     elif nu == 1.5:
-        analytic_kernel = matern_32_kernel
+        analytic_kernel = euclidean_matern_32_kernel
     elif nu == 2.5:
-        analytic_kernel = matern_52_kernel
+        analytic_kernel = euclidean_matern_52_kernel
     elif nu == np.inf:
-        analytic_kernel = rbf_kernel
+        analytic_kernel = euclidean_rbf_kernel
 
     inputs = np.random.uniform(0, 2 * np.pi, size=(5, 1))
     inputs2 = np.random.uniform(0, 2 * np.pi, size=(3, 1))
