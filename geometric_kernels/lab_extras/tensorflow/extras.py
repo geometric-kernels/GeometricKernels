@@ -170,10 +170,11 @@ def complex_like(reference: B.TFNumeric):
     """
     Return `complex` dtype of a backend based on the reference.
     """
-    if B.dtype(reference) == tf.float32:
-        return tf.complex64
-    else:
-        return tf.complex128
+    return B.promote_dtypes(tf.complex64, reference.dtype)
+    # if B.dtype(reference) != tf.float64:
+    #     return tf.complex64
+    # else:
+    #     return tf.complex128
 
 
 @dispatch
@@ -257,3 +258,16 @@ def dtype_bool(reference: B.TFRandomState):  # type: ignore
     Return `bool` dtype of a backend based on the reference.
     """
     return tf.bool
+
+
+@dispatch
+def bool_like(reference: B.NPNumeric):
+    """
+    Return the type of the reference if it is of boolean type.
+    Otherwise return `bool` dtype of a backend based on the reference.
+    """
+    reference_dtype = reference.dtype
+    if reference_dtype.is_bool:
+        return reference_dtype
+    else:
+        return tf.bool

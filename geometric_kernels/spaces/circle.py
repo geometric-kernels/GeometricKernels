@@ -188,3 +188,11 @@ class Circle(DiscreteSpectrumSpace):
             [1].
         """
         return [1]
+
+    @property
+    def element_dtype(self):
+        """
+        :return:
+            B.Float.
+        """
+        return B.Float

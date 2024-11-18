@@ -35,9 +35,21 @@ class Space(abc.ABC):
         Shape of an element.
 
         Examples:
-        * hypersphere: [D + 1, ]
-        * mesh: [1, ]
-        * matrix Lie group: [n, n]
+        * :class:`~.spaces.Hypersphere`: [D + 1, ]
+        * :class:`~.spaces.Mesh`: [1, ]
+        * :class:`~.spaces.CompactMatrixLieGroup`: [n, n]
+        """
+        raise NotImplementedError
+
+    @abc.abstractproperty
+    def element_dtype(self) -> B.DType:
+        """
+        Abstract DType of an element.
+
+        Examples:
+        * :class:`~.spaces.Hypersphere`: B.Float
+        * :class:`~.spaces.Mesh`: B.Int
+        * :class:`~.spaces.SpecialUnitary`: B.Complex
         """
         raise NotImplementedError
 

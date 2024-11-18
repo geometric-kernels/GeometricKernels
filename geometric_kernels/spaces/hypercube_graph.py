@@ -272,3 +272,11 @@ class HypercubeGraph(DiscreteSpectrumSpace):
             [d].
         """
         return [self.dimension]
+
+    @property
+    def element_dtype(self):
+        """
+        :return:
+            B.Bool.
+        """
+        return B.Bool

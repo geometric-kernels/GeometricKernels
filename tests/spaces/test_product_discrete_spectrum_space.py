@@ -11,8 +11,6 @@ from geometric_kernels.utils.product import make_product
 
 from ..helper import check_function_with_backend
 
-# _TRUNC_LEVEL = 128
-# _GRID_SIZE = 3
 _NUM_LEVELS = 20
 
 
@@ -20,8 +18,7 @@ _NUM_LEVELS = 20
     "factor1, factor2", [(Circle(), Circle()), (Circle(), SpecialUnitary(2))], ids=str
 )
 @pytest.mark.parametrize("lengthscale", [0.1, 0.5, 1.0, 2.0, 5.0])
-@pytest.mark.parametrize("backend", ["numpy", "jax"])
-# @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
+@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
 def test_heat_kernel_is_product_of_heat_kernels(factor1, factor2, lengthscale, backend):
     product = ProductDiscreteSpectrumSpace(
         factor1, factor2, num_levels=_NUM_LEVELS**2, num_levels_per_space=_NUM_LEVELS
@@ -38,8 +35,6 @@ def test_heat_kernel_is_product_of_heat_kernels(factor1, factor2, lengthscale, b
     def K_diff(nu, lengthscale, xs_factor1, xs_factor2):
         params = {"nu": nu, "lengthscale": lengthscale}
 
-        # common_dtype = B.promote_dtypes(B.dtype(xs_factor1), B.dtype(xs_factor2))
-        # xs_product = make_product([B.cast(common_dtype, xs_factor1), B.cast(common_dtype, xs_factor2)])
         xs_product = make_product([xs_factor1, xs_factor2])
 
         K_product = kernel_product.K(params, xs_product, xs_product)

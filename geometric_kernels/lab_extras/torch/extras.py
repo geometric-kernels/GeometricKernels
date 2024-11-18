@@ -171,10 +171,11 @@ def complex_like(reference: B.TorchNumeric):
     """
     Return `complex` dtype of a backend based on the reference.
     """
-    if B.dtype(reference) == torch.float:
-        return torch.cfloat
-    else:
-        return torch.cdouble
+    return B.promote_dtypes(torch.cfloat, reference.dtype)
+    # if B.dtype(reference) != torch.double:
+    #     return torch.cfloat
+    # else:
+    #     return torch.cdouble
 
 
 @dispatch
@@ -258,3 +259,16 @@ def dtype_bool(reference: B.TorchRandomState):  # type: ignore
     Return `bool` dtype of a backend based on the reference.
     """
     return torch.bool
+
+
+@dispatch
+def bool_like(reference: B.NPNumeric):
+    """
+    Return the type of the reference if it is of boolean type.
+    Otherwise return `bool` dtype of a backend based on the reference.
+    """
+    reference_dtype = reference.dtype
+    if reference_dtype is torch.bool:
+        return reference_dtype
+    else:
+        return torch.bool

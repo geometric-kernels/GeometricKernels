@@ -360,3 +360,11 @@ class SpecialOrthogonal(CompactMatrixLieGroup):
             [n, n].
         """
         return [self.n, self.n]
+
+    @property
+    def element_dtype(self):
+        """
+        :return:
+            B.Float.
+        """
+        return B.Float

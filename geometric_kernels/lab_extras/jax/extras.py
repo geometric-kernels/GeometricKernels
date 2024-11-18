@@ -2,7 +2,7 @@ import jax.numpy as jnp
 import lab as B
 from beartype.typing import List
 from lab import dispatch
-from plum import Union
+from plum import Union, convert
 
 _Numeric = Union[B.Number, B.JAXNumeric]
 
@@ -89,7 +89,9 @@ def float_like(reference: B.JAXNumeric):
     """
     reference_dtype = reference.dtype
     if jnp.issubdtype(reference_dtype, jnp.floating):
-        return reference_dtype
+        return convert(
+            reference_dtype, B.JAXDType
+        )  # JAX .dtype returns a NumPy data type. This converts it to a JAX one.
     else:
         return jnp.float64
 
@@ -106,7 +108,9 @@ def dtype_integer(reference: B.JAXRandomState):  # type: ignore
 def int_like(reference: B.JAXNumeric):
     reference_dtype = reference.dtype
     if jnp.issubdtype(reference_dtype, jnp.integer):
-        return reference_dtype
+        return convert(
+            reference_dtype, B.JAXDType
+        )  # JAX .dtype returns a NumPy data type. This converts it to a JAX one.
     else:
         return jnp.int32
 
@@ -155,10 +159,11 @@ def complex_like(reference: B.JAXNumeric):
     """
     Return `complex` dtype of a backend based on the reference.
     """
-    if B.dtype(reference) == jnp.float32:
-        return jnp.complex64
-    else:
-        return jnp.complex128
+    return B.promote_dtypes(jnp.complex64, reference.dtype)
+    # if B.dtype(reference) != jnp.float64:
+    #     return jnp.complex64
+    # else:
+    #     return jnp.complex128
 
 
 @dispatch
@@ -244,4 +249,19 @@ def dtype_bool(reference: B.JAXRandomState):  # type: ignore
     """
     Return `bool` dtype of a backend based on the reference.
     """
-    return bool
+    return jnp.bool_
+
+
+@dispatch
+def bool_like(reference: B.JAXRandomState):
+    """
+    Return the type of the reference if it is of boolean type.
+    Otherwise return `bool` dtype of a backend based on the reference.
+    """
+    reference_dtype = reference.dtype
+    if jnp.issubdtype(reference_dtype, jnp.bool_):
+        return convert(
+            reference_dtype, B.JAXDType
+        )  # JAX .dtype returns a NumPy data type. This converts it to a JAX one.
+    else:
+        return jnp.bool_

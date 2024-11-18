@@ -3,6 +3,8 @@
 import lab as B
 from beartype.typing import Dict, List
 
+from geometric_kernels.lab_extras import smart_cast
+
 
 def params_to_params_list(
     number_of_factors: int, params: Dict[str, B.Numeric]
@@ -52,12 +54,17 @@ def make_product(xs: List[B.Numeric]) -> B.Numeric:
         An [N, D]-shaped array, a batch of product space elements, where `D` is
         the sum, over all factor spaces, of `prod(<axes(space)>)`.
     """
-    flat_xs = [B.reshape(x, B.shape(x)[0], -1) for x in xs]
+    common_dtype = B.promote_dtypes(*[B.dtype(x) for x in xs])
+
+    flat_xs = [B.cast(common_dtype, B.reshape(x, B.shape(x)[0], -1)) for x in xs]
     return B.concat(*flat_xs, axis=-1)
 
 
 def project_product(
-    x: B.Numeric, dimension_indices: List[List[int]], element_shapes: List[List[int]]
+    x: B.Numeric,
+    dimension_indices: List[List[int]],
+    element_shapes: List[List[int]],
+    element_dtypes: List[B.DType],
 ) -> List[B.Numeric]:
     """
     Project an element of the product space onto each factor.
@@ -72,7 +79,11 @@ def project_product(
         might be necessary to accommodate the spaces whose elements are matrices
         rather than vectors, as determined by `element_shapes`.
     :param element_shapes:
-        Shapes of the elements in each factor.
+        Shapes of the elements in each factor. Can be obtained as properties
+        `space.element_shape` of any given factor `space`.
+    :param element_dtypes:
+        Abstract lab data types of the elements in each factor. Can be obtained
+        as properties `space.element_dtype` of any given factor `space`.
 
     :return:
         A list of the batches of elements `xi` in factor spaces, each of the
@@ -80,7 +91,7 @@ def project_product(
     """
     N = x.shape[0]
     xs = [
-        B.reshape(B.take(x, inds, axis=-1), N, *shape)
-        for inds, shape in zip(dimension_indices, element_shapes)
+        smart_cast(dtype, B.reshape(B.take(x, inds, axis=-1), N, *shape))
+        for inds, shape, dtype in zip(dimension_indices, element_shapes, element_dtypes)
     ]
     return xs

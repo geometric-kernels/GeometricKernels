@@ -66,6 +66,7 @@ class ProductGeometricKernel(BaseGeometricKernel):
             assert isinstance(kernel.space, Space)
             self.spaces.append(kernel.space)
         self.element_shapes = [space.element_shape for space in self.spaces]
+        self.element_dtypes = [space.element_dtype for space in self.spaces]
 
         if dimension_indices is None:
             dimensions = [math.prod(shape) for shape in self.element_shapes]
@@ -114,8 +115,12 @@ class ProductGeometricKernel(BaseGeometricKernel):
         if X2 is None:
             X2 = X
 
-        Xs = project_product(X, self.dimension_indices, self.element_shapes)
-        X2s = project_product(X2, self.dimension_indices, self.element_shapes)
+        Xs = project_product(
+            X, self.dimension_indices, self.element_shapes, self.element_dtypes
+        )
+        X2s = project_product(
+            X2, self.dimension_indices, self.element_shapes, self.element_dtypes
+        )
         params_list = params_to_params_list(len(self.kernels), params)
 
         return B.prod(
@@ -130,7 +135,9 @@ class ProductGeometricKernel(BaseGeometricKernel):
         )
 
     def K_diag(self, params, X):
-        Xs = project_product(X, self.dimension_indices, self.element_shapes)
+        Xs = project_product(
+            X, self.dimension_indices, self.element_shapes, self.element_dtypes
+        )
         params_list = params_to_params_list(len(self.kernels), params)
 
         return B.prod(

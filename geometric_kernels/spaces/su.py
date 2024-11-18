@@ -270,3 +270,11 @@ class SpecialUnitary(CompactMatrixLieGroup):
             [n, n].
         """
         return [self.n, self.n]
+
+    @property
+    def element_dtype(self):
+        """
+        :return:
+            B.Complex.
+        """
+        return B.Complex

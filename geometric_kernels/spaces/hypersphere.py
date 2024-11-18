@@ -257,3 +257,11 @@ class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
             [d+1].
         """
         return [self.dimension + 1]
+
+    @property
+    def element_dtype(self):
+        """
+        :return:
+            B.Float.
+        """
+        return B.Float

@@ -190,3 +190,11 @@ class Graph(DiscreteSpectrumSpace):
             [1].
         """
         return [1]
+
+    @property
+    def element_dtype(self):
+        """
+        :return:
+            B.Int.
+        """
+        return B.Int
