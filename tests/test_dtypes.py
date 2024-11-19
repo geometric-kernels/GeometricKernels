@@ -22,6 +22,7 @@ from geometric_kernels.spaces import (
     Mesh,
     SymmetricPositiveDefiniteMatrices,
 )
+from geometric_kernels.spaces.eigenfunctions import EigenfunctionsWithAdditionTheorem
 
 
 def to_typed_ndarray(value, dtype):
@@ -171,9 +172,10 @@ def test_feature_map_dtype(kl_spacepoint, dtype, backend):
     feature_map(point, params)
 
     # make sure it runs
-    key = B.create_random_state(B.dtype(point), seed=1234)
-    feature_map = RandomPhaseFeatureMapCompact(space, num_levels)
-    feature_map(point, params, key=key)
+    if isinstance(space.get_eigenfunctions(1), EigenfunctionsWithAdditionTheorem):
+        key = B.create_random_state(B.dtype(point), seed=1234)
+        feature_map = RandomPhaseFeatureMapCompact(space, num_levels)
+        feature_map(point, params, key=key)
 
 
 @pytest.fixture(params=["naive", "rs"])

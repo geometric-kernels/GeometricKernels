@@ -121,7 +121,7 @@ class ProductGeometricKernel(BaseGeometricKernel):
         return B.prod(
             B.stack(
                 *[
-                    kernel.K(p, X, X2)
+                    kernel.K(p, X, X2, **kwargs)
                     for kernel, X, X2, p in zip(self.kernels, Xs, X2s, params_list)
                 ],
                 axis=-1,
@@ -129,14 +129,14 @@ class ProductGeometricKernel(BaseGeometricKernel):
             axis=-1,
         )
 
-    def K_diag(self, params, X):
+    def K_diag(self, params, X, **kwargs) -> B.Numeric:
         Xs = project_product(X, self.dimension_indices, self.element_shapes)
         params_list = params_to_params_list(params)
 
         return B.prod(
             B.stack(
                 *[
-                    kernel.K_diag(p, X)
+                    kernel.K_diag(p, X, **kwargs)
                     for kernel, X, p in zip(self.kernels, Xs, params_list)
                 ],
                 axis=-1,
