@@ -24,7 +24,7 @@ def test_heat_kernel_is_product_of_heat_kernels(factor1, factor2, lengthscale, b
         factor1, factor2, num_levels=_NUM_LEVELS**2, num_levels_per_space=_NUM_LEVELS
     )
 
-    key = np.random.RandomState()
+    key = np.random.RandomState(0)
     key, xs_factor1 = factor1.random(key, 10)
     key, xs_factor2 = factor2.random(key, 10)
 

@@ -66,13 +66,15 @@ def test_kravchuk_polynomials(all_xs_and_combs, backend):
             keepdims=True,
         )
 
+        def krav(x0, X):
+            return comb(d, j) * kravchuk_normalized(d, j, hamming_distance(x0, X))
+
         # Checks that Kravchuk polynomials coincide with certain sums of
         # the Walsh functions.
         check_function_with_backend(
             backend,
             result,
-            lambda x0, X: comb(d, j)
-            * kravchuk_normalized(d, j, hamming_distance(x0, X)),
+            krav,
             x0,
             X,
         )
@@ -91,14 +93,15 @@ def test_kravchuk_precomputed(all_xs_and_combs, backend):
 
         cur_kravchuk_normalized = kravchuk_normalized(d, j, hamming_distance(x0, X))
 
+        def krav(x0, X, kn1, kn2):
+            return kravchuk_normalized(d, j, hamming_distance(x0, X), kn1, kn2)
+
         # Checks that Kravchuk polynomials coincide with certain sums of
         # the Walsh functions.
         check_function_with_backend(
             backend,
             cur_kravchuk_normalized,
-            lambda x0, X, kn1, kn2: kravchuk_normalized(
-                d, j, hamming_distance(x0, X), kn1, kn2
-            ),
+            krav,
             x0,
             X,
             kravchuk_normalized_j_minus_1,

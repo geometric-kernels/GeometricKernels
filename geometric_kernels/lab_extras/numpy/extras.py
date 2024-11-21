@@ -145,10 +145,6 @@ def complex_like(reference: B.NPNumeric):
     Return `complex` dtype of a backend based on the reference.
     """
     return B.promote_dtypes(np.complex64, reference.dtype)
-    # if reference.dtype != np.float64:
-    #     return np.complex64
-    # else:
-    #     return np.complex128
 
 
 @dispatch

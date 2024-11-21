@@ -41,7 +41,7 @@ def inputs(request):
         num_levels = min(50, num_levels)
     eigenfunctions = space.get_eigenfunctions(num_levels)
 
-    key = np.random.RandomState()
+    key = np.random.RandomState(0)
     N, N2 = key.randint(low=1, high=100 + 1, size=2)
     key, X = space.random(key, N)
     key, X2 = space.random(key, N2)
@@ -99,7 +99,7 @@ def test_orthonormality(inputs, backend):
             "CompactMatrixLieGroup subclasses do not currently support eigenfunction evaluation"
         )
 
-    key = np.random.RandomState()
+    key = np.random.RandomState(0)
     key, xs = space.random(key, 10000)
 
     # Check that the eigenfunctions are orthonormal by comparing a Monte Carlo

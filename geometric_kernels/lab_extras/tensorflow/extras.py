@@ -171,10 +171,6 @@ def complex_like(reference: B.TFNumeric):
     Return `complex` dtype of a backend based on the reference.
     """
     return B.promote_dtypes(tf.complex64, reference.dtype)
-    # if B.dtype(reference) != tf.float64:
-    #     return tf.complex64
-    # else:
-    #     return tf.complex128
 
 
 @dispatch

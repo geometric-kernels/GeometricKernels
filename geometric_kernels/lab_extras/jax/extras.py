@@ -160,10 +160,6 @@ def complex_like(reference: B.JAXNumeric):
     Return `complex` dtype of a backend based on the reference.
     """
     return B.promote_dtypes(jnp.complex64, reference.dtype)
-    # if B.dtype(reference) != jnp.float64:
-    #     return jnp.complex64
-    # else:
-    #     return jnp.complex128
 
 
 @dispatch

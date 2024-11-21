@@ -194,6 +194,5 @@ def hyperbolic_heat_kernel_even(
             rho = hyperbolic_distance(x, x2).squeeze()
             cur_result = _hyperbolic_heat_kernel_2d_unnormalized(t, rho)
             result[i, j] = cur_result / normalization
-            # print(f"norm = {normalization}, dist={rho}, cur_result = {cur_result}, result = {result[i, j]}")
 
     return result

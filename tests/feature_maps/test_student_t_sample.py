@@ -9,7 +9,7 @@ from geometric_kernels.feature_maps.probability_densities import student_t_sampl
 def test_student_t_sample(deg_freedom, n):
     size = (2048,)
 
-    key = np.random.RandomState(seed=1234)
+    key = np.random.RandomState(0)
 
     shape = 1.0 * np.eye(n)
     loc = 1.0 * np.zeros((n,))

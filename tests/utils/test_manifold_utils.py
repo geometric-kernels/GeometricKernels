@@ -12,7 +12,7 @@ from ..helper import check_function_with_backend
 def test_hyperboloid_distance(dim, backend):
     space = Hyperbolic(dim=dim)
 
-    key = np.random.RandomState()
+    key = np.random.RandomState(0)
     N, N2 = key.randint(low=2, high=15, size=2)
     key, X = space.random(key, N)
     key, X2 = space.random(key, N2)

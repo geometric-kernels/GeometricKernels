@@ -18,7 +18,7 @@ from ..helper import check_function_with_backend, create_random_state
 def test_equivalence_kernel(dim, lengthscale, backend):
     space = Hyperbolic(dim)
 
-    key = np.random.RandomState()
+    key = np.random.RandomState(0)
     key, X = space.random(key, 6)
     X2 = X.copy()
 
@@ -30,6 +30,9 @@ def test_equivalence_kernel(dim, lengthscale, backend):
 
     kernel = MaternGeometricKernel(space, key=create_random_state(backend))
 
+    def kern(nu, lengthscale, X, X2):
+        return kernel.K({"nu": nu, "lengthscale": lengthscale}, X, X2)
+
     # Check that MaternGeometricKernel on Hyperbolic(dim) with nu=inf coincides
     # with the well-known analytic formula for the heat kernel on the hyperbolic
     # space in odd dimensions and semi-analytic formula in even dimensions.
@@ -38,9 +41,7 @@ def test_equivalence_kernel(dim, lengthscale, backend):
     check_function_with_backend(
         backend,
         result,
-        lambda nu, lengthscale, X, X2: kernel.K(
-            {"nu": nu, "lengthscale": lengthscale}, X, X2
-        ),
+        kern,
         np.array([np.inf]),
         np.array([lengthscale]),
         X,

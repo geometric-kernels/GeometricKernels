@@ -16,7 +16,7 @@ from ..helper import check_function_with_backend
 def test_hypercube_graph_heat_kernel(d, lengthscale, backend):
     space = HypercubeGraph(d)
 
-    key = np.random.RandomState()
+    key = np.random.RandomState(0)
     N, N2 = key.randint(low=1, high=min(2**d, 10) + 1, size=2)
     key, X = space.random(key, N)
     key, X2 = space.random(key, N2)
@@ -24,14 +24,17 @@ def test_hypercube_graph_heat_kernel(d, lengthscale, backend):
     gamma = -log(tanh(lengthscale**2 / 2))
     result = rbf_kernel(X, X2, gamma=gamma)
 
+    def heat_kernel(lengthscale, X, X2):
+        return hypercube_graph_heat_kernel(
+            lengthscale, X, X2, normalized_laplacian=False
+        )
+
     # Checks that the heat kernel on the hypercube graph coincides with the RBF
     # restricted onto binary vectors, with appropriately redefined length scale.
     check_function_with_backend(
         backend,
         result,
-        lambda lengthscale, X, X2: hypercube_graph_heat_kernel(
-            lengthscale, X, X2, normalized_laplacian=False
-        ),
+        heat_kernel,
         np.array([lengthscale]),
         X,
         X2,
@@ -58,9 +61,7 @@ def test_hypercube_graph_heat_kernel(d, lengthscale, backend):
         check_function_with_backend(
             backend,
             result,
-            lambda lengthscale, X, X2: hypercube_graph_heat_kernel(
-                lengthscale, X, X2, normalized_laplacian=False
-            ),
+            heat_kernel,
             np.array([lengthscale]),
             X[0:1, :],
             X2[0:1, :],

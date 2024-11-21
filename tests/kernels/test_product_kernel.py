@@ -14,7 +14,7 @@ from ..helper import check_function_with_backend
 @pytest.mark.parametrize("nu, lengthscale", [(1 / 2, 2.0), (5 / 2, 1.0), (np.inf, 0.1)])
 @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
 def test_kernel_is_product_of_heat_kernels(factor1, factor2, nu, lengthscale, backend):
-    key = np.random.RandomState()
+    key = np.random.RandomState(0)
     key, xs_factor1 = factor1.random(key, 10)
     key, xs_factor2 = factor2.random(key, 10)
 
@@ -25,8 +25,6 @@ def test_kernel_is_product_of_heat_kernels(factor1, factor2, nu, lengthscale, ba
     def K_diff(nu, lengthscale, xs_factor1, xs_factor2):
         params = {"nu": nu, "lengthscale": lengthscale}
 
-        # common_dtype = B.promote_dtypes(B.dtype(xs_factor1), B.dtype(xs_factor2))
-        # xs_product = make_product([B.cast(common_dtype, xs_factor1), B.cast(common_dtype, xs_factor2)])
         xs_product = make_product([xs_factor1, xs_factor2])
 
         K_product = product_kernel.K(params, xs_product, xs_product)

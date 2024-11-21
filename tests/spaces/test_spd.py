@@ -14,7 +14,7 @@ from ..helper import check_function_with_backend, create_random_state
 def test_equivalence_kernel(lengthscale, backend):
     space = SymmetricPositiveDefiniteMatrices(2)
 
-    key = np.random.RandomState()
+    key = np.random.RandomState(0)
     key, X = space.random(key, 5)
     X2 = X.copy()
 
@@ -23,6 +23,9 @@ def test_equivalence_kernel(lengthscale, backend):
 
     kernel = MaternGeometricKernel(space, key=create_random_state(backend))
 
+    def kern(nu, lengthscale, X, X2):
+        return kernel.K({"nu": nu, "lengthscale": lengthscale}, X, X2)
+
     # Check that MaternGeometricKernel on SymmetricPositiveDefiniteMatrices(2)
     # with nu=inf coincides with the semi-analytic formula from :cite:t:`sawyer1992`.
     # We are checking the equivalence on average, computing the norm between
@@ -30,9 +33,7 @@ def test_equivalence_kernel(lengthscale, backend):
     check_function_with_backend(
         backend,
         result,
-        lambda nu, lengthscale, X, X2: kernel.K(
-            {"nu": nu, "lengthscale": lengthscale}, X, X2
-        ),
+        kern,
         np.array([np.inf]),
         np.array([lengthscale]),
         X,

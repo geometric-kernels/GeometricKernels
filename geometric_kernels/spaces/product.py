@@ -248,7 +248,7 @@ class ProductEigenfunctions(Eigenfunctions):
         """
         Xs = project_product(
             X, self.dimension_indices, self.element_shapes, self.element_dtypes
-        )
+        )  # List of S arrays, each of shape [N, *element_shape_s]
 
         factor_eigenfunction_values = [
             eigenfunction(X, **kwargs)  # [N, Js], Js different for each factor
@@ -264,13 +264,13 @@ class ProductEigenfunctions(Eigenfunctions):
                         *(
                             factor_eigenfunction_values[s][
                                 :, self._eigenfunctionindices[j, s]
-                            ]
+                            ]  # [N,]
                             for s in range(len(m_idx))
                         ),
                         axis=-1,
-                    ),
+                    ),  # [N, S]
                     axis=1,
-                )
+                )  # [N,]
             )
         eigenfunction_values = B.stack(*eigenfunction_values, axis=-1)  # [N, J]
 
@@ -291,17 +291,17 @@ class ProductEigenfunctions(Eigenfunctions):
             X2 = X
         Xs = project_product(
             X, self.dimension_indices, self.element_shapes, self.element_dtypes
-        )
+        )  # List of S arrays, each of shape [N, *element_shape_s]
         Xs2 = project_product(
             X2, self.dimension_indices, self.element_shapes, self.element_dtypes
-        )
+        )  # List of S arrays, each of shape [N2, *element_shape_s]
 
         factor_phi_products = [
             take_along_axis(
-                eigenfunction.phi_product(X1, X2, **kwargs),
+                eigenfunction.phi_product(X1, X2, **kwargs),  # [N, N2, L_s]
                 from_numpy(X1, self.eigenindicies[None, None, :, s]),
                 -1,
-            )
+            )  # [N, N2, L]
             for s, (eigenfunction, X1, X2) in enumerate(
                 zip(self.eigenfunctions, Xs, Xs2)
             )
@@ -324,16 +324,16 @@ class ProductEigenfunctions(Eigenfunctions):
         phis = B.stack(
             *[
                 take_along_axis(
-                    eigenfunction.phi_product_diag(X1, **kwargs),
+                    eigenfunction.phi_product_diag(X1, **kwargs),  # [N, L_s]
                     from_numpy(X1, self.eigenindicies[None, :, s]),
                     -1,
-                )
+                )  # [N, L]
                 for s, (eigenfunction, X1) in enumerate(zip(self.eigenfunctions, Xs))
             ],
             axis=-1,
         )  # [N, L, S]
 
-        prod_phis = B.prod(phis, axis=-1)  # [N, L, S] -> [N, L]
+        prod_phis = B.prod(phis, axis=-1)  # [N, L]
 
         return prod_phis
 

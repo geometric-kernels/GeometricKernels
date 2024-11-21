@@ -24,7 +24,7 @@ def inputs(request) -> Tuple[B.Numeric]:
     space = HypercubeGraph(d)
     eigenfunctions = space.get_eigenfunctions(min(space.dim + 1, 5))
 
-    key = np.random.RandomState()
+    key = np.random.RandomState(0)
     N, N2 = key.randint(low=1, high=min(2**d, 10) + 1, size=2)
     key, X = space.random(key, N)
     key, X2 = space.random(key, N2)
@@ -55,15 +55,16 @@ def test_against_analytic_heat_kernel(inputs, lengthscale, backend):
 
     kernel = MaternGeometricKernel(space)
 
+    def kern(nu, lengthscale, X, X2):
+        return kernel.K({"nu": nu, "lengthscale": lengthscale}, X, X2)
+
     # Check that MaternGeometricKernel on HypercubeGraph with nu=infinity
     # coincides with the closed form expression for the heat kernel on the
     # hypercube graph.
     check_function_with_backend(
         backend,
         result,
-        lambda nu, lengthscale, X, X2: kernel.K(
-            {"nu": nu, "lengthscale": lengthscale}, X, X2
-        ),
+        kern,
         np.array([np.inf]),
         lengthscale,
         X,

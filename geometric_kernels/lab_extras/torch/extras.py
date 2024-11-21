@@ -172,10 +172,6 @@ def complex_like(reference: B.TorchNumeric):
     Return `complex` dtype of a backend based on the reference.
     """
     return B.promote_dtypes(torch.cfloat, reference.dtype)
-    # if B.dtype(reference) != torch.double:
-    #     return torch.cfloat
-    # else:
-    #     return torch.cdouble
 
 
 @dispatch

@@ -17,16 +17,19 @@ def test_output_shape_and_backend(backend, feature_map_and_friends):
     params = kernel.init_params()
     sample_paths = sampler(feature_map, s=_NUM_SAMPLES)
 
-    key = np.random.RandomState()
+    key = np.random.RandomState(0)
     key, X = space.random(key, 50)
+
+    def sample(nu, lengthscale, X):
+        return sample_paths(
+            X, {"nu": nu, "lengthscale": lengthscale}, key=create_random_state(backend)
+        )[1]
 
     # Check that sample_paths runs and the output is a tensor of the right backend and shape.
     check_function_with_backend(
         backend,
         (X.shape[0], _NUM_SAMPLES),
-        lambda nu, lengthscale, X: sample_paths(
-            X, {"nu": nu, "lengthscale": lengthscale}, key=create_random_state(backend)
-        )[1],
+        sample,
         params["nu"],
         params["lengthscale"],
         X,

@@ -25,7 +25,7 @@ def inputs(request):
     num_levels = min(10, default_num(space))
     eigenfunctions = space.get_eigenfunctions(num_levels)
 
-    key = np.random.RandomState()
+    key = np.random.RandomState(0)
     N, N2 = key.randint(low=1, high=100 + 1, size=2)
     key, X = space.random(key, N)
     key, X2 = space.random(key, N2)
@@ -110,7 +110,7 @@ def test_characters_orthogonal(inputs, backend):
     group, eigenfunctions, _, _ = inputs
 
     num_samples = 10000
-    key = np.random.RandomState()
+    key = np.random.RandomState(0)
     _, X = group.random(key, num_samples)
 
     def all_char_vals(X):

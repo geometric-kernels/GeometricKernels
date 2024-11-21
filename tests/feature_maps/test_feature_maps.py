@@ -53,7 +53,7 @@ def test_feature_map_approximates_kernel(backend, feature_map_and_friends):
 
     params = kernel.init_params()
 
-    key = np.random.RandomState()
+    key = np.random.RandomState(0)
     key, X = space.random(key, 50)
 
     def diff_kern_mats(params, X):

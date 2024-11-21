@@ -21,7 +21,7 @@ def inputs(request):
     """
     Returns a tuple (space, num_features, feature_map, X, X2) where:
     - space = request.param,
-    - num_features = default_num(space),
+    - num_features = default_num(space) or 15, whichever is smaller,
     - feature_map = default_feature_map(space=space, num=num_features),
     - X is a random sample of random size from the space,
     - X2 is another random sample of random size from the space,
@@ -30,7 +30,7 @@ def inputs(request):
     num_features = min(default_num(space), 15)
     feature_map = default_feature_map(space=space, num=num_features)
 
-    key = np.random.RandomState()
+    key = np.random.RandomState(0)
     N, N2 = key.randint(low=1, high=100 + 1, size=2)
     key, X = space.random(key, N)
     key, X2 = space.random(key, N2)
@@ -63,13 +63,14 @@ def test_K(inputs, backend, normalize, kernel):
     _, _, _, X, X2 = inputs
     params = kernel.init_params()
 
+    def kern(nu, lengthscale, X, X2):
+        return kernel.K({"nu": nu, "lengthscale": lengthscale}, X, X2)
+
     # Check that kernel.K runs and the output is a tensor of the right backend and shape.
     check_function_with_backend(
         backend,
         (X.shape[0], X2.shape[0]),
-        lambda nu, lengthscale, X, X2: kernel.K(
-            {"nu": nu, "lengthscale": lengthscale}, X, X2
-        ),
+        kern,
         params["nu"],
         params["lengthscale"],
         X,
@@ -84,12 +85,16 @@ def test_K_one_param(inputs, backend, normalize, kernel):
     _, _, _, X, _ = inputs
     params = kernel.init_params()
 
+    def diff(nu, lengthscale, X):
+        return kernel.K({"nu": nu, "lengthscale": lengthscale}, X) - kernel.K(
+            {"nu": nu, "lengthscale": lengthscale}, X, X
+        )
+
     # Check that kernel.K(X) coincides with kernel.K(X, X).
     check_function_with_backend(
         backend,
         np.zeros((X.shape[0], X.shape[0])),
-        lambda nu, lengthscale, X: kernel.K({"nu": nu, "lengthscale": lengthscale}, X)
-        - kernel.K({"nu": nu, "lengthscale": lengthscale}, X, X),
+        diff,
         params["nu"],
         params["lengthscale"],
         X,
@@ -102,14 +107,16 @@ def test_K_diag(inputs, backend, normalize, kernel):
     _, _, _, X, _ = inputs
     params = kernel.init_params()
 
+    def diff(nu, lengthscale, X):
+        return kernel.K_diag({"nu": nu, "lengthscale": lengthscale}, X) - B.diag(
+            kernel.K({"nu": nu, "lengthscale": lengthscale}, X)
+        )
+
     # Check that kernel.K_diag coincides with the diagonal of kernel.K.
     check_function_with_backend(
         backend,
         np.zeros((X.shape[0],)),
-        lambda nu, lengthscale, X: kernel.K_diag(
-            {"nu": nu, "lengthscale": lengthscale}, X
-        )
-        - B.diag(kernel.K({"nu": nu, "lengthscale": lengthscale}, X)),
+        diff,
         params["nu"],
         params["lengthscale"],
         X,
@@ -122,13 +129,14 @@ def test_normalize(inputs, backend, kernel):
 
     params = kernel.init_params()
 
+    def kern_diag(nu, lengthscale, X):
+        return kernel.K_diag({"nu": nu, "lengthscale": lengthscale}, X)
+
     # Check that the variance of the kernel is constant 1.
     check_function_with_backend(
         backend,
         np.ones((X.shape[0],)),
-        lambda nu, lengthscale, X: kernel.K_diag(
-            {"nu": nu, "lengthscale": lengthscale}, X
-        ),
+        kern_diag,
         params["nu"],
         params["lengthscale"],
         X,
