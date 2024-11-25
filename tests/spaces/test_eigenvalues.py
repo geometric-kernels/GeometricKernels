@@ -22,7 +22,8 @@ def inputs(request):
     - space = request.param,
     - num_levels is the default number of levels for the `space`, if it does not
       exceed 100, and 100 otherwise,
-    - eigenvalues = space.get_eigenvalues(num_levels).
+    - eigenvalues = space.get_eigenvalues(num_levels),
+    - eps, a small number, a technicality for using `assert_array_less`.
     """
     space = request.param
     num_levels = min(default_num(space), 100)

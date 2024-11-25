@@ -26,6 +26,13 @@ def test_equivalence_kernel(lengthscale, backend):
     def kern(nu, lengthscale, X, X2):
         return kernel.K({"nu": nu, "lengthscale": lengthscale}, X, X2)
 
+    def compare_to_result(res, f_out):
+        return (
+            np.linalg.norm(res - B.to_numpy(f_out))
+            / np.sqrt(res.shape[0] * res.shape[1])
+            < 1e-1
+        )
+
     # Check that MaternGeometricKernel on SymmetricPositiveDefiniteMatrices(2)
     # with nu=inf coincides with the semi-analytic formula from :cite:t:`sawyer1992`.
     # We are checking the equivalence on average, computing the norm between
@@ -38,7 +45,5 @@ def test_equivalence_kernel(lengthscale, backend):
         np.array([lengthscale]),
         X,
         X2,
-        compare_to_result=lambda res, f_out: np.linalg.norm(res - B.to_numpy(f_out))
-        / np.sqrt(res.shape[0] * res.shape[1])
-        < 1e-1,
+        compare_to_result=compare_to_result,
     )

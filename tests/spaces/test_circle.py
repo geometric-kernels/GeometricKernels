@@ -14,7 +14,9 @@ from geometric_kernels.utils.kernel_formulas import (
 from ..helper import check_function_with_backend
 
 
-@pytest.mark.parametrize("nu, atol", [(0.5, 1), (1.5, 3), (2.5, 5), (np.inf, 6)])
+@pytest.mark.parametrize(
+    "nu, atol", [(0.5, 1e-1), (1.5, 1e-3), (2.5, 1e-3), (np.inf, 1e-5)]
+)
 @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
 def test_equivalence_kernel(nu, atol, backend):
     if nu == 0.5:

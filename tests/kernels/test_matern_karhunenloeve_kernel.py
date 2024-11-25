@@ -71,7 +71,7 @@ def test_eigenvalues_shape(inputs, backend):
         eigenvalues,
         params["nu"],
         params["lengthscale"],
-        compare_to_result=lambda res, f_out: f_out.shape == res,
+        compare_to_result=lambda res, f_out: B.shape(f_out) == res,
     )
 
 

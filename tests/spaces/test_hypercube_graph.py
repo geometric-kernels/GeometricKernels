@@ -31,7 +31,7 @@ def inputs(request) -> Tuple[B.Numeric]:
 
     # These weights are used for testing the weighted outerproduct, they
     # should be positive.
-    weights = np.random.rand(eigenfunctions.num_levels, 1) ** 2 + 0.01
+    weights = np.random.rand(eigenfunctions.num_levels, 1) ** 2 + 1e-5
 
     return space, eigenfunctions, X, X2, weights
 

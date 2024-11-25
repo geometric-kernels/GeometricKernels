@@ -58,4 +58,4 @@ def test_sphere_heat_kernel():
                 lapf = manifold_laplacian(x, hypersphere, egrad, ehess)
 
                 # Check that they match
-                assert np.isclose(dfdt.detach().numpy(), lapf, atol=1.0e-3)
+                np.testing.assert_allclose(dfdt.detach().numpy(), lapf, atol=1e-3)
