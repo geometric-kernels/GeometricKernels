@@ -14,7 +14,7 @@ def take_along_axis(a: Union[_Numeric, B.Numeric], index: _Numeric, axis: int = 
     """
     if not torch.is_tensor(a):
         a = torch.tensor(a).to(index.device)  # type: ignore
-    return torch.index_select(a, axis, B.flatten(index))
+    return torch.take_along_dim(a, index.long(), axis)  # long is required by torch
 
 
 @dispatch
@@ -171,10 +171,7 @@ def complex_like(reference: B.TorchNumeric):
     """
     Return `complex` dtype of a backend based on the reference.
     """
-    if B.dtype(reference) == torch.float:
-        return torch.cfloat
-    else:
-        return torch.cdouble
+    return B.promote_dtypes(torch.cfloat, reference.dtype)
 
 
 @dispatch
@@ -258,3 +255,16 @@ def dtype_bool(reference: B.TorchRandomState):  # type: ignore
     Return `bool` dtype of a backend based on the reference.
     """
     return torch.bool
+
+
+@dispatch
+def bool_like(reference: B.NPNumeric):
+    """
+    Return the type of the reference if it is of boolean type.
+    Otherwise return `bool` dtype of a backend based on the reference.
+    """
+    reference_dtype = reference.dtype
+    if reference_dtype is torch.bool:
+        return reference_dtype
+    else:
+        return torch.bool

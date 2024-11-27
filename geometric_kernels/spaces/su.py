@@ -15,6 +15,7 @@ from beartype.typing import List, Tuple
 
 from geometric_kernels.lab_extras import (
     complex_conj,
+    complex_like,
     create_complex,
     dtype_double,
     from_numpy,
@@ -107,7 +108,7 @@ class SUCharacter(LieGroupCharacter):
 
     These are polynomials whose coefficients are precomputed and stored in a
     file. By default, there are 20 precomputed characters for n from 2 to 6.
-    If you want more, use the `utils/compute_characters.py` script.
+    If you want more, use the `compute_characters.py` script.
 
     :param n:
         The order n of the SO(n) group.
@@ -142,7 +143,12 @@ class SUCharacter(LieGroupCharacter):
     def __call__(self, gammas: B.Numeric) -> B.Numeric:
         char_val = B.zeros(B.dtype(gammas), *gammas.shape[:-1])
         for coeff, monom in zip(self.coeffs, self.monoms):
-            char_val += coeff * B.prod(gammas ** from_numpy(gammas, monom), axis=-1)
+            char_val += coeff * B.prod(
+                B.power(
+                    gammas, B.cast(complex_like(gammas), from_numpy(gammas, monom))
+                ),
+                axis=-1,
+            )
         return char_val
 
 
@@ -171,7 +177,7 @@ class SpecialUnitary(CompactMatrixLieGroup):
     .. admonition:: Citation
 
         If you use this GeometricKernels space in your research, please consider
-        citing :cite:t:`azangulov2022`.
+        citing :cite:t:`azangulov2024a`.
     """
 
     def __init__(self, n: int):
@@ -181,6 +187,9 @@ class SpecialUnitary(CompactMatrixLieGroup):
         self.dim = n**2 - 1
         self.rank = n - 1
         super().__init__()
+
+    def __str__(self):
+        return f"SpecialUnitary({self.n})"
 
     @property
     def dimension(self) -> int:
@@ -242,12 +251,17 @@ class SpecialUnitary(CompactMatrixLieGroup):
             h = create_complex(real, imag) / B.sqrt(2)
             q, r = qr(h, mode="complete")
             r_diag = B.einsum("...ii->...i", r)
-            r_diag_inv_phase = complex_conj(r_diag / B.abs(r_diag))
+            r_diag_inv_phase = complex_conj(
+                r_diag / B.cast(B.dtype(r_diag), B.abs(r_diag))
+            )
             q *= r_diag_inv_phase[:, None]
             q_det = B.det(q)
-            q_det_inv_phase = complex_conj((q_det / B.abs(q_det)))
-            q[:, :, 0] *= q_det_inv_phase[:, None]
-            return key, q
+            q_det_inv_phase = complex_conj(
+                (q_det / B.cast(B.dtype(q_det), B.abs(q_det)))
+            )
+            q_new = q[:, :, 0] * q_det_inv_phase[:, None]
+            q_new = B.concat(q_new[:, :, None], q[:, :, 1:], axis=-1)
+            return key, q_new
 
     @property
     def element_shape(self):
@@ -256,3 +270,11 @@ class SpecialUnitary(CompactMatrixLieGroup):
             [n, n].
         """
         return [self.n, self.n]
+
+    @property
+    def element_dtype(self):
+        """
+        :return:
+            B.Complex.
+        """
+        return B.Complex

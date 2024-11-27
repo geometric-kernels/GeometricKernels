@@ -35,9 +35,21 @@ class Space(abc.ABC):
         Shape of an element.
 
         Examples:
-        * hypersphere: [D + 1, ]
-        * mesh: [1, ]
-        * matrix Lie group: [n, n]
+        * :class:`~.spaces.Hypersphere`: [D + 1, ]
+        * :class:`~.spaces.Mesh`: [1, ]
+        * :class:`~.spaces.CompactMatrixLieGroup`: [n, n]
+        """
+        raise NotImplementedError
+
+    @abc.abstractproperty
+    def element_dtype(self) -> B.DType:
+        """
+        Abstract DType of an element.
+
+        Examples:
+        * :class:`~.spaces.Hypersphere`: B.Float
+        * :class:`~.spaces.Mesh`: B.Int
+        * :class:`~.spaces.SpecialUnitary`: B.Complex
         """
         raise NotImplementedError
 
@@ -170,7 +182,7 @@ class NoncompactSymmetricSpace(Space):
         Mathematically, any non-compact symmetric space can be represented as
         a quotient $G/H$ of a Lie group of symmetries $G$ and its compact
         isotropy subgroup $H$. We sometimes refer to these $G$ and $H$ in
-        the documentation. See mathematical details in :cite:t:`azangulov2023`.
+        the documentation. See mathematical details in :cite:t:`azangulov2024b`.
     """
 
     @abc.abstractproperty

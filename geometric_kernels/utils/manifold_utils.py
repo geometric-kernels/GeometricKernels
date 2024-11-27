@@ -2,8 +2,87 @@
 
 import lab as B
 import numpy as np
+from beartype.typing import Optional
 
 from geometric_kernels.lab_extras import from_numpy
+
+
+def minkowski_inner_product(vector_a: B.Numeric, vector_b: B.Numeric) -> B.Numeric:
+    r"""
+    Computes the Minkowski inner product of vectors.
+
+    .. math:: \langle a, b \rangle = a_0 b_0 - a_1 b_1 - \ldots - a_n b_n.
+
+    :param vector_a:
+        An [..., n+1]-shaped array of points in the hyperbolic space $\mathbb{H}_n$.
+    :param vector_b:
+        An [..., n+1]-shaped array of points in the hyperbolic space $\mathbb{H}_n$.
+
+    :return:
+        An [...,]-shaped array of inner products.
+    """
+    assert vector_a.shape == vector_b.shape
+    n = vector_a.shape[-1] - 1
+    assert n > 0
+    diagonal = from_numpy(vector_a, [-1.0] + [1.0] * n)  # (n+1)
+    diagonal = B.cast(B.dtype(vector_a), diagonal)
+    return B.einsum("...i,...i->...", diagonal * vector_a, vector_b)
+
+
+def hyperbolic_distance(
+    x1: B.Numeric, x2: B.Numeric, diag: Optional[bool] = False
+) -> B.Numeric:
+    """
+    Compute the hyperbolic distance between `x1` and `x2`.
+
+    The code is a reimplementation of
+    `geomstats.geometry.hyperboloid.HyperbolicMetric` for `lab`.
+
+    :param x1:
+        An [N, n+1]-shaped array of points in the hyperbolic space.
+    :param x2:
+        An [M, n+1]-shaped array of points in the hyperbolic space.
+    :param diag:
+        If True, compute elementwise distance. Requires N = M.
+
+        Default False.
+
+    :return:
+        An [N, M]-shaped array if diag=False or [N,]-shaped array
+        if diag=True.
+    """
+    if diag:
+        # Compute a pointwise distance between `x1` and `x2`
+        x1_ = x1
+        x2_ = x2
+    else:
+        if B.rank(x1) == 1:
+            x1 = B.expand_dims(x1)
+        if B.rank(x2) == 1:
+            x2 = B.expand_dims(x2)
+
+        # compute pairwise distance between arrays of points `x1` and `x2`
+        # `x1` (N, n+1)
+        # `x2` (M, n+1)
+        x1_ = B.tile(x1[..., None, :], 1, x2.shape[0], 1)  # (N, M, n+1)
+        x2_ = B.tile(x2[None], x1.shape[0], 1, 1)  # (N, M, n+1)
+
+    sq_norm_1 = minkowski_inner_product(x1_, x1_)
+    sq_norm_2 = minkowski_inner_product(x2_, x2_)
+    inner_prod = minkowski_inner_product(x1_, x2_)
+
+    cosh_angle = -inner_prod / B.sqrt(sq_norm_1 * sq_norm_2)
+
+    one = B.cast(B.dtype(cosh_angle), from_numpy(cosh_angle, [1.0]))
+    large_constant = B.cast(B.dtype(cosh_angle), from_numpy(cosh_angle, [1e24]))
+
+    # clip values into [1.0, 1e24]
+    cosh_angle = B.where(cosh_angle < one, one, cosh_angle)
+    cosh_angle = B.where(cosh_angle > large_constant, large_constant, cosh_angle)
+
+    dist = B.log(cosh_angle + B.sqrt(cosh_angle**2 - 1))  # arccosh
+    dist = B.cast(B.dtype(x1_), dist)
+    return dist
 
 
 def manifold_laplacian(x: B.Numeric, manifold, egrad, ehess):

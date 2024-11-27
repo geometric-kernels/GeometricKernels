@@ -43,7 +43,7 @@ class WeylAdditionTheorem(EigenfunctionsWithAdditionTheorem):
     is representation-theoretic: they are proportional to *characters* of
     irreducible unitary representations of the group. These characters, in their
     turn, can be algebraically computed using the *Weyl character formula*. See
-    :cite:t:`azangulov2022` for the mathematical details behind this class.
+    :cite:t:`azangulov2024a` for the mathematical details behind this class.
 
     :param n:
         The order of the Lie group, e.g. for SO(5) this is 5, for SU(3) this is 3.
@@ -92,6 +92,7 @@ class WeylAdditionTheorem(EigenfunctionsWithAdditionTheorem):
             self._characters = [
                 self._compute_character(n, signature) for signature in self._signatures
             ]
+        self._num_eigenfunctions: Optional[int] = None  # To be computed when needed.
 
     @abc.abstractmethod
     def _generate_signatures(self, num_levels: int) -> List[Tuple[int, ...]]:
@@ -195,15 +196,15 @@ class WeylAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         .. note::
             Doing X1[j, :, :] * inv(X2[i, :, :]) is as permissible as
             doing inv(X2[i, :, :]) * X1[j, :, :] which is actually used in
-            :cite:t:`azangulov2022`. This is because $\chi(x y x^{-1})=\chi(y)$
+            :cite:t:`azangulov2024a`. This is because $\chi(x y x^{-1})=\chi(y)$
             which implies that $\chi(x y) = \chi(y x)$.
         """
         X2_inv = self.inverse(X2)
         X_ = B.tile(X[..., None, :, :], 1, X2_inv.shape[0], 1, 1)  # (N, N2, n, n)
         X2_inv_ = B.tile(X2_inv[None, ..., :, :], X.shape[0], 1, 1, 1)  # (N, N2, n, n)
 
-        diff = B.matmul(X_, X2_inv_).reshape(
-            X.shape[0], X2_inv.shape[0], X.shape[-1], X.shape[-1]
+        diff = B.reshape(
+            B.matmul(X_, X2_inv_), X.shape[0], X2_inv.shape[0], X.shape[-1], X.shape[-1]
         )  # (N, N2, n, n)
         return diff
 
@@ -216,7 +217,7 @@ class WeylAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         Laplace-Beltrami eigenfunctions that correspond to this level
         (representation). Uses the fact that such sums are equal to the
         character of the representation multiplied by the dimension of that
-        representation. See :cite:t:`azangulov2022` for mathematical details.
+        representation. See :cite:t:`azangulov2024a` for mathematical details.
 
         :param X:
             An [N, n, n]-shaped array, a batch of N matrices of size nxn.
@@ -266,7 +267,9 @@ class WeylAdditionTheorem(EigenfunctionsWithAdditionTheorem):
 
     @property
     def num_eigenfunctions(self) -> int:
-        return B.sum(self.num_eigenfunctions_per_level)
+        if self._num_eigenfunctions is None:
+            self._num_eigenfunctions = sum(self.num_eigenfunctions_per_level)
+        return self._num_eigenfunctions
 
     @property
     def num_eigenfunctions_per_level(self) -> List[int]:

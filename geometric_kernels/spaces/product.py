@@ -15,7 +15,7 @@ import lab as B
 import numpy as np
 from beartype.typing import List, Optional, Tuple
 
-from geometric_kernels.lab_extras import from_numpy, int_like
+from geometric_kernels.lab_extras import from_numpy, int_like, take_along_axis
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 from geometric_kernels.utils.product import make_product, project_product
@@ -154,7 +154,11 @@ class ProductEigenfunctions(Eigenfunctions):
     Levels correspond to tuples of levels of the factors.
 
     :param element_shapes:
-        Shapes of the elements in each of the factor spaces.
+        Shapes of the elements in each factor. Can be obtained as properties
+        `space.element_shape` of any given factor `space`.
+    :param element_dtypes:
+        Abstract lab data types of the elements in each factor. Can be obtained
+        as properties `space.element_dtype` of any given factor `space`.
     :param eigenindicies:
         A [L, S]-shaped array, where `S` is the number of factor spaces and `L`
         is the number of levels, such that `eigenindicies[i, :]` are the indices
@@ -184,12 +188,14 @@ class ProductEigenfunctions(Eigenfunctions):
     def __init__(
         self,
         element_shapes: List[List[int]],
+        element_dtypes: List[B.DType],
         eigenindicies: B.Numeric,
         *eigenfunctions: Eigenfunctions,
         dimension_indices: B.Numeric = None,
     ):
         self._num_levels = eigenindicies.shape[0]
         self.element_shapes = element_shapes
+        self.element_dtypes = element_dtypes
         dimensions = [math.prod(element_shape) for element_shape in self.element_shapes]
         if dimension_indices is None:
             self.dimension_indices = []
@@ -240,7 +246,9 @@ class ProductEigenfunctions(Eigenfunctions):
         :return:
             An [N, J]-shaped array, where `J` is the number of eigenfunctions.
         """
-        Xs = project_product(X, self.dimension_indices, self.element_shapes)
+        Xs = project_product(
+            X, self.dimension_indices, self.element_shapes, self.element_dtypes
+        )  # List of S arrays, each of shape [N, *element_shape_s]
 
         factor_eigenfunction_values = [
             eigenfunction(X, **kwargs)  # [N, Js], Js different for each factor
@@ -256,13 +264,13 @@ class ProductEigenfunctions(Eigenfunctions):
                         *(
                             factor_eigenfunction_values[s][
                                 :, self._eigenfunctionindices[j, s]
-                            ]
+                            ]  # [N,]
                             for s in range(len(m_idx))
                         ),
                         axis=-1,
-                    ),
+                    ),  # [N, S]
                     axis=1,
-                )
+                )  # [N,]
             )
         eigenfunction_values = B.stack(*eigenfunction_values, axis=-1)  # [N, J]
 
@@ -281,46 +289,51 @@ class ProductEigenfunctions(Eigenfunctions):
     ) -> B.Numeric:
         if X2 is None:
             X2 = X
-        Xs = project_product(X, self.dimension_indices, self.element_shapes)
-        Xs2 = project_product(X2, self.dimension_indices, self.element_shapes)
+        Xs = project_product(
+            X, self.dimension_indices, self.element_shapes, self.element_dtypes
+        )  # List of S arrays, each of shape [N, *element_shape_s]
+        Xs2 = project_product(
+            X2, self.dimension_indices, self.element_shapes, self.element_dtypes
+        )  # List of S arrays, each of shape [N2, *element_shape_s]
+
+        factor_phi_products = [
+            take_along_axis(
+                eigenfunction.phi_product(X1, X2, **kwargs),  # [N, N2, L_s]
+                from_numpy(X1, self.eigenindicies[None, None, :, s]),
+                -1,
+            )  # [N, N2, L]
+            for s, (eigenfunction, X1, X2) in enumerate(
+                zip(self.eigenfunctions, Xs, Xs2)
+            )
+        ]
+        common_dtype = B.promote_dtypes(*[B.dtype(x) for x in factor_phi_products])
 
         phis = B.stack(
-            *[
-                eigenfunction.phi_product(X1, X2, **kwargs)
-                for eigenfunction, X1, X2 in zip(self.eigenfunctions, Xs, Xs2)
-            ],
-            axis=-1,
-        )  # [N, N2, LFactor, S] where `LFactor` is self.eigenfunctions[0].num_levels
+            *[B.cast(common_dtype, x) for x in factor_phi_products], axis=-1
+        )  # [N, N2, L, S]
 
-        prod_phis = phis[
-            :,
-            :,
-            self.eigenindicies,
-            B.range(self.eigenindicies.shape[1]),
-        ].prod(
-            axis=-1
-        )  # [N, N2, LFactor, S] -> [N, N2, L]
+        prod_phis = B.prod(phis, axis=-1)  # [N, N2, L, S] -> [N, N2, L]
 
         return prod_phis
 
     def phi_product_diag(self, X: B.Numeric, **kwargs):
-        Xs = project_product(X, self.dimension_indices, self.element_shapes)
+        Xs = project_product(
+            X, self.dimension_indices, self.element_shapes, self.element_dtypes
+        )
 
         phis = B.stack(
             *[
-                eigenfunction.phi_product_diag(X1, **kwargs)
-                for eigenfunction, X1 in zip(self.eigenfunctions, Xs)
+                take_along_axis(
+                    eigenfunction.phi_product_diag(X1, **kwargs),  # [N, L_s]
+                    from_numpy(X1, self.eigenindicies[None, :, s]),
+                    -1,
+                )  # [N, L]
+                for s, (eigenfunction, X1) in enumerate(zip(self.eigenfunctions, Xs))
             ],
             axis=-1,
-        )  # [N, LFactor, S] where `LFactor` is self.eigenfunctions[0].num_levels
+        )  # [N, L, S]
 
-        prod_phis = phis[
-            :,
-            self.eigenindicies,
-            B.range(self.eigenindicies.shape[1]),
-        ].prod(
-            axis=-1
-        )  # [N, LFactor, S] -> [N, L]
+        prod_phis = B.prod(phis, axis=-1)  # [N, L]
 
         return prod_phis
 
@@ -440,6 +453,9 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
             self.factor_space_eigenindices,
         ].sum(axis=1)
 
+    def __str__(self):
+        return f"ProductDiscreteSpectrumSpace({', '.join(str(space) for space in self.factor_spaces)})"
+
     @property
     def dimension(self) -> int:
         """
@@ -487,6 +503,7 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
 
         return ProductEigenfunctions(
             [space.element_shape for space in self.factor_spaces],
+            [space.element_dtype for space in self.factor_spaces],
             self.factor_space_eigenindices[:num],
             *factor_space_eigenfunctions,
         )
@@ -534,3 +551,11 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
             Sum of the products of the element shapes of the factor spaces.
         """
         return sum(math.prod(space.element_shape) for space in self.factor_spaces)
+
+    @property
+    def element_dtype(self):
+        """
+        :return:
+            B.Numeric.
+        """
+        return B.Numeric

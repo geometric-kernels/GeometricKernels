@@ -17,7 +17,6 @@ from beartype.typing import Dict, Optional, Tuple
 
 from geometric_kernels.feature_maps.base import FeatureMap
 from geometric_kernels.feature_maps.probability_densities import base_density_sample
-from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
 from geometric_kernels.lab_extras import complex_like, from_numpy, is_complex
 from geometric_kernels.spaces import DiscreteSpectrumSpace, NoncompactSymmetricSpace
 
@@ -43,6 +42,8 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
         num_levels: int,
         num_random_phases: int = 3000,
     ):
+        from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
+
         self.space = space
         self.num_levels = num_levels
         self.num_random_phases = num_random_phases

@@ -66,6 +66,9 @@ class Mesh(DiscreteSpectrumSpace):
         self._eigenfunctions = None
         self.cache: Dict[int, Tuple[np.ndarray, np.ndarray]] = {}
 
+    def __str__(self):
+        return f"Mesh({self.num_vertices})"
+
     def get_eigensystem(self, num: int) -> Tuple[np.ndarray, np.ndarray]:
         """
         Returns the first `num` eigenvalues and eigenvectors of the `robust
@@ -214,3 +217,11 @@ class Mesh(DiscreteSpectrumSpace):
             [1].
         """
         return [1]
+
+    @property
+    def element_dtype(self):
+        """
+        :return:
+            B.Int.
+        """
+        return B.Int

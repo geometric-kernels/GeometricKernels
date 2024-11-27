@@ -343,3 +343,37 @@ def dtype_bool(reference: B.RandomState):
     :param reference:
         A random state to infer the backend from.
     """
+
+
+@dispatch
+@abstract()
+def bool_like(reference: B.Numeric):
+    """
+    Return the type of the reference if it is of boolean type.
+    Otherwise return `bool` dtype of a backend based on the reference.
+
+    :param reference:
+        Array of any backend.
+    """
+
+
+def smart_cast(
+    dtype: Union[B.Bool, B.Int, B.Float, B.Complex, B.Numeric], x: B.Numeric
+):
+    """
+    Return `x` cast to the `dtype` abstract data type.
+
+    :param dtype:
+        An abstract DType of lab, one of `B.Bool`, `B.Int`, `B.Float`,
+        `B.Complex`, `B.Numeric`.
+    :param x:
+        Array of any backend.
+    """
+    if dtype == B.Bool:
+        return B.cast(bool_like(x), x)
+    elif dtype == B.Int:
+        return B.cast(int_like(x), x)
+    elif dtype == B.Float:
+        return B.cast(float_like(x), x)
+    elif dtype == B.Complex:
+        return B.cast(complex_like(x), x)

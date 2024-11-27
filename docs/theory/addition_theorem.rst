@@ -68,7 +68,7 @@ For example, for $M = \mathbb{S}_2$ and $L = 20$ the corresponding $J$ is $400$.
   In the simplest special case of $\mathbb{S}_d$, the circle $\mathbb{S}_1$, the eigenfunctions are given by $\sin(l \theta), \cos(l \theta)$, where $l$ indexes levels.
   The outer product $\cos(l \theta) \cos(l \theta') + \sin(l \theta) \sin(l \theta')$ in this case can be simplified to $\cos(l (\theta-\theta')) = \cos(l d_{\mathbb{S}_1}(\theta, \theta'))$ thanks to an elementary trigonometric identity.
 
-Such addition theorems appear beyond hyperspheres, for example for Lie groups and other compact homogeneous spaces :cite:p:`azangulov2022`.
+Such addition theorems appear beyond hyperspheres, for example for Lie groups and other compact homogeneous spaces :cite:p:`azangulov2024a`.
 In the library, such spaces use the class :class:`~.EigenfunctionsWithAdditionTheorem` to represent the spectrum of $\Delta_{\mathcal{M}}$.
 For them, the *number of levels* parameter of the :class:`~.kernels.MaternKarhunenLoeveKernel` maps to $L$ in the above formula.
 
