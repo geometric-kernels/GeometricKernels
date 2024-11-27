@@ -69,11 +69,8 @@ def test_feature_map_approximates_kernel(backend, feature_map_and_friends):
     check_function_with_backend(
         backend,
         np.zeros((X.shape[0], X.shape[0])),
-        lambda nu, lengthscale, X: diff_kern_mats(
-            {"nu": nu, "lengthscale": lengthscale}, X
-        ),
-        params["nu"],
-        params["lengthscale"],
+        diff_kern_mats,
+        params,
         X,
         atol=0.1,
     )

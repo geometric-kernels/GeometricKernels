@@ -23,9 +23,6 @@ def test_equivalence_kernel(lengthscale, backend):
 
     kernel = MaternGeometricKernel(space, key=create_random_state(backend))
 
-    def kern(nu, lengthscale, X, X2):
-        return kernel.K({"nu": nu, "lengthscale": lengthscale}, X, X2)
-
     def compare_to_result(res, f_out):
         return (
             np.linalg.norm(res - B.to_numpy(f_out))
@@ -40,9 +37,8 @@ def test_equivalence_kernel(lengthscale, backend):
     check_function_with_backend(
         backend,
         result,
-        kern,
-        np.array([np.inf]),
-        np.array([lengthscale]),
+        kernel.K,
+        {"nu": np.array([np.inf]), "lengthscale": np.array([lengthscale])},
         X,
         X2,
         compare_to_result=compare_to_result,

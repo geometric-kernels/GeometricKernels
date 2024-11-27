@@ -55,18 +55,14 @@ def test_against_analytic_heat_kernel(inputs, lengthscale, backend):
 
     kernel = MaternGeometricKernel(space)
 
-    def kern(nu, lengthscale, X, X2):
-        return kernel.K({"nu": nu, "lengthscale": lengthscale}, X, X2)
-
     # Check that MaternGeometricKernel on HypercubeGraph with nu=infinity
     # coincides with the closed form expression for the heat kernel on the
     # hypercube graph.
     check_function_with_backend(
         backend,
         result,
-        kern,
-        np.array([np.inf]),
-        lengthscale,
+        kernel.K,
+        {"nu": np.array([np.inf]), "lengthscale": lengthscale},
         X,
         X2,
         atol=1e-2,

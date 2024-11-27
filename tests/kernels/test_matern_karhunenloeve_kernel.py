@@ -61,16 +61,12 @@ def test_eigenvalues_shape(inputs, backend):
     _, num_levels, kernel, _, _ = inputs
     params = kernel.init_params()
 
-    def eigenvalues(nu, lengthscale):
-        return kernel.eigenvalues({"nu": nu, "lengthscale": lengthscale})
-
     # Check that the eigenvalues have appropriate shape.
     check_function_with_backend(
         backend,
         (num_levels, 1),
-        eigenvalues,
-        params["nu"],
-        params["lengthscale"],
+        kernel.eigenvalues,
+        params,
         compare_to_result=lambda res, f_out: B.shape(f_out) == res,
     )
 
@@ -80,16 +76,12 @@ def test_eigenvalues_positive(inputs, backend):
     _, _, kernel, _, _ = inputs
     params = kernel.init_params()
 
-    def eigenvalues(nu, lengthscale):
-        return kernel.eigenvalues({"nu": nu, "lengthscale": lengthscale})
-
     # Check that the eigenvalues are nonnegative.
     check_function_with_backend(
         backend,
         None,
-        eigenvalues,
-        params["nu"],
-        params["lengthscale"],
+        kernel.eigenvalues,
+        params,
         compare_to_result=lambda _, f_out: np.all(B.to_numpy(f_out) >= 0),
     )
 
@@ -99,16 +91,12 @@ def test_eigenvalues_ordered(inputs, backend):
     _, _, kernel, _, _ = inputs
     params = kernel.init_params()
 
-    def eigenvalues(nu, lengthscale):
-        return kernel.eigenvalues({"nu": nu, "lengthscale": lengthscale})
-
     # Check that the eigenvalues are sorted in descending order.
     check_function_with_backend(
         backend,
         None,
-        eigenvalues,
-        params["nu"],
-        params["lengthscale"],
+        kernel.eigenvalues,
+        params,
         compare_to_result=lambda _, f_out: np.all(
             B.to_numpy(f_out)[:-1] >= B.to_numpy(f_out)[1:] - _EPS
         ),
@@ -124,17 +112,13 @@ def test_K(inputs, backend):
 
     assert result.shape == (X.shape[0], X2.shape[0]), "K has incorrect shape"
 
-    def kern(nu, lengthscale, X, X2):
-        return kernel.K({"nu": nu, "lengthscale": lengthscale}, X, X2)
-
     if backend != "numpy":
         # Check that kernel.K computed using `backend` coincides with the numpy result.
         check_function_with_backend(
             backend,
             result,
-            kern,
-            params["nu"],
-            params["lengthscale"],
+            kernel.K,
+            params,
             X,
             X2,
         )
@@ -147,16 +131,12 @@ def test_K_one_param(inputs, backend):
 
     result = kernel.K(params, X, X)
 
-    def kern(nu, lengthscale, X):
-        return kernel.K({"nu": nu, "lengthscale": lengthscale}, X)
-
     # Check that kernel.K(X) coincides with kernel.K(X, X).
     check_function_with_backend(
         backend,
         result,
-        kern,
-        params["nu"],
-        params["lengthscale"],
+        kernel.K,
+        params,
         X,
         atol=1e-2 if isinstance(space, Mesh) else _EPS,
     )
@@ -171,16 +151,12 @@ def test_K_diag(inputs, backend):
 
     assert result.shape == (X.shape[0],), "The diagonal has incorrect shape"
 
-    def kern_diag(nu, lengthscale, X):
-        return kernel.K_diag({"nu": nu, "lengthscale": lengthscale}, X)
-
     # Check that kernel.K_diag coincides with the diagonal of kernel.K.
     check_function_with_backend(
         backend,
         result,
-        kern_diag,
-        params["nu"],
-        params["lengthscale"],
+        kernel.K_diag,
+        params,
         X,
         atol=1e-2 if isinstance(space, Mesh) else _EPS,
     )
@@ -199,11 +175,9 @@ def test_normalize(inputs, backend):
         key, 1000
     )  # we need a large sample to get a good estimate of the mean variance
 
-    def mean_variance(nu, lengthscale, X):
+    def mean_variance(params, X):
         return B.reshape(
-            B.mean(
-                kernel.K_diag({"nu": nu, "lengthscale": lengthscale}, X), squeeze=False
-            ),
+            B.mean(kernel.K_diag(params, X), squeeze=False),
             1,
         )  # the reshape shields from a bug in lab present at least up to version 1.6.6
 
@@ -212,8 +186,7 @@ def test_normalize(inputs, backend):
         backend,
         np.array([1.0]),
         mean_variance,
-        params["nu"],
-        params["lengthscale"],
+        params,
         X,
         atol=0.2,  # very loose, but helps make sure the result is close to 1
     )

@@ -63,16 +63,12 @@ def test_K(inputs, backend, normalize, kernel):
     _, _, _, X, X2 = inputs
     params = kernel.init_params()
 
-    def kern(nu, lengthscale, X, X2):
-        return kernel.K({"nu": nu, "lengthscale": lengthscale}, X, X2)
-
     # Check that kernel.K runs and the output is a tensor of the right backend and shape.
     check_function_with_backend(
         backend,
         (X.shape[0], X2.shape[0]),
-        kern,
-        params["nu"],
-        params["lengthscale"],
+        kernel.K,
+        params,
         X,
         X2,
         compare_to_result=lambda res, f_out: B.shape(f_out) == res,
@@ -85,18 +81,12 @@ def test_K_one_param(inputs, backend, normalize, kernel):
     _, _, _, X, _ = inputs
     params = kernel.init_params()
 
-    def diff(nu, lengthscale, X):
-        return kernel.K({"nu": nu, "lengthscale": lengthscale}, X) - kernel.K(
-            {"nu": nu, "lengthscale": lengthscale}, X, X
-        )
-
     # Check that kernel.K(X) coincides with kernel.K(X, X).
     check_function_with_backend(
         backend,
         np.zeros((X.shape[0], X.shape[0])),
-        diff,
-        params["nu"],
-        params["lengthscale"],
+        lambda params, X: kernel.K(params, X) - kernel.K(params, X, X),
+        params,
         X,
     )
 
@@ -107,18 +97,12 @@ def test_K_diag(inputs, backend, normalize, kernel):
     _, _, _, X, _ = inputs
     params = kernel.init_params()
 
-    def diff(nu, lengthscale, X):
-        return kernel.K_diag({"nu": nu, "lengthscale": lengthscale}, X) - B.diag(
-            kernel.K({"nu": nu, "lengthscale": lengthscale}, X)
-        )
-
     # Check that kernel.K_diag coincides with the diagonal of kernel.K.
     check_function_with_backend(
         backend,
         np.zeros((X.shape[0],)),
-        diff,
-        params["nu"],
-        params["lengthscale"],
+        lambda params, X: kernel.K_diag(params, X) - B.diag(kernel.K(params, X)),
+        params,
         X,
     )
 
@@ -129,15 +113,11 @@ def test_normalize(inputs, backend, kernel):
 
     params = kernel.init_params()
 
-    def kern_diag(nu, lengthscale, X):
-        return kernel.K_diag({"nu": nu, "lengthscale": lengthscale}, X)
-
     # Check that the variance of the kernel is constant 1.
     check_function_with_backend(
         backend,
         np.ones((X.shape[0],)),
-        kern_diag,
-        params["nu"],
-        params["lengthscale"],
+        kernel.K_diag,
+        params,
         X,
     )

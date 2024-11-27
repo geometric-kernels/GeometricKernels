@@ -149,6 +149,27 @@ def array_type(backend: str):
         raise ValueError(f"Unknown backend: {backend}")
 
 
+def apply_recursive(data: Any, func: Callable[[Any], Any]) -> Any:
+    """
+    Apply a function recursively to a nested data structure. Supports lists and
+    dictionaries.
+
+    :param data:
+        The data structure to apply the function to.
+    :param func:
+        The function to apply.
+
+    :return:
+        The data structure with the function applied to each element.
+    """
+    if isinstance(data, dict):
+        return {key: apply_recursive(value, func) for key, value in data.items()}
+    elif isinstance(data, list):
+        return [apply_recursive(element, func) for element in data]
+    else:
+        return func(data)
+
+
 def check_function_with_backend(
     backend: str,
     result: Any,
@@ -184,14 +205,16 @@ def check_function_with_backend(
         the expected result.
     """
 
-    args_casted = []
-    for arg in args:
+    def cast(arg):
         if is_bearable(arg, B.Numeric):
             # We only expect numpy arrays here
             die_if_unbearable(arg, B.NPNumeric)
-            args_casted.append(np_to_backend(arg, backend))
+            return np_to_backend(arg, backend)
         else:
-            args_casted.append(arg)
+            return arg
+
+    args_casted = (apply_recursive(arg, cast) for arg in args)
+
     f_output = f(*args_casted)
     assert is_bearable(
         f_output, array_type(backend)

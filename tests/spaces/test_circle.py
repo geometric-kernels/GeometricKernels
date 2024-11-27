@@ -41,17 +41,13 @@ def test_equivalence_kernel(nu, atol, backend):
 
     kernel = MaternGeometricKernel(Circle())
 
-    def kern(nu, lengthscale, X, X2):
-        return kernel.K({"nu": nu, "lengthscale": lengthscale}, X, X2)
-
     # Check that MaternGeometricKernel on Circle() coincides with the
     # periodic summation of the respective Euclidean Matérn kernel.
     check_function_with_backend(
         backend,
         result,
-        kern,
-        np.array([nu]),
-        np.array([1.0]),
+        kernel.K,
+        {"nu": np.array([nu]), "lengthscale": np.array([1.0])},
         inputs,
         inputs2,
         atol=atol,
