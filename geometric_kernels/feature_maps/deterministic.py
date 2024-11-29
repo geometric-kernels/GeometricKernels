@@ -9,11 +9,9 @@ import lab as B
 from beartype.typing import Dict, Optional, Tuple
 
 from geometric_kernels.feature_maps.base import FeatureMap
-from geometric_kernels.kernels.karhunen_loeve import (
-    MaternKarhunenLoeveKernel, 
-    MaternKarhunenLoeveKernel_HodgeCompositionEdge
-    )
-from geometric_kernels.spaces import DiscreteSpectrumSpace
+from geometric_kernels.kernels.hodge_compositional import MaternHodgeCompositionalKernel
+from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
+from geometric_kernels.spaces import DiscreteSpectrumSpace, HodgeDiscreteSpectrumSpace
 
 
 class DeterministicFeatureMapCompact(FeatureMap):
@@ -83,17 +81,18 @@ class DeterministicFeatureMapCompact(FeatureMap):
         return None, features
 
 
-class DeterministicFeatureMapCompact_HodgeCompositional(FeatureMap):
+class HodgeDeterministicFeatureMapCompact(FeatureMap):
     r"""
     Deterministic feature map for :class:`~.spaces.GraphEdge`\ s
     for which the actual eigenpairs are explicitly available.
-    
-    Note: We obtain the embedding by Hodge subspace. 
+
+    Note: We obtain the embedding by Hodge subspace.
     """
-    def __init__(self, space: DiscreteSpectrumSpace, num_levels: int):
+
+    def __init__(self, space: HodgeDiscreteSpectrumSpace, num_levels: int):
         self.space = space
         self.num_levels = num_levels
-        self.kernel = MaternKarhunenLoeveKernel_HodgeCompositionEdge(space, num_levels)
+        self.kernel = MaternHodgeCompositionalKernel(space, num_levels)
 
     def __call__(
         self,
@@ -113,7 +112,7 @@ class DeterministicFeatureMapCompact_HodgeCompositional(FeatureMap):
             or None, follows the standard behavior of
             :class:`~.kernels.MaternKarhunenLoeveKernel`).
         :param hodge_type:
-            The type of Hodge embedding to compute. 
+            The type of Hodge embedding to compute.
         :param ``**kwargs``:
             Unused.
 
@@ -127,16 +126,26 @@ class DeterministicFeatureMapCompact_HodgeCompositional(FeatureMap):
            interface: for some other subclasses of :class:`FeatureMap`, this
            first element may be an updated random key.
         """
-        self.repeated_eigenvalues = self.space.get_eigenvalues_by_type(self.kernel.num_levels, hodge_type)
-        
-        if hodge_type == 'harmonic':
-            hodge_kernel = self.kernel.harmonic_kernel
-        elif hodge_type == 'gradient':
-            hodge_kernel = self.kernel.gradient_kernel
-        elif hodge_type == 'curl':
-            hodge_kernel = self.kernel.curl_kernel
-            
-        spectrum = hodge_kernel._spectrum(
+        self.repeated_eigenvalues = self.space.get_eigenvalues(
+            self.kernel.num_levels, hodge_type
+        )
+
+        hodge_kernel = {
+            "harmonic": self.kernel.kernel_harmonic,
+            "gradient": self.kernel.kernel_gradient,
+            "curl": self.kernel.kernel_curl,
+        }.get(hodge_type)
+
+        spectrum = B.cast(
+            B.dtype(
+                hodge_kernel._spectrum(
+                    self.repeated_eigenvalues,
+                    nu=params["nu"],
+                    lengthscale=params["lengthscale"],
+                )
+            ),
+            params["logit"],
+        ) * hodge_kernel._spectrum(
             self.repeated_eigenvalues,
             nu=params["nu"],
             lengthscale=params["lengthscale"],
@@ -146,7 +155,7 @@ class DeterministicFeatureMapCompact_HodgeCompositional(FeatureMap):
             normalizer = B.sum(spectrum)
             spectrum = spectrum / normalizer
 
-        weights = B.transpose(B.power(spectrum, 0.5))  # [1, M]    
+        weights = B.transpose(B.power(spectrum, 0.5))  # [1, M]
         eigenfunctions = hodge_kernel.eigenfunctions(X, **params)  # [N, M]
         features = B.cast(B.dtype(params["lengthscale"]), eigenfunctions) * B.cast(
             B.dtype(params["lengthscale"]), weights

@@ -5,6 +5,7 @@ Various spaces supported by the library as input domains for kernels.
 # noqa: F401
 from geometric_kernels.spaces.base import (
     DiscreteSpectrumSpace,
+    HodgeDiscreteSpectrumSpace,
     NoncompactSymmetricSpace,
     Space,
 )

@@ -5,7 +5,7 @@ Abstract base classes for all spaces (input domains) in the library.
 import abc
 
 import lab as B
-from beartype.typing import List
+from beartype.typing import List, Optional
 
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 
@@ -141,6 +141,82 @@ class DiscreteSpectrumSpace(Space):
 
         :return:
             An array of `number` uniformly random samples on the space.
+        """
+        raise NotImplementedError
+
+
+class HodgeDiscreteSpectrumSpace(DiscreteSpectrumSpace):
+    r"""
+    A Space with discrete spectrum (of the Laplacian operator) and Hodge
+    decomposition. Separates eigenpairs according to the Hodge decomposition,
+    into the harmonic type, the curl type and the gradient type.
+    This includes, e.g., the edges of a simplicial 2-complex (graph edges)
+    or tangent bundles of Riemannian manifolds.
+    .. note::
+        TODO (docs theory page).
+    .. note::
+        Typically used with :class:`~.kernels.MaternHodgeCompositionalKernel`.
+    """
+
+    @abc.abstractmethod
+    def get_eigenfunctions(
+        self, num: int, type: Optional[str] = None
+    ) -> Eigenfunctions:
+        """
+        Returns the :class:`~.Eigenfunctions` object with `num` levels.
+        If `type` is specified, returns only the eigenfunctions of that type.
+        .. warning::
+            If `type` is specified, the returned :class:`~.Eigenfunctions`
+            object does not have to have `num` levels. It can have less but can
+            never have more.
+        :param num:
+            Number of levels.
+        :param type:
+            Type of the eigenfunctions to return. Can be one of "harmonic",
+            "curl" or "gradient".
+        .. note::
+            The notion of *levels* is discussed in the documentation of the
+            :class:`~.kernels.MaternKarhunenLoeveKernel`.
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_eigenvalues(self, num: int, type: str) -> B.Numeric:
+        """
+        Eigenvalues of the Laplacian corresponding to the first `num` levels.
+        If `type` is specified, returns only the eigenvalues corresponding to
+        the eigenfunctions of that type.
+        .. warning::
+            If `type` is specified, the array can have fewer than `num` elements.
+        :param num:
+            Number of levels.
+        :return:
+            (n, 1)-shaped array containing the eigenvalues. n <= num.
+        .. note::
+            The notion of *levels* is discussed in the documentation of the
+            :class:`~.kernels.MaternKarhunenLoeveKernel`.
+        """
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def get_repeated_eigenvalues(self, num: int, type: str) -> B.Numeric:
+        """
+        Eigenvalues of the Laplacian corresponding to the first `num` levels,
+        repeated according to their multiplicity within levels. If `type` is
+        specified, returns only the eigenvalues corresponding to the
+        eigenfunctions of that type.
+        :param num:
+            Number of levels.
+        :param type:
+            Type of the eigenvalues to return. Can be one of "harmonic",
+            "curl" or "gradient".
+        :return:
+            (J, 1)-shaped array containing the repeated eigenvalues, J is
+            the resulting number of the repeated eigenvalues (of the specified
+            type, if `type` is given).
+        .. note::
+            The notion of *levels* is discussed in the documentation of the
+            :class:`~.kernels.MaternKarhunenLoeveKernel`.
         """
         raise NotImplementedError
 

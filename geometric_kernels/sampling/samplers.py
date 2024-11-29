@@ -61,10 +61,10 @@ def sample_at(
         Passed down to `feature_map` directly. Controls whether to force the
         average variance of the Gaussian process to be around 1 or not. If None,
         follows the standard behavior, typically same as normalize=True.
-        
+
         Defaults to None.
     :param hodge_type:
-        The type of Hodge component to sample. Only used when using Hodge-compositional edge kernels 
+        The type of Hodge component to sample. Only used when using Hodge-compositional edge kernels
 
         Defaults to None.
 
@@ -76,11 +76,15 @@ def sample_at(
     if key is None:
         key = B.global_random_state(B.dtype(X))
 
-    if hodge_type is None:  
-        _context, features = feature_map(X, params, key=key, normalize=normalize)  # [N, M]
+    if hodge_type is None:
+        _context, features = feature_map(
+            X, params, key=key, normalize=normalize
+        )  # [N, M]
     else:
-        _context, features = feature_map(X, params, key=key, normalize=normalize, hodge_type=hodge_type)
-        
+        _context, features = feature_map(
+            X, params, key=key, normalize=normalize, hodge_type=hodge_type
+        )
+
     if _context is not None:
         key = _context
 

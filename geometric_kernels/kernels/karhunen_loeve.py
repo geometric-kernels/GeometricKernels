@@ -58,11 +58,27 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         space: DiscreteSpectrumSpace,
         num_levels: int,
         normalize: bool = True,
+        eigenvalues_laplacian: Optional[B.Numeric] = None,
+        eigenfunctions: Optional[Eigenfunctions] = None,
     ):
         super().__init__(space)
         self.num_levels = num_levels  # in code referred to as `L`.
-        self._eigenvalues_laplacian = self.space.get_eigenvalues(self.num_levels)
-        self._eigenfunctions = self.space.get_eigenfunctions(self.num_levels)
+        if eigenvalues_laplacian is None:
+            assert eigenfunctions is None
+            eigenvalues_laplacian = self.space.get_eigenvalues(self.num_levels)
+        else:
+            assert eigenfunctions is not None
+            assert eigenvalues_laplacian.shape == (num_levels, 1)
+
+        if eigenfunctions is None:
+            assert eigenvalues_laplacian is None
+            eigenfunctions = self.space.get_eigenfunctions(self.num_levels)
+        else:
+            assert eigenvalues_laplacian is not None
+            assert eigenfunctions.num_levels == num_levels
+
+        self._eigenvalues_laplacian = eigenvalues_laplacian
+        self._eigenfunctions = eigenfunctions
         self.normalize = normalize
 
     @property
@@ -186,7 +202,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
                 )
             )
             return spectral_values / normalizer
-        
+
         return spectral_values
 
     def K(
@@ -218,137 +234,3 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             return B.real(K_diag)
         else:
             return K_diag
-
-
-class MaternKarhunenLoeveKernel_HodgeCompositionEdge_by_type(MaternKarhunenLoeveKernel):
-    def __init__(self, hodge_type,
-        space: DiscreteSpectrumSpace,
-        num_levels: int,
-        normalize: bool = True,):
-        assert hodge_type in ['harmonic', 'gradient', 'curl']
-        self.hodge_type = hodge_type
-        super().__init__(space, num_levels, normalize)
-        self._eigenvalues_laplacian = self.space.get_eigenvalues_by_type(self.num_levels, self.hodge_type)
-        self._eigenfunctions = self.space.get_eigenfunctions_by_type(self.num_levels, self.hodge_type)
-
-
-class MaternKarhunenLoeveKernel_HodgeCompositionEdge(BaseGeometricKernel):
-    r"""
-    This class approximates Hodge-compositional Edge Matérn kernel by its truncated Mercer decomposition, together with the Hodge decomposition,
-    in terms of the eigenfunctions & eigenvalues of the Laplacian on the space.
-    
-    .. math:: k(x, x') = k_{\text{harmonic}}(x, x') + k_{\text{gradient}}(x, x') + k_{\text{curl}}(x, x')
-
-    where $k_{\text{harmonic}}(x, x')$, $k_{\text{gradient}}(x, x')$ and $k_{\text{curl}}(x, x')$ are the Hodge kernels of the compositional kernel with respect to the harmonic, gradient and curl spaces, respectively.
-
-    """
-    def __init__(self, space: DiscreteSpectrumSpace, num_levels: int, normalize: bool = True):
-        super().__init__(space)
-        self.num_levels = num_levels
-        self.harmonic_kernel = MaternKarhunenLoeveKernel_HodgeCompositionEdge_by_type('harmonic', space, num_levels, normalize)
-        self.gradient_kernel = MaternKarhunenLoeveKernel_HodgeCompositionEdge_by_type('gradient', space, num_levels, normalize)
-        self.curl_kernel = MaternKarhunenLoeveKernel_HodgeCompositionEdge_by_type('curl', space, num_levels, normalize)
-        self.normalize = normalize
-    
-    @property
-    def space(self) -> DiscreteSpectrumSpace:
-        """
-        The space on which the kernel is defined.
-        """
-        self._space: DiscreteSpectrumSpace
-        return self._space
-    
-    def init_params(self) -> Dict[str, B.NPNumeric]:
-        """
-        Initializes the dict of the trainable parameters of the kernel.
-
-        Returns 'dict(harmonic=dict(nu=np.array([np.inf]), lengthscale=np.array([1.0])),
-                        gradient=dict(nu=np.array([np.inf]), lengthscale=np.array([1.0])),
-                        curl=dict(nu=np.array([np.inf]), lengthscale=np.array([1.0]))'.
-
-        This dict can be modified and is passed around into such methods as
-        :meth:`~.K` or :meth:`~.K_diag`, as the `params` argument.
-
-        .. note::
-            The values in the returned dict are always of the NumPy array type.
-            Thus, if you want to use some other backend for internal
-            computations when calling :meth:`~.K` or :meth:`~.K_diag`, you
-            need to replace the values with the analogs typed as arrays of
-            the desired backend.
-        """
-        params = dict(harmonic=dict(nu=np.array([np.inf]), lengthscale=np.array([1.0])),
-                      gradient=dict(nu=np.array([np.inf]), lengthscale=np.array([1.0])),
-                      curl=dict(nu=np.array([np.inf]), lengthscale=np.array([1.0]))
-                     )
-
-        return params
-    
-    def eigenvalues(
-        self, params: Dict[str, B.Numeric], normalize: Optional[bool] = None
-    ) -> B.Numeric:
-        """
-        Eigenvalues of the kernel.
-
-        :param params:
-            Parameters of the kernel. Must contain keys `"lengthscale"` and
-            `"nu"`. The shapes of `params["lengthscale"]` and `params["nu"]`
-            are `(1,)`.
-        :param normalize:
-            Whether to normalize kernel to have unit average variance.
-            If None, uses `self.normalize` to decide.
-
-            Defaults to None.
-
-        :return:
-            An [L, 1]-shaped array.
-        """
-        assert "harmonic" in params
-        assert "gradient" in params
-        assert "curl" in params
-        assert params["harmonic"]["lengthscale"].shape == (1,)
-        assert params["gradient"]["lengthscale"].shape == (1,)
-        assert params["curl"]["lengthscale"].shape == (1,)
-        assert params["harmonic"]["nu"].shape == (1,)
-        assert params["gradient"]["nu"].shape == (1,)
-        assert params["curl"]["nu"].shape == (1,)
-
-        spectral_values_harmonic = self.harmonic_kernel.eigenvalues(
-            params=params["harmonic"], normalize=normalize
-        )
-        spectral_values_gradient = self.gradient_kernel.eigenvalues(
-            params=params["gradient"], normalize=normalize
-        )
-        spectral_values_curl = self.curl_kernel.eigenvalues(
-            params=params["curl"], normalize=normalize
-        )
-        spectral_values = {'harmonic': spectral_values_harmonic, 'gradient': spectral_values_gradient, 'curl': spectral_values_curl}
-        return spectral_values
-    
-    def K(self, params, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs) -> B.Numeric:
-        assert "harmonic" in params
-        assert "gradient" in params
-        assert "curl" in params
-        assert params["harmonic"]["lengthscale"].shape == (1,)
-        assert params["gradient"]["lengthscale"].shape == (1,)
-        assert params["curl"]["lengthscale"].shape == (1,)
-        assert params["harmonic"]["nu"].shape == (1,)
-        assert params["gradient"]["nu"].shape == (1,)
-        assert params["curl"]["nu"].shape == (1,)
-        
-        return self.harmonic_kernel.K(params['harmonic'], X, X2, **kwargs) + self.gradient_kernel.K(params['gradient'], X, X2, **kwargs) + self.curl_kernel.K(params['curl'], X, X2, **kwargs)
-    
-    def K_diag(self, params, X: B.Numeric, **kwargs) -> B.Numeric:
-        assert "harmonic" in params
-        assert "gradient" in params
-        assert "curl" in params
-        assert params["harmonic"]["lengthscale"].shape == (1,)
-        assert params["gradient"]["lengthscale"].shape == (1,)
-        assert params["curl"]["lengthscale"].shape == (1,)
-        assert params["harmonic"]["nu"].shape == (1,)
-        assert params["gradient"]["nu"].shape == (1,)
-        assert params["curl"]["nu"].shape == (1,)
-        
-        return self.harmonic_kernel.K_diag(params['harmonic'], X, **kwargs) + self.gradient_kernel.K_diag(params['gradient'], X, **kwargs) + self.curl_kernel.K_diag(params['curl'], X, **kwargs)
-        
-        
-        

@@ -3,27 +3,19 @@ This module provides the :class:`EdgeGraph` space.
 """
 
 import lab as B
-import numpy as np
 import networkx as nx
-from beartype.typing import Dict, Tuple, Optional
+import numpy as np
+from beartype.typing import Dict, Optional, Tuple
 
-from geometric_kernels.lab_extras import (
-    degree,
-    dtype_integer,
-    eigenpairs,
-    reciprocal_no_nan,
-    set_value,
-    take_along_axis,
-)
-
-from geometric_kernels.spaces.base import DiscreteSpectrumSpace
+from geometric_kernels.lab_extras import dtype_integer, eigenpairs
+from geometric_kernels.spaces.base import HodgeDiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import (
     Eigenfunctions,
     EigenfunctionsFromEigenvectors,
 )
 
 
-class GraphEdge(DiscreteSpectrumSpace):
+class GraphEdge(HodgeDiscreteSpectrumSpace):
     """
     The GeometricKernels space representing the edge set of any user-provided undirected graph.
 
@@ -35,13 +27,13 @@ class GraphEdge(DiscreteSpectrumSpace):
     .. note::
         A tutorial on how to use this space is available in the
         :doc:`EdgeSpaceGraph.ipynb </examples/EdgeSpaceGraph>` notebook.
-        
+
     :param G:
         A networkx graph object.
-        
+
     :param triangle_list:
         A list of triangles in the graph. If not provided, all triangles in the graph are considered as 2-simplices.
-        
+
     :param sc_lifting:
         If True, we lift the graph to a simplicial 2-complex using either the provided triangle list or all the triangles in the graph. This acts also a flag to compute the triangle incidence matrix. Defaults to False.
 
@@ -51,54 +43,40 @@ class GraphEdge(DiscreteSpectrumSpace):
         citing :cite:t:`yang2024`.
     """
 
-    def __init__(self, G, triangle_list=None, sc_lifting=False):  # type: ignore
-        self.G = nx.Graph()
+    def __init__(
+        self,
+        node_to_edge_incidence: B.Int,
+        edge_to_triangle_incidence: Optional[B.Int] = None,
+    ):
         self.cache: Dict[int, Tuple[B.Numeric, B.Numeric]] = {}
-        # reorder the edges in the graph based on the order of the nodes
-        self.nodes = list(G.nodes)
-        self.edges = [(min(u, v), max(u, v)) for u, v in G.edges]
-        self.G.add_edges_from(self.edges)
-        self.incidence_matrix = nx.incidence_matrix(self.G, oriented=True).toarray() # "obtain the oriented incidence matrix"
-        if sc_lifting is not False:
-            if triangle_list is None:
-                print("No list of triangles is provided, we consider all triangles in the graph as 2-simplices.")
-                self.triangles = self.triangles_all_clique()
-                self.triangle_incidence_matrix = self.triangles_to_B2()
-            else:
-                self.triangles = triangle_list
-                self.triangle_incidence_matrix = self.triangles_to_B2()
-        else:
-            self.triangle_incidence_matrix = None
-
-        self._checks(self.incidence_matrix, self.triangle_incidence_matrix) 
-        self._set_laplacian()  # type: ignore
-        self.num_vertices, self.num_edges = self.incidence_matrix.shape
-        self.num_triangles = self.triangle_incidence_matrix.shape[1] if self.triangle_incidence_matrix is not None else 0
- 
+        self.num_nodes, self.num_edges = node_to_edge_incidence.shape
+        self._checks(node_to_edge_incidence, edge_to_triangle_incidence)
+        self._make_oriented(node_to_edge_incidence, edge_to_triangle_incidence)
+        self.num_triangles = self.edge_to_triangle_incidence.shape[1]
+        self._set_laplacian()
 
     @staticmethod
-    def _checks(incidence_matrix, triangle_incidence_matrix=None):
+    def _checks(node_to_edge_incidence, edge_to_triangle_incidence=None):
         """
-        Checks if `incidence_matrix` and `triangle_incidence_matrix` are of
+        Checks if `node_to_edge_incidence` and `edge_to_triangle_incidence` are of
         appropriate structure.
         """
-        assert B.rank(incidence_matrix) == 2, "Incidence matrix must be a 2-dim tensor."
+        assert (
+            B.rank(node_to_edge_incidence) == 2
+        ), "Incidence matrix must be a 2-dim tensor."
         assert B.all(
-            B.sum(incidence_matrix == 1, axis=0) == 1
-        ), "Each column of the incidence matrix must contain 1 exactly once."
-        assert B.all(
-            B.sum(incidence_matrix == -1, axis=0) == 1
-        ), "Each column of the incidence matrix must contain -1 exactly once."
-        if triangle_incidence_matrix is not None:
+            B.sum(node_to_edge_incidence != 0, axis=0) == 2
+        ), "Each column of the incidence matrix must contain 2 exactly once."
+        if edge_to_triangle_incidence is not None:
             assert (
-                B.rank(triangle_incidence_matrix) == 2
+                B.rank(edge_to_triangle_incidence) == 2
             ), "Triangle incidence matrix matrix must be a 2-dim tensor."
-            num_edges = B.shape(incidence_matrix)[1]
-            assert B.shape(triangle_incidence_matrix)[0] == num_edges, (
+            num_edges = B.shape(node_to_edge_incidence)[1]
+            assert B.shape(edge_to_triangle_incidence)[0] == num_edges, (
                 "The first dimension of the triangle incidence matrix must"
                 " be equal to the second dimension of the incidence matrix."
             )
-            assert B.all(B.sum(triangle_incidence_matrix != 0, axis=0) == 3), (
+            assert B.all(B.sum(edge_to_triangle_incidence != 0, axis=0) == 3), (
                 "Each column of the edge triangle incidence matrix must"
                 " have exactly 3 non-zero entries."
             )
@@ -110,50 +88,63 @@ class GraphEdge(DiscreteSpectrumSpace):
             0.
         """
         return 0  # this is needed for the kernel math to work out
-        
-    def sc_simplices(self):
-        """return the nodes, edges and triangles in the graph"""
-        print('----Simplicial 2-complex summary---')
-        print('nodes: ', self.nodes)
-        print('edges: ', self.edges)
-        print('triangles: ', self.triangles)
-        return None 
+
+    def _make_oriented(self, node_to_edge_incidence, edge_to_triangle_incidence=None):
+        """
+        Since our inputs are non-oriented, we make them oriented by taking the vertex with the smallest index first.
+        """
+        # make the edges oriented
+        self.edges = []
+        self.nodes = list(range(1, self.num_nodes + 1))
+
+        for i in range(node_to_edge_incidence.shape[1]):
+            self.edges.append(tuple(np.where(node_to_edge_incidence[:, i] != 0)[0] + 1))
+
+        self.node_to_edge_incidence = B.zeros(self.num_nodes, self.num_edges)
+        for i, edge in enumerate(self.edges):
+            assert (
+                edge[0] < edge[1]
+            )  # "The first node should have a smaller index than the second node."
+            self.node_to_edge_incidence[edge[0] - 1, i] = -1
+            self.node_to_edge_incidence[edge[1] - 1, i] = 1
+
+        # make the triangles oriented
+        if edge_to_triangle_incidence is None:
+            cliques = nx.enumerate_all_cliques(nx.Graph(self.edges))
+            triangle_vertices = [x for x in cliques if len(x) == 3]
+            # sort the triangles
+            self.triangles = [tuple(sorted(tri)) for tri in triangle_vertices]
+        else:
+            self.triangles = []
+            for i in range(edge_to_triangle_incidence.shape[1]):
+                edge = self.edges[i]
+                edges_of_triangle = np.where(edge_to_triangle_incidence[:, i] != 0)[0]
+                nodes_of_triangle = np.unique(
+                    np.where(self.node_to_edge_incidence[:, edges_of_triangle] != 0)[0]
+                )
+                self.triangles.append(tuple(nodes_of_triangle + 1))
+
+        self.edge_to_triangle_incidence = self.build_edge_to_triangle_incidence()
 
     def _set_laplacian(self):
         """
         Construct the appropriate graph Laplacian from the adjacency matrix.
         """
-        self._down_edge_laplacian = self.incidence_matrix.T @ self.incidence_matrix
-        if self.triangle_incidence_matrix is None:
-            self._up_edge_laplacian = B.zeros(
-                B.dtype(self._down_edge_laplacian), *B.shape(self._down_edge_laplacian)
-            )
-        else:
-            self._up_edge_laplacian = B.matmul(
-                self.triangle_incidence_matrix, self.triangle_incidence_matrix, tr_b=True
-            )
-        self._edge_laplacian = self._down_edge_laplacian + self._up_edge_laplacian
-            
+        self._down_edge_laplacian = (
+            self.node_to_edge_incidence.T @ self.node_to_edge_incidence
+        )
+        self._up_edge_laplacian = B.matmul(
+            self.edge_to_triangle_incidence, self.edge_to_triangle_incidence, tr_b=True
+        )
+        self.hodge_laplacian = self._down_edge_laplacian + self._up_edge_laplacian
+
     @property
     def incidence_matrices(self):
         """
         Return the incidence matrix
         """
-        if self.triangle_incidence_matrix is None:
-            return self.incidence_matrix
-        else:
-            return self.incidence_matrix, self.triangle_incidence_matrix
+        return self.node_to_edge_incidence, self.edge_to_triangle_incidence
 
-    @property
-    def edge_laplacian(self):
-        """
-        Return the Edge Laplacian
-        """
-        if self.triangle_incidence_matrix is None:
-            return self._edge_laplacian
-        else:
-            return self._edge_laplacian, self._down_edge_laplacian, self._up_edge_laplacian
-       
     def get_edge_index(self, edges):
         """
         Get the indices of some provided edges in the edge list.
@@ -164,31 +155,18 @@ class GraphEdge(DiscreteSpectrumSpace):
         Returns:
             list: Indices of the edges.
         """
-        assert isinstance(edges, list) # "The edges should be a list."
+        assert isinstance(edges, list)  # "The edges should be a list."
         # each edge should be in the edge list
         assert all(edge in self.edges for edge in edges)
         return B.to_numpy([self.edges.index(edge) for edge in edges])
-       
-    def triangles_all_clique(self) -> list:
-        """
-        Get a list of triangles in the graph.
 
-        Returns:
-            list: List of triangles.
-        """
-        cliques = nx.enumerate_all_cliques(self.G)
-        triangle_vertices = [x for x in cliques if len(x) == 3]
-        # sort the triangles
-        triangle_vertices = [sorted(tri) for tri in triangle_vertices]
-        return triangle_vertices
-    
-    def triangles_to_B2(self) -> np.ndarray:
+    def build_edge_to_triangle_incidence(self) -> np.ndarray:
         """
         Create the B2 matrix (edge-triangle) from the triangles.
-        
-        The `triangle_incidence_matrix` parameter is a `numpy` array of shape `(n_edges, n_triangles)` where `n_triangles` is the number of triangles in the graph.
 
-        The entry `triangle_incidence_matrix[e, t]` is
+        The `edge_to_triangle_incidence` parameter is a `numpy` array of shape `(n_edges, n_triangles)` where `n_triangles` is the number of triangles in the graph.
+
+        The entry `edge_to_triangle_incidence[e, t]` is
         - `-1` if edge `e` is anti-aligned with triangle `t`, e.g., $(1,3)$ is anti-aligned with $(1,2,3)$,
         - `1` if edge `e` is aligned with triangle `t`, e.g., $(1,2)$ is aligned with $(1,2,3)$, and
         - `0` otherwise.
@@ -200,7 +178,7 @@ class GraphEdge(DiscreteSpectrumSpace):
         Returns:
             np.ndarray: B2 matrix.
         """
-        
+
         triangles = self.triangles
         B2 = np.zeros((len(self.edges), len(triangles)))
         for j, triangle in enumerate(triangles):
@@ -232,101 +210,62 @@ class GraphEdge(DiscreteSpectrumSpace):
         :param num:
             Number of eigenpairs to return. Performs the computation at the
             first call. Afterwards, fetches the result from cache.
-    
+
         :return:
             A tuple of eigenvectors [n, num], eigenvalues [num, 1].
         """
         eps = 1e-6
         if num not in self.cache:
-            evals, evecs = eigenpairs(self._edge_laplacian, num)
+            evals, evecs = eigenpairs(self.hodge_laplacian, num)
             # make a dictionary of the eigenvalues and eigenvectors where the keys are the indices of the eigenvalues, and add another value which indicates the type of the eigenbasis (harmonic, gradient, curl)
             self.hodge_eigenbasis = {}
             # add keys to the dictionary
-            if self.triangle_incidence_matrix is not None:
-                # harmonic ones are the ones associated to zero eigenvalues of the edge laplacian
-                total_var = []
-                total_div = []
-                total_curl = []
-                num_eigemodes = len(evals)
-                for i in range(num_eigemodes):
-                    total_var.append(
-                        B.matmul(
-                            evecs[:, i].reshape(1, -1),
-                            B.matmul(self._edge_laplacian, evecs[:, i]),
-                        )
+            # harmonic ones are the ones associated to zero eigenvalues of the edge laplacian
+            total_var, total_div, total_curl = [], [], []
+            num_eigemodes = len(evals)
+            for i in range(num_eigemodes):
+                total_var.append(
+                    B.matmul(
+                        evecs[:, i].reshape(1, -1),
+                        B.matmul(self.hodge_laplacian, evecs[:, i]),
                     )
-                    total_div.append(
-                        B.matmul(
-                            evecs[:, i].reshape(1, -1),
-                            B.matmul(self._down_edge_laplacian, evecs[:, i]),
-                        )
+                )
+                total_div.append(
+                    B.matmul(
+                        evecs[:, i].reshape(1, -1),
+                        B.matmul(self._down_edge_laplacian, evecs[:, i]),
                     )
-                    total_curl.append(
-                        B.matmul(
-                            evecs[:, i].reshape(1, -1),
-                            B.matmul(self._up_edge_laplacian, evecs[:, i]),
-                        )
+                )
+                total_curl.append(
+                    B.matmul(
+                        evecs[:, i].reshape(1, -1),
+                        B.matmul(self._up_edge_laplacian, evecs[:, i]),
                     )
-                    
-                for i in range(num_eigemodes):
-                    if total_var[i] < eps:
-                        # harm_evecs.append(i)
-                        hodge_type = 'harmonic'
-                    elif total_div[i] > eps:
-                        # grad_evecs.append(i)
-                        hodge_type = 'gradient'
-                    elif total_curl[i] > eps:
-                        # curl_evecs.append(i)
-                        hodge_type = 'curl'
-                    self.hodge_eigenbasis[i] = {'eval': evals[i], 'evec': evecs[:, i], 'type': hodge_type}
-                        
+                )
+            harmonic_inds, gradient_inds, curl_inds = [], [], []
+            for i in range(num_eigemodes):
+                if total_var[i] < eps:
+                    harmonic_inds.append(i)
+                elif total_div[i] > eps:
+                    gradient_inds.append(i)
+                elif total_curl[i] > eps:
+                    curl_inds.append(i)
+            self.hodge_eigenbasis = {
+                "evals": evals,
+                "evecs": evecs,
+                "harmonic_idx": harmonic_inds,
+                "gradient_idx": gradient_inds,
+                "curl_idx": curl_inds,
+            }
+
             self.cache[num] = self.hodge_eigenbasis
 
         return self.cache[num]
 
-    def get_eigenfunctions(self, num: int) -> Eigenfunctions:
-        """
-        Returns the :class:`~.EigenfunctionsFromEigenvectors` object with
-        `num` levels (i.e., in this case, `num` eigenpairs).
-
-        :param num:
-            Number of levels.
-        """
-        eigenfunctions = EigenfunctionsFromEigenvectors(self.get_eigenvectors(num))
-        return eigenfunctions
-
-    def get_eigenvectors(self, num: int) -> B.Numeric:
-        """
-        :param num:
-            Number of eigenvectors to return.
-
-        :return:
-            Array of eigenvectors, with shape [n, num].
-        """
-        return np.array([entry['evec'] for entry in self.get_eigensystem(num).values()]).T
-
-    def get_eigenvalues(self, num: int) -> B.Numeric:
-        """
-        :param num:
-            Number of eigenvalues to return.
-
-        :return:
-            Array of eigenvalues, with shape [num, 1].
-        """
-        return np.array([entry['eval'] for entry in self.get_eigensystem(num).values()])[:,None]
-    
-    def get_eigenbasis_type(self, num: int): 
-        """
-        :param num:
-            Number of eigenvalues to return.
-
-        :return:
-            Array of strings, with shape [num, 1].
-        """
-        return [entry['type'] for entry in self.get_eigensystem(num).values()]
-    
     # get particular type of eigenbasis
-    def get_eigenfunctions_by_type(self, num: int, hodge_type: str) -> Eigenfunctions:
+    def get_eigenfunctions(
+        self, num: int, hodge_type: Optional[str] = None
+    ) -> Eigenfunctions:
         """
         Returns the :class:`~.EigenfunctionsFromEigenvectors` object with
         `num` levels (i.e., in this case, `num` eigenpairs) of a particular type.
@@ -339,55 +278,63 @@ class GraphEdge(DiscreteSpectrumSpace):
         :return:
             EigenfunctionsFromEigenvectors object.
         """
-        eigenfunctions = EigenfunctionsFromEigenvectors(self.get_eigenvectors_by_type(num, hodge_type))
+        eigensystem = self.get_eigensystem(num)
+        idx = (
+            eigensystem[f"{hodge_type}_idx"]
+            if hodge_type is not None
+            else list(range(num))
+        )
+        eigenfunctions = EigenfunctionsFromEigenvectors(eigensystem["evecs"][:, idx])
         return eigenfunctions
-    
-    def get_eigenvectors_by_type(self, num: int, hodge_type: str) -> B.Numeric:
+
+    def get_eigenvalues(self, num: int, hodge_type: Optional[str] = None) -> B.Numeric:
         """
+        Eigenvalues of the Laplacian corresponding to the first `num` levels
+        (i.e., in this case, `num` eigenpairs). If `type` is specified, returns
+        only the eigenvalues corresponding to the eigenfunctions of that type.
+        .. warning::
+            If `type` is specified, the array can have fewer than `num` elements.
         :param num:
-            Number of eigenvectors to return.
-        :param hodge_type:
-            The type of the eigenbasis. It can be 'harmonic', 'gradient', or 'curl'.
-
+            Number of levels.
         :return:
-            Array of eigenvectors, with shape [n, num].
+            (n, 1)-shaped array containing the eigenvalues. n <= num.
+        .. note::
+            The notion of *levels* is discussed in the documentation of the
+            :class:`~.kernels.MaternKarhunenLoeveKernel`.
         """
-        assert hodge_type in ['harmonic', 'gradient', 'curl'] #"The hodge type should be either 'harmonic', 'gradient', or 'curl'."
-        eigenbasis = self.get_eigensystem(num)
-        return np.array([entry['evec'] for entry in eigenbasis.values() if entry['type'] == hodge_type]).T
-    
-    def get_eigenvalues_by_type(self, num: int, hodge_type: str) -> B.Numeric:
-        """
-        :param num:
-            Number of eigenvalues to return.
-        :param hodge_type:
-            The type of the eigenbasis. It can be 'harmonic', 'gradient', or 'curl'.
+        eigensystem = self.get_eigensystem(num)
+        idx = (
+            eigensystem[f"{hodge_type}_idx"]
+            if hodge_type is not None
+            else list(range(num))
+        )
+        eigenvalues = eigensystem["evals"][idx]
 
-        :return:
-            Array of eigenvalues, with shape [num, 1].
-        """
-        assert hodge_type in ['harmonic', 'gradient', 'curl'] # "The hodge type should be either 'harmonic', 'gradient', or 'curl'."
-        eigenbasis = self.get_eigensystem(num)
-        return np.array([entry['eval'] for entry in eigenbasis.values() if entry['type'] == hodge_type])[:,None]
-    
+        return eigenvalues[:, None]
 
-    def get_repeated_eigenvalues(self, num: int) -> B.Numeric:
+    def get_repeated_eigenvalues(
+        self, num: int, hodge_type: Optional[str] = None
+    ) -> B.Numeric:
         """
         Same as :meth:`get_eigenvalues`.
-
         :param num:
             Same as :meth:`get_eigenvalues`.
         """
-        return self.get_eigenvalues(num)
+        return self.get_eigenvalues(num, hodge_type)
 
     def random(self, key, number):
-        num_edges = B.shape(self._edge_laplacian)[0]
+        num_edges = B.shape(self.hodge_laplacian)[0]
         key, random_edges_idx = B.randint(
-            key, dtype_integer(key), number, 1, lower=0, upper=num_edges,
+            key,
+            dtype_integer(key),
+            number,
+            1,
+            lower=0,
+            upper=num_edges,
         )
-            
+
         random_edges = [self.edges[i] for i in random_edges_idx.flatten().tolist()]
-        
+
         return key, random_edges, random_edges_idx
 
     @property
