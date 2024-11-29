@@ -58,11 +58,28 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         space: DiscreteSpectrumSpace,
         num_levels: int,
         normalize: bool = True,
+        eigenvalues_laplacian: Optional[B.Numeric] = None,
+        eigenfunctions: Optional[Eigenfunctions] = None,
     ):
         super().__init__(space)
         self.num_levels = num_levels  # in code referred to as `L`.
-        self._eigenvalues_laplacian = self.space.get_eigenvalues(self.num_levels)
-        self._eigenfunctions = self.space.get_eigenfunctions(self.num_levels)
+
+        if eigenvalues_laplacian is None:
+            assert eigenfunctions is None
+            eigenvalues_laplacian = self.space.get_eigenvalues(self.num_levels)
+        else:
+            assert eigenfunctions is not None
+            assert eigenvalues_laplacian.shape == (num_levels, 1)
+
+        if eigenfunctions is None:
+            assert eigenvalues_laplacian is None
+            eigenfunctions = self.space.get_eigenfunctions(self.num_levels)
+        else:
+            assert eigenvalues_laplacian is not None
+            assert eigenfunctions.num_levels == num_levels
+
+        self._eigenvalues_laplacian = eigenvalues_laplacian 
+        self._eigenfunctions = eigenfunctions
         self.normalize = normalize
 
     @property
