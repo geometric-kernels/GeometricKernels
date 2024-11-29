@@ -1,0 +1,102 @@
+geometric_kernels.utils.manifold_utils
+======================================
+
+.. py:module:: geometric_kernels.utils.manifold_utils
+
+.. autoapi-nested-parse::
+
+   Utilities for dealing with manifolds.  
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:function:: hyperbolic_distance(x1, x2, diag = False)
+
+   Compute the hyperbolic distance between `x1` and `x2`.
+
+   The code is a reimplementation of
+   `geomstats.geometry.hyperboloid.HyperbolicMetric` for `lab`.
+
+   :param x1:
+       An [N, n+1]-shaped array of points in the hyperbolic space.
+   :param x2:
+       An [M, n+1]-shaped array of points in the hyperbolic space.
+   :param diag:
+       If True, compute elementwise distance. Requires N = M.
+
+       Default False.
+
+   :return:
+       An [N, M]-shaped array if diag=False or [N,]-shaped array
+       if diag=True.
+
+
+.. py:function:: manifold_laplacian(x, manifold, egrad, ehess)
+
+   Computes the manifold Laplacian of a given function at a given point x.
+   The manifold Laplacian equals the trace of the manifold Hessian, i.e.,
+   $\Delta_M f(x) = \sum_{i=1}^{d} \nabla^2 f(x_i, x_i)$, where
+   $[x_i]_{i=1}^{d}$ is an orthonormal basis of the tangent space at x.
+
+   .. warning::
+       This function only works for hyperspheres out of the box. We will
+       need to change that in the future.
+
+   .. todo::
+       See warning above.
+
+   :param x:
+       A point on the manifold at which to compute the Laplacian.
+   :param manifold:
+       A geomstats manifold.
+   :param egrad:
+       Euclidean gradient of the given function at x.
+   :param ehess:
+       Euclidean Hessian of the given function at x.
+
+   :return:
+       Manifold Laplacian of the given function at x.
+
+   See :cite:t:`jost2011` (Chapter 3.1) for mathematical details.
+
+
+.. py:function:: minkowski_inner_product(vector_a, vector_b)
+
+   Computes the Minkowski inner product of vectors.
+
+   .. math:: \langle a, b \rangle = a_0 b_0 - a_1 b_1 - \ldots - a_n b_n.
+
+   :param vector_a:
+       An [..., n+1]-shaped array of points in the hyperbolic space $\mathbb{H}_n$.
+   :param vector_b:
+       An [..., n+1]-shaped array of points in the hyperbolic space $\mathbb{H}_n$.
+
+   :return:
+       An [...,]-shaped array of inner products.
+
+
+.. py:function:: tangent_onb(manifold, x)
+
+   Computes an orthonormal basis on the tangent space at x.
+
+   .. warning::
+       This function only works for hyperspheres out of the box. We will
+       need to change that in the future.
+
+   .. todo::
+       See warning above.
+
+   :param manifold:
+       A geomstats manifold.
+   :param x:
+       A point on the manifold.
+
+   :return:
+       An [d, d]-shaped array containing the orthonormal basis
+       on `manifold` at `x`.
+
+

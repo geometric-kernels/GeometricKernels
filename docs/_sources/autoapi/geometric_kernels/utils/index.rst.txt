@@ -1,0 +1,23 @@
+geometric_kernels.utils
+=======================
+
+.. py:module:: geometric_kernels.utils
+
+.. autoapi-nested-parse::
+
+   Contains utilities.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/geometric_kernels/utils/manifold_utils/index
+   /autoapi/geometric_kernels/utils/product/index
+   /autoapi/geometric_kernels/utils/special_functions/index
+   /autoapi/geometric_kernels/utils/utils/index
+
+
