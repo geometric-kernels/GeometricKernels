@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.2.2 - 29.11.2024
+* Replace opt_einsum's contract with lab's einsum for better backend-independence by @vabor112 in https://github.com/geometric-kernels/GeometricKernels/pull/145
+* Hypersphere space small improvements by @vabor112 in https://github.com/geometric-kernels/GeometricKernels/pull/142
+* The Hypercube space for binary vectors and labeled unweighted graphs by @vabor112 in https://github.com/geometric-kernels/GeometricKernels/pull/141
+* Fix algorithm selecting signatures and add precomputed characters for SO(9), SU(7), SU(8), SU(9) by @imbirik in https://github.com/geometric-kernels/GeometricKernels/pull/151
+* Revise tests and numerous fixes by @vabor112 in https://github.com/geometric-kernels/GeometricKernels/pull/149
+
 ## v0.2.1 - 08.08.2024
  Minor release with mostly cosmetic changes:
 * Add "If you have a question" section to README.md by @vabor112 in https://github.com/geometric-kernels/GeometricKernels/pull/131
