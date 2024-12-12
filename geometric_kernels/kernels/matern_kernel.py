@@ -26,6 +26,7 @@ from geometric_kernels.spaces import (
     DiscreteSpectrumSpace,
     Graph,
     GraphEdge,
+    HodgeDiscreteSpectrumSpace,
     Hyperbolic,
     HypercubeGraph,
     Hypersphere,
@@ -89,8 +90,6 @@ def feature_map_from_kernel(kernel: MaternKarhunenLoeveKernel):
 
 @overload
 def feature_map_from_kernel(kernel: MaternHodgeCompositionalKernel):
-    "For Hodge-compositional edge kernels ONLY"
-    assert isinstance(kernel.space, GraphEdge)
     return HodgeDeterministicFeatureMapCompact(kernel.space, kernel.num_levels)
 
 
@@ -278,7 +277,6 @@ class MaternGeometricKernel:
         num: int = None,
         normalize: bool = True,
         return_feature_map: bool = False,
-        use_hodge_composition: bool = None,
         **kwargs,
     ):
         r"""
@@ -326,11 +324,6 @@ class MaternGeometricKernel:
 
             Default is False.
 
-        :param use_hodge_composition:
-            If `True`, use the Hodge compositional kernel on the
-            edges of a graph or a simplicial complex. This is only relevant for the :class:`~.spaces.GraphEdge`
-            space.
-
         :param ``**kwargs``:
             Any additional keyword arguments to be passed to the kernel
             (like `key`).
@@ -344,14 +337,8 @@ class MaternGeometricKernel:
         kernel: BaseGeometricKernel
         if isinstance(space, DiscreteSpectrumSpace):
             num = num or default_num(space)
-            if isinstance(space, GraphEdge):
-                if use_hodge_composition:
-                    kernel = MaternHodgeCompositionalKernel(
-                        space, num, normalize=normalize
-                    )
-                    print("Using Hodge compositional kernel!")
-                else:
-                    kernel = MaternKarhunenLoeveKernel(space, num, normalize=normalize)
+            if isinstance(space, HodgeDiscreteSpectrumSpace):
+                kernel = MaternHodgeCompositionalKernel(space, num, normalize=normalize)
             else:
                 kernel = MaternKarhunenLoeveKernel(space, num, normalize=normalize)
             if return_feature_map:

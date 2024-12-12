@@ -13,7 +13,7 @@ specialized per-space implementation is available, like the ones in the module
 """
 
 import lab as B
-from beartype.typing import Dict, Optional, Tuple
+from beartype.typing import Dict, Tuple
 
 from geometric_kernels.feature_maps.base import FeatureMap
 from geometric_kernels.feature_maps.probability_densities import base_density_sample
@@ -46,7 +46,7 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
         self.space = space
         self.num_levels = num_levels
         self.num_random_phases = num_random_phases
-        self.kernel = MaternKarhunenLoeveKernel(space, num_levels)
+        self.eigenfunctions = space.get_eigenfunctions(num_levels)
 
     def __call__(
         self,
@@ -54,7 +54,7 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
         params: Dict[str, B.Numeric],
         *,
         key: B.RandomState,
-        normalize: Optional[bool] = None,
+        normalize: bool = True,
         **kwargs,
     ) -> Tuple[B.RandomState, B.Numeric]:
         """
@@ -80,9 +80,8 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
                 does this for you.
 
         :param normalize:
-            Normalize to have unit average variance (if omitted
-            or None, follows the standard behavior of
-            :class:`kernels.MaternKarhunenLoeveKernel`).
+            Normalize to have unit average variance. If omitted, set to True.
+
         :param ``**kwargs``:
             Unused.
 
@@ -93,12 +92,13 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
             state (generator) for any other backends.
         """
         key, random_phases = self.space.random(key, self.num_random_phases)  # [O, D]
-        eigenvalues = self.kernel.eigenvalues_laplacian
+        eigenvalues = self.space.get_eigenvalues(self.num_levels)
 
-        spectrum = self.kernel._spectrum(
+        spectrum = MaternKarhunenLoeveKernel.spectrum(
             eigenvalues,
             nu=params["nu"],
             lengthscale=params["lengthscale"],
+            dimension=self.space.dimension,
         )
 
         if is_complex(X):
@@ -110,7 +110,7 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
 
         random_phases_b = B.cast(dtype, from_numpy(X, random_phases))
 
-        phi_product = self.kernel.eigenfunctions.phi_product(
+        phi_product = self.eigenfunctions.phi_product(
             X, random_phases_b, **params
         )  # [N, O, L]
 
@@ -121,7 +121,6 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
         if is_complex(features):
             features = B.concat(B.real(features), B.imag(features), axis=1)
 
-        normalize = normalize or (normalize is None and self.kernel.normalize)
         if normalize:
             normalizer = B.sqrt(B.sum(features**2, axis=-1, squeeze=False))
             features = features / normalizer
@@ -164,7 +163,7 @@ class RandomPhaseFeatureMapNoncompact(FeatureMap):
         params: Dict[str, B.Numeric],
         *,
         key: B.RandomState,
-        normalize: Optional[bool] = True,
+        normalize: bool = True,
         **kwargs,
     ) -> Tuple[B.RandomState, B.Numeric]:
         """
@@ -197,10 +196,6 @@ class RandomPhaseFeatureMapNoncompact(FeatureMap):
             `key` is the updated random key for `jax`, or the similar random
             state (generator) for any other backends.
         """
-
-        # default behavior
-        if normalize is None:
-            normalize = True
 
         key, random_phases = self.space.random_phases(
             key, self.num_random_phases

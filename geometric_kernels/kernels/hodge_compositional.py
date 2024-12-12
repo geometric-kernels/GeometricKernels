@@ -14,11 +14,40 @@ from geometric_kernels.spaces import HodgeDiscreteSpectrumSpace
 
 class MaternHodgeCompositionalKernel(BaseGeometricKernel):
     r"""
-    TODO
+    This class is similar to :class:`MaternKarhunenLoeveKernel`, but provides
+    a more expressive family of kernels on the spaces where Hodge decomposition
+    is available.
+
+    The resulting kernel is a sum of three kernels,
+
+    .. math:: k(x, x') = a k_{\text{harmonic}}(x, x') + b k_{\text{gradient}}(x, x') + c k_{\text{curl}}(x, x'),
+
+    where $a, b, c$ are weights $a, b, c \geq 0$ and $a + b + c = 1$, and
+    $k_{\text{harmonic}}$, $k_{\text{gradient}}$, $k_{\text{curl}}$ are the
+    instances of :class:`MaternKarhunenLoeveKernel` that only use the eigenpairs
+    of the Laplacian corresponding to a single part of the Hodge decomposition.
+
+    The parameters of this kernel are represented by a dict with three keys:
+    `"harmonic"`, `"gradient"`, `"curl"`, each corresponding to a dict with
+    keys `"logit"`, `"nu"`, `"lengthscale"`, where `"nu"` and `"lengthscale"`
+    are the parameters of the respective :class:`MaternKarhunenLoeveKernel`,
+    while the `"logit"` parameters determine the weights $a, b, c$ in the
+    formula above: $a, b, c$ are the softmax of the three `"logit"` parameters.
+
+    Same as for :class:`MaternKarhunenLoeveKernel`, these kernels can sometimes
+    be computed more efficiently using addition theorems.
+
+    .. note::
+        A brief introduction into the theory behind
+        :class:`MaternHodgeCompositionalKernel` can be found in
+        :doc:`this </theory/hodge>` documentation page.
+
     :param space:
-        The space to define the kernel upon.
+        The space to define the kernel upon, a subclass of :class:`HodgeDiscreteSpectrumSpace`.
+
     :param num_levels:
         Number of levels to include in the summation.
+
     :param normalize:
         Whether to normalize kernel to have unit average variance.
     """
@@ -56,7 +85,7 @@ class MaternHodgeCompositionalKernel(BaseGeometricKernel):
         self._space: HodgeDiscreteSpectrumSpace
         return self._space
 
-    def init_params(self) -> Dict[str, B.NPNumeric]:
+    def init_params(self) -> Dict[str, Dict[str, B.NPNumeric]]:
         """
         Initialize the three sets of parameters for the three kernels.
         """
@@ -80,88 +109,60 @@ class MaternHodgeCompositionalKernel(BaseGeometricKernel):
 
         return params
 
-    def eigenvalues(
-        self, params: Dict[str, B.Numeric], normalize: Optional[bool] = None
-    ) -> B.Numeric:
-        """
-        Eigenvalues of the kernel.
-
-        :param params:
-            Parameters of the kernel. Must contain keys `"lengthscale"` and
-            `"nu"`. The shapes of `params["lengthscale"]` and `params["nu"]`
-            are `(1,)`.
-        :param normalize:
-            Whether to normalize kernel to have unit average variance.
-            If None, uses `self.normalize` to decide.
-
-            Defaults to None.
-
-        :return:
-            An [L, 1]-shaped array.
-        """
-        assert "harmonic" in params
-        assert "gradient" in params
-        assert "curl" in params
-        assert params["harmonic"]["lengthscale"].shape == (1,)
-        assert params["gradient"]["lengthscale"].shape == (1,)
-        assert params["curl"]["lengthscale"].shape == (1,)
-        assert params["harmonic"]["nu"].shape == (1,)
-        assert params["gradient"]["nu"].shape == (1,)
-        assert params["curl"]["nu"].shape == (1,)
-
-        spectral_values_harmonic = self.kernel_harmonic.eigenvalues(
-            params=params["harmonic"], normalize=normalize
-        )
-        spectral_values_gradient = self.kernel_gradient.eigenvalues(
-            params=params["gradient"], normalize=normalize
-        )
-        spectral_values_curl = self.kernel_curl.eigenvalues(
-            params=params["curl"], normalize=normalize
-        )
-        spectral_values = {
-            "harmonic": spectral_values_harmonic,
-            "gradient": spectral_values_gradient,
-            "curl": spectral_values_curl,
-        }
-        return spectral_values
-
     def K(
-        self, params, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs  # type: ignore
+        self,
+        params: Dict[str, Dict[str, B.NPNumeric]],
+        X: B.Numeric,
+        X2: Optional[B.Numeric] = None,
+        **kwargs,
     ) -> B.Numeric:
 
-        return (
-            B.cast(
-                B.dtype(self.kernel_harmonic.K(params["harmonic"], X, X2, **kwargs)),
-                params["harmonic"]["logit"],
+        assert all(
+            key in params for key in ["harmonic", "gradient", "curl"]
+        ), "MaternHodgeCompositionalKernel's parameters must contain keys 'harmonic', 'gradient', 'curl'."
+        assert all(
+            B.shape(params[key]["logit"]) == (1,)
+            for key in ["harmonic", "gradient", "curl"]
+        ), "The 'logit' parameters of MaternHodgeCompositionalKernel must have shape (1,)."
+
+        # Copy the parameters to avoid modifying the original dict.
+        params = {key: params[key].copy() for key in ["harmonic", "gradient", "curl"]}
+        coeffs = B.softmax(
+            B.stack(
+                *[params[key].pop("logit") for key in ["harmonic", "gradient", "curl"]],
+                axis=0,
             )
-            * self.kernel_harmonic.K(params["harmonic"], X, X2, **kwargs)
-            + B.cast(
-                B.dtype(self.kernel_harmonic.K(params["gradient"], X, X2, **kwargs)),
-                params["gradient"]["logit"],
-            )
-            * self.kernel_gradient.K(params["gradient"], X, X2, **kwargs)
-            + B.cast(
-                B.dtype(self.kernel_harmonic.K(params["curl"], X, X2, **kwargs)),
-                params["curl"]["logit"],
-            )
-            * self.kernel_curl.K(params["curl"], X, X2, **kwargs)
         )
 
-    def K_diag(self, params, X: B.Numeric, **kwargs) -> B.Numeric:
         return (
-            B.cast(
-                B.dtype(self.kernel_harmonic.K_diag(params["harmonic"], X, **kwargs)),
-                params["harmonic"]["logit"],
+            coeffs[0] * self.kernel_harmonic.K(params["harmonic"], X, X2, **kwargs)
+            + coeffs[1] * self.kernel_gradient.K(params["gradient"], X, X2, **kwargs)
+            + coeffs[2] * self.kernel_curl.K(params["curl"], X, X2, **kwargs)
+        )
+
+    def K_diag(
+        self, params: Dict[str, Dict[str, B.NPNumeric]], X: B.Numeric, **kwargs
+    ) -> B.Numeric:
+
+        assert all(
+            key in params for key in ["harmonic", "gradient", "curl"]
+        ), "MaternHodgeCompositionalKernel's parameters must contain keys 'harmonic', 'gradient', 'curl'."
+        assert all(
+            B.shape(params[key]["logit"]) == (1,)
+            for key in ["harmonic", "gradient", "curl"]
+        ), "The 'logit' parameters of MaternHodgeCompositionalKernel must have shape (1,)."
+
+        # Copy the parameters to avoid modifying the original dict.
+        params = {key: params[key].copy() for key in ["harmonic", "gradient", "curl"]}
+        coeffs = B.softmax(
+            B.stack(
+                [params[key].pop("logit") for key in ["harmonic", "gradient", "curl"]],
+                axis=0,
             )
-            * self.kernel_harmonic.K_diag(params["harmonic"], X, **kwargs)
-            + B.cast(
-                B.dtype(self.kernel_harmonic.K_diag(params["gradient"], X, **kwargs)),
-                params["gradient"]["logit"],
-            )
-            * self.kernel_gradient.K_diag(params["gradient"], X, **kwargs)
-            + B.cast(
-                B.dtype(self.kernel_harmonic.K_diag(params["curl"], X, **kwargs)),
-                params["curl"]["logit"],
-            )
-            * self.kernel_curl.K_diag(params["curl"], X, **kwargs)
+        )
+
+        return (
+            coeffs[0] * self.kernel_harmonic.K_diag(params["harmonic"], X, **kwargs)
+            + coeffs[1] * self.kernel_gradient.K_diag(params["gradient"], X, **kwargs)
+            + coeffs[2] * self.kernel_curl.K_diag(params["curl"], X, **kwargs)
         )
