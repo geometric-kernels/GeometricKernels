@@ -25,7 +25,7 @@ from geometric_kernels.spaces import (
     CompactMatrixLieGroup,
     DiscreteSpectrumSpace,
     Graph,
-    GraphEdge,
+    GraphEdges,
     HodgeDiscreteSpectrumSpace,
     Hyperbolic,
     HypercubeGraph,
@@ -210,7 +210,7 @@ def default_num(space: DiscreteSpectrumSpace) -> int:
         return min(
             MaternGeometricKernel._DEFAULT_NUM_EIGENFUNCTIONS, space.num_vertices
         )
-    elif isinstance(space, GraphEdge):
+    elif isinstance(space, GraphEdges):
         return min(MaternGeometricKernel._DEFAULT_NUM_EIGENFUNCTIONS, space.num_edges)
     elif isinstance(space, HypercubeGraph):
         return min(MaternGeometricKernel._DEFAULT_NUM_LEVELS, space.dim + 1)

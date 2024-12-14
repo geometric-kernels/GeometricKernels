@@ -15,7 +15,7 @@ from geometric_kernels.spaces.eigenfunctions import (
 )
 
 
-class GraphEdge(HodgeDiscreteSpectrumSpace):
+class GraphEdges(HodgeDiscreteSpectrumSpace):
     """
     The GeometricKernels space representing the edge set of a user-provided
     graph. The graph must be unweighted, undirected, and without loops.
@@ -42,7 +42,7 @@ class GraphEdge(HodgeDiscreteSpectrumSpace):
     .. admonition:: Tutorial
 
         A tutorial on how to use this space is available in the
-        :doc:`GraphEdge.ipynb </examples/GraphEdge>` notebook.
+        :doc:`GraphEdges.ipynb </examples/GraphEdges>` notebook.
 
     .. admonition:: Theory
 
@@ -82,7 +82,7 @@ class GraphEdge(HodgeDiscreteSpectrumSpace):
         user has full control over the orientation and ordering of the edges.
 
     .. admonition:: Complexity
-        The current implementation of the GraphEdge space is supposed to occupy
+        The current implementation of the GraphEdges space is supposed to occupy
         O(n_edges^2) memory and take O(n_edges^3) time to compute the eigensystem.
 
         Currently, it does not support sparse eigensolvers, which would allow
@@ -376,9 +376,9 @@ class GraphEdge(HodgeDiscreteSpectrumSpace):
         triangles: Optional[List[Tuple[int, int, int]]] = None,
         *,
         checks_mode: str = "simple",
-    ) -> "GraphEdge":
+    ) -> "GraphEdges":
         """
-        Construct the GraphEdge space from the adjacency matrix of a graph.
+        Construct the GraphEdges space from the adjacency matrix of a graph.
 
         :param adjacency_matrix:
             Adjacency matrix of a graph. A numpy array of shape
@@ -397,7 +397,7 @@ class GraphEdge(HodgeDiscreteSpectrumSpace):
             Forwards the `checks_mode` parameter to the constructor.
 
         :return:
-            A constructed instance of the GraphEdge space.
+            A constructed instance of the GraphEdges space.
         """
         if isinstance(adjacency_matrix, np.ndarray):
             index = csr_array(adjacency_matrix, dtype=int)

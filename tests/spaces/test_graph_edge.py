@@ -4,7 +4,7 @@ import networkx as nx
 import numpy as np
 
 from geometric_kernels.jax import *  # noqa
-from geometric_kernels.spaces.graph_edge import GraphEdge
+from geometric_kernels.spaces import GraphEdges
 from geometric_kernels.torch import *  # noqa
 
 warnings.filterwarnings("ignore", category=RuntimeWarning, module="scipy")
@@ -20,7 +20,7 @@ G.add_edge(4, 5)
 triangles = [(1, 2, 3)]
 B1 = nx.incidence_matrix(G).toarray()
 B2 = np.array([[1.0], [1.0], [0.0], [1.0], [0.0], [0.0]])
-sc = GraphEdge(B1, B2)
+sc = GraphEdges(B1, B2)
 m = sc.num_edges
 eigs = np.array(
     [
