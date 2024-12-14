@@ -5,7 +5,7 @@ This module provides the :class:`EdgeGraph` space.
 import lab as B
 import numpy as np
 from beartype.typing import Dict, List, Optional, Tuple, Union
-from scipy.sparse import csr_array, sparray, spmatrix
+from scipy.sparse import csr_array, lil_array, coo_matrix, spmatrix
 
 from geometric_kernels.lab_extras import dtype_integer, eigenpairs, int_like
 from geometric_kernels.spaces.base import HodgeDiscreteSpectrumSpace
@@ -17,96 +17,130 @@ from geometric_kernels.spaces.eigenfunctions import (
 
 class GraphEdge(HodgeDiscreteSpectrumSpace):
     """
-    The GeometricKernels space representing the node set of any user-provided
-    weighted undirected, but **oriented** graph without loops.
-    Actually, this space is a simplicial 2-complex, as explained below.
+    The GeometricKernels space representing the edge set of a user-provided
+    graph. The graph must be unweighted, undirected, and without loops.
+    However, we assume the graph is oriented: for every edge, either (i, j)
+    or (j, i) is chosen as the positively oriented edge, with the other one
+    being negatively oriented. Any function f on this space must satisfy
+    f(e) = -f(-e) if e is a positively oriented edge and -e is the
+    corresponding negatively oriented edge.
 
-    The elements of this space are indices of positively oriented edges of the graph.
-    Edge indices are integers from 1 to the number of edges in the graph (inclusive).
-    The reason for indexing the edges from 1 is to allow for signed values.
-
-    The fact that the graph is oriented means that despite the edge (j, i) is
-    always present in the graph as long as the edge (i, j) is present, any
-    function f on the set of edges must satisfy f(i, j) = -f(j, i). Mathematically,
-    this space is actually a simplicial 2-complex, and the functions satisfying
-    the above condition are called 1-cochains.
-
-    The easiest way to construct an instance of this space is to use the
-    :meth:`from_adjacency` method, which constructs the space from the adjacency
-    matrix of the graph. By default this would use all possible triangles in the
-    graph, but the user can also provide a list of triangles explicitly. These
-    triangles define the curl operator on the graph and are thus instrumental in
-    defining the Hodge decomposition. If you don't know what triangles to provide,
-    you can leave this parameter empty, and the space will compute the maximal
-    set of triangles for you, which is arguably a good solution in most cases.
-    When constructing an instance this way, the orientation of the edges and triangles
-    is chosen automatically in such a way that (i, j) is always oriented from i to j
-    if i < j and the triangles are of form (e1, e2, e3) where e1 = (i, j),
-    e2 = (j, k), and e3 = -(i, k).
-
-    When constructing an instance of this space directly, the user chooses the
-    orientation by providing an `oriented_edges` array, mapping edge indices
-    to pairs of node indices. And an `oriented_triangles` array, mapping triangle
-    indices to triples of signed edge indices. These arrays must be compatible in
-    the sense that the edges in the triangles must be connected.
+    All positively oriented edges are indexed **from 1 to the number of edges
+    (inclusive)**. The reason why we start indexing the edges from 1 is to
+    allow for edge -e to correspond to the opposite orientation of edge e.
+    Importantly, orientation or a particular ordering of edges does not
+    affect the geometry of the space. However, changing those requires the
+    respective change in the way you represent the data.
 
     For this space, each individual eigenfunction constitutes a *level*. If
-    possible, we recommend using num=nun_edges levels. Since the current
+    possible, we recommend using num=n_edges levels. Since the current
     implementation does not support sparse eigensolvers anyway, this should
-    not create too much time/memory overhead during the precomputations, and will
-    also ensure that all types of eigenfunctions are present in the eigensystem.
+    not create too much time/memory overhead during the precomputations and
+    will also ensure that all types of eigenfunctions are present in the
+    eigensystem.
 
-    .. note::
+    .. admonition:: Tutorial
+
         A tutorial on how to use this space is available in the
         :doc:`GraphEdge.ipynb </examples/GraphEdge>` notebook.
 
-    .. warning::
-        Make sure that `oriented_edges` and `oriented_triangles` are of the
-        backend (NumPy / JAX / TensorFlow, PyTorch) that you wish to use for
-        internal computations.
+    .. admonition:: Theory
 
-    :param num_nodes:
+        Mathematically, this space is actually a simplicial 2-complex, and
+        the functions satisfying the condition f(e) = -f(-e) are called
+        1-cochains. These admit a Hodge decomposition into the harmonic,
+        gradient, and curl parts. You can find more about Hodge decomposition
+        on :doc:`this page </theory/hodge>`.
+
+    .. admonition:: Construction
+
+        **Easy way:** construct the space from the adjacency matrix of the graph.
+
+        The easiest way to construct an instance of this space is to use the
+        :meth:`from_adjacency` method, which constructs the space from the
+        adjacency matrix of the graph. By default, this would use all possible
+        triangles in the graph, but the user can also provide a list of
+        triangles explicitly. These triangles define the curl operator on the
+        graph and are thus instrumental in defining the Hodge decomposition.
+        If you don't know what triangles to provide, you can leave this
+        parameter empty, and the space will compute the maximal set of
+        triangles for you, which is a good solution in most cases.
+
+        When constructing an instance this way, the orientation of the edges and
+        triangles is chosen automatically in such a way that (i, j) is always
+        positively oriented if i < j, and the triangles are of form (e1, e2, e3)
+        where e1 = (i, j), e2 = (j, k), e3 = -(i, k), and i < j < k.
+
+        **Hard way:** construct the space from the oriented edges and triangles.
+
+        When constructing an instance of this space directly via :meth:`__init__`,
+        the user provides an `oriented_edges` array, mapping edge indices to
+        ordered pairs of node indices, with order defining the positive
+        orientation, and an `oriented_triangles` array, mapping triangle indices
+        to triples of signed edge indices. These arrays must be compatible in
+        the sense that the edges in triangles must be connected. This way, the
+        user has full control over the orientation and ordering of the edges.
+
+    .. admonition:: Complexity
+        The current implementation of the GraphEdge space is supposed to occupy
+        O(n_edges^2) memory and take O(n_edges^3) time to compute the eigensystem.
+
+        Currently, it does not support sparse eigensolvers, which would allow
+        storing the Laplacian matrices in a sparse format and potentially reduce
+        the O(n_edges^3) complexity to O(n_edges) with a large constant.
+
+    :param n_nodes:
         The number of nodes in the graph.
 
     :param oriented_edges:
         A 2D array of shape [n_edges, 2], where n_edges is the number of edges
-        in the graph. Each row of the array represents an oriented edge, i.e.
-        a pair of node indices. If `oriented_edges[e]` is `[i, j]`, then edge `e`
-        is oriented from node `i` to node `j`.
+        in the graph. Each row of the array represents an oriented edge, i.e.,
+        a pair of node indices. If `oriented_edges[e]` is `[i, j]`, then the
+        edge with index e+1 (edge indexing starts from 1) represents an edge
+        from node `i` to node `j` which is considered positively oriented, while
+        the edge with index -e-1 represents an edge from node `j` to node `i`.
+
+        Make sure that `oriented_edges` and `oriented_triangles` are of the
+        backend (NumPy / JAX / TensorFlow, PyTorch) that you wish to use for
+        internal computations.
 
     :param oriented_triangles:
-        A 2D array of shape [n_triangles, 3], where n_triangles is the number of
-        triangles in the graph. Each row of the array represents an oriented
-        triangle, i.e. a triple of signed edge indices. If `oriented_triangles[t]`
-        is `[i, j, k]`, then `t` consists of the edges `|i|`, `|j|`, and `|k|`,
-        where the sign of the edge index indicates the orientation of the edge.
+        A 2D array of shape [n_triangles, 3], where n_triangles is the number
+        of triangles in the graph. Each row of the array represents an
+        oriented triangle, i.e., a triple of signed edge indices. If
+        `oriented_triangles[t]` is `[i, j, k]`, then `t` consists of the edges
+        `|i|`, `|j|`, and `|k|`, where the sign of the edge index indicates
+        the orientation of the edge. Optional. If not provided or set to
+        `None`, we assume that the set of triangles is empty.
 
-        Optional. If not provided or set to `None`, we assume that the set of
-        triangles is empty.
+        Make sure that `oriented_edges` and `oriented_triangles` are of the
+        backend (NumPy / JAX / TensorFlow, PyTorch) that you wish to use for
+        internal computations.
 
     :param checks_mode:
-        A keyword argument that determines the level of checks performed on the
-        oriented_edges and oriented_triangles arrays. The default value is "simple"
-        which performs only basic checks. The other possible value is "comprehensive"
-        and "skip" which perform more extensive checks and no checks, respectively.
-        The "comprehensive" mode is useful for debugging, but can be slow for large
-        graphs.
+        A keyword argument that determines the level of checks performed on
+        the oriented_edges and oriented_triangles arrays. The default value is
+        "simple", which performs only basic checks. The other possible values
+        are "comprehensive" and "skip", which perform more extensive checks
+        and no checks, respectively. The "comprehensive" mode is useful for
+        debugging but can be slow for large graphs.
 
     :param index:
-        Optional. A sparse matrix of shape [num_nodes, num_nodes] such that
-        `index[i, j]` is the index of the edge `(i, j)` in the `oriented_edges`,
-        if (i, j) is positively oriented, and minus index of the edge `(i, j)`
-        otherwise. If not provided, will be constructed automatically.
-        Should be compatible with the `oriented_edges` array.
+        Optional. A sparse matrix of shape [n_nodes, n_nodes] such that
+        `index[i, j]` is the index of the edge `(i, j)` in the `oriented_edges`.
+        `index[i, j]` is positive if (i, j) corresponds to positive orientation
+        of the edge, and negative if it corresponds to the negative orientation.
+        If provided, should be compatible with the `oriented_edges` array.
 
     .. admonition:: Citation
+
         If you use this GeometricKernels space in your research, please consider
         citing :cite:t:`yang2024`.
     """
 
     def __init__(
         self,
-        num_nodes: int,
+        n_nodes: int,
         oriented_edges: B.Int,
         oriented_triangles: Optional[B.Int],
         *,
@@ -122,35 +156,57 @@ class GraphEdge(HodgeDiscreteSpectrumSpace):
             comprehensive_checks = checks_mode == "comprehensive"
 
         self.cache: Dict[int, Tuple[B.Numeric, B.Numeric]] = {}
-        self.num_nodes = num_nodes
+        self.n_nodes = n_nodes
 
         if do_checks:
-            self._checks_oriented_edges(oriented_edges, num_nodes, comprehensive_checks)
-        self.num_edges = oriented_edges.shape[0]
+            self._checks_oriented_edges(oriented_edges, n_nodes, comprehensive_checks)
+        self.n_edges = oriented_edges.shape[0]
         self.oriented_edges = oriented_edges
 
         if oriented_triangles is not None:
             if do_checks:
                 self._checks_oriented_triangles(
-                    oriented_triangles, self.num_edges, comprehensive_checks
+                    oriented_triangles, self.n_edges, comprehensive_checks
                 )
             if comprehensive_checks:
-                self._checks_compatible(oriented_edges, oriented_triangles, num_nodes)
-            self.num_triangles = oriented_triangles.shape[0]
+                self._checks_compatible(oriented_edges, oriented_triangles, n_nodes)
+            self.n_triangles = oriented_triangles.shape[0]
         else:
-            self.num_triangles = 0
+            self.n_triangles = 0
         self.oriented_triangles = oriented_triangles
 
         if index is not None:
-            self._check_index(index)
+            if comprehensive_checks:
+                self._check_index(index)
             self.index = index
         else:
-            self.index = compute_index(oriented_edges)
+            self.index = self.compute_index(n_nodes, oriented_edges)
 
         self._set_laplacian()
 
+    @staticmethod
+    def compute_index(n_nodes: int, oriented_edges: B.Numeric) -> csr_array:
+        """
+        Construct the index matrix from the oriented edges.
+
+        :param n_nodes:
+            The number of nodes in the graph.
+
+        :param oriented_edges:
+            The oriented edges array.
+
+        :return:
+            The index matrix. A scipy csr_array of shape [n_nodes, n_nodes] such
+            that `index[i, j]` is the index of the edge `(i, j)`.
+        """
+        result = lil_array((n_nodes, n_nodes), dtype=int)
+        for i in range(oriented_edges.shape[0]):
+            result[oriented_edges[i, 0], oriented_edges[i, 1]] = i + 1
+            result[oriented_edges[i, 1], oriented_edges[i, 0]] = -i - 1
+        return result.tocsr()
+
     def _checks_oriented_edges(
-        self, oriented_edges: B.Numeric, num_nodes: int, comprehensive: bool = False
+        self, oriented_edges: B.Numeric, n_nodes: int, comprehensive: bool = False
     ):
         """
         Checks if `oriented_edges` is of appropriate structure.
@@ -175,22 +231,22 @@ class GraphEdge(HodgeDiscreteSpectrumSpace):
             oriented_edges >= 0
         ), "The oriented_edges array must contain only non-negative values."
         assert B.all(
-            oriented_edges < self.num_nodes
-        ), "The values in the oriented_edges array must be < self.num_nodes."
+            oriented_edges < self.n_nodes
+        ), "The values in the oriented_edges array must be < self.n_nodes."
         assert B.all(
             oriented_edges[:, 0] - oriented_edges[:, 1] != 0
         ), "Loops are not allowed."
 
         if comprehensive:
-            num_edges = oriented_edges.shape[0]
+            n_edges = oriented_edges.shape[0]
 
-            for i in range(num_edges):
-                for j in range(i + 1, num_edges):
+            for i in range(n_edges):
+                for j in range(i + 1, n_edges):
                     assert B.any(
                         oriented_edges[i, :] != oriented_edges[j, :]
                     ), "The oriented_edges array must not contain duplicate edges."
 
-            assert set(range(self.num_nodes)) == set(
+            assert set(range(self.n_nodes)) == set(
                 B.to_numpy(B.flatten(oriented_edges))
             ), "The oriented_edges array must contain all nodes."
 
@@ -222,12 +278,12 @@ class GraphEdge(HodgeDiscreteSpectrumSpace):
             oriented_triangles >= 1
         ), "The oriented_triangles array must contain only strictly positive values."
         assert B.all(
-            oriented_triangles <= self.num_edges
-        ), "The values in the oriented_triangles array must be <= self.num_edges."
+            oriented_triangles <= self.n_edges
+        ), "The values in the oriented_triangles array must be <= self.n_edges."
 
         assert B.all(
-            B.abs(oriented_triangles) < self.num_edges
-        ), "The absolute values in the oriented_edges array must be less than self.num_edges."
+            B.abs(oriented_triangles) < self.n_edges
+        ), "The absolute values in the oriented_triangles array must be less than self.n_edges."
         assert (
             B.all(
                 B.abs(oriented_triangles[:, 0]) - B.abs(oriented_triangles[:, 1]) != 0
@@ -238,16 +294,16 @@ class GraphEdge(HodgeDiscreteSpectrumSpace):
             or B.all(
                 B.abs(oriented_triangles[:, 1]) - B.abs(oriented_triangles[:, 2]) != 0
             )
-        ), "Triangle must consist of 3 _different_ edges."
+        ), "Triangles must consist of 3 different edges."
 
         if comprehensive:
-            num_triangles = oriented_triangles.shape[0]
+            n_triangles = oriented_triangles.shape[0]
 
-            for i in range(num_triangles):
-                for j in range(i + 1, num_triangles):
+            for i in range(n_triangles):
+                for j in range(i + 1, n_triangles):
                     assert B.any(
-                        num_triangles[i, :] != num_triangles[j, :]
-                    ), "The num_triangles array must not contain duplicate triangles."
+                        oriented_triangles[i, :] != oriented_triangles[j, :]
+                    ), "The oriented_triangles array must not contain duplicate triangles."
 
     def _checks_compatible(
         self,
@@ -264,8 +320,8 @@ class GraphEdge(HodgeDiscreteSpectrumSpace):
             oriented_triangles
         ), "The oriented_edges and oriented_triangles arrays must have the same dtype."
 
-        num_triangles = oriented_triangles.shape[0]
-        for t in range(num_triangles):
+        n_triangles = oriented_triangles.shape[0]
+        for t in range(n_triangles):
             resolved_edges = self.resolve_edge(oriented_triangles[t, :])
             assert (
                 resolved_edges[0, 1] == resolved_edges[1, 0]
@@ -278,7 +334,18 @@ class GraphEdge(HodgeDiscreteSpectrumSpace):
             ), "The edges in the triangle must be connected."
 
     def _check_index(self, index: csr_array):
-        TODO
+        edges = []
+        for e in range(1, self.oriented_edges.shape[0] + 1):
+            i, j = self.oriented_edges[e - 1, :]
+            assert index[i, j] == e, "The index matrix must be compatible with oriented_edges."
+            assert index[j, i] == -e, "The index matrix must be compatible with oriented_edges."
+            edges.append((min(i, j), max(i, j)))
+
+        for i in range(self.n_nodes):
+            for j in range(i + 1, self.n_nodes):
+                if (i, j) not in edges:
+                    assert index[i, j] == 0, "The index matrix must be compatible with oriented_edges."
+                    assert index[j, i] == 0, "The index matrix must be compatible with oriented_edges."
 
     def resolve_edge(self, e: B.Int) -> B.Int:
         """
@@ -293,7 +360,7 @@ class GraphEdge(HodgeDiscreteSpectrumSpace):
             where |e| = (i, j) if e > 0 and |e| = (j, i) if e < 0.
         """
         assert B.rank(e) == 1
-        assert B.all(B.abs(e) >= 1) and B.all(B.abs(e) <= self.num_edges)
+        assert B.all(B.abs(e) >= 1) and B.all(B.abs(e) <= self.n_edges)
 
         result = self.edges[B.abs(e) - 1]
         # TODO: will not work with TF/JAX
@@ -311,12 +378,12 @@ class GraphEdge(HodgeDiscreteSpectrumSpace):
         checks_mode: str = "simple",
     ) -> "GraphEdge":
         """
-        Construct the GraphEdge space from the adjacency matrix of the graph.
+        Construct the GraphEdge space from the adjacency matrix of a graph.
 
         :param adjacency_matrix:
-            Adjacency matrix of the graph. A numpy array of shape [n_nodes, n_nodes]
-            where n_nodes is the number of nodes in the graph. adjacency_matrix[i, j]
-            can only be 0 or 1.
+            Adjacency matrix of a graph. A numpy array of shape
+            `[n_nodes, n_nodes]` where `n_nodes` is the number of nodes in the
+            graph. `adjacency_matrix[i, j]` can only be 0 or 1.
 
         :param type_reference:
             A random state object of the preferred backend to infer backend from.
@@ -406,10 +473,10 @@ class GraphEdge(HodgeDiscreteSpectrumSpace):
 
         # TODO: make this more efficient, avoid for loops.
         self._down_laplacian = B.zeros(
-            B.dtype(self.oriented_edges), self.num_edges, self.num_edges
+            B.dtype(self.oriented_edges), self.n_edges, self.n_edges
         )
-        for i in range(self.num_edges):
-            for j in range(self.num_edges):
+        for i in range(self.n_edges):
+            for j in range(self.n_edges):
                 self._down_laplacian[i, j] = (
                     self.oriented_edges[i, 0]
                     == self.oriented_edges[j, 0] + self.oriented_edges[i, 1]
@@ -420,11 +487,11 @@ class GraphEdge(HodgeDiscreteSpectrumSpace):
 
         # TODO: make this more efficient, avoid for loops.
         self._up_laplacian = B.zeros(
-            B.dtype(self.oriented_edges), self.num_edges, self.num_edges
+            B.dtype(self.oriented_edges), self.n_edges, self.n_edges
         )
-        for i in range(self.num_edges):
-            for j in range(self.num_edges):
-                for t in range(self.num_triangles):
+        for i in range(self.n_edges):
+            for j in range(self.n_edges):
+                for t in range(self.n_triangles):
                     cur_triangle = set(B.to_numpy(self.oriented_triangles[t, 0]))
                     if (i in cur_triangle and j in cur_triangle) or (
                         -i in cur_triangle and -j in cur_triangle
@@ -451,57 +518,59 @@ class GraphEdge(HodgeDiscreteSpectrumSpace):
         """
 
         # The current implementation computes the complete set of eigenpairs of
-        # three num_edges x num_edges matrices. Since we don't currently support
-        # sparse laplacian matrices, in this class, this is not a major issue.
+        # three n_edges x n_edges Laplacian matrices. Since we don't currently
+        # support sparse Laplacians, this should not be a major bottleneck.
         #
-        # Here is some important points for anyone who wants to add proper
-        # support for sparse eigensolvers which allow to compute only a subset
-        # of the most important eigenpairs, like scipy.sparse.linalg.eigsh.
+        # Here are some important points for anyone who wants to add proper
+        # support for sparse Laplacians and sparse eigensolvers which allow
+        # computing only a few of the most important eigenpairs, like
+        # scipy.sparse.linalg.eigsh.
         #
         # 1. You cannot just compute the eigenpairs of the Hodge Laplacian and
         #    then filter them into the harmonic, gradient, or curl parts. This
         #    is because up and down edge Laplacians may have common non-zero
-        #    eigenvalues. This means that the eigenspaces of the the Hodge
+        #    eigenvalues. This means that the eigenspaces of the Hodge
         #    Laplacian that correspond to such eigenvalues will contain both
-        #    gradient and curl type of eigenvectors. When an eigenspace is
+        #    gradient and curl types of eigenvectors. When an eigenspace is
         #    multi-dimensional, an eigensolver can return an arbitrary basis
-        #    for it. For example, you may get a basis where all the vectors
+        #    for it. Thus, for example, you may get a basis where all the vectors
         #    have non-zero grad and curl components at the same time. Thus, you
         #    won't be able to filter them.
         #
         #    If you put in more effort, you can take the basis for each non-zero
         #    eigenvalue with multiplicity > 1, project each vector onto the
-        #    pure-gradient and pure-curl subspaces, using up and down Laplacians,
+        #    pure-gradient and pure-curl subspaces (using up and down Laplacians),
         #    and then orthogonalize the projected vectors.
         #
-        #  2. You cannot just request `num` eigenpairs from the Hodge Laplacian,
-        #     up and down Laplacians separately. Imagine that you have a space
-        #     with 5 harmonic, 100 gradient, and 100 curl eigenpairs. Then,
-        #     first 105 eigenpairs of the up Laplacian will correspond to
-        #     harmonic and gradient eigenvectors, both correspond to zero
-        #     eigenvalues, while only the last 100 eigenpairs will correspond
-        #     to the actual curl eigenvectors that we are interested to get
-        #     from the up Laplacian. The same is true for the down Laplacian.
+        # 2. You cannot just request `num` eigenpairs from the Hodge Laplacian,
+        #    up Laplacian and down Laplacian. Imagine that you have a space
+        #    with 5 harmonic, 100 gradient, and 100 curl eigenpairs. Then,
+        #    the first 105 eigenpairs of the up Laplacian will correspond to
+        #    harmonic and gradient eigenvectors, both corresponding to zero
+        #    eigenvalues, while only the last 100 eigenpairs will correspond
+        #    to the actual curl eigenvectors that we are interested in getting
+        #    from the up Laplacian. The same is true for the down Laplacian.
         #
-        #  3. An elegant solution would be to construct
-        #     > diff_laplacian = up_laplacian - down_laplacian
-        #     and run a sparse eigensolver on this matrix, requesting `num`
-        #     eigenpairs with the lowest absolute value of eigenvalues. Then,
-        #     you get eigenpairs of the Hodge Laplacian corresponding to the
-        #     first `num` smallest eigenvalues, but the gradient and curl
-        #     eigenvectors would correspond to eigenvalues of different signs.
+        # 3. An elegant solution would be to construct
+        #    > diff_laplacian = up_laplacian - down_laplacian
+        #    and run a sparse eigensolver on this matrix, requesting `num`
+        #    eigenpairs with the lowest absolute value of eigenvalues. Then,
+        #    you get eigenpairs of the Hodge Laplacian corresponding to the
+        #    first `num` smallest eigenvalues, but the gradient and curl
+        #    eigenvectors would correspond to eigenvalues of different signs
+        #    and thus would be separated.
 
         eps = 1e-6
 
         if num not in self.cache:
-            # We use Hodge Laplacian to find the eigenpairs of harmonic type, these
-            # are the ones associated to zero eigenvalues.
-            evals_hodge, evecs_hodge = eigenpairs(self._hodge_laplacian, self.num_edges)
+            # We use Hodge Laplacian to find the eigenpairs of harmonic type,
+            # these are the ones associated to zero eigenvalues.
+            evals_hodge, evecs_hodge = eigenpairs(self._hodge_laplacian, self.n_edges)
 
             # We use up and down Laplacians to find the eigenpairs of curl and
             # gradient types. These are the ones associated to non-zero eigenvalues.
-            evals_up, evecs_up = eigenpairs(self._up_laplacian, self.num_edges)
-            evals_down, evecs_down = eigenpairs(self._down_laplacian, self.num_edges)
+            evals_up, evecs_up = eigenpairs(self._up_laplacian, self.n_edges)
+            evals_down, evecs_down = eigenpairs(self._down_laplacian, self.n_edges)
 
             # We count the number of eigenpairs of each type for future reference.
             n_harm = B.sum(evals_hodge < eps)
@@ -552,7 +621,6 @@ class GraphEdge(HodgeDiscreteSpectrumSpace):
 
         return self.cache[num]
 
-    # get particular type of eigenbasis
     def get_eigenfunctions(
         self, num: int, hodge_type: Optional[str] = None
     ) -> Eigenfunctions:
@@ -562,11 +630,16 @@ class GraphEdge(HodgeDiscreteSpectrumSpace):
 
         :param num:
             Number of levels.
+
         :param hodge_type:
             The type of the eigenbasis. It can be 'harmonic', 'gradient', or 'curl'.
 
         :return:
             EigenfunctionsFromEigenvectors object.
+
+        .. note::
+            The notion of *levels* is discussed in the documentation of the
+            :class:`~.kernels.MaternKarhunenLoeveKernel`.
         """
         eigensystem = self.get_eigensystem(num)
         idx = (
@@ -582,12 +655,16 @@ class GraphEdge(HodgeDiscreteSpectrumSpace):
         Eigenvalues of the Laplacian corresponding to the first `num` levels
         (i.e., in this case, `num` eigenpairs). If `type` is specified, returns
         only the eigenvalues corresponding to the eigenfunctions of that type.
+
         .. warning::
             If `type` is specified, the array can have fewer than `num` elements.
+
         :param num:
             Number of levels.
+
         :return:
             (n, 1)-shaped array containing the eigenvalues. n <= num.
+
         .. note::
             The notion of *levels* is discussed in the documentation of the
             :class:`~.kernels.MaternKarhunenLoeveKernel`.
@@ -607,6 +684,7 @@ class GraphEdge(HodgeDiscreteSpectrumSpace):
     ) -> B.Numeric:
         """
         Same as :meth:`get_eigenvalues`.
+
         :param num:
             Same as :meth:`get_eigenvalues`.
         """
@@ -619,7 +697,7 @@ class GraphEdge(HodgeDiscreteSpectrumSpace):
             number,
             1,
             lower=1,
-            upper=self.num_edges + 1,
+            upper=self.n_edges + 1,
         )
 
         return key, random_edges
