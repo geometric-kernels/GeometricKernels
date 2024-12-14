@@ -1,28 +1,53 @@
+import lab as B
 import numpy as np
+import pytest
 
-from geometric_kernels.spaces.hyperbolic import Hyperbolic
+from geometric_kernels.kernels import MaternGeometricKernel
+from geometric_kernels.spaces import Hyperbolic
+from geometric_kernels.utils.kernel_formulas import (
+    hyperbolic_heat_kernel_even,
+    hyperbolic_heat_kernel_odd,
+)
+
+from ..helper import check_function_with_backend, create_random_state
 
 
-def test_hyperboloid_distance():
-    hyperboloid = Hyperbolic(dim=2)
-    N = 10
+@pytest.mark.parametrize("dim", [2, 3, 5, 7])
+@pytest.mark.parametrize("lengthscale", [2.0])
+@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
+def test_equivalence_kernel(dim, lengthscale, backend):
+    space = Hyperbolic(dim)
 
-    # Data points
-    base = np.r_[7.14142843e00, -5.00000000e00, -5.00000000e00]
-    point = np.r_[14.17744688, 10.0, 10.0]
-    geodesic = hyperboloid.metric.geodesic(initial_point=base, end_point=point)
-    x1 = geodesic(np.linspace(0.0, 1.0, N))  # (N, 3)
-    x2 = x1[-1, None]  # (1, 3)
+    key = np.random.RandomState(0)
+    key, X = space.random(key, 6)
+    X2 = X.copy()
 
-    our_dist_12 = hyperboloid.distance(x2, x1)
-    geomstats_dist_12 = hyperboloid.metric.dist(x2, x1)
+    t = lengthscale * lengthscale / 2
+    if dim % 2 == 1:
+        result = hyperbolic_heat_kernel_odd(dim, t, X, X2)
+    else:
+        result = hyperbolic_heat_kernel_even(dim, t, X, X2)
 
-    our_dist_11 = hyperboloid.distance(x1, x1)  # (N, N)
-    geomstats_dist_11 = hyperboloid.metric.dist_pairwise(x1, n_jobs=1)  # (N, N)
+    kernel = MaternGeometricKernel(space, key=create_random_state(backend))
 
-    our_dist_11_diag = hyperboloid.distance(x1, x1, diag=True)  # (N, )
-    geomstats_dist_11_diag = hyperboloid.metric.dist(x1, x1)  # (N, )
+    def compare_to_result(res, f_out):
+        return (
+            np.linalg.norm(res - B.to_numpy(f_out))
+            / np.sqrt(res.shape[0] * res.shape[1])
+            < 1e-1
+        )
 
-    assert np.allclose(our_dist_12, geomstats_dist_12)
-    assert np.allclose(our_dist_11, geomstats_dist_11)
-    assert np.allclose(our_dist_11_diag, geomstats_dist_11_diag)
+    # Check that MaternGeometricKernel on Hyperbolic(dim) with nu=inf coincides
+    # with the well-known analytic formula for the heat kernel on the hyperbolic
+    # space in odd dimensions and semi-analytic formula in even dimensions.
+    # We are checking the equivalence on average, computing the norm between
+    # the two covariance matrices.
+    check_function_with_backend(
+        backend,
+        result,
+        kernel.K,
+        {"nu": np.array([np.inf]), "lengthscale": np.array([lengthscale])},
+        X,
+        X2,
+        compare_to_result=compare_to_result,
+    )

@@ -60,6 +60,10 @@ class Graph(DiscreteSpectrumSpace):
         self.cache: Dict[int, Tuple[B.Numeric, B.Numeric]] = {}
         self._checks(adjacency_matrix)
         self._set_laplacian(adjacency_matrix, normalize_laplacian)  # type: ignore
+        self._normalized = normalize_laplacian
+
+    def __str__(self):
+        return f"Graph({self.num_vertices}, {'normalized' if self._normalized else 'unnormalized'})"
 
     @staticmethod
     def _checks(adjacency):
@@ -67,11 +71,10 @@ class Graph(DiscreteSpectrumSpace):
         Checks if `adjacency` is a square symmetric matrix.
         """
         assert (
-            len(B.shape(adjacency)) == 2 and adjacency.shape[0] == adjacency.shape[1]
+            len(adjacency.shape) == 2 and adjacency.shape[0] == adjacency.shape[1]
         ), "Matrix is not square."
 
-        # this is more efficient than (adj == adj.T).all()
-        assert not B.any(adjacency != B.T(adjacency)), "Adjacency is not symmetric."
+        assert not B.any(adjacency != B.T(adjacency)), "Adjacency is not symmetric"
 
     @property
     def dimension(self) -> int:
@@ -115,6 +118,9 @@ class Graph(DiscreteSpectrumSpace):
         :return:
             A tuple of eigenvectors [n, num], eigenvalues [num, 1].
         """
+        assert (
+            num <= self.num_vertices
+        ), "Number of eigenpairs cannot exceed the number of vertices"
         if num not in self.cache:
             evals, evecs = eigenpairs(self._laplacian, num)
 
@@ -184,3 +190,11 @@ class Graph(DiscreteSpectrumSpace):
             [1].
         """
         return [1]
+
+    @property
+    def element_dtype(self):
+        """
+        :return:
+            B.Int.
+        """
+        return B.Int

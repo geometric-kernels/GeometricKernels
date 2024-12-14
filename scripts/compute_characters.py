@@ -141,7 +141,7 @@ class CompactJSONEncoder(json.JSONEncoder):
 
 def compute_character_formula_so(self, signature):
     """
-    Refer to the appendix of cite:t:`azangulov2022`,
+    Refer to the appendix of cite:t:`azangulov2024a`,
     https://arxiv.org/pdf/2208.14960.pdf.
     """
     n = self.n
@@ -259,7 +259,7 @@ def compute_character_formula_so(self, signature):
 
 def compute_character_formula_su(self, signature):
     """
-    Refer to the appendix of cite:t:`azangulov2022`,
+    Refer to the appendix of cite:t:`azangulov2024a`,
     https://arxiv.org/pdf/2208.14960.pdf.
     """
     n = self.n

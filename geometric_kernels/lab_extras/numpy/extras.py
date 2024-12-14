@@ -144,10 +144,7 @@ def complex_like(reference: B.NPNumeric):
     """
     Return `complex` dtype of a backend based on the reference.
     """
-    if reference.dtype == np.float32:
-        return np.complex64
-    else:
-        return np.complex128
+    return B.promote_dtypes(np.complex64, reference.dtype)
 
 
 @dispatch
@@ -239,4 +236,17 @@ def dtype_bool(reference: B.NPRandomState):  # type: ignore
     """
     Return `bool` dtype of a backend based on the reference.
     """
-    return bool
+    return np.bool_
+
+
+@dispatch
+def bool_like(reference: B.NPNumeric):
+    """
+    Return the type of the reference if it is of boolean type.
+    Otherwise return `bool` dtype of a backend based on the reference.
+    """
+    reference_dtype = reference.dtype
+    if np.issubdtype(reference_dtype, np.bool_):
+        return reference_dtype
+    else:
+        return np.bool_

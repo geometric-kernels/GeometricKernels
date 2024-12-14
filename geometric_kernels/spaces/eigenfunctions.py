@@ -102,6 +102,7 @@ class Eigenfunctions(abc.ABC):
 
         if is_complex(sum_phi_phi_for_level):
             sum_phi_phi_for_level = B.cast(complex_like(weights), sum_phi_phi_for_level)
+            weights = B.cast(complex_like(weights), weights)
         else:
             sum_phi_phi_for_level = B.cast(B.dtype(weights), sum_phi_phi_for_level)
 
@@ -128,6 +129,7 @@ class Eigenfunctions(abc.ABC):
 
         if is_complex(phi_product_diag):
             phi_product_diag = B.cast(complex_like(weights), phi_product_diag)
+            weights = B.cast(complex_like(weights), weights)
         else:
             phi_product_diag = B.cast(B.dtype(weights), phi_product_diag)
 

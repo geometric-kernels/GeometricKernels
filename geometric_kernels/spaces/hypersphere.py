@@ -106,10 +106,7 @@ class SphericalHarmonics(EigenfunctionsWithAdditionTheorem):
     @property
     def num_eigenfunctions(self) -> int:
         if self._num_eigenfunctions is None:
-            J = 0
-            for level in range(self.num_levels):
-                J += num_harmonics(self.dim + 1, level)
-            self._num_eigenfunctions = J
+            self._num_eigenfunctions = sum(self.num_eigenfunctions_per_level)
         return self._num_eigenfunctions
 
     @property
@@ -153,6 +150,9 @@ class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
             raise ValueError("Only dim >= 2 is supported. For dim = 1, use Circle.")
         super().__init__(dim=dim)
         self.dim = dim
+
+    def __str__(self):
+        return f"Hypersphere({self.dim})"
 
     @property
     def dimension(self) -> int:
@@ -257,3 +257,11 @@ class Hypersphere(DiscreteSpectrumSpace, gs.geometry.hypersphere.Hypersphere):
             [d+1].
         """
         return [self.dimension + 1]
+
+    @property
+    def element_dtype(self):
+        """
+        :return:
+            B.Float.
+        """
+        return B.Float
