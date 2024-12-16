@@ -264,10 +264,15 @@ class EigenfunctionsFromEigenvectors(Eigenfunctions):
 
     :param eigenvectors:
         Array of shape [D, J] containing J eigenvectors of dimension D.
+
+    :param index_from_one:
+        If True, the indices are assumed to be 1-based. If False, they are
+        assumed to be 0-based. Defaults to False.
     """
 
-    def __init__(self, eigenvectors: B.Numeric):
+    def __init__(self, eigenvectors: B.Numeric, index_from_one: bool = False):
         self.eigenvectors = eigenvectors
+        self.index_from_one = index_from_one
 
     def weighted_outerproduct(
         self,
@@ -323,7 +328,11 @@ class EigenfunctionsFromEigenvectors(Eigenfunctions):
             corresponds to the X[n]-th element of the j-th eigenvector.
         """
         indices = B.cast(B.dtype_int(X), X)
-        Phi = take_along_axis(self.eigenvectors, indices, axis=0)
+        if self.index_from_one:
+            assert B.all(indices >= 1)
+        else:
+            assert B.all(indices >= 0)
+        Phi = take_along_axis(self.eigenvectors, indices - 1, axis=0)
         return Phi
 
     @property

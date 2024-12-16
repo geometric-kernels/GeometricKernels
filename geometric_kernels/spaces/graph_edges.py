@@ -5,7 +5,7 @@ This module provides the :class:`EdgeGraph` space.
 import lab as B
 import numpy as np
 from beartype.typing import Dict, List, Optional, Tuple, Union
-from scipy.sparse import csr_array, lil_array, coo_matrix, spmatrix
+from scipy.sparse import csr_array, lil_array, sparray, spmatrix
 
 from geometric_kernels.lab_extras import dtype_integer, eigenpairs, int_like
 from geometric_kernels.spaces.base import HodgeDiscreteSpectrumSpace
@@ -166,10 +166,10 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
         if oriented_triangles is not None:
             if do_checks:
                 self._checks_oriented_triangles(
-                    oriented_triangles, self.n_edges, comprehensive_checks
+                    oriented_triangles, comprehensive_checks
                 )
             if comprehensive_checks:
-                self._checks_compatible(oriented_edges, oriented_triangles, n_nodes)
+                self._checks_compatible(oriented_triangles)
             self.n_triangles = oriented_triangles.shape[0]
         else:
             self.n_triangles = 0
@@ -245,6 +245,9 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
                     assert B.any(
                         oriented_edges[i, :] != oriented_edges[j, :]
                     ), "The oriented_edges array must not contain duplicate edges."
+                    assert B.any(
+                        oriented_edges[i, :] != oriented_edges[j, ::-1]
+                    ), "The oriented_edges array must not contain duplicate edges."
 
             assert set(range(self.n_nodes)) == set(
                 B.to_numpy(B.flatten(oriented_edges))
@@ -275,11 +278,11 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
             oriented_triangles
         ), "The oriented_triangles must be an array of integers."
         assert B.all(
-            oriented_triangles >= 1
-        ), "The oriented_triangles array must contain only strictly positive values."
+            B.abs(oriented_triangles) >= 1
+        ), "The oriented_triangles array must contain only non-zero values."
         assert B.all(
-            oriented_triangles <= self.n_edges
-        ), "The values in the oriented_triangles array must be <= self.n_edges."
+            B.abs(oriented_triangles) <= self.n_edges
+        ), "The absolute values in the oriented_triangles array must be <= self.n_edges."
 
         assert B.all(
             B.abs(oriented_triangles) < self.n_edges
@@ -322,7 +325,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
 
         n_triangles = oriented_triangles.shape[0]
         for t in range(n_triangles):
-            resolved_edges = self.resolve_edge(oriented_triangles[t, :])
+            resolved_edges = self.resolve_edges(oriented_triangles[t, :])
             assert (
                 resolved_edges[0, 1] == resolved_edges[1, 0]
             ), "The edges in the triangle must be connected."
@@ -337,21 +340,29 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
         edges = []
         for e in range(1, self.oriented_edges.shape[0] + 1):
             i, j = self.oriented_edges[e - 1, :]
-            assert index[i, j] == e, "The index matrix must be compatible with oriented_edges."
-            assert index[j, i] == -e, "The index matrix must be compatible with oriented_edges."
+            assert (
+                index[i, j] == e
+            ), "The index matrix must be compatible with oriented_edges."
+            assert (
+                index[j, i] == -e
+            ), "The index matrix must be compatible with oriented_edges."
             edges.append((min(i, j), max(i, j)))
 
         for i in range(self.n_nodes):
             for j in range(i + 1, self.n_nodes):
                 if (i, j) not in edges:
-                    assert index[i, j] == 0, "The index matrix must be compatible with oriented_edges."
-                    assert index[j, i] == 0, "The index matrix must be compatible with oriented_edges."
+                    assert (
+                        index[i, j] == 0
+                    ), "The index matrix must be compatible with oriented_edges."
+                    assert (
+                        index[j, i] == 0
+                    ), "The index matrix must be compatible with oriented_edges."
 
-    def resolve_edge(self, e: B.Int) -> B.Int:
+    def resolve_edges(self, es: B.Int) -> B.Int:
         """
         Resolve the signed edge indices to node indices.
 
-        :param e:
+        :param es:
             A 1-dimensional array of edge indices. Each edge index is a number
             from 1 to the number of edges (incl.).
 
@@ -359,22 +370,44 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
             A 2-dimensional array `result` such that `result[e, :]` is `[i, j]`
             where |e| = (i, j) if e > 0 and |e| = (j, i) if e < 0.
         """
-        assert B.rank(e) == 1
-        assert B.all(B.abs(e) >= 1) and B.all(B.abs(e) <= self.n_edges)
+        assert B.rank(es) == 1
+        assert B.all(B.abs(es) >= 1) and B.all(B.abs(es) <= self.n_edges)
 
-        result = self.edges[B.abs(e) - 1]
-        # TODO: will not work with TF/JAX
-        result[e < 0] = result[e < 0][::-1]
-
+        result = self.oriented_edges[B.abs(es) - 1]
+        result = B.where(B.expand_dims(es > 0, axis=-1), result, result[:, ::-1])
         return result
+
+    def resolve_triangles(self, ts: B.Int) -> B.Int:
+        """
+        Resolve the triangle indices to node indices.
+
+        :param ts:
+            A 1-dimensional array of triangle indices. Each triangle index is a
+            number from 0 to the number of triangles.
+
+        :return:
+            A 3-dimensional array `result` such that `result[t, :]` is `[i, j, k]`
+            where i = e1[0], j = e2[0], k = e3[0], and e1, e2, e3 are the
+            oriented edges constituting the triangle `t`.
+        """
+        assert B.rank(ts) == 1
+        assert B.all(B.abs(ts) >= 0) and B.all(B.abs(ts) < self.n_triangles)
+
+        edge_indices = B.flatten(
+            self.oriented_triangles[ts]
+        )  # [N,] -> [N, 3] -> [N*3,]
+        edges = B.reshape(
+            self.resolve_edges(edge_indices), len(ts), 3, 2
+        )  # [N*3,] -> [N*3, 2] -> [N, 3, 2]
+        return edges[:, :, 0]  # [N, 3, 2] -> [N, 3]
 
     @classmethod
     def from_adjacency(
         cls,
         adjacency_matrix: Union[B.NPNumeric, sparray, spmatrix],
         type_reference: B.RandomState,
-        triangles: Optional[List[Tuple[int, int, int]]] = None,
         *,
+        triangles: Optional[List[Tuple[int, int, int]]] = None,
         checks_mode: str = "simple",
     ) -> "GraphEdges":
         """
@@ -418,18 +451,18 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
 
         oriented_edges = B.zeros(dtype_integer(type_reference), number_of_edges, 2)
 
-        cur_edge_ind = 0
+        cur_edge_ind = 1
         for i in range(number_of_nodes):
             for j in range(i + 1, number_of_nodes):
                 if index[i, j] == 1:
-                    oriented_edges[cur_edge_ind, 0] = i
-                    oriented_edges[cur_edge_ind, 1] = j
+                    oriented_edges[cur_edge_ind - 1, 0] = i
+                    oriented_edges[cur_edge_ind - 1, 1] = j
                     # We also store cur_edge_ind in the index matrix for later use
-                    index[i, j] = cur_edge_ind + 1
+                    index[i, j] = cur_edge_ind
                     index[j, i] = -index[i, j]
                     cur_edge_ind += 1
         assert (
-            cur_edge_ind == number_of_edges
+            cur_edge_ind == number_of_edges + 1
         )  # double check that we have the right number of edges
 
         if triangles is None:
@@ -471,6 +504,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
         Construct the appropriate graph Laplacian from the adjacency matrix.
         """
 
+        # This does node_to_edge_incidence.T @ node_to_edge_incidence
         # TODO: make this more efficient, avoid for loops.
         self._down_laplacian = B.zeros(
             B.dtype(self.oriented_edges), self.n_edges, self.n_edges
@@ -478,13 +512,22 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
         for i in range(self.n_edges):
             for j in range(self.n_edges):
                 self._down_laplacian[i, j] = (
-                    self.oriented_edges[i, 0]
-                    == self.oriented_edges[j, 0] + self.oriented_edges[i, 1]
-                    == self.oriented_edges[j, 1] - self.oriented_edges[i, 0]
-                    == self.oriented_edges[j, 1] - self.oriented_edges[i, 1]
-                    == self.oriented_edges[j, 0]
+                    int(self.oriented_edges[i, 0] == self.oriented_edges[j, 0])
+                    + int(self.oriented_edges[i, 1] == self.oriented_edges[j, 1])
+                    - int(self.oriented_edges[i, 0] == self.oriented_edges[j, 1])
+                    - int(self.oriented_edges[i, 1] == self.oriented_edges[j, 0])
                 )
 
+        # node_to_edge_incidence = B.zeros(
+        #     B.dtype(self.oriented_edges), self.n_nodes, self.n_edges
+        # )
+        # for i in range(self.n_edges):
+        #     node_to_edge_incidence[self.oriented_edges[i, 0], i] = -1
+        #     node_to_edge_incidence[self.oriented_edges[i, 1], i] = 1
+        # down_laplacian_alt = B.matmul(node_to_edge_incidence, node_to_edge_incidence, tr_a=True)
+        # assert B.all(down_laplacian_alt == self._down_laplacian)
+
+        # This does edge_to_triangle_incidence @ edge_to_triangle_incidence.T
         # TODO: make this more efficient, avoid for loops.
         self._up_laplacian = B.zeros(
             B.dtype(self.oriented_edges), self.n_edges, self.n_edges
@@ -492,15 +535,27 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
         for i in range(self.n_edges):
             for j in range(self.n_edges):
                 for t in range(self.n_triangles):
-                    cur_triangle = set(B.to_numpy(self.oriented_triangles[t, 0]))
-                    if (i in cur_triangle and j in cur_triangle) or (
-                        -i in cur_triangle and -j in cur_triangle
+                    cur_triangle = set(B.to_numpy(self.oriented_triangles[t, :]))
+                    if (i + 1 in cur_triangle and j + 1 in cur_triangle) or (
+                        -i - 1 in cur_triangle and -j - 1 in cur_triangle
                     ):
                         self._up_laplacian[i, j] += 1
-                    if (i in cur_triangle and -j in cur_triangle) or (
-                        -i in cur_triangle and j in cur_triangle
+                    if (i + 1 in cur_triangle and -j - 1 in cur_triangle) or (
+                        -i - 1 in cur_triangle and j + 1 in cur_triangle
                     ):
                         self._up_laplacian[i, j] += -1
+
+        # edge_to_triangle_incidence = B.zeros(
+        #     B.dtype(self.oriented_triangles), self.n_edges, self.n_triangles
+        # )
+        # for i in range(self.n_triangles):
+        #     edge_indices = B.abs(self.oriented_triangles[i, :])
+        #     signs = self.oriented_triangles[i, :] / edge_indices
+        #     edge_to_triangle_incidence[edge_indices[0] - 1, i] = signs[0]
+        #     edge_to_triangle_incidence[edge_indices[1] - 1, i] = signs[1]
+        #     edge_to_triangle_incidence[edge_indices[2] - 1, i] = signs[2]
+        # up_laplacian_alt = B.matmul(edge_to_triangle_incidence, edge_to_triangle_incidence, tr_b=True)
+        # assert B.all(up_laplacian_alt == self._up_laplacian)
 
         self._hodge_laplacian = self._down_laplacian + self._up_laplacian
 
@@ -578,17 +633,19 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
 
             # We concatenate the eigenvalues and eigenvectors of harmonic, curl, and
             # gradient types into a single array.
-            evals = B.concatenate(
+            evals = B.concat(
                 evals_hodge[evals_hodge < eps],
                 evals_up[evals_up >= eps],
                 evals_down[evals_down >= eps],
             )
-            evecs = B.concatenate(
+            evecs = B.concat(
                 evecs_hodge[:, evals_hodge < eps],
                 evecs_up[:, evals_up >= eps],
                 evecs_down[:, evals_down >= eps],
                 axis=1,
             )
+
+            evecs *= B.sqrt(self.n_edges)  # to make sure average variance is 1.
 
             # We get the indices that would sort the eigenvalues in ascending order.
             sorted_indices = B.argsort(evals)
@@ -647,7 +704,9 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
             if hodge_type is not None
             else list(range(num))
         )
-        eigenfunctions = EigenfunctionsFromEigenvectors(eigensystem["evecs"][:, idx])
+        eigenfunctions = EigenfunctionsFromEigenvectors(
+            eigensystem["evecs"][:, idx], index_from_one=True
+        )
         return eigenfunctions
 
     def get_eigenvalues(self, num: int, hodge_type: Optional[str] = None) -> B.Numeric:
@@ -661,6 +720,9 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
 
         :param num:
             Number of levels.
+
+        :param hodge_type:
+            The type of the eigenbasis. It can be 'harmonic', 'gradient', or 'curl'.
 
         :return:
             (n, 1)-shaped array containing the eigenvalues. n <= num.

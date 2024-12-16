@@ -10,11 +10,8 @@ from beartype.typing import Dict, Optional, Tuple
 
 from geometric_kernels.feature_maps.base import FeatureMap
 from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
-from geometric_kernels.spaces import (
-    DiscreteSpectrumSpace,
-    Eigenfunctions,
-    HodgeDiscreteSpectrumSpace,
-)
+from geometric_kernels.spaces import DiscreteSpectrumSpace, HodgeDiscreteSpectrumSpace
+from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 
 
 class DeterministicFeatureMapCompact(FeatureMap):
@@ -182,11 +179,12 @@ class HodgeDeterministicFeatureMapCompact(FeatureMap):
             )
         )
 
-        return B.concat(
+        return None, B.concat(
             coeffs[0]
-            * self.feature_map_harmonic(X, params["harmonic"], normalize, **kwargs),
+            * self.feature_map_harmonic(X, params["harmonic"], normalize, **kwargs)[1],
             coeffs[1]
-            * self.feature_map_gradient(X, params["gradient"], normalize, **kwargs),
-            coeffs[2] * self.feature_map_curl(X, params["curl"], normalize, **kwargs),
+            * self.feature_map_gradient(X, params["gradient"], normalize, **kwargs)[1],
+            coeffs[2]
+            * self.feature_map_curl(X, params["curl"], normalize, **kwargs)[1],
             axis=-1,
         )

@@ -211,7 +211,7 @@ def default_num(space: DiscreteSpectrumSpace) -> int:
             MaternGeometricKernel._DEFAULT_NUM_EIGENFUNCTIONS, space.num_vertices
         )
     elif isinstance(space, GraphEdges):
-        return min(MaternGeometricKernel._DEFAULT_NUM_EIGENFUNCTIONS, space.num_edges)
+        return min(MaternGeometricKernel._DEFAULT_NUM_EIGENFUNCTIONS, space.n_edges)
     elif isinstance(space, HypercubeGraph):
         return min(MaternGeometricKernel._DEFAULT_NUM_LEVELS, space.dim + 1)
     else:

@@ -90,9 +90,12 @@ def sample_at(
 
     num_features = B.shape(features)[-1]
 
-    key, random_weights = B.randn(
-        key, B.dtype(params["lengthscale"]), num_features, s
-    )  # [M, S]
+    if "lengthscale" in params:
+        dtype = B.dtype(params["lengthscale"])
+    else:
+        dtype = B.dtype(params["gradient"]["lengthscale"])
+
+    key, random_weights = B.randn(key, dtype, num_features, s)  # [M, S]
 
     random_sample = B.matmul(features, random_weights)  # [N, S]
 

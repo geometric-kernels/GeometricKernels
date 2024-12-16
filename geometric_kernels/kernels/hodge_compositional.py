@@ -156,7 +156,7 @@ class MaternHodgeCompositionalKernel(BaseGeometricKernel):
         params = {key: params[key].copy() for key in ["harmonic", "gradient", "curl"]}
         coeffs = B.softmax(
             B.stack(
-                [params[key].pop("logit") for key in ["harmonic", "gradient", "curl"]],
+                *[params[key].pop("logit") for key in ["harmonic", "gradient", "curl"]],
                 axis=0,
             )
         )

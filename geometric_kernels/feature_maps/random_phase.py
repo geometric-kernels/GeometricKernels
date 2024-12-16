@@ -42,7 +42,7 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
         num_levels: int,
         num_random_phases: int = 3000,
     ):
-        from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
+        pass
 
         self.space = space
         self.num_levels = num_levels
