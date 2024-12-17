@@ -180,7 +180,7 @@ def test_hodge_decomposition(
 def test_matern_kernels(nu, lengthscale, hodge_compositional, sparse_adj, backend):
 
     hodge_laplacian = TEST_GRAPH_EDGES_UP_LAPLACIAN + TEST_GRAPH_EDGES_DOWN_LAPLACIAN
-    n_edges = hodge_laplacian.shape[0]
+    num_edges = hodge_laplacian.shape[0]
 
     evals_np, evecs_np = np.linalg.eigh(hodge_laplacian)
     evecs_np *= np.sqrt(hodge_laplacian.shape[0])
@@ -196,7 +196,7 @@ def test_matern_kernels(nu, lengthscale, hodge_compositional, sparse_adj, backen
         )
 
         if hodge_compositional:
-            kernel = MaternHodgeCompositionalKernel(graph_edges, num_levels=n_edges)
+            kernel = MaternHodgeCompositionalKernel(graph_edges, num_levels=num_edges)
 
             # We want MaternHodgeCompositionalKernel to coincide with
             # MaternKarhunenLoeveKernel in this case. For this, we need to
@@ -205,7 +205,7 @@ def test_matern_kernels(nu, lengthscale, hodge_compositional, sparse_adj, backen
             a = B.reshape(
                 B.sum(
                     MaternKarhunenLoeveKernel.spectrum(
-                        graph_edges.get_eigenvalues(n_edges, hodge_type="harmonic"),
+                        graph_edges.get_eigenvalues(num_edges, hodge_type="harmonic"),
                         nu,
                         lengthscale,
                         0,
@@ -217,7 +217,7 @@ def test_matern_kernels(nu, lengthscale, hodge_compositional, sparse_adj, backen
             b = B.reshape(
                 B.sum(
                     MaternKarhunenLoeveKernel.spectrum(
-                        graph_edges.get_eigenvalues(n_edges, hodge_type="gradient"),
+                        graph_edges.get_eigenvalues(num_edges, hodge_type="gradient"),
                         nu,
                         lengthscale,
                         0,
@@ -229,7 +229,7 @@ def test_matern_kernels(nu, lengthscale, hodge_compositional, sparse_adj, backen
             c = B.reshape(
                 B.sum(
                     MaternKarhunenLoeveKernel.spectrum(
-                        graph_edges.get_eigenvalues(n_edges, hodge_type="curl"),
+                        graph_edges.get_eigenvalues(num_edges, hodge_type="curl"),
                         nu,
                         lengthscale,
                         0,
@@ -244,7 +244,7 @@ def test_matern_kernels(nu, lengthscale, hodge_compositional, sparse_adj, backen
                 "curl": {"logit": c, "nu": nu, "lengthscale": lengthscale},
             }
         else:
-            kernel = MaternKarhunenLoeveKernel(graph_edges, num_levels=n_edges)
+            kernel = MaternKarhunenLoeveKernel(graph_edges, num_levels=num_edges)
             params = {"nu": nu, "lengthscale": lengthscale}
 
         return kernel.K(params, xs)
@@ -268,7 +268,7 @@ def test_matern_kernels(nu, lengthscale, hodge_compositional, sparse_adj, backen
         evaluate_kernel,
         np.array([nu]),
         np.array([lengthscale]),
-        np.arange(1, n_edges + 1)[:, None],
+        np.arange(1, num_edges + 1)[:, None],
     )
 
 
@@ -312,7 +312,7 @@ def test_kernels_hodge_type(
 
         return projection_matrix @ kernel.K(params, xs)
 
-    n_edges = TEST_GRAPH_EDGES_ORIENTED_EDGES.shape[0]
+    num_edges = TEST_GRAPH_EDGES_ORIENTED_EDGES.shape[0]
 
     # Check that the image of the Hodge compositional kernel lies in the null
     # space of the projection matrix. Makes sure that buy setting the
@@ -320,7 +320,7 @@ def test_kernels_hodge_type(
     # divergence-free / curl-free.
     check_function_with_backend(
         backend,
-        np.zeros((n_edges, n_edges)),
+        np.zeros((num_edges, num_edges)),
         proj_kernel,
         TEST_GRAPH_EDGES_ORIENTED_EDGES,
         TEST_GRAPH_EDGES_ORIENTED_TRIANGLES,
@@ -329,6 +329,6 @@ def test_kernels_hodge_type(
         np.array([coeffs[2]]),
         np.array([nu]),
         np.array([lengthscale]),
-        np.arange(1, n_edges + 1)[:, None],
+        np.arange(1, num_edges + 1)[:, None],
         projection_matrix,
     )
