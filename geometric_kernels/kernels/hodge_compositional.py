@@ -63,7 +63,7 @@ class MaternHodgeCompositionalKernel(BaseGeometricKernel):
         for hodge_type in ["harmonic", "curl", "gradient"]:
             eigenvalues = self.space.get_eigenvalues(self.num_levels, hodge_type)
             eigenfunctions = self.space.get_eigenfunctions(self.num_levels, hodge_type)
-            num_levels_per_type = eigenvalues.shape[0]
+            num_levels_per_type = len(eigenvalues)
             setattr(
                 self,
                 f"kernel_{hodge_type}",
@@ -127,12 +127,12 @@ class MaternHodgeCompositionalKernel(BaseGeometricKernel):
 
         # Copy the parameters to avoid modifying the original dict.
         params = {key: params[key].copy() for key in ["harmonic", "gradient", "curl"]}
-        coeffs = B.softmax(
-            B.stack(
-                *[params[key].pop("logit") for key in ["harmonic", "gradient", "curl"]],
-                axis=0,
-            )
+
+        coeffs = B.stack(
+            *[params[key].pop("logit") for key in ["harmonic", "gradient", "curl"]],
+            axis=0,
         )
+        coeffs = coeffs / B.sum(coeffs)
 
         return (
             coeffs[0] * self.kernel_harmonic.K(params["harmonic"], X, X2, **kwargs)
@@ -154,12 +154,12 @@ class MaternHodgeCompositionalKernel(BaseGeometricKernel):
 
         # Copy the parameters to avoid modifying the original dict.
         params = {key: params[key].copy() for key in ["harmonic", "gradient", "curl"]}
-        coeffs = B.softmax(
-            B.stack(
-                *[params[key].pop("logit") for key in ["harmonic", "gradient", "curl"]],
-                axis=0,
-            )
+
+        coeffs = B.stack(
+            *[params[key].pop("logit") for key in ["harmonic", "gradient", "curl"]],
+            axis=0,
         )
+        coeffs = coeffs / B.sum(coeffs)
 
         return (
             coeffs[0] * self.kernel_harmonic.K_diag(params["harmonic"], X, **kwargs)

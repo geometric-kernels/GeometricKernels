@@ -7,7 +7,14 @@ import numpy as np
 from beartype.typing import Dict, List, Optional, Tuple, Union
 from scipy.sparse import csr_array, lil_array, sparray, spmatrix
 
-from geometric_kernels.lab_extras import dtype_integer, eigenpairs, int_like
+from geometric_kernels.lab_extras import (
+    count_nonzero,
+    dtype_integer,
+    eigenpairs,
+    float_like,
+    int_like,
+    take_along_axis,
+)
 from geometric_kernels.spaces.base import HodgeDiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import (
     Eigenfunctions,
@@ -436,6 +443,10 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
             index = csr_array(adjacency_matrix, dtype=int)
         elif isinstance(adjacency_matrix, (sparray, spmatrix)):
             index = csr_array(adjacency_matrix, dtype=int, copy=True)
+        else:
+            raise ValueError(
+                f"The adjacency matrix must be a numpy array or a scipy sparse matrix not {type(adjacency_matrix)}. Use `type_reference` to specify the backend."
+            )
 
         if len(index.shape) != 2:
             raise ValueError("Adjacency matrix must be a square matrix.")
@@ -449,7 +460,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
         number_of_nodes = index.shape[0]
         number_of_edges = np.sum(index.data) // 2
 
-        oriented_edges = B.zeros(dtype_integer(type_reference), number_of_edges, 2)
+        oriented_edges = np.zeros((number_of_edges, 2), dtype=np.int32)
 
         cur_edge_ind = 1
         for i in range(number_of_nodes):
@@ -464,6 +475,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
         assert (
             cur_edge_ind == number_of_edges + 1
         )  # double check that we have the right number of edges
+        oriented_edges = B.cast(dtype_integer(type_reference), oriented_edges)
 
         if triangles is None:
             triangles = []
@@ -474,14 +486,13 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
                             triangles.append((i, j, k))
 
         number_of_triangles = len(triangles)
-        oriented_triangles = B.zeros(
-            dtype_integer(type_reference), number_of_triangles, 3
-        )
+        oriented_triangles = np.zeros((number_of_triangles, 3), dtype=np.int32)
         for triangle_index, triangle in enumerate(triangles):
             i, j, k = sorted(triangle)  # sort the nodes in the triangle
             oriented_triangles[triangle_index, 0] = index[i, j]
             oriented_triangles[triangle_index, 1] = index[j, k]
             oriented_triangles[triangle_index, 2] = index[k, i]
+        oriented_triangles = B.cast(dtype_integer(type_reference), oriented_triangles)
 
         return cls(
             number_of_nodes,
@@ -506,9 +517,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
 
         # This does node_to_edge_incidence.T @ node_to_edge_incidence
         # TODO: make this more efficient, avoid for loops.
-        self._down_laplacian = B.zeros(
-            B.dtype(self.oriented_edges), self.n_edges, self.n_edges
-        )
+        self._down_laplacian = np.zeros((self.n_edges, self.n_edges), dtype=np.int32)
         for i in range(self.n_edges):
             for j in range(self.n_edges):
                 self._down_laplacian[i, j] = (
@@ -517,21 +526,13 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
                     - int(self.oriented_edges[i, 0] == self.oriented_edges[j, 1])
                     - int(self.oriented_edges[i, 1] == self.oriented_edges[j, 0])
                 )
-
-        # node_to_edge_incidence = B.zeros(
-        #     B.dtype(self.oriented_edges), self.n_nodes, self.n_edges
-        # )
-        # for i in range(self.n_edges):
-        #     node_to_edge_incidence[self.oriented_edges[i, 0], i] = -1
-        #     node_to_edge_incidence[self.oriented_edges[i, 1], i] = 1
-        # down_laplacian_alt = B.matmul(node_to_edge_incidence, node_to_edge_incidence, tr_a=True)
-        # assert B.all(down_laplacian_alt == self._down_laplacian)
+        self._down_laplacian = B.cast(
+            float_like(self.oriented_edges), self._down_laplacian
+        )
 
         # This does edge_to_triangle_incidence @ edge_to_triangle_incidence.T
         # TODO: make this more efficient, avoid for loops.
-        self._up_laplacian = B.zeros(
-            B.dtype(self.oriented_edges), self.n_edges, self.n_edges
-        )
+        self._up_laplacian = np.zeros((self.n_edges, self.n_edges), dtype=np.int32)
         for i in range(self.n_edges):
             for j in range(self.n_edges):
                 for t in range(self.n_triangles):
@@ -544,18 +545,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
                         -i - 1 in cur_triangle and j + 1 in cur_triangle
                     ):
                         self._up_laplacian[i, j] += -1
-
-        # edge_to_triangle_incidence = B.zeros(
-        #     B.dtype(self.oriented_triangles), self.n_edges, self.n_triangles
-        # )
-        # for i in range(self.n_triangles):
-        #     edge_indices = B.abs(self.oriented_triangles[i, :])
-        #     signs = self.oriented_triangles[i, :] / edge_indices
-        #     edge_to_triangle_incidence[edge_indices[0] - 1, i] = signs[0]
-        #     edge_to_triangle_incidence[edge_indices[1] - 1, i] = signs[1]
-        #     edge_to_triangle_incidence[edge_indices[2] - 1, i] = signs[2]
-        # up_laplacian_alt = B.matmul(edge_to_triangle_incidence, edge_to_triangle_incidence, tr_b=True)
-        # assert B.all(up_laplacian_alt == self._up_laplacian)
+        self._up_laplacian = B.cast(float_like(self.oriented_edges), self._up_laplacian)
 
         self._hodge_laplacian = self._down_laplacian + self._up_laplacian
 
@@ -628,8 +618,10 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
             evals_down, evecs_down = eigenpairs(self._down_laplacian, self.n_edges)
 
             # We count the number of eigenpairs of each type for future reference.
-            n_harm = B.sum(evals_hodge < eps)
-            n_curl, n_grad = B.sum(evals_up >= eps), B.sum(evals_down >= eps)
+            n_harm = count_nonzero(evals_hodge < eps)
+            n_curl, n_grad = count_nonzero(evals_up >= eps), count_nonzero(
+                evals_down >= eps
+            )
 
             # We concatenate the eigenvalues and eigenvectors of harmonic, curl, and
             # gradient types into a single array.
@@ -638,35 +630,55 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
                 evals_up[evals_up >= eps],
                 evals_down[evals_down >= eps],
             )
+
             evecs = B.concat(
-                evecs_hodge[:, evals_hodge < eps],
-                evecs_up[:, evals_up >= eps],
-                evecs_down[:, evals_down >= eps],
-                axis=1,
+                B.reshape(
+                    evecs_hodge[
+                        B.broadcast_to(evals_hodge < eps, self.n_edges, self.n_edges)
+                    ],
+                    self.n_edges,
+                    -1,
+                ),
+                B.reshape(
+                    evecs_up[
+                        B.broadcast_to(evals_up >= eps, self.n_edges, self.n_edges)
+                    ],
+                    self.n_edges,
+                    -1,
+                ),
+                B.reshape(
+                    evecs_down[
+                        B.broadcast_to(evals_down >= eps, self.n_edges, self.n_edges)
+                    ],
+                    self.n_edges,
+                    -1,
+                ),
+                axis=-1,
             )
 
             evecs *= B.sqrt(self.n_edges)  # to make sure average variance is 1.
 
             # We get the indices that would sort the eigenvalues in ascending order.
             sorted_indices = B.argsort(evals)
+            # And the indices that would inverse the sorting using sorted_indices.
+            sorted_sorted_indices = B.argsort(sorted_indices)
 
             # In harmonic_idx, gradient_idx, and curl_idx, we store the indices of
             # the eigenvalues and eigenvectors of harmonic, gradient, and curl types.
             # We also make sure that the indices are not greater than `num`.
-            def filter_inds(inds: B.Int, num: int) -> List[int]:
-                return [i for i in inds if i < num]
-
-            harmonic_idx = filter_inds(sorted_indices[:n_harm], num)
-            curl_idx = filter_inds(sorted_indices[n_harm : n_harm + n_curl], num)
-            grad_idx = filter_inds(
-                sorted_indices[n_harm + n_curl : n_harm + n_curl + n_grad], num
-            )
+            harmonic_idx = sorted_sorted_indices[:n_harm]
+            harmonic_idx = harmonic_idx[harmonic_idx < num]
+            curl_idx = sorted_sorted_indices[n_harm : n_harm + n_curl]
+            curl_idx = curl_idx[curl_idx < num]
+            grad_idx = sorted_sorted_indices[n_harm + n_curl : n_harm + n_curl + n_grad]
+            grad_idx = grad_idx[grad_idx < num]
 
             # We sort the eigenvalues and eigenvectors in ascending order of
             # eigenvalues, keeping only `num` of the first eigenpairs.
             sorted_indices = sorted_indices[:num]
-            evals = evals[sorted_indices]
-            evecs = evecs[:, sorted_indices]
+
+            evals = take_along_axis(evals, sorted_indices)
+            evecs = take_along_axis(evecs, sorted_indices[None, :], axis=-1)
 
             self.cache[num] = {
                 "evals": evals,
@@ -677,6 +689,22 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
             }
 
         return self.cache[num]
+
+    def get_number_of_eigenpairs(self, num: int, hodge_type: str) -> int:
+        """
+        Returns the number of eigenpairs of a particular type.
+
+        :param num:
+            Number of levels.
+
+        :param hodge_type:
+            The type of the eigenpairs. It can be 'harmonic', 'gradient', or 'curl'.
+
+        :return:
+            The number of eigenpairs of the specified type.
+        """
+        eigensystem = self.get_eigensystem(num)
+        return len(eigensystem[f"{hodge_type}_idx"])
 
     def get_eigenfunctions(
         self, num: int, hodge_type: Optional[str] = None
@@ -705,9 +733,45 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
             else list(range(num))
         )
         eigenfunctions = EigenfunctionsFromEigenvectors(
-            eigensystem["evecs"][:, idx], index_from_one=True
+            take_along_axis(
+                eigensystem["evecs"],
+                B.cast(int_like(eigensystem["evecs"]), np.array(idx)[None, :]),
+                axis=-1,
+            ),
+            index_from_one=True,
         )
         return eigenfunctions
+
+    def get_eigenvectors(self, num: int, hodge_type: Optional[str] = None) -> B.Numeric:
+        """
+        Eigenvectors of the Laplacian corresponding to the first `num` levels
+        (i.e., in this case, `num` eigenpairs). If `type` is specified, returns
+        only the eigenvectors of that type.
+
+        :param num:
+            Number of eigenvectors to return.
+
+        :param hodge_type:
+            The type of the eigenpairs. It can be 'harmonic', 'gradient', or 'curl'.
+
+        :return:
+            (n, 1)-shaped array containing the eigenvalues. n <= num.
+        """
+        eigensystem = self.get_eigensystem(num)
+
+        idx = (
+            eigensystem[f"{hodge_type}_idx"]
+            if hodge_type is not None
+            else list(range(num))
+        )
+
+        eigenvectors = take_along_axis(
+            eigensystem["evecs"],
+            B.cast(int_like(eigensystem["evecs"]), np.array(idx)[None, :]),
+            axis=-1,
+        )
+
+        return eigenvectors
 
     def get_eigenvalues(self, num: int, hodge_type: Optional[str] = None) -> B.Numeric:
         """
@@ -722,22 +786,22 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
             Number of levels.
 
         :param hodge_type:
-            The type of the eigenbasis. It can be 'harmonic', 'gradient', or 'curl'.
+            The type of the eigenpairs. It can be 'harmonic', 'gradient', or 'curl'.
 
         :return:
             (n, 1)-shaped array containing the eigenvalues. n <= num.
-
-        .. note::
-            The notion of *levels* is discussed in the documentation of the
-            :class:`~.kernels.MaternKarhunenLoeveKernel`.
         """
         eigensystem = self.get_eigensystem(num)
+
         idx = (
             eigensystem[f"{hodge_type}_idx"]
             if hodge_type is not None
             else list(range(num))
         )
-        eigenvalues = eigensystem["evals"][idx]
+
+        eigenvalues = take_along_axis(
+            eigensystem["evals"], B.cast(int_like(eigensystem["evals"]), np.array(idx))
+        )
 
         return eigenvalues[:, None]
 
