@@ -168,9 +168,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         """
         return self._eigenvalues_laplacian
 
-    def eigenvalues(
-        self, params: Dict[str, B.Numeric], normalize: Optional[bool] = None
-    ) -> B.Numeric:
+    def eigenvalues(self, params: Dict[str, B.Numeric]) -> B.Numeric:
         """
         Eigenvalues of the kernel.
 
@@ -178,11 +176,6 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             Parameters of the kernel. Must contain keys `"lengthscale"` and
             `"nu"`. The shapes of `params["lengthscale"]` and `params["nu"]`
             are `(1,)`.
-        :param normalize:
-            Whether to normalize kernel to have unit average variance.
-            If None, uses `self.normalize` to decide.
-
-            Defaults to None.
 
         :return:
             An [L, 1]-shaped array.
@@ -198,8 +191,8 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             lengthscale=params["lengthscale"],
             dimension=self.space.dimension,
         )
-        normalize = normalize or (normalize is None and self.normalize)
-        if normalize:
+
+        if self.normalize:
             normalizer = B.sum(
                 spectral_values
                 * B.cast(
