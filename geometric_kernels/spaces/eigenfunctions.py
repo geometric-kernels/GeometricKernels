@@ -329,10 +329,12 @@ class EigenfunctionsFromEigenvectors(Eigenfunctions):
         """
         indices = B.cast(B.dtype_int(X), X)
         if self.index_from_one:
-            assert B.all(indices >= 1)
+            # assert B.all(indices >= 1) removed because of tensorflow's
+            # OperatorNotAllowedInGraphError
             Phi = take_along_axis(self.eigenvectors, indices - 1, axis=0)
         else:
-            assert B.all(indices >= 0)
+            # assert B.all(indices >= 0) removed because of tensorflow's
+            # OperatorNotAllowedInGraphError
             Phi = take_along_axis(self.eigenvectors, indices, axis=0)
         return Phi
 
