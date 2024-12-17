@@ -169,7 +169,9 @@ class HodgeDiscreteSpectrumSpace(DiscreteSpectrumSpace):
     of compact Riemannian manifolds.
 
     .. note::
-        TODO (docs theory page).
+        Hodge decomposition is briefly discussed on :doc:`this </theory/hodge>`
+        documentation page.
+
     .. note::
         Typically used with :class:`~.kernels.MaternHodgeCompositionalKernel`.
     """

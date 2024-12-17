@@ -1,6 +1,7 @@
 """
-This module provides the :class:`MaternKarhunenLoeveKernel` kernel, the basic
-kernel for discrete spectrum spaces, subclasses of :class:`DiscreteSpectrumSpace`.
+This module provides the :class:`~.kernels.MaternHodgeCompositionalKernel`
+kernel, for discrete spectrum spaces with Hodge decomposition, subclasses
+of :class:`~.spaces.HodgeDiscreteSpectrumSpace`.
 """
 
 import lab as B
@@ -14,9 +15,9 @@ from geometric_kernels.spaces import HodgeDiscreteSpectrumSpace
 
 class MaternHodgeCompositionalKernel(BaseGeometricKernel):
     r"""
-    This class is similar to :class:`MaternKarhunenLoeveKernel`, but provides
-    a more expressive family of kernels on the spaces where Hodge decomposition
-    is available.
+    This class is similar to :class:`~.kernels.MaternKarhunenLoeveKernel`, but
+    provides a more expressive family of kernels on the spaces where Hodge
+    decomposition is available.
 
     The resulting kernel is a sum of three kernels,
 
@@ -24,26 +25,28 @@ class MaternHodgeCompositionalKernel(BaseGeometricKernel):
 
     where $a, b, c$ are weights $a, b, c \geq 0$ and $a + b + c = 1$, and
     $k_{\text{harmonic}}$, $k_{\text{gradient}}$, $k_{\text{curl}}$ are the
-    instances of :class:`MaternKarhunenLoeveKernel` that only use the eigenpairs
-    of the Laplacian corresponding to a single part of the Hodge decomposition.
+    instances of :class:`~.kernels.MaternKarhunenLoeveKernel` that only use the
+    eigenpairs of the Laplacian corresponding to a single part of the Hodge
+    decomposition.
 
     The parameters of this kernel are represented by a dict with three keys:
     `"harmonic"`, `"gradient"`, `"curl"`, each corresponding to a dict with
     keys `"logit"`, `"nu"`, `"lengthscale"`, where `"nu"` and `"lengthscale"`
-    are the parameters of the respective :class:`MaternKarhunenLoeveKernel`,
+    are the parameters of the respective :class:`~.kernels.MaternKarhunenLoeveKernel`,
     while the `"logit"` parameters determine the weights $a, b, c$ in the
-    formula above: $a, b, c$ are the softmax of the three `"logit"` parameters.
+    formula above: $a, b, c$ are the `"logit"` parameters normalized to
+    satisfy $a + b + c = 1$.
 
-    Same as for :class:`MaternKarhunenLoeveKernel`, these kernels can sometimes
+    Same as for :class:`~.kernels.MaternKarhunenLoeveKernel`, these kernels can sometimes
     be computed more efficiently using addition theorems.
 
     .. note::
         A brief introduction into the theory behind
-        :class:`MaternHodgeCompositionalKernel` can be found in
+        :class:`~.kernels.MaternHodgeCompositionalKernel` can be found in
         :doc:`this </theory/hodge>` documentation page.
 
     :param space:
-        The space to define the kernel upon, a subclass of :class:`HodgeDiscreteSpectrumSpace`.
+        The space to define the kernel upon, a subclass of :class:`~.spaces.HodgeDiscreteSpectrumSpace`.
 
     :param num_levels:
         Number of levels to include in the summation.
@@ -121,6 +124,10 @@ class MaternHodgeCompositionalKernel(BaseGeometricKernel):
         X2: Optional[B.Numeric] = None,
         **kwargs,
     ) -> B.Numeric:
+        """
+        Compute the cross-covariance matrix between two batches of vectors of
+        inputs, or batches of matrices of inputs, depending on the space.
+        """
 
         assert all(
             key in params for key in ["harmonic", "gradient", "curl"]
@@ -148,6 +155,12 @@ class MaternHodgeCompositionalKernel(BaseGeometricKernel):
     def K_diag(
         self, params: Dict[str, Dict[str, B.NPNumeric]], X: B.Numeric, **kwargs
     ) -> B.Numeric:
+        """
+        Returns the diagonal of the covariance matrix `self.K(params, X, X)`,
+        typically in a more efficient way than actually computing the full
+        covariance matrix with `self.K(params, X, X)` and then extracting its
+        diagonal.
+        """
 
         assert all(
             key in params for key in ["harmonic", "gradient", "curl"]

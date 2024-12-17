@@ -188,7 +188,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
                 self._check_index(index)
             self.index = index
         else:
-            self.index = self.compute_index(n_nodes, oriented_edges)
+            self.index = self._compute_index(n_nodes, oriented_edges)
 
         self._set_laplacian()
 
@@ -196,7 +196,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
         return f"GraphEdges({self.n_edges})"
 
     @staticmethod
-    def compute_index(n_nodes: int, oriented_edges: B.Numeric) -> csr_array:
+    def _compute_index(n_nodes: int, oriented_edges: B.Numeric) -> csr_array:
         """
         Construct the index matrix from the oriented edges.
 
@@ -370,7 +370,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
                     ), "The index matrix must be compatible with oriented_edges."
 
     def resolve_edges(self, es: B.Int) -> B.Int:
-        """
+        r"""
         Resolve the signed edge indices to node indices.
 
         :param es:
@@ -379,7 +379,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
 
         :return:
             A 2-dimensional array `result` such that `result[e, :]` is `[i, j]`
-            where |e| = (i, j) if e > 0 and |e| = (j, i) if e < 0.
+            where \|e\| = (i, j) if e > 0 and \|e\| = (j, i) if e < 0.
         """
         assert B.rank(es) == 1
         assert B.all(B.abs(es) >= 1) and B.all(B.abs(es) <= self.n_edges)
@@ -553,7 +553,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
 
         self._hodge_laplacian = self._down_laplacian + self._up_laplacian
 
-    def get_eigensystem(self, num):
+    def _get_eigensystem(self, num):
         """
         Returns the first `num` eigenvalues and eigenvectors of the Hodge Laplacian.
         Caches the solution to prevent re-computing the same values.
@@ -702,12 +702,12 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
             Number of levels.
 
         :param hodge_type:
-            The type of the eigenpairs. It can be 'harmonic', 'gradient', or 'curl'.
+            The type of the eigenpairs. It can be "harmonic", "gradient", or "curl".
 
         :return:
             The number of eigenpairs of the specified type.
         """
-        eigensystem = self.get_eigensystem(num)
+        eigensystem = self._get_eigensystem(num)
         return len(eigensystem[f"{hodge_type}_idx"])
 
     def get_eigenfunctions(
@@ -721,7 +721,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
             Number of levels.
 
         :param hodge_type:
-            The type of the eigenbasis. It can be 'harmonic', 'gradient', or 'curl'.
+            The type of the eigenbasis. It can be "harmonic", "gradient", or "curl".
 
         :return:
             EigenfunctionsFromEigenvectors object.
@@ -730,7 +730,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
             The notion of *levels* is discussed in the documentation of the
             :class:`~.kernels.MaternKarhunenLoeveKernel`.
         """
-        eigensystem = self.get_eigensystem(num)
+        eigensystem = self._get_eigensystem(num)
         idx = (
             eigensystem[f"{hodge_type}_idx"]
             if hodge_type is not None
@@ -756,12 +756,12 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
             Number of eigenvectors to return.
 
         :param hodge_type:
-            The type of the eigenpairs. It can be 'harmonic', 'gradient', or 'curl'.
+            The type of the eigenpairs. It can be "harmonic", "gradient", or "curl".
 
         :return:
             (n, 1)-shaped array containing the eigenvalues. n <= num.
         """
-        eigensystem = self.get_eigensystem(num)
+        eigensystem = self._get_eigensystem(num)
 
         idx = (
             eigensystem[f"{hodge_type}_idx"]
@@ -790,12 +790,12 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
             Number of levels.
 
         :param hodge_type:
-            The type of the eigenpairs. It can be 'harmonic', 'gradient', or 'curl'.
+            The type of the eigenpairs. It can be "harmonic", "gradient", or "curl".
 
         :return:
             (n, 1)-shaped array containing the eigenvalues. n <= num.
         """
-        eigensystem = self.get_eigensystem(num)
+        eigensystem = self._get_eigensystem(num)
 
         idx = (
             eigensystem[f"{hodge_type}_idx"]
