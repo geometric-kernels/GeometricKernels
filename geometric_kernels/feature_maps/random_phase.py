@@ -42,8 +42,6 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
         num_levels: int,
         num_random_phases: int = 3000,
     ):
-        pass
-
         self.space = space
         self.num_levels = num_levels
         self.num_random_phases = num_random_phases
@@ -92,6 +90,8 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
             `key` is the updated random key for `jax`, or the similar random
             state (generator) for any other backends.
         """
+        from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
+
         key, random_phases = self.space.random(key, self.num_random_phases)  # [O, D]
         eigenvalues = self.space.get_eigenvalues(self.num_levels)
 
