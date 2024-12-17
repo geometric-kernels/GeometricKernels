@@ -201,7 +201,7 @@ class HodgeDiscreteSpectrumSpace(DiscreteSpectrumSpace):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_eigenvalues(self, num: int, type: str) -> B.Numeric:
+    def get_eigenvalues(self, num: int, type: Optional[str] = None) -> B.Numeric:
         """
         Eigenvalues of the Laplacian corresponding to the first `num` levels.
         If `type` is specified, returns only the eigenvalues corresponding to
@@ -223,7 +223,9 @@ class HodgeDiscreteSpectrumSpace(DiscreteSpectrumSpace):
         raise NotImplementedError
 
     @abc.abstractmethod
-    def get_repeated_eigenvalues(self, num: int, type: str) -> B.Numeric:
+    def get_repeated_eigenvalues(
+        self, num: int, type: Optional[str] = None
+    ) -> B.Numeric:
         """
         Eigenvalues of the Laplacian corresponding to the first `num` levels,
         repeated according to their multiplicity within levels. If `type` is

@@ -75,6 +75,11 @@ class MaternHodgeCompositionalKernel(BaseGeometricKernel):
                     eigenfunctions=eigenfunctions,
                 ),
             )
+
+        self.kernel_harmonic: MaternKarhunenLoeveKernel  # for mypy to know the type
+        self.kernel_gradient: MaternKarhunenLoeveKernel  # for mypy to know the type
+        self.kernel_curl: MaternKarhunenLoeveKernel  # for mypy to know the type
+
         self.normalize = normalize
 
     @property

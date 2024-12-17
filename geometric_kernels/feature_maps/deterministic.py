@@ -9,7 +9,6 @@ import lab as B
 from beartype.typing import Dict, Optional, Tuple
 
 from geometric_kernels.feature_maps.base import FeatureMap
-from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import DiscreteSpectrumSpace, HodgeDiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
 
@@ -87,6 +86,8 @@ class DeterministicFeatureMapCompact(FeatureMap):
            interface: for some other subclasses of :class:`FeatureMap`, this
            first element may be an updated random key.
         """
+        from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
+
         spectrum = MaternKarhunenLoeveKernel.spectrum(
             self._repeated_eigenvalues,
             nu=params["nu"],
@@ -125,9 +126,9 @@ class HodgeDeterministicFeatureMapCompact(FeatureMap):
                 self.num_levels, hodge_type
             )
             eigenfunctions = self.space.get_eigenfunctions(self.num_levels, hodge_type)
-            num_levels_per_type = self.space.get_eigenvalues(
-                self.num_levels, hodge_type
-            ).shape[0]
+            num_levels_per_type = len(
+                self.space.get_eigenvalues(self.num_levels, hodge_type)
+            )
             setattr(
                 self,
                 f"feature_map_{hodge_type}",
@@ -139,11 +140,21 @@ class HodgeDeterministicFeatureMapCompact(FeatureMap):
                 ),
             )
 
+        self.feature_map_harmonic: (
+            DeterministicFeatureMapCompact  # for mypy to know the type
+        )
+        self.feature_map_gradient: (
+            DeterministicFeatureMapCompact  # for mypy to know the type
+        )
+        self.feature_map_curl: (
+            DeterministicFeatureMapCompact  # for mypy to know the type
+        )
+
     def __call__(
         self,
         X: B.Numeric,
         params: Dict[str, Dict[str, B.Numeric]],
-        normalize: bool = None,
+        normalize: bool = True,
         **kwargs,
     ) -> Tuple[None, B.Numeric]:
         """
@@ -172,12 +183,12 @@ class HodgeDeterministicFeatureMapCompact(FeatureMap):
 
         # Copy the parameters to avoid modifying the original dict.
         params = {key: params[key].copy() for key in ["harmonic", "gradient", "curl"]}
-        coeffs = B.softmax(
-            B.stack(
-                *[params[key].pop("logit") for key in ["harmonic", "gradient", "curl"]],
-                axis=0,
-            )
+        coeffs = B.stack(
+            *[params[key].pop("logit") for key in ["harmonic", "gradient", "curl"]],
+            axis=0,
         )
+        coeffs = coeffs / B.sum(coeffs)
+        coeffs = B.sqrt(coeffs)
 
         return None, B.concat(
             coeffs[0]

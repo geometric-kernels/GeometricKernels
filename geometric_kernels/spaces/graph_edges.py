@@ -89,6 +89,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
         user has full control over the orientation and ordering of the edges.
 
     .. admonition:: Complexity
+
         The current implementation of the GraphEdges space is supposed to occupy
         O(n_edges^2) memory and take O(n_edges^3) time to compute the eigensystem.
 
@@ -190,6 +191,9 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
             self.index = self.compute_index(n_nodes, oriented_edges)
 
         self._set_laplacian()
+
+    def __str__(self):
+        return f"GraphEdges({self.n_edges})"
 
     @staticmethod
     def compute_index(n_nodes: int, oriented_edges: B.Numeric) -> csr_array:
@@ -409,7 +413,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
         return edges[:, :, 0]  # [N, 3, 2] -> [N, 3]
 
     @classmethod
-    def from_adjacency(
+    def from_adjacency(  # noqa: C901
         cls,
         adjacency_matrix: Union[B.NPNumeric, sparray, spmatrix],
         type_reference: B.RandomState,
