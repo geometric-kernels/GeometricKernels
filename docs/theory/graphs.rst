@@ -94,7 +94,7 @@ An oriented edge, denoted as $e=[i,j]$ is an ordering of $\{i,j\}$.
 Same goes for oriented triangles, denoted as $t=[i,j,k]$ and we have $t=[i,j,k] = [j,k,i] = [k,i,j] = -[i,k,j] = -[k,j,i] = -[j,i,k]$.
 
 In a simplicial 2-complex, the functions, $f_1:E\to\mathbb{R}$, on its edges $E$ are required to be _alternating_ :cite:p:`lim2020hodge`. 
-By collecting the edge functions on $E$ into a vector $\mathbf{f}_1=[f_1(e_1),\dots,f_1(e_{N_1}]^\top\in\mathbb{R}^{N_1}$, we then obtain an **edge flow**. 
+By collecting the edge functions on $E$ into a vector $\mathbf{f}_1=[f_1(e_1),\dots,f_1(e_{N_1})]^\top\in\mathbb{R}^{N_1}$, we then obtain an **edge flow**. 
  
 Given a simplicial 2-complex, we can define the discrete **Hodge Laplacian**, which operates on the space of edge flows, as 
 $$
