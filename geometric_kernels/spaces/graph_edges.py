@@ -5,9 +5,10 @@ This module provides the :class:`EdgeGraph` space.
 import lab as B
 import numpy as np
 from beartype.typing import Dict, List, Optional, Tuple, Union
-from scipy.sparse import csr_array, lil_array, sparray, spmatrix
+from scipy.sparse import csr_matrix, lil_matrix
 
 from geometric_kernels.lab_extras import (
+    SparseArray,
     count_nonzero,
     dtype_integer,
     eigenpairs,
@@ -153,7 +154,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
         oriented_triangles: Optional[B.Int],
         *,
         checks_mode: str = "simple",
-        index: Optional[csr_array] = None,
+        index: Optional[csr_matrix] = None,
     ):
         if checks_mode not in ["simple", "comprehensive", "skip"]:
             raise ValueError(
@@ -196,7 +197,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
         return f"GraphEdges({self.num_edges})"
 
     @staticmethod
-    def _compute_index(num_nodes: int, oriented_edges: B.Numeric) -> csr_array:
+    def _compute_index(num_nodes: int, oriented_edges: B.Numeric) -> csr_matrix:
         """
         Construct the index matrix from the oriented edges.
 
@@ -207,10 +208,10 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
             The oriented edges array.
 
         :return:
-            The index matrix. A scipy csr_array of shape [num_nodes, num_nodes] such
+            The index matrix. A scipy csr_matrix of shape [num_nodes, num_nodes] such
             that `index[i, j]` is the index of the edge `(i, j)`.
         """
-        result = lil_array((num_nodes, num_nodes), dtype=int)
+        result = lil_matrix((num_nodes, num_nodes), dtype=int)
         for i in range(oriented_edges.shape[0]):
             result[oriented_edges[i, 0], oriented_edges[i, 1]] = i + 1
             result[oriented_edges[i, 1], oriented_edges[i, 0]] = -i - 1
@@ -347,7 +348,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
                 resolved_edges[2, 1] == resolved_edges[0, 0]
             ), "The edges in the triangle must be connected."
 
-    def _check_index(self, index: csr_array):
+    def _check_index(self, index: csr_matrix):
         edges = []
         for e in range(1, self.oriented_edges.shape[0] + 1):
             i, j = self.oriented_edges[e - 1, :]
@@ -415,7 +416,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
     @classmethod
     def from_adjacency(  # noqa: C901
         cls,
-        adjacency_matrix: Union[B.NPNumeric, sparray, spmatrix],
+        adjacency_matrix: Union[B.NPNumeric, SparseArray],
         type_reference: B.RandomState,
         *,
         triangles: Optional[List[Tuple[int, int, int]]] = None,
@@ -444,9 +445,9 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
             A constructed instance of the GraphEdges space.
         """
         if isinstance(adjacency_matrix, np.ndarray):
-            index = csr_array(adjacency_matrix, dtype=int)
-        elif isinstance(adjacency_matrix, (sparray, spmatrix)):
-            index = csr_array(adjacency_matrix, dtype=int, copy=True)
+            index = csr_matrix(adjacency_matrix, dtype=int)
+        elif isinstance(adjacency_matrix, SparseArray):
+            index = csr_matrix(adjacency_matrix, dtype=int, copy=True)
         else:
             raise ValueError(
                 f"The adjacency matrix must be a numpy array or a scipy sparse matrix not {type(adjacency_matrix)}. Use `type_reference` to specify the backend."
