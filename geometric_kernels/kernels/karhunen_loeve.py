@@ -51,6 +51,14 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         Number of levels to include in the summation.
     :param normalize:
         Whether to normalize kernel to have unit average variance.
+    :param eigenvalues_laplacian:
+        Allowing to pass the eigenvalues of the Laplacian directly, instead of
+        computing them from the space. If provided, `eigenfunctions` must also
+        be provided. Used for :class:`~.spaces.HodgeDiscreteSpectrumSpace`.
+    :param eigenfunctions:
+        Allowing to pass the eigenfunctions directly, instead of computing them
+        from the space. If provided, `eigenvalues_laplacian` must also be provided.
+        Used for :class:`~.spaces.HodgeDiscreteSpectrumSpace`.
     """
 
     def __init__(
@@ -58,11 +66,23 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         space: DiscreteSpectrumSpace,
         num_levels: int,
         normalize: bool = True,
+        eigenvalues_laplacian: Optional[B.Numeric] = None,
+        eigenfunctions: Optional[Eigenfunctions] = None,
     ):
         super().__init__(space)
         self.num_levels = num_levels  # in code referred to as `L`.
-        self._eigenvalues_laplacian = self.space.get_eigenvalues(self.num_levels)
-        self._eigenfunctions = self.space.get_eigenfunctions(self.num_levels)
+
+        if eigenvalues_laplacian is None:
+            assert eigenfunctions is None
+            eigenvalues_laplacian = self.space.get_eigenvalues(self.num_levels)
+            eigenfunctions = self.space.get_eigenfunctions(self.num_levels)
+        else:
+            assert eigenfunctions is not None
+            assert eigenvalues_laplacian.shape == (num_levels, 1)
+            assert eigenfunctions.num_levels == num_levels
+
+        self._eigenvalues_laplacian = eigenvalues_laplacian
+        self._eigenfunctions = eigenfunctions
         self.normalize = normalize
 
     @property
@@ -93,12 +113,14 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
 
         return params
 
-    def _spectrum(
-        self, s: B.Numeric, nu: B.Numeric, lengthscale: B.Numeric
+    @staticmethod
+    def spectrum(
+        s: B.Numeric, nu: B.Numeric, lengthscale: B.Numeric, dimension: int
     ) -> B.Numeric:
         """
-        The spectrum of the Matérn kernel with hyperparameters `nu` and
-        `lengthscale` on the space with eigenvalues `s`.
+        Static method computing the spectrum of the Matérn kernel with
+        hyperparameters `nu` and `lengthscale` on the space with eigenvalues `s`
+        and dimension `dimension`.
 
         :param s:
             The eigenvalues of the space.
@@ -106,6 +128,8 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             The smoothness parameter of the kernel.
         :param lengthscale:
             The length scale parameter of the kernel.
+        :param dimension:
+            The dimension of the space.
 
         :return:
             The spectrum of the Matérn kernel.
@@ -122,7 +146,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         )
 
         # for nu < np.inf
-        power = -safe_nu - self.space.dimension / 2.0
+        power = -safe_nu - dimension / 2.0
         base = 2.0 * safe_nu / lengthscale**2 + B.cast(B.dtype(safe_nu), s)
         spectral_values_nu_finite = base**power
 
@@ -144,9 +168,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         """
         return self._eigenvalues_laplacian
 
-    def eigenvalues(
-        self, params: Dict[str, B.Numeric], normalize: Optional[bool] = None
-    ) -> B.Numeric:
+    def eigenvalues(self, params: Dict[str, B.Numeric]) -> B.Numeric:
         """
         Eigenvalues of the kernel.
 
@@ -154,11 +176,6 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             Parameters of the kernel. Must contain keys `"lengthscale"` and
             `"nu"`. The shapes of `params["lengthscale"]` and `params["nu"]`
             are `(1,)`.
-        :param normalize:
-            Whether to normalize kernel to have unit average variance.
-            If None, uses `self.normalize` to decide.
-
-            Defaults to None.
 
         :return:
             An [L, 1]-shaped array.
@@ -168,13 +185,14 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         assert "nu" in params
         assert params["nu"].shape == (1,)
 
-        spectral_values = self._spectrum(
+        spectral_values = self.spectrum(
             self.eigenvalues_laplacian,
             nu=params["nu"],
             lengthscale=params["lengthscale"],
+            dimension=self.space.dimension,
         )
-        normalize = normalize or (normalize is None and self.normalize)
-        if normalize:
+
+        if self.normalize:
             normalizer = B.sum(
                 spectral_values
                 * B.cast(
@@ -186,10 +204,11 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
                 )
             )
             return spectral_values / normalizer
+
         return spectral_values
 
     def K(
-        self, params, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs  # type: ignore
+        self, params: Dict[str, B.Numeric], X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs  # type: ignore
     ) -> B.Numeric:
         assert "lengthscale" in params
         assert params["lengthscale"].shape == (1,)
@@ -204,7 +223,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         else:
             return K
 
-    def K_diag(self, params, X: B.Numeric, **kwargs) -> B.Numeric:
+    def K_diag(self, params: Dict[str, B.Numeric], X: B.Numeric, **kwargs) -> B.Numeric:
         assert "lengthscale" in params
         assert params["lengthscale"].shape == (1,)
         assert "nu" in params

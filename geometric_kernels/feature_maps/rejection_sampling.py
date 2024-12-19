@@ -6,7 +6,7 @@ for :class:`~.spaces.Hyperbolic` and
 """
 
 import lab as B
-from beartype.typing import Dict, Optional, Tuple
+from beartype.typing import Dict, Tuple
 
 from geometric_kernels.feature_maps.base import FeatureMap
 from geometric_kernels.feature_maps.probability_densities import (
@@ -50,7 +50,7 @@ class RejectionSamplingFeatureMapHyperbolic(FeatureMap):
         params: Dict[str, B.Numeric],
         *,
         key: B.RandomState,
-        normalize: Optional[bool] = True,
+        normalize: bool = True,
         **kwargs,
     ) -> Tuple[B.RandomState, B.Numeric]:
         """
@@ -83,9 +83,6 @@ class RejectionSamplingFeatureMapHyperbolic(FeatureMap):
             `key` is the updated random key for `jax`, or the similar random
             state (generator) for any other backends.
         """
-        # Default behavior
-        if normalize is None:
-            normalize = True
 
         key, random_phases = self.space.random_phases(
             key, self.num_random_phases
@@ -151,7 +148,7 @@ class RejectionSamplingFeatureMapSPD(FeatureMap):
         params: Dict[str, B.Numeric],
         *,
         key: B.RandomState,
-        normalize: Optional[bool] = True,
+        normalize: bool = True,
         **kwargs,
     ) -> Tuple[B.RandomState, B.Numeric]:
         """
@@ -184,9 +181,6 @@ class RejectionSamplingFeatureMapSPD(FeatureMap):
             `key` is the updated random key for `jax`, or the similar random
             state (generator) for any other backends.
         """
-        # Default behavior for normalization
-        if normalize is None:
-            normalize = True
 
         key, random_phases = self.space.random_phases(
             key, self.num_random_phases

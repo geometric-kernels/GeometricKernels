@@ -68,6 +68,7 @@ def test_eigendecomposition(L, normalized, backend):
         eigvals_x_eigvecs = eigenvectors @ eigenvalue_mat
         return laplace_x_eigvecs - eigvals_x_eigvecs
 
+    # Check that the computed eigenpairs are actually eigenpairs
     check_function_with_backend(
         backend,
         np.zeros((TEST_GRAPH_ADJACENCY.shape[0], L)),
@@ -112,6 +113,7 @@ def test_matern_kernels(nu, lengthscale, sparse_adj, normalized, backend):
         K = evecs_np @ np.diag(np.exp(-(lengthscale**2) / 2 * evals_np)) @ evecs_np.T
     K = K / np.mean(K.diagonal())
 
+    # Check that the kernel matrix is correctly computed
     check_function_with_backend(
         backend,
         K,

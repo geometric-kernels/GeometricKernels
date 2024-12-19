@@ -5,11 +5,13 @@ Various spaces supported by the library as input domains for kernels.
 # noqa: F401
 from geometric_kernels.spaces.base import (
     DiscreteSpectrumSpace,
+    HodgeDiscreteSpectrumSpace,
     NoncompactSymmetricSpace,
     Space,
 )
 from geometric_kernels.spaces.circle import Circle
 from geometric_kernels.spaces.graph import Graph
+from geometric_kernels.spaces.graph_edges import GraphEdges
 from geometric_kernels.spaces.hyperbolic import Hyperbolic
 from geometric_kernels.spaces.hypercube_graph import HypercubeGraph
 from geometric_kernels.spaces.hypersphere import Hypersphere
