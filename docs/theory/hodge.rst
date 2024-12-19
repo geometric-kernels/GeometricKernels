@@ -1,6 +1,6 @@
-####################
+#####################
   Hodge Decomposition
-####################
+#####################
 
 In a simplicial 2-complex, for an edge flow $\mathbf{f}$, we have the following discrete operations to measure its variational properties: 
 

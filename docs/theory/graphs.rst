@@ -81,43 +81,59 @@ The notation here is as follows.
 Edge Set of a Graph
 ==========================
 
-if you want to model a **signal on the edges** of a graph $G$, you can consider modeling the signal on the nodes of the `line graph <https://en.wikipedia.org/wiki/Line_graph>`_. The line graph of $G$ has a node for each edge of $G$ and its two nodes are connected by an edge if the corresponding edges in $G$ used to share a common node. To build the line graph, you can use the `line_graph <https://networkx.org/documentation/stable/reference/generated/networkx.generators.line.line_graph.html#line-graph>`_ function from `networkx <https://networkx.org>`_.
+If you want to model a signal on the edges of a graph $G$, you can consider modeling the signal on the nodes of the `line graph <https://en.wikipedia.org/wiki/Line_graph>`_.
+The line graph of $G$ has a node for each edge of $G$ and its two nodes are connected by an edge if the corresponding edges in $G$ used to share a common node.
+To build the line graph, you can use the `line_graph <https://networkx.org/documentation/stable/reference/generated/networkx.generators.line.line_graph.html#line-graph>`_ function from `networkx <https://networkx.org>`_.
+Alternatively, especially for the **flow-type data**, you might want to use specialized edge kernels that we briefly describe below.
 
-Alternatively, especially for the flow-type data, you might want to use specialized edge kernels, see :cite:t:`yang2024` and :cite:t:`alain2023`.
-These are, however, not implemented in GeometricKernels at the moment.
+To define kernels for flow-type data on graph edges, the graph is extended to a *simplicial 2-complex*.  
+You can ignore the concept of a simplicial 2-complex and treat the space as a graph as GeometricKernels can automatically extend your graph to a simplicial 2-complex in a sensible way.
+If you ignore the simplicial 2-complex, disregard the rest of this section as it relies on that concept.
 
+Simplicial 2-complexes
+----------------------
 
-Consider a simplicial 2-complex with $N_0$ nodes, $N_1$ edges and $N_2$ triangular faces (triangles). 
-We additionally assign reference orientations [#]_ to the edges and triangles according to the increaseing order of their node labels. 
+A *simplicial 2-complex* is a collection of $N_0$ nodes, $N_1$ edges, and $N_2$ triangles such that each triangle is a subset of three nodes and each edge is a subset of two nodes.
+The edges are not directed, but they are oriented [#]_.
 An oriented edge, denoted as $e=[i,j]$ is an ordering of $\{i,j\}$. 
-**Note that** this is not a directed edge allowing flow only from $i$ to $j$, but rather an assignment of the sign of the flow: from $i$ to $j$ it is positive and the reverse is negative. 
-Same goes for oriented triangles, denoted as $t=[i,j,k]$ and we have $t=[i,j,k] = [j,k,i] = [k,i,j] = -[i,k,j] = -[k,j,i] = -[j,i,k]$.
+This is not a directed edge allowing flow only from $i$ to $j$, but rather an assignment of the sign of the flow: from $i$ to $j$ it is positive and the reverse is negative. 
+Same goes for oriented triangles, denoted as $t=[i,j,k]$, with
+$$
+t=[i,j,k] = [j,k,i] = [k,i,j] = -[i,k,j] = -[k,j,i] = -[j,i,k]
+.
+$$
 
-In a simplicial 2-complex, the functions, $f_1:E\to\mathbb{R}$, on its edges $E$ are required to be _alternating_ :cite:p:`lim2020hodge`. 
-By collecting the edge functions on $E$ into a vector $\mathbf{f}_1=[f_1(e_1),\dots,f_1(e_{N_1})]^\top\in\mathbb{R}^{N_1}$, we then obtain an **edge flow**. 
- 
+A function $f_1:E \to \mathbb{R}$ on the edge set $E$ of a simplicial 2-complex is required to be alternating, i.e. $f_1(-e) = -f_1(e)$ for all $e \in E$.
+Such a function may be identified with the vector
+$$
+\mathbf{f}_1=[f_1(e_1),\dots,f_1(e_{N_1})]^\top\in\mathbb{R}^{N_1}
+$$
+of its values on all positively oriented edges $e_i$ which we call an **edge flow**. 
+
 Given a simplicial 2-complex, we can define the discrete **Hodge Laplacian**, which operates on the space of edge flows, as 
 $$
 \mathbf{L} = \mathbf{B}_1^\top \mathbf{B}_1 + \mathbf{B}_2 \mathbf{B}_2^\top := \mathbf{L}_{\text{d}} + \mathbf{L}_{\text{u}},
 $$
 where $\mathbf{B}_1$ is the *oriented* node-to-edge incidence matrix of dimension $N_0\times N_1$, and $\mathbf{B}_2$ is the *oriented* edge-to-triangle incidence matrix of dimension $N_1\times N_2$. 
-For $\mathbf{B}_2$, its entries are $[ \mathbf{B}_2 ]_{e t} = 1$, for $e = [i, j]$ or $e = [j, k]$, and $[ \mathbf{B}_2 ]_{e t} = -1$ for $e = [i, k]$, if a triangle $t = [i, j, k]$ exists, and zero otherwise.
+For every positively oriented edge $[i, j]$, we have $[ \mathbf{B}_1 ]_{i e} = 1$ and $[ \mathbf{B}_1 ]_{j e} = -1$.
+All the other entries of $\mathbf{B}_1$ are zero.
+If an edge $e$ is aligned with the triangle $t$, we have $[ \mathbf{B}_2 ]_{e t} = 1$, if $-e$ is aligned with $t$, we have $[ \mathbf{B}_2 ]_{e t} = -1$.
+All the other entries of $\mathbf{B}_2$ are zero.
 
-Thus, the Hodge Laplacian $\mathbf{L}$ describes the connectivity of edges where the *down* part $\mathbf{L}_d$ and the *up* part $\mathbf{L}_u$ encode how edges are adjacent, respectively, through nodes and via triangles.
+The Hodge Laplacian $\mathbf{L}$ describes the connectivity of edges where the *down* part $\mathbf{L}_d$ and the *up* part $\mathbf{L}_u$ encode how edges are adjacent, respectively, through nodes and via triangles.
 Matrix $\mathbf{L}$ is positive semi-definite, admitting an eigendecomposition $\mathbf{L} = \mathbf{U} \boldsymbol{\Lambda} \mathbf{U}^{T}$ where diagonal matrix $\boldsymbol{\Lambda} = \text{diag}(\lambda_1, \dots, \lambda_N)$ collects the eigenvalues and $\mathbf{U}$ is the eigenvector matrix. 
-Here, we consider the unweighted $\mathbf{L}$ but it also holds for the weighted variants.
 
 The eigenvectors provide an orthonormal basis for the space of edge flows. 
 Furthermore, the  :doc:`Hodge decomposition </theory/hodge>` says that the space of edge flows can be decomposed into harmonic, gradient and curl subspaces. 
-Moreover, :cite:t:`yang2022simplicial` showed that the eigenspace of the Hodge Laplacian can be reorganized in terms of the three Hodge subspaces as 
+Moreover, the eigenspace of the Hodge Laplacian can be reorganized in terms of the three Hodge subspaces as 
 $$
 \mathbf{U} = \begin{bmatrix} \mathbf{U}_{H} & \mathbf{U}_{G} & \mathbf{U}_{C} \end{bmatrix},
 $$
 where $\mathbf{U}_H$ is the eigenvector matrix associated to zero eigenvalues $\boldsymbol{\Lambda}_H = 0$ of $\mathbf{L}_1$, $\mathbf{U}_G$ is associated to the nonzero eigenvalues $\boldsymbol{\Lambda}_G$ of $\mathbf{L}_d$, and $\mathbf{U}_C$ is associated to the nonzero eigenvalues $\boldsymbol{\Lambda}_C$ of $\mathbf{L}_u$. 
 That is, they span the Hodge subspaces:
 $$
-\mathrm{span}(\mathbf{U}_H) = \ker(\mathbf{L}_1), \quad \mathrm{span}(\mathbf{U}_G) = \mathrm{im}(\mathbf{B}_1^{\top}), \quad
-\mathrm{span}(\mathbf{U}_C) = \mathrm{im}(\mathbf{B}_2)
+\mathrm{span}(\mathbf{U}_H) = \ker(\mathbf{L}), \quad \mathrm{span}(\mathbf{U}_G) = \mathrm{im}(\mathbf{B}_1^{\top}) = \mathrm{im}(\mathbf{L}_d), \quad
+\mathrm{span}(\mathbf{U}_C) = \mathrm{im}(\mathbf{B}_2)  = \mathrm{im}(\mathbf{L}_u)
 $$
 where $\mathrm{span}(\bullet)$ denotes all possible linear combinations of columns of $\bullet$.
 
