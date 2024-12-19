@@ -7,6 +7,7 @@ Spaces
    :titlesonly:
 
    Graph <Graph>
+   GraphEdges <GraphEdges>
    Hyperbolic <Hyperbolic>
    HypercubeGraph <HypercubeGraph>
    Hypersphere <Hypersphere>

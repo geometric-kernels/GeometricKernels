@@ -46,7 +46,10 @@ def test_walsh_functions(all_xs_and_combs, backend):
 
     # Check that Walsh functions only take values in the set {-1, 1}.
     check_function_with_backend(
-        backend, np.ones((2**d, 2**d)), lambda X: B.abs(walsh_matrix(d, combs, X)), X
+        backend,
+        np.ones((2**d, 2**d)),
+        lambda X: B.abs(walsh_matrix(d, combs, X)),
+        X,
     )
 
 

@@ -258,7 +258,7 @@ def dtype_bool(reference: B.TorchRandomState):  # type: ignore
 
 
 @dispatch
-def bool_like(reference: B.NPNumeric):
+def bool_like(reference: B.TorchNumeric):
     """
     Return the type of the reference if it is of boolean type.
     Otherwise return `bool` dtype of a backend based on the reference.
