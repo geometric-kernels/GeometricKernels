@@ -59,7 +59,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
         the functions satisfying the condition f(e) = -f(-e) are called
         1-cochains. These admit a Hodge decomposition into the harmonic,
         gradient, and curl parts. You can find more about Hodge decomposition
-        on :doc:`this page </theory/hodge>`.
+        on :doc:`this page </theory/graphs>`.
 
     .. admonition:: Construction
 

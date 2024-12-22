@@ -14,4 +14,3 @@
    Product kernels <product_kernels>
    Feature maps and sampling <feature_maps>
    Hypercube graph space <hypercube_graph>
-   Hodge Decomposition <hodge>

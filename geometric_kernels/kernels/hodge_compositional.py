@@ -43,7 +43,7 @@ class MaternHodgeCompositionalKernel(BaseGeometricKernel):
     .. note::
         A brief introduction into the theory behind
         :class:`~.kernels.MaternHodgeCompositionalKernel` can be found in
-        :doc:`this </theory/hodge>` documentation page.
+        :doc:`this </theory/graphs>` documentation page.
 
     :param space:
         The space to define the kernel upon, a subclass of :class:`~.spaces.HodgeDiscreteSpectrumSpace`.
