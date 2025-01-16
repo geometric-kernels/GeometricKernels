@@ -28,7 +28,7 @@ dependencies = [
     "geomstats",
     "numpy>=1.16",
     "opt-einsum",
-    "plum-dispatch>=2.2.0",
+    "plum-dispatch>=2.2.0,<2.5.6",
     "potpourri3d",
     "robust_laplacian",
     "scipy>=1.3",
