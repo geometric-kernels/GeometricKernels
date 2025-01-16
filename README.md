@@ -6,7 +6,7 @@
 
 [![GeometricKernels](https://geometric-kernels.github.io/assets/title-sm.png)](https://geometric-kernels.github.io/)
 
-GeometricKernels is a library that implements kernels including the heat and Matérn class on non-Euclidean spaces as **Riemannian manifolds**, **graphs** and **meshes**.
+GeometricKernels is a library that implements kernels &mdash; most importantly, heat and Matérn kernels &mdash; on non-Euclidean spaces such as **Riemannian manifolds**, **graphs** and **meshes**.
 This enables kernel methods &mdash; in particular Gaussian process models &mdash; to be deployed on such spaces.
 
 ## Installation
