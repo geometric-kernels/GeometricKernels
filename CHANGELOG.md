@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.2.3 - 16.01.2025
+* Constraint version of plum-dispatch because of wesselb/lab#23
+
 ## v0.2.2 - 29.11.2024
 * Replace opt_einsum's contract with lab's einsum for better backend-independence by @vabor112 in https://github.com/geometric-kernels/GeometricKernels/pull/145
 * Hypersphere space small improvements by @vabor112 in https://github.com/geometric-kernels/GeometricKernels/pull/142
