@@ -21,6 +21,7 @@ def sample_at(
     params: Dict[str, B.Numeric],
     key: B.RandomState = None,
     normalize: bool = None,
+    hodge_type: Optional[str] = None,
 ) -> Tuple[B.RandomState, B.Numeric]:
     r"""
     Given a `feature_map` $\phi_{\nu, \kappa}: X \to \mathbb{R}^n$, where
@@ -62,6 +63,10 @@ def sample_at(
         follows the standard behavior, typically same as normalize=True.
 
         Defaults to None.
+    :param hodge_type:
+        The type of Hodge component to sample. Only used when using Hodge-compositional edge kernels
+
+        Defaults to None.
 
     :return:
         [N, s]-shaped array containing s samples of the $GP(0, k_{\nu, \kappa})$
@@ -71,16 +76,26 @@ def sample_at(
     if key is None:
         key = B.global_random_state(B.dtype(X))
 
-    _context, features = feature_map(X, params, key=key, normalize=normalize)  # [N, M]
+    if hodge_type is None:
+        _context, features = feature_map(
+            X, params, key=key, normalize=normalize
+        )  # [N, M]
+    else:
+        _context, features = feature_map(
+            X, params, key=key, normalize=normalize, hodge_type=hodge_type
+        )
 
     if _context is not None:
         key = _context
 
     num_features = B.shape(features)[-1]
 
-    key, random_weights = B.randn(
-        key, B.dtype(params["lengthscale"]), num_features, s
-    )  # [M, S]
+    if "lengthscale" in params:
+        dtype = B.dtype(params["lengthscale"])
+    else:
+        dtype = B.dtype(params["gradient"]["lengthscale"])
+
+    key, random_weights = B.randn(key, dtype, num_features, s)  # [M, S]
 
     random_sample = B.matmul(features, random_weights)  # [N, S]
 

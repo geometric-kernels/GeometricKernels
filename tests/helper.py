@@ -10,6 +10,8 @@ from geometric_kernels.spaces import (
     CompactMatrixLieGroup,
     DiscreteSpectrumSpace,
     Graph,
+    GraphEdges,
+    HodgeDiscreteSpectrumSpace,
     Hyperbolic,
     HypercubeGraph,
     Hypersphere,
@@ -22,7 +24,13 @@ from geometric_kernels.spaces import (
     SymmetricPositiveDefiniteMatrices,
 )
 
-from .data import TEST_GRAPH_ADJACENCY, TEST_MESH_PATH
+from .data import (
+    TEST_GRAPH_ADJACENCY,
+    TEST_GRAPH_EDGES_NUM_NODES,
+    TEST_GRAPH_EDGES_ORIENTED_EDGES,
+    TEST_GRAPH_EDGES_ORIENTED_TRIANGLES,
+    TEST_MESH_PATH,
+)
 
 EagerTensor = ModuleType("tensorflow.python.framework.ops", "EagerTensor")
 
@@ -46,6 +54,16 @@ def product_discrete_spectrum_spaces() -> List[ProductDiscreteSpectrumSpace]:
     ]
 
 
+def hodge_discrete_spectrum_spaces() -> List[HodgeDiscreteSpectrumSpace]:
+    return [
+        GraphEdges(
+            TEST_GRAPH_EDGES_NUM_NODES,
+            TEST_GRAPH_EDGES_ORIENTED_EDGES,
+            TEST_GRAPH_EDGES_ORIENTED_TRIANGLES,
+        ),
+    ]
+
+
 def discrete_spectrum_spaces() -> List[DiscreteSpectrumSpace]:
     return (
         [
@@ -62,6 +80,7 @@ def discrete_spectrum_spaces() -> List[DiscreteSpectrumSpace]:
         ]
         + compact_matrix_lie_groups()
         + product_discrete_spectrum_spaces()
+        + hodge_discrete_spectrum_spaces()
     )
 
 

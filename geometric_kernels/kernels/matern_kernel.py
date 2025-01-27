@@ -11,6 +11,7 @@ from plum import dispatch, overload
 
 from geometric_kernels.feature_maps import (
     DeterministicFeatureMapCompact,
+    HodgeDeterministicFeatureMapCompact,
     RandomPhaseFeatureMapCompact,
     RandomPhaseFeatureMapNoncompact,
     RejectionSamplingFeatureMapHyperbolic,
@@ -18,11 +19,14 @@ from geometric_kernels.feature_maps import (
 )
 from geometric_kernels.kernels.base import BaseGeometricKernel
 from geometric_kernels.kernels.feature_map import MaternFeatureMapKernel
+from geometric_kernels.kernels.hodge_compositional import MaternHodgeCompositionalKernel
 from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import (
     CompactMatrixLieGroup,
     DiscreteSpectrumSpace,
     Graph,
+    GraphEdges,
+    HodgeDiscreteSpectrumSpace,
     Hyperbolic,
     HypercubeGraph,
     Hypersphere,
@@ -85,6 +89,11 @@ def feature_map_from_kernel(kernel: MaternKarhunenLoeveKernel):
 
 
 @overload
+def feature_map_from_kernel(kernel: MaternHodgeCompositionalKernel):
+    return HodgeDeterministicFeatureMapCompact(kernel.space, kernel.num_levels)
+
+
+@overload
 def feature_map_from_kernel(kernel: MaternFeatureMapKernel):
     return kernel.feature_map
 
@@ -140,6 +149,7 @@ def feature_map_from_space(space: DiscreteSpectrumSpace, num: int):
                 space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
             )
     else:
+
         return DeterministicFeatureMapCompact(space, num)
 
 
@@ -200,6 +210,8 @@ def default_num(space: DiscreteSpectrumSpace) -> int:
         return min(
             MaternGeometricKernel._DEFAULT_NUM_EIGENFUNCTIONS, space.num_vertices
         )
+    elif isinstance(space, GraphEdges):
+        return min(MaternGeometricKernel._DEFAULT_NUM_EIGENFUNCTIONS, space.num_edges)
     elif isinstance(space, HypercubeGraph):
         return min(MaternGeometricKernel._DEFAULT_NUM_LEVELS, space.dim + 1)
     else:
@@ -311,6 +323,7 @@ class MaternGeometricKernel:
             from Gaussian processes) along with the kernel.
 
             Default is False.
+
         :param ``**kwargs``:
             Any additional keyword arguments to be passed to the kernel
             (like `key`).
@@ -324,7 +337,10 @@ class MaternGeometricKernel:
         kernel: BaseGeometricKernel
         if isinstance(space, DiscreteSpectrumSpace):
             num = num or default_num(space)
-            kernel = MaternKarhunenLoeveKernel(space, num, normalize=normalize)
+            if isinstance(space, HodgeDiscreteSpectrumSpace):
+                kernel = MaternHodgeCompositionalKernel(space, num, normalize=normalize)
+            else:
+                kernel = MaternKarhunenLoeveKernel(space, num, normalize=normalize)
             if return_feature_map:
                 feature_map = default_feature_map(kernel=kernel)
 

@@ -7,6 +7,7 @@ import geometric_kernels.spaces
 from ..helper import (
     compact_matrix_lie_groups,
     discrete_spectrum_spaces,
+    hodge_discrete_spectrum_spaces,
     noncompact_symmetric_spaces,
     product_discrete_spectrum_spaces,
     spaces,
@@ -16,6 +17,10 @@ from ..helper import (
 @pytest.mark.parametrize(
     "fun, cls",
     [
+        (
+            hodge_discrete_spectrum_spaces,
+            geometric_kernels.spaces.HodgeDiscreteSpectrumSpace,
+        ),
         (compact_matrix_lie_groups, geometric_kernels.spaces.CompactMatrixLieGroup),
         (
             product_discrete_spectrum_spaces,

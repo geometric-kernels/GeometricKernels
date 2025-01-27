@@ -9,6 +9,7 @@ Unless you know exactly what you are doing, always use the
 # noqa: F401
 from geometric_kernels.kernels.base import BaseGeometricKernel
 from geometric_kernels.kernels.feature_map import MaternFeatureMapKernel
+from geometric_kernels.kernels.hodge_compositional import MaternHodgeCompositionalKernel
 from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
 from geometric_kernels.kernels.matern_kernel import (
     MaternGeometricKernel,
