@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.3 - 29.01.2025
+* Implementation of kernels on the edge space of graphs or simplicial complexes by @cookbook-ms in https://github.com/geometric-kernels/GeometricKernels/pull/139
+
 ## v0.2.3 - 16.01.2025
 * Constraint version of plum-dispatch because of wesselb/lab#23
 
