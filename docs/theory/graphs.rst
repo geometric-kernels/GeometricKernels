@@ -161,7 +161,7 @@ $$
 
 Where $L$ is the user-defined truncation parameter, and $C_{\nu, \kappa}$ is the normalizing constant making sure that $1/N_1 \sum k_{\nu, \kappa}(e, e) = 1$ where the summation is over all edges $e$ in positive orientation.
 
-Matérn Hodge Compositional Kernel
+Matérn Hodge-compositional Kernel
 ---------------------------------
 
 Edge flows can be thought of as discrete analogs of vector fields.
