@@ -1,0 +1,730 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Kernels on Meshes" href="meshes.html" /><link rel="prev" title="Addition Theorem" href="addition_theorem.html" />
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
+        <title>Kernels on Graphs - GeometricKernels documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap_namespaced.css?v=7458e3c8" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">GeometricKernels  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">GeometricKernels  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">GeometricKernels</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../examples/index.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../examples/examples.html">Spaces</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Spaces</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Graph.html">Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/GraphEdges.html">GraphEdges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Hyperbolic.html">Hyperbolic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/HypercubeGraph.html">HypercubeGraph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Hypersphere.html">Hypersphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Mesh.html">Mesh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/SPD.html">SPD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/SpecialOrthogonal.html">SpecialOrthogonal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/SpecialUnitary.html">SpecialUnitary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/Torus.html">Torus</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../examples/examples.html#backends">Backends</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Backends</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/backends/JAX_Graph.html">JAX (Graph space)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/backends/PyTorch_Graph.html">PyTorch (Graph space)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/backends/TensorFlow_Graph.html">TensorFlow (Graph space)</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../examples/examples.html#frontends">Frontends</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Frontends</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/frontends/GPflow.html">GPFlow (Mesh space)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/frontends/GPJax.html">GPJax (Mesh space)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/frontends/GPyTorch.html">GPyTorch (Mesh space)</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../examples/examples.html#other">Other</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Other</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../examples/other/Bayesian%20Optimization.html">Bayesian optimization on a sphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/other/Hyperbolic%20Approximations.html">Comparing approximations on Hyperbolic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../examples/other/SPD%20Approximations.html">Comparing approximations on SPD</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Theory</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Theory</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="compact.html">Kernels on compact manifolds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="addition_theorem.html">Addition theorem</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Kernels on graphs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meshes.html">Kernels on meshes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="symmetric.html">Kernels on non-compact symmetric spaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="product_spaces.html">Kernels on product spaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="product_kernels.html">Product kernels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="feature_maps.html">Feature maps and sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="hypercube_graph.html">Hypercube graph space</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../autoapi/geometric_kernels/index.html">API reference</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of API reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/geometric_kernels/feature_maps/index.html">geometric_kernels.feature_maps</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of geometric_kernels.feature_maps</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/feature_maps/base/index.html">geometric_kernels.feature_maps.base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/feature_maps/deterministic/index.html">geometric_kernels.feature_maps.deterministic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/feature_maps/probability_densities/index.html">geometric_kernels.feature_maps.probability_densities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/feature_maps/random_phase/index.html">geometric_kernels.feature_maps.random_phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/feature_maps/rejection_sampling/index.html">geometric_kernels.feature_maps.rejection_sampling</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/geometric_kernels/frontends/index.html">geometric_kernels.frontends</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of geometric_kernels.frontends</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/frontends/gpflow/index.html">geometric_kernels.frontends.gpflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/frontends/gpjax/index.html">geometric_kernels.frontends.gpjax</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/frontends/gpytorch/index.html">geometric_kernels.frontends.gpytorch</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/geometric_kernels/jax/index.html">geometric_kernels.jax</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/geometric_kernels/kernels/index.html">geometric_kernels.kernels</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of geometric_kernels.kernels</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/kernels/base/index.html">geometric_kernels.kernels.base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/kernels/feature_map/index.html">geometric_kernels.kernels.feature_map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/kernels/hodge_compositional/index.html">geometric_kernels.kernels.hodge_compositional</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/kernels/karhunen_loeve/index.html">geometric_kernels.kernels.karhunen_loeve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/kernels/matern_kernel/index.html">geometric_kernels.kernels.matern_kernel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/kernels/product/index.html">geometric_kernels.kernels.product</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/geometric_kernels/lab_extras/index.html">geometric_kernels.lab_extras</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/geometric_kernels/sampling/index.html">geometric_kernels.sampling</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle navigation of geometric_kernels.sampling</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/sampling/samplers/index.html">geometric_kernels.sampling.samplers</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/index.html">geometric_kernels.spaces</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle navigation of geometric_kernels.spaces</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/base/index.html">geometric_kernels.spaces.base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/circle/index.html">geometric_kernels.spaces.circle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/eigenfunctions/index.html">geometric_kernels.spaces.eigenfunctions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/graph/index.html">geometric_kernels.spaces.graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/graph_edges/index.html">geometric_kernels.spaces.graph_edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/hyperbolic/index.html">geometric_kernels.spaces.hyperbolic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/hypercube_graph/index.html">geometric_kernels.spaces.hypercube_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/hypersphere/index.html">geometric_kernels.spaces.hypersphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/lie_groups/index.html">geometric_kernels.spaces.lie_groups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/mesh/index.html">geometric_kernels.spaces.mesh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/product/index.html">geometric_kernels.spaces.product</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/so/index.html">geometric_kernels.spaces.so</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/spd/index.html">geometric_kernels.spaces.spd</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/su/index.html">geometric_kernels.spaces.su</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/geometric_kernels/tensorflow/index.html">geometric_kernels.tensorflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/geometric_kernels/torch/index.html">geometric_kernels.torch</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/geometric_kernels/utils/index.html">geometric_kernels.utils</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle navigation of geometric_kernels.utils</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/utils/manifold_utils/index.html">geometric_kernels.utils.manifold_utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/utils/product/index.html">geometric_kernels.utils.product</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/utils/special_functions/index.html">geometric_kernels.utils.special_functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/utils/utils/index.html">geometric_kernels.utils.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/geometric_kernels/version/index.html">geometric_kernels.version</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/geometric-kernels/GeometricKernels">GitHub</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../_sources/theory/graphs.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="kernels-on-graphs">
+<h1>Kernels on Graphs<a class="headerlink" href="#kernels-on-graphs" title="Link to this heading">¶</a></h1>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>You can get by fine without reading this page for almost all use cases, just use the standard <a class="reference internal" href="../autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.MaternGeometricKernel" title="geometric_kernels.kernels.MaternGeometricKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaternGeometricKernel</span></code></a>, following <a class="reference internal" href="../examples/Graph.html"><span class="doc">this example notebook</span></a> if you are modeling a function of nodes, or <a class="reference internal" href="../examples/GraphEdges.html"><span class="doc">this example notebook</span></a> if you are modeling a function of edges.</p>
+<p>This is optional material meant to explain the basic theory and based mainly on <span id="id1">Borovitskiy <em>et al.</em> [<a class="reference internal" href="../bibliography.html#id3" title="Viacheslav Borovitskiy, Iskander Azangulov, Alexander Terenin, Peter Mostowsky, Marc Deisenroth, and Nicolas Durrande. Matérn Gaussian Processes on Graphs. In International Conference on Artificial Intelligence and Statistics. 2021.">2021</a>]</span>.</p>
+</div>
+<section id="node-set-of-a-graph">
+<h2>Node Set of a Graph<a class="headerlink" href="#node-set-of-a-graph" title="Link to this heading">¶</a></h2>
+<p>Consider a (weighted) undirected graph with <span class="math notranslate nohighlight">\(N\)</span> nodes determined by a (weighted) adjacency matrix <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> of size <span class="math notranslate nohighlight">\(N \times N\)</span>.
+The weights are nonnegative: <span class="math notranslate nohighlight">\(\mathbf{A}_{i j} \geq 0\)</span>.</p>
+<p>Let <span class="math notranslate nohighlight">\(\mathbf{D}\)</span> denote the degree matrix, i.e. the diagonal matrix with <span class="math notranslate nohighlight">\(\mathbf{D}_{j j} = \sum_{n=1}^N \mathbf{A}_{n j}\)</span>.
+Then there are two notions of the <em>graph Laplacian</em> you can use to define kernels: the <em>unnormalized graph Laplacian</em> <span class="math notranslate nohighlight">\(\mathbf{\Delta}_{un} = \mathbf{D} - \mathbf{A}\)</span> and the <em>symmetric normalized graph Laplacian</em> <span class="math notranslate nohighlight">\(\mathbf{\Delta}_{no} = \mathbf{I} - \mathbf{D}^{-1/2} \mathbf{A} \mathbf{D}^{-1/2}\)</span> where <span class="math notranslate nohighlight">\(\mathbf{I}\)</span> denotes the identity matrix.
+Which one to use is up to you. The performance will depend on the task at hand. In practice, it makes sense to try both.</p>
+<p>If <span class="math notranslate nohighlight">\(\mathbf{\Delta}\)</span> is either <span class="math notranslate nohighlight">\(\mathbf{\Delta}_{un}\)</span> or <span class="math notranslate nohighlight">\(\mathbf{\Delta}_{no}\)</span>, it is a symmetric positive semidefinite matrix.
+Because of this, there is an orthonormal basis <span class="math notranslate nohighlight">\(\{\boldsymbol f_l\}_{l=0}^{N-1}\)</span> of <span class="math notranslate nohighlight">\(\mathbb{R}^N\)</span> consisting of eigenvectors such that
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[
+\mathbf{\Delta} \boldsymbol f_l
+=
+\lambda_l \boldsymbol f_l
+\qquad
+\text{for}
+\qquad
+0 = \lambda_0 \leq \lambda_2 \leq \ldots \leq \lambda_{N-1}
+.
+\]</div>
+</div>
+</p>
+<p>The eigenvectors <span class="math notranslate nohighlight">\(\boldsymbol f_l\)</span> can be regarded as functions on the graph nodes: <span class="math notranslate nohighlight">\(f_l(j) = (\boldsymbol f_l)_j\)</span>.
+For graphs, <a class="reference internal" href="../autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.MaternGeometricKernel" title="geometric_kernels.kernels.MaternGeometricKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaternGeometricKernel</span></code></a> is an alias to <a class="reference internal" href="../autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.MaternKarhunenLoeveKernel" title="geometric_kernels.kernels.MaternKarhunenLoeveKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaternKarhunenLoeveKernel</span></code></a>.
+The latter is given by the formula
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\begin{split}
+k_{\nu, \kappa}(i,j)
+\!=\!
+\frac{1}{C_{\nu, \kappa}} \sum_{l=0}^{L-1} \Phi_{\nu, \kappa}(\lambda_l) f_l(i) f_l(j)
+\quad
+\Phi_{\nu, \kappa}(\lambda)
+=
+\begin{cases}
+\left(\frac{2\nu}{\kappa^2} + \lambda\right)^{-\nu}
+&amp;
+\nu &lt; \infty \text{ — Matérn}
+\\
+e^{-\frac{\kappa^2}{2} \lambda}
+&amp;
+\nu = \infty \text{ — Heat (RBF)}
+\end{cases}
+\end{split}\]</div>
+</div>
+
+The notation here is as follows.</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(1 \leq L \leq N\)</span> controls the quality of approximation of the kernel.</p>
+<ul>
+<li><p>Throughout the package, <span class="math notranslate nohighlight">\(L\)</span> is referred to as the <em>number of levels</em> (though this term may have different meaning for other spaces <a class="footnote-reference brackets" href="#id6" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a>).</p></li>
+<li><p>Setting <span class="math notranslate nohighlight">\(L = N\)</span> gives you the exact kernel but usually requires <span class="math notranslate nohighlight">\(O(N^3)\)</span> to compute the eigenpairs.</p></li>
+<li><p>Setting <span class="math notranslate nohighlight">\(L \ll N\)</span> can in principle allow much faster eigenpair computation for some graphs. Such techniques are, however, not (yet) implemented in the library.</p></li>
+</ul>
+</li>
+<li><p>The constant <span class="math notranslate nohighlight">\(C_{\nu, \kappa}\)</span> ensures that the average variance is equal to <span class="math notranslate nohighlight">\(1\)</span>, i.e. <span class="math notranslate nohighlight">\(\frac{1}{N} \sum_{n=1}^N k_{\nu, \kappa}(n, n) = 1\)</span>.</p>
+<ul>
+<li><p>It is easy to show that <span class="math notranslate nohighlight">\(C_{\nu, \kappa} = \sum_{l=0}^{L-1} \Phi_{\nu, \kappa}(\lambda_l)\)</span>.</p></li>
+</ul>
+</li>
+</ul>
+<p><strong>Notes:</strong></p>
+<ol class="arabic simple">
+<li><p>The “variance” <span class="math notranslate nohighlight">\(k(n, n)\)</span> can vary from point to point.</p></li>
+<li><p>Unlike the Euclidean or the manifold case, the <span class="math notranslate nohighlight">\(1/2, 3/2, 5/2\)</span> may fail to be the reasonable values of <span class="math notranslate nohighlight">\(\nu\)</span>.
+On the other hand, the parameter <span class="math notranslate nohighlight">\(\nu\)</span> is optimizable in the same way in which the lengthscale is.
+Keep in mind though that the optimization problem may require some trial and error to find a good initialization and that reasonable <span class="math notranslate nohighlight">\(\kappa\)</span> and <span class="math notranslate nohighlight">\(\nu\)</span> will heavily depend on the specific graph in a way that is hard to predict.</p></li>
+<li><p>Consider <span class="math notranslate nohighlight">\(\mathbf{A}' = \alpha^2 \mathbf{A}\)</span> for some <span class="math notranslate nohighlight">\(\alpha &gt; 0\)</span>.
+Then, for the normalized graph Laplacian <span class="math notranslate nohighlight">\(\mathbf{\Delta}_{no}\)</span>, we have <span class="math notranslate nohighlight">\(k_{\nu, \kappa}' (i, j) = k_{\nu, \kappa} (i, j)\)</span> where <span class="math notranslate nohighlight">\(k_{\nu, \kappa}'\)</span> is the kernel corresponding to <span class="math notranslate nohighlight">\(\mathbf{A}'\)</span> instead of <span class="math notranslate nohighlight">\(\mathbf{A}\)</span>.
+On the other hand, for the unnormalized graph Laplacian <span class="math notranslate nohighlight">\(\mathbf{\Delta}_{un}\)</span>, we have <span class="math notranslate nohighlight">\(k_{\nu, \kappa}' (i, j) = k_{\nu, \alpha \cdot \kappa} (i, j)\)</span>, i.e. the lengthscale changes.</p></li>
+</ol>
+</section>
+<section id="edge-set-of-a-graph">
+<h2>Edge Set of a Graph<a class="headerlink" href="#edge-set-of-a-graph" title="Link to this heading">¶</a></h2>
+<p>If you want to model a signal on the edges of a graph <span class="math notranslate nohighlight">\(G\)</span>, you can consider modeling the signal on the nodes of the <a class="reference external" href="https://en.wikipedia.org/wiki/Line_graph">line graph</a>.
+The line graph of <span class="math notranslate nohighlight">\(G\)</span> has a node for each edge of <span class="math notranslate nohighlight">\(G\)</span> and its two nodes are connected by an edge if the corresponding edges in <span class="math notranslate nohighlight">\(G\)</span> used to share a common node.
+To build the line graph, you can use the <a class="reference external" href="https://networkx.org/documentation/stable/reference/generated/networkx.generators.line.line_graph.html#line-graph">line_graph</a> function from <a class="reference external" href="https://networkx.org">networkx</a>.
+Alternatively, especially for the <strong>flow-type data</strong>, you might want to use <strong>specialized edge kernels that we briefly describe below</strong>.</p>
+<p>To define kernels for flow-type data on graph edges, the graph is extended to a <em>simplicial 2-complex</em>.
+You can ignore the concept of a simplicial 2-complex and treat the space as a graph because GeometricKernels can automatically extend your graph to a simplicial 2-complex in a sensible way.
+However, if you prefer to ignore this concept, you may want to disregard the rest of this section too.</p>
+<section id="simplicial-2-complexes">
+<h3>Simplicial 2-complexes<a class="headerlink" href="#simplicial-2-complexes" title="Link to this heading">¶</a></h3>
+<p>A <em>simplicial 2-complex</em> is a collection of <span class="math notranslate nohighlight">\(N_0\)</span> nodes, <span class="math notranslate nohighlight">\(N_1\)</span> edges, and <span class="math notranslate nohighlight">\(N_2\)</span> triangles such that each triangle is a triplet of nodes and each edge is a pair of nodes.
+<strong>The edges are not directed, but they are oriented</strong> <a class="footnote-reference brackets" href="#id7" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.
+An oriented edge, denoted as <span class="math notranslate nohighlight">\(e=[i,j]\)</span> is an ordering of <span class="math notranslate nohighlight">\(\{i,j\}\)</span>.
+This is not a directed edge allowing flow only from <span class="math notranslate nohighlight">\(i\)</span> to <span class="math notranslate nohighlight">\(j\)</span>, but rather an assignment of the sign of the flow: from <span class="math notranslate nohighlight">\(i\)</span> to <span class="math notranslate nohighlight">\(j\)</span> it is positive and the reverse is negative.
+For <span class="math notranslate nohighlight">\(e=[i,j]\)</span>, we denote the same edge with reverse orientation by <span class="math notranslate nohighlight">\(-e=[j,i]\)</span>.
+Same goes for oriented triangles, denoted as <span class="math notranslate nohighlight">\(t=[i,j,k]\)</span>, where <span class="math notranslate nohighlight">\(i, j, k\)</span> are nodes, with
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[
+t=[i,j,k] = [j,k,i] = [k,i,j] = -[i,k,j] = -[k,j,i] = -[j,i,k]
+.
+\]</div>
+</div>
+</p>
+<p>A function <span class="math notranslate nohighlight">\(f : E \to \mathbb{R}\)</span> on the edge set <span class="math notranslate nohighlight">\(E\)</span> of a simplicial 2-complex is required to be <strong>alternating</strong>, i.e. <span class="math notranslate nohighlight">\(f(-e) = -f(e)\)</span> for all <span class="math notranslate nohighlight">\(e \in E\)</span>.
+Such a function may be identified with the vector
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[
+\mathbf{f}=[f(e_1),\dots,f(e_{N_1})]^\top\in\mathbb{R}^{N_1}
+\]</div>
+</div>
+
+of its values on all positively oriented edges <span class="math notranslate nohighlight">\(e_i\)</span>.
+We call this vector an <strong>edge flow</strong>.</p>
+</section>
+<section id="hodge-laplacian">
+<h3>Hodge Laplacian<a class="headerlink" href="#hodge-laplacian" title="Link to this heading">¶</a></h3>
+<p>Given a simplicial 2-complex, we can define the discrete <strong>Hodge Laplacian</strong>, which operates on the space of edge flows, as
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[
+\mathbf{L} = \mathbf{B}_1^\top \mathbf{B}_1 + \mathbf{B}_2 \mathbf{B}_2^\top := \mathbf{L}_{\text{d}} + \mathbf{L}_{\text{u}},
+\]</div>
+</div>
+
+where <span class="math notranslate nohighlight">\(\mathbf{B}_1\)</span> is the <em>oriented</em> node-to-edge incidence matrix of dimension <span class="math notranslate nohighlight">\(N_0\times N_1\)</span>, and <span class="math notranslate nohighlight">\(\mathbf{B}_2\)</span> is the <em>oriented</em> edge-to-triangle incidence matrix of dimension <span class="math notranslate nohighlight">\(N_1\times N_2\)</span>.
+For every positively oriented edge <span class="math notranslate nohighlight">\(e=[i, j]\)</span>, we have <span class="math notranslate nohighlight">\([ \mathbf{B}_1 ]_{i e} = -1\)</span> and <span class="math notranslate nohighlight">\([ \mathbf{B}_1 ]_{j e} = 1\)</span>.
+All the other entries of <span class="math notranslate nohighlight">\(\mathbf{B}_1\)</span> are zero.
+If an edge <span class="math notranslate nohighlight">\(e\)</span> is aligned with the triangle <span class="math notranslate nohighlight">\(t\)</span>, we have <span class="math notranslate nohighlight">\([ \mathbf{B}_2 ]_{e t} = 1\)</span>, if <span class="math notranslate nohighlight">\(-e\)</span> is aligned with <span class="math notranslate nohighlight">\(t\)</span>, we have <span class="math notranslate nohighlight">\([ \mathbf{B}_2 ]_{e t} = -1\)</span>.
+All the other entries of <span class="math notranslate nohighlight">\(\mathbf{B}_2\)</span> are zero.</p>
+<p>The Hodge Laplacian <span class="math notranslate nohighlight">\(\mathbf{L}\)</span> describes the connectivity of edges where the <em>down</em> part <span class="math notranslate nohighlight">\(\mathbf{L}_d\)</span> and the <em>up</em> part <span class="math notranslate nohighlight">\(\mathbf{L}_u\)</span> encode how edges are adjacent, respectively, through nodes and via triangles.
+Matrix <span class="math notranslate nohighlight">\(\mathbf{L}\)</span> is positive semi-definite, admitting an orthonormal basis of eigenvectors <span class="math notranslate nohighlight">\(\mathbf{f}_1, \ldots, \mathbf{f}_{N_1}\)</span> with eigenvalues <span class="math notranslate nohighlight">\(\lambda_l\)</span>:
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[
+\mathbf{L} \mathbf{f}_l = \lambda_l \mathbf{f}_l
+\qquad
+\lambda_l \geq 0
+.
+\]</div>
+</div>
+
+The eigenvalues are assumed to be in ascending order: <span class="math notranslate nohighlight">\(\lambda_1 \leq \ldots \leq \lambda_{N_1}\)</span>.
+Each <span class="math notranslate nohighlight">\(\mathbf{f}_l\)</span> defines a function <span class="math notranslate nohighlight">\(f_l: E \to \mathbb{R}\)</span> with <span class="math notranslate nohighlight">\(f_l(e) = \left(\mathbf{f}_l\right)_{e}\)</span> if <span class="math notranslate nohighlight">\(e\)</span> is positively oriented and <span class="math notranslate nohighlight">\(f_l(e) = -f_l(-e)\)</span> otherwise.</p>
+</section>
+<section id="matern-karhunenloeve-kernel">
+<h3>Matérn Karhunen–Loève Kernel<a class="headerlink" href="#matern-karhunenloeve-kernel" title="Link to this heading">¶</a></h3>
+<p>The eigenpairs <span class="math notranslate nohighlight">\(\lambda_l, f_l\)</span> of the Hodge Laplacian can be used to define the <a class="reference internal" href="../autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.MaternKarhunenLoeveKernel" title="geometric_kernels.kernels.MaternKarhunenLoeveKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaternKarhunenLoeveKernel</span></code></a> on the set <span class="math notranslate nohighlight">\(E\)</span> of graph edges.
+Much like for the node set of a graph, this kernel is given by the formula
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\begin{split}
+k_{\nu, \kappa}(e,e')
+\!=\!
+\frac{1}{C_{\nu, \kappa}} \sum_{l=1}^{L} \Phi_{\nu, \kappa}(\lambda_l) f_l(e) f_l(e')
+\quad
+\Phi_{\nu, \kappa}(\lambda)
+=
+\begin{cases}
+\left(\frac{2\nu}{\kappa^2} + \lambda\right)^{-\nu}
+&amp;
+\nu &lt; \infty \text{ — Matérn}
+\\
+e^{-\frac{\kappa^2}{2} \lambda}
+&amp;
+\nu = \infty \text{ — Heat (RBF)}
+\end{cases}
+\end{split}\]</div>
+</div>
+</p>
+<p>Where <span class="math notranslate nohighlight">\(L\)</span> is the user-defined truncation parameter, and <span class="math notranslate nohighlight">\(C_{\nu, \kappa}\)</span> is the normalizing constant making sure that <span class="math notranslate nohighlight">\(1/N_1 \sum k_{\nu, \kappa}(e, e) = 1\)</span> where the summation is over all edges <span class="math notranslate nohighlight">\(e\)</span> in positive orientation.</p>
+</section>
+<section id="matern-hodge-compositional-kernel">
+<h3>Matérn Hodge-compositional Kernel<a class="headerlink" href="#matern-hodge-compositional-kernel" title="Link to this heading">¶</a></h3>
+<p>Edge flows can be thought of as discrete analogs of vector fields.
+Much like for vector fields, you can define the gradient, divergence and curl of an edge flow:
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{aligned}
+\operatorname{div} \mathbf{f} &amp;= \mathbf{B}_1 \mathbf{f},
+&amp;&amp;
+\mathbf{f} \in \mathbb{R}^{N_1},
+&amp;&amp;
+\operatorname{div} \mathbf{f} \in \mathbb{R}^{N_0},
+\\
+\operatorname{curl} \mathbf{f} &amp;= \mathbf{B}_2^{\top} \mathbf{f},
+&amp;&amp;
+\mathbf{f} \in \mathbb{R}^{N_1},
+&amp;&amp;
+\operatorname{curl} \mathbf{f} \in \mathbb{R}^{N_2}.
+\end{aligned}
+\end{split}\]</div>
+</div>
+
+We can also define the gradient <span class="math notranslate nohighlight">\(\operatorname{grad}\)</span>, that takes a node function (<span class="math notranslate nohighlight">\(\mathbb{R}^{N_0}\)</span> vector) returning an edge flow, and the curl-adjoint <span class="math notranslate nohighlight">\(\operatorname{curl}^*\)</span>, that takes a triangle function (<span class="math notranslate nohighlight">\(\mathbb{R}^{N_2}\)</span> vector) returning an edge flow:
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\begin{aligned}
+\operatorname{grad} \mathbf{g} &amp;= \mathbf{B}_1^{\top} \mathbf{g},
+&amp;&amp;
+\mathbf{g} \in \mathbb{R}^{N_0},
+&amp;&amp;
+\operatorname{grad} \mathbf{g} \in \mathbb{R}^{N_1},
+\\
+\operatorname{curl}^* \mathbf{h} &amp;= \mathbf{B}_2 \mathbf{h},
+&amp;&amp;
+\mathbf{h} \in \mathbb{R}^{N_2},
+&amp;&amp;
+\operatorname{curl}^* \mathbf{h} \in \mathbb{R}^{N_1}.
+\end{aligned}
+\end{split}\]</div>
+</div>
+
+In some applications, only divergence-free or curl-free flows are of interest.
+The <strong>Hodge decomposition</strong> provides a way to decompose edge flows into gradient (curl-free), curl-adjoint (divergence-free), and harmonic (curl-free and divergence-free at the same time) components.
+The curl-adjoint component we typically just call the curl component.
+It motivates the <a class="reference internal" href="../autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.MaternHodgeCompositionalKernel" title="geometric_kernels.kernels.MaternHodgeCompositionalKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaternHodgeCompositionalKernel</span></code></a> kernel, which is the underlying kernel for the <a class="reference internal" href="../autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.MaternGeometricKernel" title="geometric_kernels.kernels.MaternGeometricKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaternGeometricKernel</span></code></a> on the <a class="reference internal" href="../autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.GraphEdges" title="geometric_kernels.spaces.GraphEdges"><code class="xref py py-class docutils literal notranslate"><span class="pre">GraphEdges</span></code></a> space.</p>
+<p>Hodge decomposition implies that eigenvectors of the Hodge Laplacian can be chosen in such a way that they form three groups.</p>
+<ul class="simple">
+<li><p>The eigenvectors from the first group are denoted by <span class="math notranslate nohighlight">\(f_l^H\)</span> and called harmonic.
+They satisfy <span class="math notranslate nohighlight">\(\mathbf{L} f_l^H = \operatorname{div} f_l^H = \operatorname{curl} f_l^H = 0\)</span>, corresponding to <span class="math notranslate nohighlight">\(\lambda_l^H = 0\)</span> eigenvalues of the Hodge Laplacian <span class="math notranslate nohighlight">\(\mathbf{L}\)</span>.</p></li>
+<li><p>The eigenvectors from the second group are denoted by <span class="math notranslate nohighlight">\(f_l^G\)</span> and called gradient.
+They are curl-free: <span class="math notranslate nohighlight">\(\operatorname{curl} f_l^G = 0\)</span>, corresponding to nonzero eigenvalues <span class="math notranslate nohighlight">\(\lambda_l^G\)</span> of the down Laplacian <span class="math notranslate nohighlight">\(\mathbf{L}_d\)</span>.</p></li>
+<li><p>The eigenvectors from the third group are denoted by <span class="math notranslate nohighlight">\(f_l^C\)</span> and called curl(-adjoint).
+They are divergence-free: <span class="math notranslate nohighlight">\(\operatorname{div} f_l^C = 0\)</span>, corresponding to nonzero eigenvalues <span class="math notranslate nohighlight">\(\lambda_l^C\)</span> of the up Laplacian <span class="math notranslate nohighlight">\(\mathbf{L}_u\)</span>.</p></li>
+</ul>
+<p>The Hodge-compositional kernel is built to enable separable control on the different Hodge subspaces.
+For the truncation parameter <span class="math notranslate nohighlight">\(L\)</span>, one obtains <span class="math notranslate nohighlight">\(L\)</span> eigenpairs of the Hodge Laplacian corresponding to the lowest eigenvalues.
+Of them, <span class="math notranslate nohighlight">\(L_H\)</span> are associated with zero eigenvalues, <span class="math notranslate nohighlight">\(L_G\)</span> with nonzero eigenvalues of the down Laplacian, and <span class="math notranslate nohighlight">\(L_C\)</span> with nonzero eigenvalues of the up Laplacian.
+The kernel has three vector hyperparameters: <span class="math notranslate nohighlight">\(\mathbf{\nu} = (\nu_H, \nu_G, \nu_C)\)</span>; <span class="math notranslate nohighlight">\(\mathbf{\kappa} = (\kappa_H, \kappa_G, \kappa_C)\)</span>; and <span class="math notranslate nohighlight">\(\mathbf{\alpha} = (\alpha_H, \alpha_G, \alpha_C)\)</span>.
+It is given by the formula
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[
+k_{\mathbf{\nu}, \mathbf{\kappa}, \mathbf{\alpha}}(e,e')
+\propto
+\sum_{\Box \in {H,G,C}}
+\alpha_{\Box}
+\sum_{l=1}^{L_{\Box}} \Phi_{\nu_{\Box}, \kappa_{\Box}}(\lambda_l^{\Box}) f_l^{\Box}(e) f_l^{\Box}(e')
+\]</div>
+</div>
+
+where the proportionality constant is chosen to ensure that the average variance is equal to <span class="math notranslate nohighlight">\(1\)</span>.
+We have
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\Phi_{\Box}({\lambda}_{\Box})
+=
+\begin{cases}
+\sigma_{\Box}^2
+\left(\frac{2\nu_{\Box}}{\kappa_{\Box}^2} + \lambda_{\Box}\right)^{-\nu_{\Box}}
+&amp;
+\text{ — Matérn}
+\\
+\sigma_{\Box}^2
+e^{-\frac{\kappa_{\Box}^2}{2} \lambda_{\Box}}
+&amp;
+\text{ — Heat (RBF)}
+\end{cases}
+\end{split}\]</div>
+</div>
+
+Each of the inner sums is a kernel whose range lies only in one Hodge subspace.</p>
+<ul class="simple">
+<li><p>By setting <span class="math notranslate nohighlight">\(\alpha_{\Box} = 0\)</span>, you can effectively “turn off” the corresponding subspace.</p></li>
+<li><p>By using equal <span class="math notranslate nohighlight">\(\nu_{\Box}\)</span> and <span class="math notranslate nohighlight">\(\kappa_{\Box}\)</span> for all <span class="math notranslate nohighlight">\(\Box\)</span> and choosing appropriate <span class="math notranslate nohighlight">\(\alpha_{\Box}\)</span>, you can recover the Matérn Karhunen–Loève kernel, which is a special case of the Hodge-compositional Matérn kernel. <a class="footnote-reference brackets" href="#id8" id="id5" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a></p></li>
+<li><p>You can also automatically infer <span class="math notranslate nohighlight">\(\mathbf{\alpha}\)</span> from data.</p></li>
+</ul>
+<p class="rubric">Footnotes</p>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id6" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">1</a><span class="fn-bracket">]</span></span>
+<p>The notion of <em>levels</em> is discussed in the documentation of the <a class="reference internal" href="../autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.MaternKarhunenLoeveKernel" title="geometric_kernels.kernels.MaternKarhunenLoeveKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaternKarhunenLoeveKernel</span></code></a> and <a class="reference internal" href="../autoapi/geometric_kernels/spaces/eigenfunctions/index.html#geometric_kernels.spaces.eigenfunctions.Eigenfunctions" title="geometric_kernels.spaces.eigenfunctions.Eigenfunctions"><code class="xref py py-class docutils literal notranslate"><span class="pre">Eigenfunctions</span></code></a> classes.</p>
+</aside>
+<aside class="footnote brackets" id="id7" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">2</a><span class="fn-bracket">]</span></span>
+<p>The orientation of a general simplex is an equivalence class of permutations of its labels. Two orientations are equivalent (respectively, opposite) if they differ by an even (respectively, odd) permutation.</p>
+</aside>
+<aside class="footnote brackets" id="id8" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id5">3</a><span class="fn-bracket">]</span></span>
+<p>Although the formula on this page recovers the Matérn Karhunen–Loève kernel for <span class="math notranslate nohighlight">\(\alpha_H = \alpha_G = \alpha_C = 1\)</span>, the implementation is a bit different because of normalization considerations.</p>
+</aside>
+</aside>
+</section>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="meshes.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Kernels on Meshes</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="addition_theorem.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Addition Theorem</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022-2024, the GeometricKernels Contributors
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Kernels on Graphs</a><ul>
+<li><a class="reference internal" href="#node-set-of-a-graph">Node Set of a Graph</a></li>
+<li><a class="reference internal" href="#edge-set-of-a-graph">Edge Set of a Graph</a><ul>
+<li><a class="reference internal" href="#simplicial-2-complexes">Simplicial 2-complexes</a></li>
+<li><a class="reference internal" href="#hodge-laplacian">Hodge Laplacian</a></li>
+<li><a class="reference internal" href="#matern-karhunenloeve-kernel">Matérn Karhunen–Loève Kernel</a></li>
+<li><a class="reference internal" href="#matern-hodge-compositional-kernel">Matérn Hodge-compositional Kernel</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["\\(", "\\)"]], "processEscapes": true, "displayMath": [["\\[", "\\]"]]}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/scripts/bootstrap.min.js?v=ff982861"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    </body>
+</html>

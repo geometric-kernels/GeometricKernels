@@ -1,0 +1,215 @@
+geometric_kernels.spaces.hypersphere
+====================================
+
+.. py:module:: geometric_kernels.spaces.hypersphere
+
+.. autoapi-nested-parse::
+
+   This module provides the :class:`Hypersphere` space and the respective
+   :class:`~.eigenfunctions.Eigenfunctions` subclass :class:`SphericalHarmonics`.
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:class:: Hypersphere(dim)
+
+   Bases: :py:obj:`geometric_kernels.spaces.base.DiscreteSpectrumSpace`, :py:obj:`geomstats.geometry.hypersphere.Hypersphere`
+
+
+   The GeometricKernels space representing the d-dimensional hypersphere
+   $\mathbb{S}_d$ embedded in the (d+1)-dimensional Euclidean space.
+
+   The elements of this space are represented by (d+1)-dimensional vectors
+   of unit norm.
+
+   Levels are the whole eigenspaces.
+
+   .. note::
+       We only support d >= 2. For d = 1, use :class:`~.spaces.Circle`.
+
+   .. note::
+       A tutorial on how to use this space is available in the
+       :doc:`Hypersphere.ipynb </examples/Hypersphere>` notebook.
+
+   :param dim:
+       Dimension of the hypersphere $\mathbb{S}_d$.
+       Should satisfy dim >= 2. For dim = 1, use :class:`~.spaces.Circle`.
+
+   .. admonition:: Citation
+
+       If you use this GeometricKernels space in your research, please consider
+       citing :cite:t:`borovitskiy2020`.
+
+
+   .. py:method:: ehess2rhess(x, egrad, ehess, direction)
+
+      Riemannian Hessian along a given direction from the Euclidean Hessian.
+
+      Used to test that the heat kernel does indeed solve the heat equation.
+
+      :param x:
+          A point on the d-dimensional hypersphere.
+      :param egrad:
+          Euclidean gradient of a function defined in a neighborhood of the
+          hypersphere, evaluated at the point `x`.
+      :param ehess:
+          Euclidean Hessian of a function defined in a neighborhood of the
+          hypersphere, evaluated at the point `x`.
+      :param direction:
+          Direction to evaluate the Riemannian Hessian at. A tangent vector
+          at `x`.
+
+      :return:
+          A [dim]-shaped array that contains Hess_f(x)[direction], the value
+          of the Riemannian Hessian of the function evaluated at `x` along
+          the `direction`.
+
+      See :cite:t:`absil2008` for mathematical details.
+
+
+
+   .. py:method:: get_eigenfunctions(num)
+
+      Returns the :class:`~.SphericalHarmonics` object with `num` levels.
+
+      :param num:
+          Number of levels.
+
+
+
+   .. py:method:: get_eigenvalues(num)
+
+      Eigenvalues of the Laplacian corresponding to the first `num` levels.
+
+      :param num:
+          Number of levels.
+      :return:
+          (num, 1)-shaped array containing the eigenvalues.
+
+      .. note::
+          The notion of *levels* is discussed in the documentation of the
+          :class:`~.kernels.MaternKarhunenLoeveKernel`.
+
+
+
+   .. py:method:: get_repeated_eigenvalues(num)
+
+      Eigenvalues of the Laplacian corresponding to the first `num` levels,
+      repeated according to their multiplicity within levels.
+
+      :param num:
+          Number of levels.
+
+      :return:
+          (J, 1)-shaped array containing the repeated eigenvalues, J is
+          the resulting number of the repeated eigenvalues.
+
+      .. note::
+          The notion of *levels* is discussed in the documentation of the
+          :class:`~.kernels.MaternKarhunenLoeveKernel`.
+
+
+
+   .. py:method:: random(key, number)
+
+      Sample uniformly random points on the hypersphere.
+
+      Always returns [N, D+1] float64 array of the `key`'s backend.
+
+      :param key:
+          Either `np.random.RandomState`, `tf.random.Generator`,
+          `torch.Generator` or `jax.tensor` (representing random state).
+      :param number:
+          Number N of samples to draw.
+
+      :return:
+          An array of `number` uniformly random samples on the space.
+
+
+
+   .. py:property:: dimension
+      :type: int
+
+
+      Returns d, the `dim` parameter that was passed down to `__init__`.
+
+
+
+   .. py:property:: element_dtype
+
+      :return:
+          B.Float.
+
+
+
+   .. py:property:: element_shape
+
+      :return:
+          [d+1].
+
+
+
+.. py:class:: SphericalHarmonics(dim, num_levels)
+
+   Bases: :py:obj:`geometric_kernels.spaces.eigenfunctions.EigenfunctionsWithAdditionTheorem`
+
+
+   Eigenfunctions of the Laplace-Beltrami operator on the hypersphere
+   correspond to the spherical harmonics.
+
+   Levels are the whole eigenspaces.
+
+   :param dim:
+       Dimension of the hypersphere.
+
+       E.g. dim = 2 means the standard 2-dimensional sphere in $\mathbb{R}^3$.
+       We only support dim >= 2. For dim = 1, use :class:`~.spaces.Circle`.
+
+   :param num_levels:
+       Specifies the number of levels of the spherical harmonics.
+
+
+   .. py:method:: __call__(X, **kwargs)
+
+      Evaluate the individual eigenfunctions at a batch of input locations.
+
+      :param X:
+          Points to evaluate the eigenfunctions at, an array of
+          shape [N, <axis>], where N is the number of points and <axis> is
+          the shape of the arrays that represent the points in a given space.
+      :param ``**kwargs``:
+          Any additional parameters.
+
+      :return:
+          An [N, J]-shaped array, where `J` is the number of eigenfunctions.
+
+
+
+   .. py:property:: num_eigenfunctions
+      :type: int
+
+
+      The number J of eigenfunctions.
+
+
+
+   .. py:property:: num_eigenfunctions_per_level
+      :type: beartype.typing.List[int]
+
+
+      The number of eigenfunctions per level: list of $d_l$, $0 \leq l < L$.
+
+
+
+   .. py:property:: num_levels
+      :type: int
+
+
+      The number L of levels.
+
+
+

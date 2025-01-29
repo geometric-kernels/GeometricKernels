@@ -1,0 +1,2300 @@
+geometric_kernels.spaces
+========================
+
+.. py:module:: geometric_kernels.spaces
+
+.. autoapi-nested-parse::
+
+   Various spaces supported by the library as input domains for kernels.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/geometric_kernels/spaces/base/index
+   /autoapi/geometric_kernels/spaces/circle/index
+   /autoapi/geometric_kernels/spaces/eigenfunctions/index
+   /autoapi/geometric_kernels/spaces/graph/index
+   /autoapi/geometric_kernels/spaces/graph_edges/index
+   /autoapi/geometric_kernels/spaces/hyperbolic/index
+   /autoapi/geometric_kernels/spaces/hypercube_graph/index
+   /autoapi/geometric_kernels/spaces/hypersphere/index
+   /autoapi/geometric_kernels/spaces/lie_groups/index
+   /autoapi/geometric_kernels/spaces/mesh/index
+   /autoapi/geometric_kernels/spaces/product/index
+   /autoapi/geometric_kernels/spaces/so/index
+   /autoapi/geometric_kernels/spaces/spd/index
+   /autoapi/geometric_kernels/spaces/su/index
+
+
+
+
+Package Contents
+----------------
+
+.. py:class:: Circle
+
+   Bases: :py:obj:`geometric_kernels.spaces.base.DiscreteSpectrumSpace`
+
+
+   The GeometricKernels space representing the standard unit circle, denoted
+   by $\mathbb{S}_1$ (as the one-dimensional hypersphere) or $\mathbb{T}$ (as
+   the one-dimensional torus).
+
+   The elements of this space are represented by angles,
+   scalars from $0$ to $2 \pi$.
+
+   Levels are the whole eigenspaces. The zeroth eigenspace is
+   one-dimensional, all the other eigenspaces are of dimension 2.
+
+   .. note::
+       The :doc:`example notebook on the torus </examples/Torus>` involves
+       this space.
+
+   .. admonition:: Citation
+
+       If you use this GeometricKernels space in your research, please consider
+       citing :cite:t:`borovitskiy2020`.
+
+
+   .. py:method:: get_eigenfunctions(num)
+
+      Returns the :class:`~.SinCosEigenfunctions` object with `num` levels.
+
+      :param num:
+          Number of levels.
+
+
+
+   .. py:method:: get_eigenvalues(num)
+
+      Eigenvalues of the Laplacian corresponding to the first `num` levels.
+
+      :param num:
+          Number of levels.
+      :return:
+          (num, 1)-shaped array containing the eigenvalues.
+
+      .. note::
+          The notion of *levels* is discussed in the documentation of the
+          :class:`~.kernels.MaternKarhunenLoeveKernel`.
+
+
+
+   .. py:method:: get_repeated_eigenvalues(num)
+
+      Eigenvalues of the Laplacian corresponding to the first `num` levels,
+      repeated according to their multiplicity within levels.
+
+      :param num:
+          Number of levels.
+
+      :return:
+          (J, 1)-shaped array containing the repeated eigenvalues, J is
+          the resulting number of the repeated eigenvalues.
+
+      .. note::
+          The notion of *levels* is discussed in the documentation of the
+          :class:`~.kernels.MaternKarhunenLoeveKernel`.
+
+
+
+   .. py:method:: random(key, number)
+
+      Sample uniformly random points in the space.
+
+      :param key:
+          Either `np.random.RandomState`, `tf.random.Generator`,
+          `torch.Generator` or `jax.tensor` (representing random state).
+      :param number:
+          Number of samples to draw.
+
+      :return:
+          An array of `number` uniformly random samples on the space.
+
+
+
+   .. py:property:: dimension
+      :type: int
+
+
+      :return:
+          1.
+
+
+
+   .. py:property:: element_dtype
+
+      :return:
+          B.Float.
+
+
+
+   .. py:property:: element_shape
+
+      :return:
+          [1].
+
+
+
+.. py:class:: CompactMatrixLieGroup
+
+   Bases: :py:obj:`geometric_kernels.spaces.base.DiscreteSpectrumSpace`
+
+
+   A base class for compact Lie groups of matrices, subgroups of the
+   real or complex general linear group GL(n), n being some integer.
+
+   The group operation is the standard matrix multiplication, and the group
+   inverse is the standard matrix inverse. Despite this, we make the
+   subclasses implement their own inverse routine, because in special cases
+   it can typically be implemented much more efficiently. For example, for
+   the special orthogonal group :class:`~.spaces.SpecialOrthogonal`, the
+   inverse is equivalent to a simple transposition.
+
+
+   .. py:method:: inverse(X)
+      :staticmethod:
+
+      :abstractmethod:
+
+
+      Inverse of a batch `X` of the elements of the group. A static method.
+
+      :param X:
+          A batch [..., n, n] of elements of the group.
+          Each element is a n x n matrix.
+
+      :return:
+          A batch [..., n, n] with each n x n matrix inverted.
+
+
+
+.. py:class:: DiscreteSpectrumSpace
+
+   Bases: :py:obj:`Space`
+
+
+   A Space with discrete spectrum (of the Laplacian operator).
+
+   This includes, for instance, compact Riemannian manifolds, graphs & meshes.
+
+   Subclasses implement routines for computing the eigenvalues and
+   eigenfunctions of the Laplacian operator, or certain combinations thereof.
+   Since there is often an infinite or a prohibitively large number of those,
+   they only compute a finite subset, consisting of the ones that are most
+   important for approximating Matérn kernel best.
+
+   .. note::
+       See a brief introduction into the theory behind the geometric
+       kernels on discrete spectrum spaces on the documentation pages devoted
+       to :doc:`compact Riemannian manifolds </theory/compact>` (also
+       :doc:`this </theory/addition_theorem>`), :doc:`graphs
+       </theory/graphs>` and :doc:`meshes </theory/meshes>`.
+
+   .. note::
+       Typically used with :class:`~.kernels.MaternKarhunenLoeveKernel`.
+
+
+
+   .. py:method:: dimension()
+      :abstractmethod:
+
+
+      Geometric dimension of the space.
+
+      Examples:
+
+      * :class:`~.spaces.Graph`: 0-dimensional.
+      * :class:`~.spaces.Circle`: 1-dimensional.
+      * :class:`~.spaces.Hypersphere`: d-dimensional, with d >= 2.
+
+
+
+   .. py:method:: get_eigenfunctions(num)
+      :abstractmethod:
+
+
+      Returns the :class:`~.Eigenfunctions` object with `num` levels.
+
+      :param num:
+          Number of levels.
+
+      .. note::
+          The notion of *levels* is discussed in the documentation of the
+          :class:`~.kernels.MaternKarhunenLoeveKernel`.
+
+
+
+   .. py:method:: get_eigenvalues(num)
+      :abstractmethod:
+
+
+      Eigenvalues of the Laplacian corresponding to the first `num` levels.
+
+      :param num:
+          Number of levels.
+      :return:
+          (num, 1)-shaped array containing the eigenvalues.
+
+      .. note::
+          The notion of *levels* is discussed in the documentation of the
+          :class:`~.kernels.MaternKarhunenLoeveKernel`.
+
+
+
+   .. py:method:: get_repeated_eigenvalues(num)
+      :abstractmethod:
+
+
+      Eigenvalues of the Laplacian corresponding to the first `num` levels,
+      repeated according to their multiplicity within levels.
+
+      :param num:
+          Number of levels.
+
+      :return:
+          (J, 1)-shaped array containing the repeated eigenvalues, J is
+          the resulting number of the repeated eigenvalues.
+
+      .. note::
+          The notion of *levels* is discussed in the documentation of the
+          :class:`~.kernels.MaternKarhunenLoeveKernel`.
+
+
+
+   .. py:method:: random(key, number)
+      :abstractmethod:
+
+
+      Sample uniformly random points in the space.
+
+      :param key:
+          Either `np.random.RandomState`, `tf.random.Generator`,
+          `torch.Generator` or `jax.tensor` (representing random state).
+      :param number:
+          Number of samples to draw.
+
+      :return:
+          An array of `number` uniformly random samples on the space.
+
+
+
+.. py:class:: Graph(adjacency_matrix, normalize_laplacian = False)
+
+   Bases: :py:obj:`geometric_kernels.spaces.base.DiscreteSpectrumSpace`
+
+
+   The GeometricKernels space representing the node set of any user-provided
+   weighted undirected graph.
+
+   The elements of this space are represented by node indices, integer values
+   from 0 to n-1, where n is the number of nodes in the user-provided graph.
+
+   Each individual eigenfunction constitutes a *level*.
+
+   .. note::
+       A tutorial on how to use this space is available in the
+       :doc:`Graph.ipynb </examples/Graph>` notebook.
+
+   :param adjacency_matrix:
+       An n-dimensional square, symmetric matrix, where
+       adjacency_matrix[i, j] is non-zero if there is an edge
+       between nodes i and j. SciPy's sparse matrices are supported.
+
+       .. warning::
+           Make sure that the type of the `adjacency_matrix` is of the
+           backend (NumPy (or SciPy) / JAX / TensorFlow, PyTorch) that
+           you wish to use for internal computations.
+
+   :param normalize_laplacian:
+       If True, the graph Laplacian will be degree normalized (symmetrically):
+       L_sym = D^-0.5 * L * D^-0.5.
+
+       Defaults to False.
+
+   .. admonition:: Citation
+
+       If you use this GeometricKernels space in your research, please consider
+       citing :cite:t:`borovitskiy2021`.
+
+
+   .. py:method:: get_eigenfunctions(num)
+
+      Returns the :class:`~.EigenfunctionsFromEigenvectors` object with
+      `num` levels (i.e., in this case, `num` eigenpairs).
+
+      :param num:
+          Number of levels.
+
+
+
+   .. py:method:: get_eigensystem(num)
+
+      Returns the first `num` eigenvalues and eigenvectors of the graph Laplacian.
+      Caches the solution to prevent re-computing the same values.
+
+      .. note::
+          If the `adjacency_matrix` was a sparse SciPy array, requesting
+          **all** eigenpairs will lead to a conversion of the sparse matrix
+          to a dense one due to scipy.sparse.linalg.eigsh limitations.
+
+      :param num:
+          Number of eigenpairs to return. Performs the computation at the
+          first call. Afterwards, fetches the result from cache.
+
+      :return:
+          A tuple of eigenvectors [n, num], eigenvalues [num, 1].
+
+
+
+   .. py:method:: get_eigenvalues(num)
+
+      :param num:
+          Number of eigenvalues to return.
+
+      :return:
+          Array of eigenvalues, with shape [num, 1].
+
+
+
+   .. py:method:: get_eigenvectors(num)
+
+      :param num:
+          Number of eigenvectors to return.
+
+      :return:
+          Array of eigenvectors, with shape [n, num].
+
+
+
+   .. py:method:: get_repeated_eigenvalues(num)
+
+      Same as :meth:`get_eigenvalues`.
+
+      :param num:
+          Same as :meth:`get_eigenvalues`.
+
+
+
+   .. py:method:: random(key, number)
+
+      Sample uniformly random points in the space.
+
+      :param key:
+          Either `np.random.RandomState`, `tf.random.Generator`,
+          `torch.Generator` or `jax.tensor` (representing random state).
+      :param number:
+          Number of samples to draw.
+
+      :return:
+          An array of `number` uniformly random samples on the space.
+
+
+
+   .. py:property:: dimension
+      :type: int
+
+
+      :return:
+          0.
+
+
+
+   .. py:property:: element_dtype
+
+      :return:
+          B.Int.
+
+
+
+   .. py:property:: element_shape
+
+      :return:
+          [1].
+
+
+
+   .. py:property:: num_vertices
+      :type: int
+
+
+      Number of vertices in the graph.
+
+
+
+.. py:class:: GraphEdges(num_nodes, oriented_edges, oriented_triangles, *, checks_mode = 'simple', index = None)
+
+   Bases: :py:obj:`geometric_kernels.spaces.base.HodgeDiscreteSpectrumSpace`
+
+
+   The GeometricKernels space representing the edge set of a user-provided
+   graph. The graph must be unweighted, undirected, and without loops.
+   However, we assume the graph is oriented: for every edge, either (i, j)
+   or (j, i) is chosen as the positively oriented edge, with the other one
+   being negatively oriented. Any function f on this space must satisfy
+   f(e) = -f(-e) if e is a positively oriented edge and -e is the
+   corresponding negatively oriented edge.
+
+   All positively oriented edges are indexed **from 1 to the number of edges
+   (inclusive)**. The reason why we start indexing the edges from 1 is to
+   allow for edge -e to correspond to the opposite orientation of edge e.
+   Importantly, orientation or a particular ordering of edges does not
+   affect the geometry of the space. However, changing those requires the
+   respective change in the way you represent the data.
+
+   For this space, each individual eigenfunction constitutes a *level*. If
+   possible, we recommend using num=num_edges levels. Since the current
+   implementation does not support sparse eigensolvers anyway, this should
+   not create too much time/memory overhead during the precomputations and
+   will also ensure that all types of eigenfunctions are present in the
+   eigensystem.
+
+   .. admonition:: Tutorial
+
+       A tutorial on how to use this space is available in the
+       :doc:`GraphEdges.ipynb </examples/GraphEdges>` notebook.
+
+   .. admonition:: Theory
+
+       Mathematically, this space is actually a simplicial 2-complex, and
+       the functions satisfying the condition f(e) = -f(-e) are called
+       1-cochains. These admit a Hodge decomposition into the harmonic,
+       gradient, and curl parts. You can find more about Hodge decomposition
+       on :doc:`this page </theory/graphs>`.
+
+   .. admonition:: Construction
+
+       **Easy way:** construct the space from the adjacency matrix of the graph.
+
+       The easiest way to construct an instance of this space is to use the
+       :meth:`from_adjacency` method, which constructs the space from the
+       adjacency matrix of the graph. By default, this would use all possible
+       triangles in the graph, but the user can also provide a list of
+       triangles explicitly. These triangles define the curl operator on the
+       graph and are thus instrumental in defining the Hodge decomposition.
+       If you don't know what triangles to provide, you can leave this
+       parameter empty, and the space will compute the maximal set of
+       triangles for you, which is a good solution in most cases.
+
+       When constructing an instance this way, the orientation of the edges and
+       triangles is chosen automatically in such a way that (i, j) is always
+       positively oriented if i < j, and the triangles are of form (e1, e2, e3)
+       where e1 = (i, j), e2 = (j, k), e3 = -(i, k), and i < j < k.
+
+       **Hard way:** construct the space from the oriented edges and triangles.
+
+       When constructing an instance of this space directly via :meth:`__init__`,
+       the user provides an `oriented_edges` array, mapping edge indices to
+       ordered pairs of node indices, with order defining the positive
+       orientation, and an `oriented_triangles` array, mapping triangle indices
+       to triples of signed edge indices. These arrays must be compatible in
+       the sense that the edges in triangles must be connected. This way, the
+       user has full control over the orientation and ordering of the edges.
+
+   .. admonition:: Complexity
+
+       The current implementation of the GraphEdges space is supposed to occupy
+       O(num_edges^2) memory and take O(num_edges^3) time to compute the eigensystem.
+
+       Currently, it does not support sparse eigensolvers, which would allow
+       storing the Laplacian matrices in a sparse format and potentially reduce
+       the O(num_edges^3) complexity to O(num_edges) with a large constant.
+
+   :param num_nodes:
+       The number of nodes in the graph.
+
+   :param oriented_edges:
+       A 2D array of shape [num_edges, 2], where num_edges is the number of edges
+       in the graph. Each row of the array represents an oriented edge, i.e.,
+       a pair of node indices. If `oriented_edges[e]` is `[i, j]`, then the
+       edge with index e+1 (edge indexing starts from 1) represents an edge
+       from node `i` to node `j` which is considered positively oriented, while
+       the edge with index -e-1 represents an edge from node `j` to node `i`.
+
+       Make sure that `oriented_edges` and `oriented_triangles` are of the
+       backend (NumPy / JAX / TensorFlow, PyTorch) that you wish to use for
+       internal computations.
+
+   :param oriented_triangles:
+       A 2D array of shape [num_triangles, 3], where num_triangles is the number
+       of triangles in the graph. Each row of the array represents an
+       oriented triangle, i.e., a triple of signed edge indices. If
+       `oriented_triangles[t]` is `[i, j, k]`, then `t` consists of the edges
+       `|i|`, `|j|`, and `|k|`, where the sign of the edge index indicates
+       the orientation of the edge. Optional. If not provided or set to
+       `None`, we assume that the set of triangles is empty.
+
+       Make sure that `oriented_edges` and `oriented_triangles` are of the
+       backend (NumPy / JAX / TensorFlow, PyTorch) that you wish to use for
+       internal computations.
+
+   :param checks_mode:
+       A keyword argument that determines the level of checks performed on
+       the oriented_edges and oriented_triangles arrays. The default value is
+       "simple", which performs only basic checks. The other possible values
+       are "comprehensive" and "skip", which perform more extensive checks
+       and no checks, respectively. The "comprehensive" mode is useful for
+       debugging but can be slow for large graphs.
+
+   :param index:
+       Optional. A sparse matrix of shape [num_nodes, num_nodes] such that
+       `index[i, j]` is the index of the edge `(i, j)` in the `oriented_edges`.
+       `index[i, j]` is positive if (i, j) corresponds to positive orientation
+       of the edge, and negative if it corresponds to the negative orientation.
+       If provided, should be compatible with the `oriented_edges` array.
+
+   .. admonition:: Citation
+
+       If you use this GeometricKernels space in your research, please consider
+       citing :cite:t:`yang2024`.
+
+
+   .. py:method:: from_adjacency(adjacency_matrix, type_reference, *, triangles = None, checks_mode = 'simple')
+      :classmethod:
+
+
+      Construct the GraphEdges space from the adjacency matrix of a graph.
+
+      :param adjacency_matrix:
+          Adjacency matrix of a graph. A numpy array of shape
+          `[num_nodes, num_nodes]` where `num_nodes` is the number of nodes in the
+          graph. `adjacency_matrix[i, j]` can only be 0 or 1.
+
+      :param type_reference:
+          A random state object of the preferred backend to infer backend from.
+
+      :param triangles:
+          A list of tuples of three integers representing the nodes of the
+          triangles in the graph. If not provided or set to None, the maximal
+          possible set of triangles will be computed and used.
+
+      :param checks_mode:
+          Forwards the `checks_mode` parameter to the constructor.
+
+      :return:
+          A constructed instance of the GraphEdges space.
+
+
+
+   .. py:method:: get_eigenfunctions(num, hodge_type = None)
+
+      Returns the :class:`~.EigenfunctionsFromEigenvectors` object with
+      `num` levels (i.e., in this case, `num` eigenpairs) of a particular type.
+
+      :param num:
+          Number of levels.
+
+      :param hodge_type:
+          The type of the eigenbasis. It can be "harmonic", "gradient", or "curl".
+
+      :return:
+          EigenfunctionsFromEigenvectors object.
+
+      .. note::
+          The notion of *levels* is discussed in the documentation of the
+          :class:`~.kernels.MaternKarhunenLoeveKernel`.
+
+
+
+   .. py:method:: get_eigenvalues(num, hodge_type = None)
+
+      Eigenvalues of the Laplacian corresponding to the first `num` levels
+      (i.e., in this case, `num` eigenpairs). If `type` is specified, returns
+      only the eigenvalues corresponding to the eigenfunctions of that type.
+
+      .. warning::
+          If `type` is specified, the array can have fewer than `num` elements.
+
+      :param num:
+          Number of levels.
+
+      :param hodge_type:
+          The type of the eigenpairs. It can be "harmonic", "gradient", or "curl".
+
+      :return:
+          (n, 1)-shaped array containing the eigenvalues. n <= num.
+
+
+
+   .. py:method:: get_eigenvectors(num, hodge_type = None)
+
+      Eigenvectors of the Laplacian corresponding to the first `num` levels
+      (i.e., in this case, `num` eigenpairs). If `type` is specified, returns
+      only the eigenvectors of that type.
+
+      :param num:
+          Number of eigenvectors to return.
+
+      :param hodge_type:
+          The type of the eigenpairs. It can be "harmonic", "gradient", or "curl".
+
+      :return:
+          (n, 1)-shaped array containing the eigenvalues. n <= num.
+
+
+
+   .. py:method:: get_number_of_eigenpairs(num, hodge_type)
+
+      Returns the number of eigenpairs of a particular type.
+
+      :param num:
+          Number of levels.
+
+      :param hodge_type:
+          The type of the eigenpairs. It can be "harmonic", "gradient", or "curl".
+
+      :return:
+          The number of eigenpairs of the specified type.
+
+
+
+   .. py:method:: get_repeated_eigenvalues(num, hodge_type = None)
+
+      Same as :meth:`get_eigenvalues`.
+
+      :param num:
+          Same as :meth:`get_eigenvalues`.
+
+
+
+   .. py:method:: random(key, number)
+
+      Sample uniformly random points in the space.
+
+      :param key:
+          Either `np.random.RandomState`, `tf.random.Generator`,
+          `torch.Generator` or `jax.tensor` (representing random state).
+      :param number:
+          Number of samples to draw.
+
+      :return:
+          An array of `number` uniformly random samples on the space.
+
+
+
+   .. py:method:: resolve_edges(es)
+
+      Resolve the signed edge indices to node indices.
+
+      :param es:
+          A 1-dimensional array of edge indices. Each edge index is a number
+          from 1 to the number of edges (incl.).
+
+      :return:
+          A 2-dimensional array `result` such that `result[e, :]` is `[i, j]`
+          where \|e\| = (i, j) if e > 0 and \|e\| = (j, i) if e < 0.
+
+
+
+   .. py:method:: resolve_triangles(ts)
+
+      Resolve the triangle indices to node indices.
+
+      :param ts:
+          A 1-dimensional array of triangle indices. Each triangle index is a
+          number from 0 to the number of triangles.
+
+      :return:
+          A 3-dimensional array `result` such that `result[t, :]` is `[i, j, k]`
+          where i = e1[0], j = e2[0], k = e3[0], and e1, e2, e3 are the
+          oriented edges constituting the triangle `t`.
+
+
+
+   .. py:property:: dimension
+      :type: int
+
+
+      :return:
+          0.
+
+
+
+   .. py:property:: element_dtype
+
+      :return:
+          B.Int.
+
+
+
+   .. py:property:: element_shape
+
+      :return:
+          [1].
+
+
+
+.. py:class:: HodgeDiscreteSpectrumSpace
+
+   Bases: :py:obj:`DiscreteSpectrumSpace`
+
+
+   A Space with discrete spectrum (of the Laplacian) and Hodge decomposition.
+
+   Separates eigenpairs according to the Hodge decomposition, into the curl
+   type (divergence-free), the gradient type (curl-free), and the harmonic
+   type (both divergence- and curl-free).
+
+   Examples of such spaces are the edge space of a graph, or tangent bundles
+   of compact Riemannian manifolds.
+
+   .. note::
+       Hodge decomposition is briefly discussed on :doc:`this </theory/graphs>`
+       documentation page.
+
+   .. note::
+       Typically used with :class:`~.kernels.MaternHodgeCompositionalKernel`.
+
+
+   .. py:method:: get_eigenfunctions(num, type = None)
+      :abstractmethod:
+
+
+      Returns the :class:`~.Eigenfunctions` object with `num` levels.
+      If `type` is specified, returns only the eigenfunctions of that type.
+
+      .. warning::
+          If `type` is specified, the returned :class:`~.Eigenfunctions`
+          object does not have to have `num` levels. It can have fewer but can
+          never have more.
+
+      :param num:
+          Number of levels.
+
+      :param type:
+          Type of the eigenfunctions to return. Can be one of "harmonic",
+          "curl" or "gradient".
+
+      .. note::
+          The notion of *levels* is discussed in the documentation of the
+          :class:`~.kernels.MaternKarhunenLoeveKernel`.
+
+
+
+   .. py:method:: get_eigenvalues(num, type = None)
+      :abstractmethod:
+
+
+      Eigenvalues of the Laplacian corresponding to the first `num` levels.
+      If `type` is specified, returns only the eigenvalues corresponding to
+      the eigenfunctions of that type.
+
+      .. warning::
+          If `type` is specified, the array can have fewer than `num` elements.
+
+      :param num:
+          Number of levels.
+
+      :return:
+          (n, 1)-shaped array containing the eigenvalues. n <= num.
+
+      .. note::
+          The notion of *levels* is discussed in the documentation of the
+          :class:`~.kernels.MaternKarhunenLoeveKernel`.
+
+
+
+   .. py:method:: get_repeated_eigenvalues(num, type = None)
+      :abstractmethod:
+
+
+      Eigenvalues of the Laplacian corresponding to the first `num` levels,
+      repeated according to their multiplicity within levels. If `type` is
+      specified, returns only the eigenvalues corresponding to the
+      eigenfunctions of that type.
+
+      :param num:
+          Number of levels.
+
+      :param type:
+          Type of the eigenvalues to return. Can be one of "harmonic",
+          "curl" or "gradient".
+
+      :return:
+          (J, 1)-shaped array containing the repeated eigenvalues, J is
+          the resulting number of the repeated eigenvalues (of the specified
+          type, if `type` is given).
+
+      .. note::
+          The notion of *levels* is discussed in the documentation of the
+          :class:`~.kernels.MaternKarhunenLoeveKernel`.
+
+
+
+.. py:class:: Hyperbolic(dim=2)
+
+   Bases: :py:obj:`geometric_kernels.spaces.base.NoncompactSymmetricSpace`, :py:obj:`geomstats.geometry.hyperboloid.Hyperboloid`
+
+
+   The GeometricKernels space representing the n-dimensional hyperbolic space
+   $\mathbb{H}_n$. We use the hyperboloid model of the hyperbolic space.
+
+   The elements of this space are represented by (n+1)-dimensional vectors
+   satisfying
+
+   .. math:: x_0^2 - x_1^2 - \ldots - x_n^2 = 1,
+
+   i.e. lying on the hyperboloid.
+
+   The class inherits the interface of geomstats's `Hyperbolic` with
+   `point_type=extrinsic`.
+
+   .. note::
+       A tutorial on how to use this space is available in the
+       :doc:`Hyperbolic.ipynb </examples/Hyperbolic>` notebook.
+
+   :param dim:
+       Dimension of the hyperbolic space, denoted by n in docstrings.
+
+   .. note::
+       As mentioned in :ref:`this note <quotient note>`, any symmetric space
+       is a quotient G/H. For the hyperbolic space $\mathbb{H}_n$, the group
+       of symmetries $G$ is the proper Lorentz group $SO(1, n)$,  while the
+       isotropy subgroup $H$ is the special orthogonal group $SO(n)$. See the
+       mathematical details in :cite:t:`azangulov2024b`.
+
+   .. admonition:: Citation
+
+       If you use this GeometricKernels space in your research, please consider
+       citing :cite:t:`azangulov2024b`.
+
+
+   .. py:method:: convert_to_ball(point)
+
+      Converts the `point` from the hyperboloid model to the Poincare model.
+      This corresponds to a stereographic projection onto the ball.
+
+      :param:
+          An [..., n+1]-shaped array of points on the hyperboloid.
+
+      :return:
+          An [..., n]-shaped array of points in the Poincare ball.
+
+
+
+   .. py:method:: distance(x1, x2, diag = False)
+
+      Calls :func:`~.hyperbolic_distance` on the same inputs.
+
+
+
+   .. py:method:: element_shape()
+
+      :return:
+          [n+1].
+
+
+
+   .. py:method:: inner_product(vector_a, vector_b)
+
+      Calls :func:`~.minkowski_inner_product` on `vector_a` and `vector_b`.
+
+
+
+   .. py:method:: inv_harish_chandra(lam)
+
+      Implements $c^{-1}(\lambda)$, where $c$ is the Harish-Chandra's $c$
+      function.
+
+      This is one of the computational primitives required to (approximately)
+      compute the :class:`~.feature_maps.RandomPhaseFeatureMapNoncompact`
+      feature map and :class:`~.kernels.MaternFeatureMapKernel` on top of it.
+
+      :param lam:
+          A batch of frequencies, vectors of dimension equal to the rank of
+          symmetric space.
+
+      :return:
+          $c^{-1}(\lambda)$ evaluated at every $\lambda$ in the batch `lam`.
+
+
+
+   .. py:method:: power_function(lam, g, h)
+
+      Implements the *power function* $p^{\lambda}(g, h)$, the integrand
+      appearing in the definition of the zonal spherical function
+
+      .. math:: \pi^{\lambda}(g) = \int_{H} \underbrace{p^{\lambda}(g, h)}_{= e^{(i \lambda + \rho) a(h \cdot g)}} d h,
+
+      where $\lambda \in i \cdot \mathbb{R}^r$, with $r$ denoting the rank of
+      the symmetric space and $i$ the imaginary unit, is a sort of frequency,
+      $g$ is an element of the group of symmetries $G$, $h$ is an element
+      of its isotropy subgroup $H$ ($G$ and $H$ are defined :ref:`here
+      <quotient note>`), $\rho \in \mathbb{R}^r$ is as in :meth:`rho`, and
+      the function $a$ is a certain space-dependent algebraic operation.
+
+      This is one of the computational primitives required to (approximately)
+      compute the :class:`~.feature_maps.RandomPhaseFeatureMapNoncompact`
+      feature map and :class:`~.kernels.MaternFeatureMapKernel` on top of it.
+
+      :param lam:
+          A batch of L vectors of dimension `rank`, the rank of the
+          symmetric space, representing the "sort of frequencies".
+
+          Typically of shape [1, L, rank].
+      :param g:
+          A batch of N elements of the space (these can always be thought of
+          as elements of the group of symmetries $G$ since the symmetric
+          space $G/H$ can be trivially embedded into the group $G$).
+
+          Typically of shape [N, 1, <axes>], where <axes> is the shape of
+          the elements of the space.
+      :param h:
+          A batch of L elements of the isotropy subgroup $H$.
+
+          Typically of shape [1, L, <axes_p>], where <axes_p> is the shape of
+          arrays representing the elements of the isotropy subgroup $H$.
+
+      :return:
+          An array of shape [N, L] with complex number entries, representing
+          the value of the values of $p^{\lambda_l}(g_n, h_l)$ for all
+          $1 \leq n \leq N$ and $1 \leq l \leq L$.
+
+      .. note::
+          Actually, $a$ may be a more appropriate primitive than the power
+          function $p^{\lambda}$: everything but $a$ in the definition of
+          the latter is either standard or available as other primitives.
+          Us using $p^{\lambda}$ as a primitive is quite arbitrary.
+
+
+
+   .. py:method:: random(key, number)
+
+      Non-uniform random sampling, reimplements the algorithm from geomstats.
+
+      Always returns [N, n+1] float64 array of the `key`'s backend.
+
+      :param key:
+          Either `np.random.RandomState`, `tf.random.Generator`,
+          `torch.Generator` or `jax.tensor` (representing random state).
+      :param number:
+          Number of samples to draw.
+
+      :return:
+          An array of `number` random samples on the space.
+
+
+
+   .. py:method:: random_phases(key, num)
+
+      Sample uniformly random points on the isotropy subgroup $H$ (defined
+      :ref:`here <quotient note>`).
+
+      This is one of the computational primitives required to (approximately)
+      compute the :class:`~.feature_maps.RandomPhaseFeatureMapNoncompact`
+      feature map and :class:`~.kernels.MaternFeatureMapKernel` on top of it.
+
+      :param key:
+          Either `np.random.RandomState`, `tf.random.Generator`,
+          `torch.Generator` or `jax.tensor` (representing random state).
+      :param num:
+          Number of samples to draw.
+
+      :return:
+          An array of `num` uniformly random samples in the isotropy
+          subgroup $H$.
+
+      .. warning::
+          This does not sample random points on the space itself. Since the
+          space itself is non-compact, uniform sampling on it is in principle
+          impossible. However, the isotropy subgroup $H$ is always
+          compact and thus allows uniform sampling needed to approximate the
+          zonal spherical functions $\pi^{\lambda}(\cdot)$ via Monte Carlo.
+
+
+
+   .. py:property:: dimension
+      :type: int
+
+
+      Returns n, the `dim` parameter that was passed down to `__init__`.
+
+
+
+   .. py:property:: element_dtype
+
+      :return:
+          B.Float.
+
+
+
+   .. py:property:: num_axes
+
+      Number of axes in an array representing a point in the space.
+
+      :return:
+          1.
+
+
+
+   .. py:property:: rho
+
+      `rho` vector of dimension equal to the rank of the symmetric space.
+
+      Algebraically, weighted sum of *roots*, depends only on the space.
+
+      This is one of the computational primitives required to (approximately)
+      compute the :class:`~.feature_maps.RandomPhaseFeatureMapNoncompact`
+      feature map and :class:`~.kernels.MaternFeatureMapKernel` on top of it.
+
+
+
+.. py:class:: HypercubeGraph(dim)
+
+   Bases: :py:obj:`geometric_kernels.spaces.base.DiscreteSpectrumSpace`
+
+
+   The GeometricKernels space representing the d-dimensional hypercube graph
+   $C^d = \{0, 1\}^d$, the combinatorial space of binary vectors of length $d$.
+
+   The elements of this space are represented by d-dimensional boolean vectors.
+
+   Levels are the whole eigenspaces.
+
+   .. note::
+       A tutorial on how to use this space is available in the
+       :doc:`HypercubeGraph.ipynb </examples/HypercubeGraph>` notebook.
+
+   .. note::
+       Since the degree matrix is a constant multiple of the identity, all
+       types of the graph Laplacian coincide on the hypercube graph up to a
+       constant, we choose the normalized Laplacian for numerical stability.
+
+   :param dim:
+       Dimension $d$ of the hypercube graph $C^d$, a positive integer.
+
+   .. admonition:: Citation
+
+       If you use this GeometricKernels space in your research, please consider
+       citing :cite:t:`borovitskiy2023`.
+
+
+   .. py:method:: get_eigenfunctions(num)
+
+      Returns the :class:`~.WalshFunctions` object with `num` levels.
+
+      :param num:
+          Number of levels.
+
+
+
+   .. py:method:: get_eigenvalues(num)
+
+      Eigenvalues of the Laplacian corresponding to the first `num` levels.
+
+      :param num:
+          Number of levels.
+      :return:
+          (num, 1)-shaped array containing the eigenvalues.
+
+      .. note::
+          The notion of *levels* is discussed in the documentation of the
+          :class:`~.kernels.MaternKarhunenLoeveKernel`.
+
+
+
+   .. py:method:: get_repeated_eigenvalues(num)
+
+      Eigenvalues of the Laplacian corresponding to the first `num` levels,
+      repeated according to their multiplicity within levels.
+
+      :param num:
+          Number of levels.
+
+      :return:
+          (J, 1)-shaped array containing the repeated eigenvalues, J is
+          the resulting number of the repeated eigenvalues.
+
+      .. note::
+          The notion of *levels* is discussed in the documentation of the
+          :class:`~.kernels.MaternKarhunenLoeveKernel`.
+
+
+
+   .. py:method:: random(key, number)
+
+      Sample uniformly random points on the hypercube graph $C^d$.
+
+      Always returns [N, D] boolean array of the `key`'s backend.
+
+      :param key:
+          Either `np.random.RandomState`, `tf.random.Generator`,
+          `torch.Generator` or `jax.tensor` (representing random state).
+      :param number:
+          Number N of samples to draw.
+
+      :return:
+          An array of `number` uniformly random samples on the space.
+
+
+
+   .. py:property:: dimension
+      :type: int
+
+
+      Returns d, the `dim` parameter that was passed down to `__init__`.
+
+      .. note:
+          Although this is a graph, and graphs are generally treated as
+          0-dimensional throughout GeometricKernels, we make an exception for
+          HypercubeGraph. This is because it helps maintain good behavior of
+          Matérn kernels with the usual values of the smoothness parameter
+          nu, i.e. nu = 1/2, nu = 3/2, nu = 5/2.
+
+
+
+   .. py:property:: element_dtype
+
+      :return:
+          B.Bool.
+
+
+
+   .. py:property:: element_shape
+
+      :return:
+          [d].
+
+
+
+.. py:class:: Hypersphere(dim)
+
+   Bases: :py:obj:`geometric_kernels.spaces.base.DiscreteSpectrumSpace`, :py:obj:`geomstats.geometry.hypersphere.Hypersphere`
+
+
+   The GeometricKernels space representing the d-dimensional hypersphere
+   $\mathbb{S}_d$ embedded in the (d+1)-dimensional Euclidean space.
+
+   The elements of this space are represented by (d+1)-dimensional vectors
+   of unit norm.
+
+   Levels are the whole eigenspaces.
+
+   .. note::
+       We only support d >= 2. For d = 1, use :class:`~.spaces.Circle`.
+
+   .. note::
+       A tutorial on how to use this space is available in the
+       :doc:`Hypersphere.ipynb </examples/Hypersphere>` notebook.
+
+   :param dim:
+       Dimension of the hypersphere $\mathbb{S}_d$.
+       Should satisfy dim >= 2. For dim = 1, use :class:`~.spaces.Circle`.
+
+   .. admonition:: Citation
+
+       If you use this GeometricKernels space in your research, please consider
+       citing :cite:t:`borovitskiy2020`.
+
+
+   .. py:method:: ehess2rhess(x, egrad, ehess, direction)
+
+      Riemannian Hessian along a given direction from the Euclidean Hessian.
+
+      Used to test that the heat kernel does indeed solve the heat equation.
+
+      :param x:
+          A point on the d-dimensional hypersphere.
+      :param egrad:
+          Euclidean gradient of a function defined in a neighborhood of the
+          hypersphere, evaluated at the point `x`.
+      :param ehess:
+          Euclidean Hessian of a function defined in a neighborhood of the
+          hypersphere, evaluated at the point `x`.
+      :param direction:
+          Direction to evaluate the Riemannian Hessian at. A tangent vector
+          at `x`.
+
+      :return:
+          A [dim]-shaped array that contains Hess_f(x)[direction], the value
+          of the Riemannian Hessian of the function evaluated at `x` along
+          the `direction`.
+
+      See :cite:t:`absil2008` for mathematical details.
+
+
+
+   .. py:method:: get_eigenfunctions(num)
+
+      Returns the :class:`~.SphericalHarmonics` object with `num` levels.
+
+      :param num:
+          Number of levels.
+
+
+
+   .. py:method:: get_eigenvalues(num)
+
+      Eigenvalues of the Laplacian corresponding to the first `num` levels.
+
+      :param num:
+          Number of levels.
+      :return:
+          (num, 1)-shaped array containing the eigenvalues.
+
+      .. note::
+          The notion of *levels* is discussed in the documentation of the
+          :class:`~.kernels.MaternKarhunenLoeveKernel`.
+
+
+
+   .. py:method:: get_repeated_eigenvalues(num)
+
+      Eigenvalues of the Laplacian corresponding to the first `num` levels,
+      repeated according to their multiplicity within levels.
+
+      :param num:
+          Number of levels.
+
+      :return:
+          (J, 1)-shaped array containing the repeated eigenvalues, J is
+          the resulting number of the repeated eigenvalues.
+
+      .. note::
+          The notion of *levels* is discussed in the documentation of the
+          :class:`~.kernels.MaternKarhunenLoeveKernel`.
+
+
+
+   .. py:method:: random(key, number)
+
+      Sample uniformly random points on the hypersphere.
+
+      Always returns [N, D+1] float64 array of the `key`'s backend.
+
+      :param key:
+          Either `np.random.RandomState`, `tf.random.Generator`,
+          `torch.Generator` or `jax.tensor` (representing random state).
+      :param number:
+          Number N of samples to draw.
+
+      :return:
+          An array of `number` uniformly random samples on the space.
+
+
+
+   .. py:property:: dimension
+      :type: int
+
+
+      Returns d, the `dim` parameter that was passed down to `__init__`.
+
+
+
+   .. py:property:: element_dtype
+
+      :return:
+          B.Float.
+
+
+
+   .. py:property:: element_shape
+
+      :return:
+          [d+1].
+
+
+
+.. py:class:: Mesh(vertices, faces)
+
+   Bases: :py:obj:`geometric_kernels.spaces.base.DiscreteSpectrumSpace`
+
+
+   The GeometricKernels space representing the node set of any
+   user-provided mesh.
+
+   The elements of this space are represented by node indices, integer values
+   from 0 to Nv-1, where Nv is the number of nodes in the user-provided mesh.
+
+   Each individual eigenfunction constitutes a *level*.
+
+   .. note::
+       We only support the commonly used 2-dimensional meshes (discrete
+       counterparts of surfaces, 2-dimensional manifolds in a 3-dimensional
+       ambient space).
+
+   .. note::
+       A tutorial on how to use this space is available in the
+       :doc:`Mesh.ipynb </examples/Mesh>` notebook.
+
+   .. note::
+       We use `potpourri3d <https://github.com/nmwsharp/potpourri3d>`_ to
+       load meshes and mimic the interface of
+       `PyMesh <https://github.com/PyMesh/PyMesh>`_.
+
+   :param vertices:
+       A [Nv, 3] array of vertex coordinates, Nv is the number of vertices.
+   :param faces:
+       A [Nf, 3] array of vertex indices that represents a
+       generalized array of faces, where Nf is the number of faces.
+
+       .. Note:
+           Only 3 vertex indices per face are supported, i.e. mesh must be
+           triangulated.
+
+   .. admonition:: Citation
+
+       If you use this GeometricKernels space in your research, please consider
+       citing :cite:t:`borovitskiy2020`.
+
+
+   .. py:method:: get_eigenfunctions(num)
+
+      Returns the :class:`~.EigenfunctionsFromEigenvectors` object with
+      `num` levels (i.e., in this case, `num` eigenpairs).
+
+      :param num:
+          Number of levels.
+
+
+
+   .. py:method:: get_eigensystem(num)
+
+      Returns the first `num` eigenvalues and eigenvectors of the `robust
+      Laplacian <https://github.com/nmwsharp/nonmanifold-laplacian>`_.
+      Caches the solution to prevent re-computing the same values.
+
+      .. note::
+          If the `adjacency_matrix` was a sparse SciPy array, requesting
+          **all** eigenpairs will lead to a conversion of the sparse matrix
+          to a dense one due to scipy.sparse.linalg.eigsh limitations.
+
+      .. warning::
+          Always uses SciPy (thus CPU) for internal computations. We will
+          need to fix this in the future.
+
+      .. todo::
+          See warning above.
+
+      :param num:
+          Number of eigenpairs to return. Performs the computation at the
+          first call. Afterwards, fetches the result from cache.
+
+      :return:
+          A tuple of eigenvectors [nv, num], eigenvalues [num, 1].
+
+
+
+   .. py:method:: get_eigenvalues(num)
+
+      :param num:
+          Number of eigenvalues to return.
+
+      :return:
+          Array of eigenvalues, with shape [num, 1].
+
+
+
+   .. py:method:: get_eigenvectors(num)
+
+      :param num:
+          Number of eigenvectors to return.
+
+      :return:
+          Array of eigenvectors, with shape [Nv, num].
+
+
+
+   .. py:method:: get_repeated_eigenvalues(num)
+
+      Same as :meth:`get_eigenvalues`.
+
+      :param num:
+          Same as :meth:`get_eigenvalues`.
+
+
+
+   .. py:method:: load_mesh(filename)
+      :classmethod:
+
+
+      Construct :class:`Mesh` by loading a mesh from the file at `filename`.
+
+      :param filename:
+          Path to read the file from. Supported formats: `obj`,
+          `ply`, `off`, and `stl`. Format inferred automatically from the
+          file extension.
+
+      :return:
+          And object of class :class:`Mesh` representing the loaded mesh.
+
+
+
+   .. py:method:: random(key, number)
+
+      Sample uniformly random points in the space.
+
+      :param key:
+          Either `np.random.RandomState`, `tf.random.Generator`,
+          `torch.Generator` or `jax.tensor` (representing random state).
+      :param number:
+          Number of samples to draw.
+
+      :return:
+          An array of `number` uniformly random samples on the space.
+
+
+
+   .. py:property:: dimension
+      :type: int
+
+
+      :return:
+          2.
+
+
+
+   .. py:property:: element_dtype
+
+      :return:
+          B.Int.
+
+
+
+   .. py:property:: element_shape
+
+      :return:
+          [1].
+
+
+
+   .. py:property:: faces
+      :type: numpy.ndarray
+
+
+      A [Nf, 3] array of vertex indices that represents a generalized array of
+      faces, where Nf is the number of faces.
+
+
+
+   .. py:property:: num_faces
+      :type: int
+
+
+      Number of faces in the mesh, Nf.
+
+
+
+   .. py:property:: num_vertices
+      :type: int
+
+
+      Number of vertices in the mesh, Nv.
+
+
+
+   .. py:property:: vertices
+      :type: numpy.ndarray
+
+
+      A [Nv, 3] array of vertex coordinates, Nv is the number of vertices.
+
+
+
+.. py:class:: NoncompactSymmetricSpace
+
+   Bases: :py:obj:`Space`
+
+
+   Non-compact symmetric space.
+
+   This includes, for instance, hyperbolic spaces and manifolds of symmetric
+   positive definite matrices (endowed with the affine-invariant metric).
+
+   .. note::
+       See a brief introduction into the theory behind the geometric
+       kernels on non-compact symmetric spaces on the
+       :doc:`respective documentation page </theory/symmetric>`.
+
+   .. note::
+       Typically used with :class:`~.kernels.MaternFeatureMapKernel` that
+       builds on a space-specific feature map like the
+       :class:`~.feature_maps.RejectionSamplingFeatureMapHyperbolic` and the
+       :class:`~.feature_maps.RejectionSamplingFeatureMapSPD`, or, in the
+       absence of a space-specific feature map, on the general (typically less
+       effective) map :class:`~.feature_maps.RandomPhaseFeatureMapNoncompact`.
+
+   .. note:: .. _quotient note:
+
+       Mathematically, any non-compact symmetric space can be represented as
+       a quotient $G/H$ of a Lie group of symmetries $G$ and its compact
+       isotropy subgroup $H$. We sometimes refer to these $G$ and $H$ in
+       the documentation. See mathematical details in :cite:t:`azangulov2024b`.
+
+
+   .. py:method:: dimension()
+      :abstractmethod:
+
+
+      Geometric dimension of the space.
+
+      Examples:
+
+      * :class:`~.spaces.Hyperbolic`: d-dimensional, with d >= 2.
+      * :class:`~.spaces.SymmetricPositiveDefiniteMatrices`: $n(n+1)/2$-dimensional,
+          with n >= 2.
+
+
+
+   .. py:method:: inv_harish_chandra(lam)
+      :abstractmethod:
+
+
+      Implements $c^{-1}(\lambda)$, where $c$ is the Harish-Chandra's $c$
+      function.
+
+      This is one of the computational primitives required to (approximately)
+      compute the :class:`~.feature_maps.RandomPhaseFeatureMapNoncompact`
+      feature map and :class:`~.kernels.MaternFeatureMapKernel` on top of it.
+
+      :param lam:
+          A batch of frequencies, vectors of dimension equal to the rank of
+          symmetric space.
+
+      :return:
+          $c^{-1}(\lambda)$ evaluated at every $\lambda$ in the batch `lam`.
+
+
+
+   .. py:method:: num_axes()
+      :abstractmethod:
+
+
+      Number of axes in an array representing a point in the space.
+
+      Usually 1 for vectors or 2 for matrices.
+
+
+
+   .. py:method:: power_function(lam, g, h)
+      :abstractmethod:
+
+
+      Implements the *power function* $p^{\lambda}(g, h)$, the integrand
+      appearing in the definition of the zonal spherical function
+
+      .. math:: \pi^{\lambda}(g) = \int_{H} \underbrace{p^{\lambda}(g, h)}_{= e^{(i \lambda + \rho) a(h \cdot g)}} d h,
+
+      where $\lambda \in i \cdot \mathbb{R}^r$, with $r$ denoting the rank of
+      the symmetric space and $i$ the imaginary unit, is a sort of frequency,
+      $g$ is an element of the group of symmetries $G$, $h$ is an element
+      of its isotropy subgroup $H$ ($G$ and $H$ are defined :ref:`here
+      <quotient note>`), $\rho \in \mathbb{R}^r$ is as in :meth:`rho`, and
+      the function $a$ is a certain space-dependent algebraic operation.
+
+      This is one of the computational primitives required to (approximately)
+      compute the :class:`~.feature_maps.RandomPhaseFeatureMapNoncompact`
+      feature map and :class:`~.kernels.MaternFeatureMapKernel` on top of it.
+
+      :param lam:
+          A batch of L vectors of dimension `rank`, the rank of the
+          symmetric space, representing the "sort of frequencies".
+
+          Typically of shape [1, L, rank].
+      :param g:
+          A batch of N elements of the space (these can always be thought of
+          as elements of the group of symmetries $G$ since the symmetric
+          space $G/H$ can be trivially embedded into the group $G$).
+
+          Typically of shape [N, 1, <axes>], where <axes> is the shape of
+          the elements of the space.
+      :param h:
+          A batch of L elements of the isotropy subgroup $H$.
+
+          Typically of shape [1, L, <axes_p>], where <axes_p> is the shape of
+          arrays representing the elements of the isotropy subgroup $H$.
+
+      :return:
+          An array of shape [N, L] with complex number entries, representing
+          the value of the values of $p^{\lambda_l}(g_n, h_l)$ for all
+          $1 \leq n \leq N$ and $1 \leq l \leq L$.
+
+      .. note::
+          Actually, $a$ may be a more appropriate primitive than the power
+          function $p^{\lambda}$: everything but $a$ in the definition of
+          the latter is either standard or available as other primitives.
+          Us using $p^{\lambda}$ as a primitive is quite arbitrary.
+
+
+
+   .. py:method:: random_phases(key, num)
+      :abstractmethod:
+
+
+      Sample uniformly random points on the isotropy subgroup $H$ (defined
+      :ref:`here <quotient note>`).
+
+      This is one of the computational primitives required to (approximately)
+      compute the :class:`~.feature_maps.RandomPhaseFeatureMapNoncompact`
+      feature map and :class:`~.kernels.MaternFeatureMapKernel` on top of it.
+
+      :param key:
+          Either `np.random.RandomState`, `tf.random.Generator`,
+          `torch.Generator` or `jax.tensor` (representing random state).
+      :param num:
+          Number of samples to draw.
+
+      :return:
+          An array of `num` uniformly random samples in the isotropy
+          subgroup $H$.
+
+      .. warning::
+          This does not sample random points on the space itself. Since the
+          space itself is non-compact, uniform sampling on it is in principle
+          impossible. However, the isotropy subgroup $H$ is always
+          compact and thus allows uniform sampling needed to approximate the
+          zonal spherical functions $\pi^{\lambda}(\cdot)$ via Monte Carlo.
+
+
+
+   .. py:method:: rho()
+      :abstractmethod:
+
+
+      `rho` vector of dimension equal to the rank of the symmetric space.
+
+      Algebraically, weighted sum of *roots*, depends only on the space.
+
+      This is one of the computational primitives required to (approximately)
+      compute the :class:`~.feature_maps.RandomPhaseFeatureMapNoncompact`
+      feature map and :class:`~.kernels.MaternFeatureMapKernel` on top of it.
+
+
+
+.. py:class:: ProductDiscreteSpectrumSpace(*spaces, num_levels = 25, num_levels_per_space = None)
+
+   Bases: :py:obj:`geometric_kernels.spaces.base.DiscreteSpectrumSpace`
+
+
+   The GeometricKernels space representing a product
+
+   .. math:: \mathcal{S} = \mathcal{S}_1 \times \ldots \mathcal{S}_S
+
+   of :class:`~.spaces.DiscreteSpectrumSpace`-s $\mathcal{S}_i$.
+
+   Levels are indexed by tuples of levels of the factors.
+
+   .. admonition:: Precomputing optimal levels
+
+       The eigenvalue corresponding to a level of the product space
+       represented by a tuple $(j_1, .., j_S)$ is the sum
+
+       .. math:: \lambda^{(1)}_{j_1} + \ldots + \lambda^{(S)}_{j_S}
+
+       of the eigenvalues $\lambda^{(s)}_{j_s}$ of the factors.
+
+       Computing top `num_levels` smallest eigenvalues is thus a combinatorial
+       problem, the solution to which we precompute. To make this
+       precomputation possible you need to provide the `num_levels` parameter
+       when constructing the :class:`ProductDiscreteSpectrumSpace`, unlike for
+       other spaces. What is more, the `num` parameter of the
+       :meth:`get_eigenfunctions` cannot be larger than the `num_levels` value.
+
+   .. note::
+       See :doc:`this page </theory/product_spaces>` for a brief account on
+       theory behind product spaces and the :doc:`Torus.ipynb
+       </examples/Torus>` notebook for a tutorial on how to use them.
+
+       An alternative to using :class:`ProductDiscreteSpectrumSpace` is to use
+       the :class:`~.kernels.ProductGeometricKernel` kernel. The latter is more
+       flexible, allowing more general spaces as factors and automatic
+       relevance determination -like behavior.
+
+   :param spaces:
+       The factors, subclasses of :class:`~.spaces.DiscreteSpectrumSpace`.
+   :param num_levels:
+       The number of levels to pre-compute for this product space.
+   :param num_levels_per_space:
+       Number of levels to fetch for each of the factor spaces, to compute
+       the product-space levels. This is a single number rather than a list,
+       because we currently only support fetching the same number of levels
+       for all the factor spaces.
+
+       If not given, `num_levels` levels will be fetched for each factor.
+
+   .. admonition:: Citation
+
+       If you use this GeometricKernels space in your research, please consider
+       citing :cite:t:`borovitskiy2020`.
+
+
+   .. py:method:: get_eigenfunctions(num)
+
+      Returns the :class:`~.ProductEigenfunctions` object with `num` levels.
+
+      :param num:
+          Number of levels. Cannot be larger than the `num_levels` parameter
+          of the constructor.
+
+
+
+   .. py:method:: get_eigenvalues(num)
+
+      Eigenvalues of the Laplacian corresponding to the first `num` levels.
+
+      :param num:
+          Number of levels. Cannot be larger than the `num_levels` parameter
+          of the constructor.
+      :return:
+          (num, 1)-shaped array containing the eigenvalues.
+
+
+
+   .. py:method:: get_repeated_eigenvalues(num)
+
+      Eigenvalues of the Laplacian corresponding to the first `num` levels,
+      repeated according to their multiplicity within levels.
+
+      :param num:
+          Number of levels. Cannot be larger than the `num_levels` parameter
+          of the constructor.
+
+      :return:
+          (J, 1)-shaped array containing the repeated eigenvalues,`J is
+          the resulting number of the repeated eigenvalues.
+
+
+
+   .. py:method:: random(key, number)
+
+      Sample random points on the product space by concatenating random points
+      on the factor spaces via :func:`~.make_product`.
+
+      :param key:
+          Either `np.random.RandomState`, `tf.random.Generator`,
+          `torch.Generator` or `jax.tensor` (representing random state).
+      :param number:
+          Number of samples to draw.
+
+      :return:
+          An array of `number` uniformly random samples on the space.
+
+
+
+   .. py:property:: dimension
+      :type: int
+
+
+      Returns the dimension of the product space, equal to the sum of
+      dimensions of the factors.
+
+
+
+   .. py:property:: element_dtype
+
+      :return:
+          B.Numeric.
+
+
+
+   .. py:property:: element_shape
+
+      :return:
+          Sum of the products of the element shapes of the factor spaces.
+
+
+
+.. py:class:: Space
+
+   Bases: :py:obj:`abc.ABC`
+
+
+   A space (input domain) on which a geometric kernel can be defined.
+
+
+   .. py:method:: dimension()
+      :abstractmethod:
+
+
+      Geometric dimension of the space.
+
+      Examples:
+
+      * :class:`~.spaces.Graph`: 0-dimensional.
+      * :class:`~.spaces.Circle`: 1-dimensional.
+      * :class:`~.spaces.Hypersphere`: d-dimensional, with d >= 2.
+      * :class:`~.spaces.Hyperbolic`: d-dimensional, with d >= 2.
+
+
+
+   .. py:method:: element_dtype()
+      :abstractmethod:
+
+
+      Abstract DType of an element.
+
+      Examples:
+      * :class:`~.spaces.Hypersphere`: B.Float
+      * :class:`~.spaces.Mesh`: B.Int
+      * :class:`~.spaces.SpecialUnitary`: B.Complex
+
+
+
+   .. py:method:: element_shape()
+      :abstractmethod:
+
+
+      Shape of an element.
+
+      Examples:
+      * :class:`~.spaces.Hypersphere`: [D + 1, ]
+      * :class:`~.spaces.Mesh`: [1, ]
+      * :class:`~.spaces.CompactMatrixLieGroup`: [n, n]
+
+
+
+.. py:class:: SpecialOrthogonal(n)
+
+   Bases: :py:obj:`geometric_kernels.spaces.lie_groups.CompactMatrixLieGroup`
+
+
+   The GeometricKernels space representing the special orthogonal group SO(n)
+   consisting of n by n orthogonal matrices with unit determinant.
+
+   The elements of this space are represented as n x n orthogonal
+   matrices with real entries and unit determinant.
+
+   .. note::
+       A tutorial on how to use this space is available in the
+       :doc:`SpecialOrthogonal.ipynb </examples/SpecialOrthogonal>` notebook.
+
+   :param n:
+       The order n of the group SO(n).
+
+   .. note::
+       We only support n >= 3. Mathematically, SO(2) is equivalent to the
+       unit circle, which is available as the :class:`~.spaces.Circle` space.
+
+       For larger values of n, you might need to run the
+       `utils/compute_characters.py` script to precompute the necessary
+       mathematical quantities beyond the ones provided by default. Same
+       can be required for larger numbers of levels.
+
+   .. admonition:: Citation
+
+       If you use this GeometricKernels space in your research, please consider
+       citing :cite:t:`azangulov2024a`.
+
+
+   .. py:method:: get_eigenfunctions(num)
+
+      Returns the :class:`~.SOEigenfunctions` object with `num` levels
+      and order n.
+
+      :param num:
+          Number of levels.
+
+
+
+   .. py:method:: get_eigenvalues(num)
+
+      Eigenvalues of the Laplacian corresponding to the first `num` levels.
+
+      :param num:
+          Number of levels.
+      :return:
+          (num, 1)-shaped array containing the eigenvalues.
+
+      .. note::
+          The notion of *levels* is discussed in the documentation of the
+          :class:`~.kernels.MaternKarhunenLoeveKernel`.
+
+
+
+   .. py:method:: get_repeated_eigenvalues(num)
+
+      Eigenvalues of the Laplacian corresponding to the first `num` levels,
+      repeated according to their multiplicity within levels.
+
+      :param num:
+          Number of levels.
+
+      :return:
+          (J, 1)-shaped array containing the repeated eigenvalues, J is
+          the resulting number of the repeated eigenvalues.
+
+      .. note::
+          The notion of *levels* is discussed in the documentation of the
+          :class:`~.kernels.MaternKarhunenLoeveKernel`.
+
+
+
+   .. py:method:: inverse(X)
+      :staticmethod:
+
+
+      Inverse of a batch `X` of the elements of the group. A static method.
+
+      :param X:
+          A batch [..., n, n] of elements of the group.
+          Each element is a n x n matrix.
+
+      :return:
+          A batch [..., n, n] with each n x n matrix inverted.
+
+
+
+   .. py:method:: random(key, number)
+
+      Sample uniformly random points in the space.
+
+      :param key:
+          Either `np.random.RandomState`, `tf.random.Generator`,
+          `torch.Generator` or `jax.tensor` (representing random state).
+      :param number:
+          Number of samples to draw.
+
+      :return:
+          An array of `number` uniformly random samples on the space.
+
+
+
+   .. py:property:: dimension
+      :type: int
+
+
+      The dimension of the space, as that of a Riemannian manifold.
+
+      :return:
+          floor(n(n-1)/2) where n is the order of the group SO(n).
+
+
+
+   .. py:property:: element_dtype
+
+      :return:
+          B.Float.
+
+
+
+   .. py:property:: element_shape
+
+      :return:
+          [n, n].
+
+
+
+.. py:class:: SpecialUnitary(n)
+
+   Bases: :py:obj:`geometric_kernels.spaces.lie_groups.CompactMatrixLieGroup`
+
+
+   The GeometricKernels space representing the special unitary group SU(n)
+   consisting of n by n complex unitary matrices with unit determinant.
+
+   The elements of this space are represented as n x n unitary
+   matrices with complex entries and unit determinant.
+
+   .. note::
+       A tutorial on how to use this space is available in the
+       :doc:`SpecialUnitary.ipynb </examples/SpecialUnitary>` notebook.
+
+   :param n:
+       The order n of the group SU(n).
+
+   .. note::
+       We only support n >= 2. Mathematically, SU(1) is trivial, consisting
+       of a single element (the identity), chances are you do not need it.
+       For large values of n, you might need to run the `compute_characters.py`
+       script to precompute the necessary mathematical quantities beyond the
+       ones provided by default.
+
+   .. admonition:: Citation
+
+       If you use this GeometricKernels space in your research, please consider
+       citing :cite:t:`azangulov2024a`.
+
+
+   .. py:method:: get_eigenfunctions(num)
+
+      Returns the :class:`~.SUEigenfunctions` object with `num` levels
+      and order n.
+
+      :param num:
+          Number of levels.
+
+
+
+   .. py:method:: get_eigenvalues(num)
+
+      Eigenvalues of the Laplacian corresponding to the first `num` levels.
+
+      :param num:
+          Number of levels.
+      :return:
+          (num, 1)-shaped array containing the eigenvalues.
+
+      .. note::
+          The notion of *levels* is discussed in the documentation of the
+          :class:`~.kernels.MaternKarhunenLoeveKernel`.
+
+
+
+   .. py:method:: get_repeated_eigenvalues(num)
+
+      Eigenvalues of the Laplacian corresponding to the first `num` levels,
+      repeated according to their multiplicity within levels.
+
+      :param num:
+          Number of levels.
+
+      :return:
+          (J, 1)-shaped array containing the repeated eigenvalues, J is
+          the resulting number of the repeated eigenvalues.
+
+      .. note::
+          The notion of *levels* is discussed in the documentation of the
+          :class:`~.kernels.MaternKarhunenLoeveKernel`.
+
+
+
+   .. py:method:: inverse(X)
+      :staticmethod:
+
+
+      Inverse of a batch `X` of the elements of the group. A static method.
+
+      :param X:
+          A batch [..., n, n] of elements of the group.
+          Each element is a n x n matrix.
+
+      :return:
+          A batch [..., n, n] with each n x n matrix inverted.
+
+
+
+   .. py:method:: random(key, number)
+
+      Sample uniformly random points in the space.
+
+      :param key:
+          Either `np.random.RandomState`, `tf.random.Generator`,
+          `torch.Generator` or `jax.tensor` (representing random state).
+      :param number:
+          Number of samples to draw.
+
+      :return:
+          An array of `number` uniformly random samples on the space.
+
+
+
+   .. py:property:: dimension
+      :type: int
+
+
+      The dimension of the space, as that of a Riemannian manifold.
+
+      :return:
+          floor(n^2-1) where n is the order of the group SU(n).
+
+
+
+   .. py:property:: element_dtype
+
+      :return:
+          B.Complex.
+
+
+
+   .. py:property:: element_shape
+
+      :return:
+          [n, n].
+
+
+
+.. py:class:: SymmetricPositiveDefiniteMatrices(n)
+
+   Bases: :py:obj:`geometric_kernels.spaces.base.NoncompactSymmetricSpace`, :py:obj:`geomstats.geometry.spd_matrices.SPDMatrices`
+
+
+   The GeometricKernels space representing the manifold of symmetric positive
+   definite matrices $SPD(n)$ with the affine-invariant Riemannian metric.
+
+   The elements of this space are represented by positive definite matrices of
+   size n x n. Positive definite means _strictly_ positive definite here, not
+   positive semi-definite.
+
+   The class inherits the interface of geomstats's `SPDMatrices`.
+
+   .. note::
+       A tutorial on how to use this space is available in the
+       :doc:`SPD.ipynb </examples/SPD>` notebook.
+
+   :param n:
+       Size of the matrices, the $n$ in $SPD(n)$.
+
+   .. note::
+       As mentioned in :ref:`this note <quotient note>`, any symmetric space
+       is a quotient G/H. For the manifold of symmetric positive definite
+       matrices $SPD(n)$, the group of symmetries $G$ is the identity component
+       $GL(n)_+$ of the general linear group $GL(n)$, while the isotropy
+       subgroup $H$ is the special orthogonal group $SO(n)$. See the
+       mathematical details in :cite:t:`azangulov2024b`.
+
+   .. admonition:: Citation
+
+       If you use this GeometricKernels space in your research, please consider
+       citing :cite:t:`azangulov2024b`.
+
+
+   .. py:method:: inv_harish_chandra(lam)
+
+      Implements $c^{-1}(\lambda)$, where $c$ is the Harish-Chandra's $c$
+      function.
+
+      This is one of the computational primitives required to (approximately)
+      compute the :class:`~.feature_maps.RandomPhaseFeatureMapNoncompact`
+      feature map and :class:`~.kernels.MaternFeatureMapKernel` on top of it.
+
+      :param lam:
+          A batch of frequencies, vectors of dimension equal to the rank of
+          symmetric space.
+
+      :return:
+          $c^{-1}(\lambda)$ evaluated at every $\lambda$ in the batch `lam`.
+
+
+
+   .. py:method:: power_function(lam, g, h)
+
+      Implements the *power function* $p^{\lambda}(g, h)$, the integrand
+      appearing in the definition of the zonal spherical function
+
+      .. math:: \pi^{\lambda}(g) = \int_{H} \underbrace{p^{\lambda}(g, h)}_{= e^{(i \lambda + \rho) a(h \cdot g)}} d h,
+
+      where $\lambda \in i \cdot \mathbb{R}^r$, with $r$ denoting the rank of
+      the symmetric space and $i$ the imaginary unit, is a sort of frequency,
+      $g$ is an element of the group of symmetries $G$, $h$ is an element
+      of its isotropy subgroup $H$ ($G$ and $H$ are defined :ref:`here
+      <quotient note>`), $\rho \in \mathbb{R}^r$ is as in :meth:`rho`, and
+      the function $a$ is a certain space-dependent algebraic operation.
+
+      This is one of the computational primitives required to (approximately)
+      compute the :class:`~.feature_maps.RandomPhaseFeatureMapNoncompact`
+      feature map and :class:`~.kernels.MaternFeatureMapKernel` on top of it.
+
+      :param lam:
+          A batch of L vectors of dimension `rank`, the rank of the
+          symmetric space, representing the "sort of frequencies".
+
+          Typically of shape [1, L, rank].
+      :param g:
+          A batch of N elements of the space (these can always be thought of
+          as elements of the group of symmetries $G$ since the symmetric
+          space $G/H$ can be trivially embedded into the group $G$).
+
+          Typically of shape [N, 1, <axes>], where <axes> is the shape of
+          the elements of the space.
+      :param h:
+          A batch of L elements of the isotropy subgroup $H$.
+
+          Typically of shape [1, L, <axes_p>], where <axes_p> is the shape of
+          arrays representing the elements of the isotropy subgroup $H$.
+
+      :return:
+          An array of shape [N, L] with complex number entries, representing
+          the value of the values of $p^{\lambda_l}(g_n, h_l)$ for all
+          $1 \leq n \leq N$ and $1 \leq l \leq L$.
+
+      .. note::
+          Actually, $a$ may be a more appropriate primitive than the power
+          function $p^{\lambda}$: everything but $a$ in the definition of
+          the latter is either standard or available as other primitives.
+          Us using $p^{\lambda}$ as a primitive is quite arbitrary.
+
+
+
+   .. py:method:: random(key, number)
+
+      Non-uniform random sampling, reimplements the algorithm from geomstats.
+
+      Always returns [N, n, n] float64 array of the `key`'s backend.
+
+      :param key:
+          Either `np.random.RandomState`, `tf.random.Generator`,
+          `torch.Generator` or `jax.tensor` (representing random state).
+      :param number:
+          Number of samples to draw.
+
+      :return:
+          An array of `number` random samples on the space.
+
+
+
+   .. py:method:: random_phases(key, num)
+
+      Sample uniformly random points on the isotropy subgroup $H$ (defined
+      :ref:`here <quotient note>`).
+
+      This is one of the computational primitives required to (approximately)
+      compute the :class:`~.feature_maps.RandomPhaseFeatureMapNoncompact`
+      feature map and :class:`~.kernels.MaternFeatureMapKernel` on top of it.
+
+      :param key:
+          Either `np.random.RandomState`, `tf.random.Generator`,
+          `torch.Generator` or `jax.tensor` (representing random state).
+      :param num:
+          Number of samples to draw.
+
+      :return:
+          An array of `num` uniformly random samples in the isotropy
+          subgroup $H$.
+
+      .. warning::
+          This does not sample random points on the space itself. Since the
+          space itself is non-compact, uniform sampling on it is in principle
+          impossible. However, the isotropy subgroup $H$ is always
+          compact and thus allows uniform sampling needed to approximate the
+          zonal spherical functions $\pi^{\lambda}(\cdot)$ via Monte Carlo.
+
+
+
+   .. py:property:: dimension
+      :type: int
+
+
+      Returns n(n+1)/2 where `n` was passed down to `__init__`.
+
+
+
+   .. py:property:: element_dtype
+
+      :return:
+          B.Float.
+
+
+
+   .. py:property:: element_shape
+
+      :return:
+          [n, n].
+
+
+
+   .. py:property:: num_axes
+
+      Number of axes in an array representing a point in the space.
+
+      :return:
+          2.
+
+
+
+   .. py:property:: rho
+
+      `rho` vector of dimension equal to the rank of the symmetric space.
+
+      Algebraically, weighted sum of *roots*, depends only on the space.
+
+      This is one of the computational primitives required to (approximately)
+      compute the :class:`~.feature_maps.RandomPhaseFeatureMapNoncompact`
+      feature map and :class:`~.kernels.MaternFeatureMapKernel` on top of it.
+
+
+

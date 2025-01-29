@@ -1,0 +1,205 @@
+geometric_kernels.kernels.matern_kernel
+=======================================
+
+.. py:module:: geometric_kernels.kernels.matern_kernel
+
+.. autoapi-nested-parse::
+
+   Provides :class:`MaternGeometricKernel`,the geometric Matérn kernel---with
+   the heat kernel as a special case---that just works.
+
+   It wraps around different kernels and feature maps, dispatching on the space.
+
+   Unless you know exactly what you are doing, use :class:`MaternGeometricKernel`.
+
+
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:class:: MaternGeometricKernel
+
+   This class represents a Matérn geometric kernel that "just works". Unless
+   you really know what you are doing, you should always use this kernel class.
+
+   Upon creation, unpacks into a specific geometric kernel based on the
+   provided space, and, optionally, the associated (approximate) feature map.
+
+
+   .. py:method:: __new__(space, num = None, normalize = True, return_feature_map = False, **kwargs)
+
+      Construct a kernel and (if `return_feature_map` is `True`) a
+      feature map on `space`.
+
+      .. note::
+         See :doc:`this page </theory/feature_maps>` for a brief
+         introduction into feature maps.
+
+      :param space:
+          Space to construct the kernel on.
+      :param num:
+          If provided, controls the "order of approximation" of the kernel.
+          For the discrete spectrum spaces, this means the number of "levels"
+          that go into the truncated series that defines the kernel (for
+          example, these are unique eigenvalues for the
+          :class:`~.spaces.Hypersphere` or eigenvalues with repetitions for
+          the :class:`~.spaces.Graph` or for the :class:`~.spaces.Mesh`).
+          For the non-compact symmetric spaces
+          (:class:`~.spaces.NoncompactSymmetricSpace`), this is the number
+          of random phases used to construct the kernel.
+
+          If num=None, we use a (hopefully) reasonable default, which is
+          space-dependent.
+      :param normalize:
+          Normalize the kernel (and the feature map). If normalize=True,
+          then either $k(x, x) = 1$ for all $x \in X$, where $X$ is the
+          `space`, or $\int_X k(x, x) d x = 1$, depending on the space.
+
+          Defaults to True.
+
+          .. note::
+              For many kernel methods, $k(\cdot, \cdot)$ and
+              $a k(\cdot, \cdot)$ are indistinguishable, whatever the
+              positive constant $a$ is. For these, it makes sense to use
+              normalize=False to save up some computational overhead. For
+              others, like for the Gaussian process regression, the
+              normalization of the kernel might be important. In
+              these cases, you will typically want to set normalize=True.
+
+      :param return_feature_map:
+          If `True`, return a feature map (needed e.g. for efficient sampling
+          from Gaussian processes) along with the kernel.
+
+          Default is False.
+
+      :param ``**kwargs``:
+          Any additional keyword arguments to be passed to the kernel
+          (like `key`).
+
+      .. note::
+         For non-compact symmetric spaces, like :class:`~.spaces.Hyperbolic`
+         or :class:`~.spaces.SymmetricPositiveDefiniteMatrices`, the `key`
+         **must** be provided in ``**kwargs``.
+
+
+
+.. py:function:: default_feature_map(*, space = None, num = None, kernel = None)
+
+   Constructs the default feature map for the specified space or kernel.
+
+   :param space:
+       A space to construct the feature map on. If provided, kernel must
+       either be omitted or set to None.
+   :param kernel:
+       A kernel to construct the feature map from. If provided, `space` and
+       `num` must either be omitted or set to None.
+   :param num:
+       Controls the number of features (dimensionality of the feature
+       map). If omitted or set to None, the default value for each
+       respective space is used. Must only be provided when
+       constructing a feature map on a space (not from a kernel).
+
+   :return:
+       Callable which is the respective feature map.
+
+
+.. py:function:: default_num(space: geometric_kernels.spaces.DiscreteSpectrumSpace) -> int
+                 default_num(space: geometric_kernels.spaces.NoncompactSymmetricSpace) -> int
+
+   Return the default approximation level for the `space`.
+
+   :param space:
+       A space.
+
+   :return:
+       The default approximation level.
+
+   .. note::
+      This function is organized as an abstract dispatcher plus a set of
+      @overload-decorated implementations, one for each type of spaces.
+
+      When followed by an "empty" @dispatch-decorated function of the same
+      name, plum-dispatch changes the default behavior of the `@overload`
+      decorator, allowing the implementations inside the preceding
+      @overload-decorated functions. This is opposed to the standard behavior
+      when @overload-decorated functions can only provide type signature,
+      while the general implementation should be contained in the function
+      of the same name without an `@overload` decorator.
+
+      The trick is taken from https://beartype.github.io/plum/integration.html.
+
+   .. note::
+      For dispatching to work, the empty @dispatch-decorated function should
+      follow (not precede) the @overload-decorated implementations in the code.
+
+
+.. py:function:: feature_map_from_kernel(kernel: geometric_kernels.kernels.karhunen_loeve.MaternKarhunenLoeveKernel)
+                 feature_map_from_kernel(kernel: geometric_kernels.kernels.hodge_compositional.MaternHodgeCompositionalKernel)
+                 feature_map_from_kernel(kernel: geometric_kernels.kernels.feature_map.MaternFeatureMapKernel)
+
+   Return the default feature map for the specified kernel `kernel`.
+
+   :param kernel:
+       A kernel to construct the feature map from.
+
+   :return:
+       A feature map.
+   :rtype: feature_maps.FeatureMap
+
+   .. note::
+      This function is organized as an abstract dispatcher plus a set of
+      @overload-decorated implementations, one for each type of kernels.
+
+      When followed by an "empty" @dispatch-decorated function of the same
+      name, plum-dispatch changes the default behavior of the `@overload`
+      decorator, allowing the implementations inside the preceding
+      @overload-decorated functions. This is opposed to the standard behavior
+      when @overload-decorated functions can only provide type signature,
+      while the general implementation should be contained in the function
+      of the same name without an `@overload` decorator.
+
+      The trick is taken from https://beartype.github.io/plum/integration.html.
+
+   .. note::
+      For dispatching to work, the empty @dispatch-decorated function should
+      follow (not precede) the @overload-decorated implementations in the code.
+
+
+.. py:function:: feature_map_from_space(space: geometric_kernels.spaces.DiscreteSpectrumSpace, num: int)
+                 feature_map_from_space(space: geometric_kernels.spaces.NoncompactSymmetricSpace, num: int)
+
+   Return the default feature map for the specified space `space` and
+   approximation level `num`.
+
+   :param space:
+       A space to construct the feature map on.
+   :param num:
+       Approximation level.
+
+   :return:
+       A feature map.
+   :rtype: feature_maps.FeatureMap
+
+   .. note::
+      This function is organized as an abstract dispatcher plus a set of
+      @overload-decorated implementations, one for each type of spaces.
+
+      When followed by an "empty" @dispatch-decorated function of the same
+      name, plum-dispatch changes the default behavior of the `@overload`
+      decorator, allowing the implementations inside the preceding
+      @overload-decorated functions. This is opposed to the standard behavior
+      when @overload-decorated functions can only provide type signature,
+      while the general implementation should be contained in the function
+      of the same name without an `@overload` decorator.
+
+      The trick is taken from https://beartype.github.io/plum/integration.html.
+
+   .. note::
+      For dispatching to work, the empty @dispatch-decorated function should
+      follow (not precede) the @overload-decorated implementations in the code.
+
+

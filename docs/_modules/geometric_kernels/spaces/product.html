@@ -1,0 +1,975 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="../../../genindex.html" /><link rel="search" title="Search" href="../../../search.html" />
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
+        <title>geometric_kernels.spaces.product - GeometricKernels documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/furo-extensions.css?v=302659d7" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/css/bootstrap_namespaced.css?v=7458e3c8" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../index.html"><div class="brand">GeometricKernels  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../index.html">
+  
+  
+  <span class="sidebar-brand-text">GeometricKernels  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html">GeometricKernels</a></li>
+</ul>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../examples/index.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../examples/examples.html">Spaces</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Spaces</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/Graph.html">Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/GraphEdges.html">GraphEdges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/Hyperbolic.html">Hyperbolic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/HypercubeGraph.html">HypercubeGraph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/Hypersphere.html">Hypersphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/Mesh.html">Mesh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/SPD.html">SPD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/SpecialOrthogonal.html">SpecialOrthogonal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/SpecialUnitary.html">SpecialUnitary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/Torus.html">Torus</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../examples/examples.html#backends">Backends</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Backends</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/backends/JAX_Graph.html">JAX (Graph space)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/backends/PyTorch_Graph.html">PyTorch (Graph space)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/backends/TensorFlow_Graph.html">TensorFlow (Graph space)</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../examples/examples.html#frontends">Frontends</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Frontends</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/frontends/GPflow.html">GPFlow (Mesh space)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/frontends/GPJax.html">GPJax (Mesh space)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/frontends/GPyTorch.html">GPyTorch (Mesh space)</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../examples/examples.html#other">Other</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Other</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/other/Bayesian%20Optimization.html">Bayesian optimization on a sphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/other/Hyperbolic%20Approximations.html">Comparing approximations on Hyperbolic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../examples/other/SPD%20Approximations.html">Comparing approximations on SPD</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../theory/index.html">Theory</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Theory</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../theory/compact.html">Kernels on compact manifolds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../theory/addition_theorem.html">Addition theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../theory/graphs.html">Kernels on graphs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../theory/meshes.html">Kernels on meshes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../theory/symmetric.html">Kernels on non-compact symmetric spaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../theory/product_spaces.html">Kernels on product spaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../theory/product_kernels.html">Product kernels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../theory/feature_maps.html">Feature maps and sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../theory/hypercube_graph.html">Hypercube graph space</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../autoapi/geometric_kernels/index.html">API reference</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of API reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../autoapi/geometric_kernels/feature_maps/index.html">geometric_kernels.feature_maps</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of geometric_kernels.feature_maps</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/feature_maps/base/index.html">geometric_kernels.feature_maps.base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/feature_maps/deterministic/index.html">geometric_kernels.feature_maps.deterministic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/feature_maps/probability_densities/index.html">geometric_kernels.feature_maps.probability_densities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/feature_maps/random_phase/index.html">geometric_kernels.feature_maps.random_phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/feature_maps/rejection_sampling/index.html">geometric_kernels.feature_maps.rejection_sampling</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../autoapi/geometric_kernels/frontends/index.html">geometric_kernels.frontends</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of geometric_kernels.frontends</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/frontends/gpflow/index.html">geometric_kernels.frontends.gpflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/frontends/gpjax/index.html">geometric_kernels.frontends.gpjax</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/frontends/gpytorch/index.html">geometric_kernels.frontends.gpytorch</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../autoapi/geometric_kernels/jax/index.html">geometric_kernels.jax</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../autoapi/geometric_kernels/kernels/index.html">geometric_kernels.kernels</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of geometric_kernels.kernels</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/kernels/base/index.html">geometric_kernels.kernels.base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/kernels/feature_map/index.html">geometric_kernels.kernels.feature_map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/kernels/hodge_compositional/index.html">geometric_kernels.kernels.hodge_compositional</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/kernels/karhunen_loeve/index.html">geometric_kernels.kernels.karhunen_loeve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/kernels/matern_kernel/index.html">geometric_kernels.kernels.matern_kernel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/kernels/product/index.html">geometric_kernels.kernels.product</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../autoapi/geometric_kernels/lab_extras/index.html">geometric_kernels.lab_extras</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../autoapi/geometric_kernels/sampling/index.html">geometric_kernels.sampling</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle navigation of geometric_kernels.sampling</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/sampling/samplers/index.html">geometric_kernels.sampling.samplers</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../autoapi/geometric_kernels/spaces/index.html">geometric_kernels.spaces</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle navigation of geometric_kernels.spaces</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/spaces/base/index.html">geometric_kernels.spaces.base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/spaces/circle/index.html">geometric_kernels.spaces.circle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/spaces/eigenfunctions/index.html">geometric_kernels.spaces.eigenfunctions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/spaces/graph/index.html">geometric_kernels.spaces.graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/spaces/graph_edges/index.html">geometric_kernels.spaces.graph_edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/spaces/hyperbolic/index.html">geometric_kernels.spaces.hyperbolic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/spaces/hypercube_graph/index.html">geometric_kernels.spaces.hypercube_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/spaces/hypersphere/index.html">geometric_kernels.spaces.hypersphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/spaces/lie_groups/index.html">geometric_kernels.spaces.lie_groups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/spaces/mesh/index.html">geometric_kernels.spaces.mesh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/spaces/product/index.html">geometric_kernels.spaces.product</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/spaces/so/index.html">geometric_kernels.spaces.so</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/spaces/spd/index.html">geometric_kernels.spaces.spd</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/spaces/su/index.html">geometric_kernels.spaces.su</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../autoapi/geometric_kernels/tensorflow/index.html">geometric_kernels.tensorflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../autoapi/geometric_kernels/torch/index.html">geometric_kernels.torch</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../autoapi/geometric_kernels/utils/index.html">geometric_kernels.utils</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle navigation of geometric_kernels.utils</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/utils/manifold_utils/index.html">geometric_kernels.utils.manifold_utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/utils/product/index.html">geometric_kernels.utils.product</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/utils/special_functions/index.html">geometric_kernels.utils.special_functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../autoapi/geometric_kernels/utils/utils/index.html">geometric_kernels.utils.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../autoapi/geometric_kernels/version/index.html">geometric_kernels.version</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/geometric-kernels/GeometricKernels">GitHub</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <h1>Source code for geometric_kernels.spaces.product</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module provides the :class:`ProductDiscreteSpectrumSpace` space and the</span>
+<span class="sd">respective :class:`~.eigenfunctions.Eigenfunctions` subclass</span>
+<span class="sd">:class:`ProductEigenfunctions`.</span>
+
+<span class="sd">See :doc:`this page &lt;/theory/product_spaces&gt;` for a brief account on</span>
+<span class="sd">theory behind product spaces and the :doc:`Torus.ipynb &lt;/examples/Torus&gt;`</span>
+<span class="sd">notebook for a tutorial on how to use them.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">lab</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">B</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">beartype.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">geometric_kernels.lab_extras</span><span class="w"> </span><span class="kn">import</span> <span class="n">from_numpy</span><span class="p">,</span> <span class="n">int_like</span><span class="p">,</span> <span class="n">take_along_axis</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geometric_kernels.spaces.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiscreteSpectrumSpace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geometric_kernels.spaces.eigenfunctions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Eigenfunctions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geometric_kernels.utils.product</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_product</span><span class="p">,</span> <span class="n">project_product</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geometric_kernels.utils.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">chain</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_find_lowest_sum_combinations</span><span class="p">(</span><span class="n">arr</span><span class="p">:</span> <span class="n">B</span><span class="o">.</span><span class="n">Numeric</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">B</span><span class="o">.</span><span class="n">Numeric</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    For an [N, D] array `arr`, with `arr[i, :]` assumed sorted, find `k`</span>
+<span class="sd">    smallest sums of one element per each row, i.e. sums of form</span>
+<span class="sd">    `sum_i arr[i, j_i]`, return the array of indices of the summands.</span>
+
+<span class="sd">    :param arr:</span>
+<span class="sd">        An [N, D]-shaped array.</span>
+<span class="sd">    :param k:</span>
+<span class="sd">        Number of smallest sums to find.</span>
+
+<span class="sd">    :return:</span>
+<span class="sd">        A [k, N]-shaped array of the same backend as `arr`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">N</span><span class="p">,</span> <span class="n">D</span> <span class="o">=</span> <span class="n">arr</span><span class="o">.</span><span class="n">shape</span>
+
+    <span class="n">index_array</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">B</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">int_like</span><span class="p">(</span><span class="n">arr</span><span class="p">),</span> <span class="n">N</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># prebuild array for indexing the first index of the eigenvalue array</span>
+    <span class="n">first_index</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">N</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">N</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># first eigenvalue is the sum of the first eigenvalues of the individual spaces</span>
+    <span class="n">curr_idx</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">N</span><span class="p">)[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">k</span><span class="p">:</span>
+        <span class="c1"># compute eigenvalues of the proposals</span>
+        <span class="n">sum_values</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="n">first_index</span><span class="p">,</span> <span class="n">curr_idx</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Compute tied smallest new eigenvalues</span>
+        <span class="n">lowest_sum_index</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sum_values</span><span class="o">.</span><span class="n">argmin</span><span class="p">())</span>
+        <span class="n">tied_sums</span> <span class="o">=</span> <span class="n">sum_values</span> <span class="o">==</span> <span class="n">sum_values</span><span class="p">[</span><span class="n">lowest_sum_index</span><span class="p">]</span>
+        <span class="n">tied_sums_indexes</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tied_sums</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">tied_sums</span><span class="p">))</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span>
+            <span class="nb">int</span>
+        <span class="p">)[</span><span class="n">tied_sums</span><span class="p">]</span>
+
+        <span class="c1"># Add new eigenvalues to indexing array</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">tied_sums_indexes</span><span class="p">:</span>
+            <span class="n">index_array</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">curr_idx</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;=</span> <span class="n">k</span><span class="p">:</span>
+                <span class="k">break</span>
+
+        <span class="c1"># keep unaccepted ones around</span>
+        <span class="n">old_indices</span> <span class="o">=</span> <span class="n">curr_idx</span><span class="p">[</span><span class="o">~</span><span class="n">tied_sums</span><span class="p">]</span>
+        <span class="c1"># mutate just accepted ones by adding one to each eigenindex</span>
+        <span class="n">new_indices</span> <span class="o">=</span> <span class="n">curr_idx</span><span class="p">[</span><span class="n">tied_sums</span><span class="p">][</span><span class="o">...</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">+</span> <span class="n">B</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">curr_idx</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="n">new_indices</span> <span class="o">=</span> <span class="n">new_indices</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">new_indices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="n">new_indices</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">new_indices</span><span class="p">,</span> <span class="n">D</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">curr_idx</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">old_indices</span><span class="p">,</span> <span class="n">new_indices</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">curr_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span>
+            <span class="n">B</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">curr_idx</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">curr_idx</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))),</span>
+            <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># Filter out already searched combinations.</span>
+        <span class="c1"># See https://stackoverflow.com/a/40056251.</span>
+        <span class="n">dims</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="p">(</span><span class="n">curr_idx</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">index_array</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">curr_idx</span> <span class="o">=</span> <span class="n">curr_idx</span><span class="p">[</span>
+            <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">in1d</span><span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">ravel_multi_index</span><span class="p">(</span><span class="n">curr_idx</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">dims</span><span class="p">),</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">ravel_multi_index</span><span class="p">(</span><span class="n">index_array</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">dims</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">index_array</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_num_per_level_to_mapping</span><span class="p">(</span><span class="n">num_per_level</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given a list of numbers of eigenfunctions per level, return a list `mapping`</span>
+<span class="sd">    such that `mapping[i][j]` is the index of the `j`-th eigenfunction of the</span>
+<span class="sd">    `i`-th level.</span>
+
+<span class="sd">    :param num_per_level:</span>
+<span class="sd">        A `num_eigenfunctions_per_level` list of some space.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mapping</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">num</span> <span class="ow">in</span> <span class="n">num_per_level</span><span class="p">:</span>
+        <span class="n">mapping</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">i</span> <span class="o">+</span> <span class="n">j</span> <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num</span><span class="p">)])</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="n">num</span>
+    <span class="k">return</span> <span class="n">mapping</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_eigenlevelindices_to_eigenfunctionindices</span><span class="p">(</span>
+    <span class="n">eigenlevelindices</span><span class="p">:</span> <span class="n">B</span><span class="o">.</span><span class="n">Numeric</span><span class="p">,</span> <span class="n">nums_per_level</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">B</span><span class="o">.</span><span class="n">Numeric</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Given an `eigenlevelindices` which maps the product space&#39;s level indices to</span>
+<span class="sd">    the indices of the factor spaces&#39; levels, return an `eigenfunctionindices`</span>
+<span class="sd">    array that maps the product space&#39;s eigenfunction index to the indices of</span>
+<span class="sd">    the factor spaces&#39; individual eigenfunctions.</span>
+
+<span class="sd">    :param eigenlevelindices:</span>
+<span class="sd">        A [L, S]-shaped array, where `S` is the number of factor spaces and `L`</span>
+<span class="sd">        is the number of levels, such that `eigenindicies[i, :]` are the indices</span>
+<span class="sd">        of the levels of the factor spaces that correspond to the `i`&#39;th level</span>
+<span class="sd">        of the product space.</span>
+<span class="sd">    :param nums_per_level:</span>
+<span class="sd">        Each `nums_per_level[j]` represents the `num_eigenfunctions_per_level`</span>
+<span class="sd">        list of the `j`-th factor space.</span>
+
+<span class="sd">    :return:</span>
+<span class="sd">        A [J, S]-shaped array, where `J` is the total number of eigenfunctions.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">L</span> <span class="o">=</span> <span class="n">eigenlevelindices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">S</span> <span class="o">=</span> <span class="n">eigenlevelindices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">levels_to_eigenfunction_indices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">_num_per_level_to_mapping</span><span class="p">(</span><span class="n">npl</span><span class="p">)</span> <span class="k">for</span> <span class="n">npl</span> <span class="ow">in</span> <span class="n">nums_per_level</span>
+    <span class="p">]</span>  <span class="c1"># S lists of lists of length L</span>
+
+    <span class="n">eigenfunctionindices</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">cur_level</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">):</span>
+        <span class="n">cur_factor_eigenfunction_indices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">levels_to_eigenfunction_indices</span><span class="p">[</span><span class="n">s</span><span class="p">][</span><span class="n">eigenlevelindices</span><span class="p">[</span><span class="n">cur_level</span><span class="p">,</span> <span class="n">s</span><span class="p">]]</span>
+            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">S</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">new_indices</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="o">*</span><span class="n">cur_factor_eigenfunction_indices</span><span class="p">)</span>
+        <span class="p">)</span>  <span class="c1"># part of the resulting eigenfunctionindices for the cur_level level.</span>
+        <span class="n">eigenfunctionindices</span> <span class="o">+=</span> <span class="n">new_indices</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="n">from_numpy</span><span class="p">(</span><span class="n">eigenlevelindices</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">eigenfunctionindices</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<div class="viewcode-block" id="ProductEigenfunctions">
+<a class="viewcode-back" href="../../../autoapi/geometric_kernels/spaces/product/index.html#geometric_kernels.spaces.ProductEigenfunctions">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ProductEigenfunctions</span><span class="p">(</span><span class="n">Eigenfunctions</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Eigenfunctions of the Laplacian on the product space are outer products</span>
+<span class="sd">    of the eigenfunctions on factors.</span>
+
+<span class="sd">    Levels correspond to tuples of levels of the factors.</span>
+
+<span class="sd">    :param element_shapes:</span>
+<span class="sd">        Shapes of the elements in each factor. Can be obtained as properties</span>
+<span class="sd">        `space.element_shape` of any given factor `space`.</span>
+<span class="sd">    :param element_dtypes:</span>
+<span class="sd">        Abstract lab data types of the elements in each factor. Can be obtained</span>
+<span class="sd">        as properties `space.element_dtype` of any given factor `space`.</span>
+<span class="sd">    :param eigenindicies:</span>
+<span class="sd">        A [L, S]-shaped array, where `S` is the number of factor spaces and `L`</span>
+<span class="sd">        is the number of levels, such that `eigenindicies[i, :]` are the indices</span>
+<span class="sd">        of the levels of the factor spaces that correspond to the `i`&#39;th level</span>
+<span class="sd">        of the product space.</span>
+
+<span class="sd">        This parameter implicitly determines the number of levels.</span>
+<span class="sd">    :param ``*eigenfunctions``:</span>
+<span class="sd">        The :class:`~.Eigenfunctions` subclasses corresponding to each of</span>
+<span class="sd">        the factor spaces.</span>
+<span class="sd">    :param dimension_indices:</span>
+<span class="sd">        Determines how a vector `x` representing a product space element is to</span>
+<span class="sd">        be mapped into the arrays `xi` that represent elements of the factor</span>
+<span class="sd">        spaces. `xi` are assumed to be equal to `x[dimension_indices[i]]`,</span>
+<span class="sd">        possibly up to a reshape. Such a reshape might be necessary to</span>
+<span class="sd">        accommodate the spaces whose elements are matrices rather than vectors,</span>
+<span class="sd">        as determined by `element_shapes`. The transformation of `x` into the</span>
+<span class="sd">        list of `xi`\ s is performed by :func:`~.project_product`.</span>
+
+<span class="sd">        If None, assumes the each input is layed-out flattened and concatenated,</span>
+<span class="sd">        in the same order as the factor spaces. In this case, the inverse to</span>
+<span class="sd">        :func:`~.project_product` is :func:`~.make_product`.</span>
+
+<span class="sd">        Defaults to None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">element_shapes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span>
+        <span class="n">element_dtypes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">B</span><span class="o">.</span><span class="n">DType</span><span class="p">],</span>
+        <span class="n">eigenindicies</span><span class="p">:</span> <span class="n">B</span><span class="o">.</span><span class="n">Numeric</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">eigenfunctions</span><span class="p">:</span> <span class="n">Eigenfunctions</span><span class="p">,</span>
+        <span class="n">dimension_indices</span><span class="p">:</span> <span class="n">B</span><span class="o">.</span><span class="n">Numeric</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_num_levels</span> <span class="o">=</span> <span class="n">eigenindicies</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">element_shapes</span> <span class="o">=</span> <span class="n">element_shapes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">element_dtypes</span> <span class="o">=</span> <span class="n">element_dtypes</span>
+        <span class="n">dimensions</span> <span class="o">=</span> <span class="p">[</span><span class="n">math</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">element_shape</span><span class="p">)</span> <span class="k">for</span> <span class="n">element_shape</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_shapes</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">dimension_indices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dimension_indices</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">dimensions</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dimension_indices</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="o">*</span><span class="nb">range</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span> <span class="o">+</span> <span class="n">dim</span><span class="p">)])</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="n">dim</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eigenindicies</span> <span class="o">=</span> <span class="n">eigenindicies</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">eigenfunctions</span> <span class="o">=</span> <span class="n">eigenfunctions</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">nums_per_level</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">eigenfunctions_factor</span><span class="o">.</span><span class="n">num_eigenfunctions_per_level</span>
+            <span class="k">for</span> <span class="n">eigenfunctions_factor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">eigenfunctions</span>
+        <span class="p">]</span>  <span class="c1"># [S, LFactor] where `LFactor` is eigenfunctions[0].num_levels</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_eigenfunctionindices</span> <span class="o">=</span> <span class="n">_eigenlevelindices_to_eigenfunctionindices</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eigenindicies</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nums_per_level</span>
+        <span class="p">)</span>
+
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">eigenindicies</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eigenfunctions</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ProductEigenfunctions.__call__">
+<a class="viewcode-back" href="../../../autoapi/geometric_kernels/spaces/product/index.html#geometric_kernels.spaces.ProductEigenfunctions.__call__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">B</span><span class="o">.</span><span class="n">Numeric</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">B</span><span class="o">.</span><span class="n">Numeric</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Evaluate the individual eigenfunctions at a batch of input locations.</span>
+
+<span class="sd">        .. warning::</span>
+<span class="sd">            Will `raise NotImplementedError` if some of the factors do not</span>
+<span class="sd">            implement their `__call__`.</span>
+
+<span class="sd">        :param X:</span>
+<span class="sd">            Points to evaluate the eigenfunctions at, an array of shape [N, D],</span>
+<span class="sd">            where `N` is the number of points and `D` is the dimension of the</span>
+<span class="sd">            vectors that represent points in the product space.</span>
+
+<span class="sd">            Each point `x` in the product space is a `D`-dimensional vector such</span>
+<span class="sd">            that `x[dimension_indices[i]]` is the vector that represents the</span>
+<span class="sd">            flattened element of the `i`-th factor space.</span>
+
+<span class="sd">            .. note::</span>
+<span class="sd">                If the instance was created with `dimension_indices=None`, then</span>
+<span class="sd">                you can use the :func:`~.make_product` function to convert a</span>
+<span class="sd">                list of (batches of) points in factor spaces into a (batch of)</span>
+<span class="sd">                points in the product space.</span>
+
+<span class="sd">        :param ``**kwargs``:</span>
+<span class="sd">            Any additional parameters.</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">            An [N, J]-shaped array, where `J` is the number of eigenfunctions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Xs</span> <span class="o">=</span> <span class="n">project_product</span><span class="p">(</span>
+            <span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension_indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_shapes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_dtypes</span>
+        <span class="p">)</span>  <span class="c1"># List of S arrays, each of shape [N, *element_shape_s]</span>
+
+        <span class="n">factor_eigenfunction_values</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">eigenfunction</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  <span class="c1"># [N, Js], Js different for each factor</span>
+            <span class="k">for</span> <span class="n">eigenfunction</span><span class="p">,</span> <span class="n">X</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eigenfunctions</span><span class="p">,</span> <span class="n">Xs</span><span class="p">)</span>
+        <span class="p">]</span>  <span class="c1"># List of length S, contains arrays of different shapes (not stackable)</span>
+
+        <span class="n">eigenfunction_values</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num_eigenfunctions</span><span class="p">):</span>
+            <span class="n">m_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eigenfunctionindices</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>  <span class="c1"># (S,)-shaped array</span>
+            <span class="n">eigenfunction_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">B</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span>
+                    <span class="n">B</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+                        <span class="o">*</span><span class="p">(</span>
+                            <span class="n">factor_eigenfunction_values</span><span class="p">[</span><span class="n">s</span><span class="p">][</span>
+                                <span class="p">:,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eigenfunctionindices</span><span class="p">[</span><span class="n">j</span><span class="p">,</span> <span class="n">s</span><span class="p">]</span>
+                            <span class="p">]</span>  <span class="c1"># [N,]</span>
+                            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">m_idx</span><span class="p">))</span>
+                        <span class="p">),</span>
+                        <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+                    <span class="p">),</span>  <span class="c1"># [N, S]</span>
+                    <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="p">)</span>  <span class="c1"># [N,]</span>
+            <span class="p">)</span>
+        <span class="n">eigenfunction_values</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="o">*</span><span class="n">eigenfunction_values</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># [N, J]</span>
+
+        <span class="k">return</span> <span class="n">eigenfunction_values</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">num_eigenfunctions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eigenfunctionindices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">num_levels</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_num_levels</span>
+
+<div class="viewcode-block" id="ProductEigenfunctions.phi_product">
+<a class="viewcode-back" href="../../../autoapi/geometric_kernels/spaces/product/index.html#geometric_kernels.spaces.ProductEigenfunctions.phi_product">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">phi_product</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">B</span><span class="o">.</span><span class="n">Numeric</span><span class="p">,</span> <span class="n">X2</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">B</span><span class="o">.</span><span class="n">Numeric</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">B</span><span class="o">.</span><span class="n">Numeric</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">X2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">X2</span> <span class="o">=</span> <span class="n">X</span>
+        <span class="n">Xs</span> <span class="o">=</span> <span class="n">project_product</span><span class="p">(</span>
+            <span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension_indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_shapes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_dtypes</span>
+        <span class="p">)</span>  <span class="c1"># List of S arrays, each of shape [N, *element_shape_s]</span>
+        <span class="n">Xs2</span> <span class="o">=</span> <span class="n">project_product</span><span class="p">(</span>
+            <span class="n">X2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension_indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_shapes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_dtypes</span>
+        <span class="p">)</span>  <span class="c1"># List of S arrays, each of shape [N2, *element_shape_s]</span>
+
+        <span class="n">factor_phi_products</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">take_along_axis</span><span class="p">(</span>
+                <span class="n">eigenfunction</span><span class="o">.</span><span class="n">phi_product</span><span class="p">(</span><span class="n">X1</span><span class="p">,</span> <span class="n">X2</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span>  <span class="c1"># [N, N2, L_s]</span>
+                <span class="n">from_numpy</span><span class="p">(</span><span class="n">X1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eigenindicies</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="n">s</span><span class="p">]),</span>
+                <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+            <span class="p">)</span>  <span class="c1"># [N, N2, L]</span>
+            <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="p">(</span><span class="n">eigenfunction</span><span class="p">,</span> <span class="n">X1</span><span class="p">,</span> <span class="n">X2</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+                <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eigenfunctions</span><span class="p">,</span> <span class="n">Xs</span><span class="p">,</span> <span class="n">Xs2</span><span class="p">)</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">common_dtype</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">promote_dtypes</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">B</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">factor_phi_products</span><span class="p">])</span>
+
+        <span class="n">phis</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+            <span class="o">*</span><span class="p">[</span><span class="n">B</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">common_dtype</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">factor_phi_products</span><span class="p">],</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span>
+        <span class="p">)</span>  <span class="c1"># [N, N2, L, S]</span>
+
+        <span class="n">prod_phis</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">phis</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># [N, N2, L, S] -&gt; [N, N2, L]</span>
+
+        <span class="k">return</span> <span class="n">prod_phis</span></div>
+
+
+<div class="viewcode-block" id="ProductEigenfunctions.phi_product_diag">
+<a class="viewcode-back" href="../../../autoapi/geometric_kernels/spaces/product/index.html#geometric_kernels.spaces.ProductEigenfunctions.phi_product_diag">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">phi_product_diag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">:</span> <span class="n">B</span><span class="o">.</span><span class="n">Numeric</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">Xs</span> <span class="o">=</span> <span class="n">project_product</span><span class="p">(</span>
+            <span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dimension_indices</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_shapes</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">element_dtypes</span>
+        <span class="p">)</span>
+
+        <span class="n">phis</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+            <span class="o">*</span><span class="p">[</span>
+                <span class="n">take_along_axis</span><span class="p">(</span>
+                    <span class="n">eigenfunction</span><span class="o">.</span><span class="n">phi_product_diag</span><span class="p">(</span><span class="n">X1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span>  <span class="c1"># [N, L_s]</span>
+                    <span class="n">from_numpy</span><span class="p">(</span><span class="n">X1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">eigenindicies</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="n">s</span><span class="p">]),</span>
+                    <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+                <span class="p">)</span>  <span class="c1"># [N, L]</span>
+                <span class="k">for</span> <span class="n">s</span><span class="p">,</span> <span class="p">(</span><span class="n">eigenfunction</span><span class="p">,</span> <span class="n">X1</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">eigenfunctions</span><span class="p">,</span> <span class="n">Xs</span><span class="p">))</span>
+            <span class="p">],</span>
+            <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>
+        <span class="p">)</span>  <span class="c1"># [N, L, S]</span>
+
+        <span class="n">prod_phis</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">phis</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>  <span class="c1"># [N, L]</span>
+
+        <span class="k">return</span> <span class="n">prod_phis</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">num_eigenfunctions_per_level</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+        <span class="n">L</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eigenindicies</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">S</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">eigenindicies</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">totals</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">cur_level</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">L</span><span class="p">):</span>
+            <span class="n">totals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">math</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">nums_per_level</span><span class="p">[</span><span class="n">s</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">eigenindicies</span><span class="p">[</span><span class="n">cur_level</span><span class="p">,</span> <span class="n">s</span><span class="p">]]</span>
+                    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">S</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">totals</span></div>
+
+
+
+<div class="viewcode-block" id="ProductDiscreteSpectrumSpace">
+<a class="viewcode-back" href="../../../autoapi/geometric_kernels/spaces/product/index.html#geometric_kernels.spaces.ProductDiscreteSpectrumSpace">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ProductDiscreteSpectrumSpace</span><span class="p">(</span><span class="n">DiscreteSpectrumSpace</span><span class="p">):</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The GeometricKernels space representing a product</span>
+
+<span class="sd">    .. math:: \mathcal{S} = \mathcal{S}_1 \times \ldots \mathcal{S}_S</span>
+
+<span class="sd">    of :class:`~.spaces.DiscreteSpectrumSpace`-s $\mathcal{S}_i$.</span>
+
+<span class="sd">    Levels are indexed by tuples of levels of the factors.</span>
+
+<span class="sd">    .. admonition:: Precomputing optimal levels</span>
+
+<span class="sd">        The eigenvalue corresponding to a level of the product space</span>
+<span class="sd">        represented by a tuple $(j_1, .., j_S)$ is the sum</span>
+
+<span class="sd">        .. math:: \lambda^{(1)}_{j_1} + \ldots + \lambda^{(S)}_{j_S}</span>
+
+<span class="sd">        of the eigenvalues $\lambda^{(s)}_{j_s}$ of the factors.</span>
+
+<span class="sd">        Computing top `num_levels` smallest eigenvalues is thus a combinatorial</span>
+<span class="sd">        problem, the solution to which we precompute. To make this</span>
+<span class="sd">        precomputation possible you need to provide the `num_levels` parameter</span>
+<span class="sd">        when constructing the :class:`ProductDiscreteSpectrumSpace`, unlike for</span>
+<span class="sd">        other spaces. What is more, the `num` parameter of the</span>
+<span class="sd">        :meth:`get_eigenfunctions` cannot be larger than the `num_levels` value.</span>
+
+<span class="sd">    .. note::</span>
+<span class="sd">        See :doc:`this page &lt;/theory/product_spaces&gt;` for a brief account on</span>
+<span class="sd">        theory behind product spaces and the :doc:`Torus.ipynb</span>
+<span class="sd">        &lt;/examples/Torus&gt;` notebook for a tutorial on how to use them.</span>
+
+<span class="sd">        An alternative to using :class:`ProductDiscreteSpectrumSpace` is to use</span>
+<span class="sd">        the :class:`~.kernels.ProductGeometricKernel` kernel. The latter is more</span>
+<span class="sd">        flexible, allowing more general spaces as factors and automatic</span>
+<span class="sd">        relevance determination -like behavior.</span>
+
+<span class="sd">    :param spaces:</span>
+<span class="sd">        The factors, subclasses of :class:`~.spaces.DiscreteSpectrumSpace`.</span>
+<span class="sd">    :param num_levels:</span>
+<span class="sd">        The number of levels to pre-compute for this product space.</span>
+<span class="sd">    :param num_levels_per_space:</span>
+<span class="sd">        Number of levels to fetch for each of the factor spaces, to compute</span>
+<span class="sd">        the product-space levels. This is a single number rather than a list,</span>
+<span class="sd">        because we currently only support fetching the same number of levels</span>
+<span class="sd">        for all the factor spaces.</span>
+
+<span class="sd">        If not given, `num_levels` levels will be fetched for each factor.</span>
+
+<span class="sd">    .. admonition:: Citation</span>
+
+<span class="sd">        If you use this GeometricKernels space in your research, please consider</span>
+<span class="sd">        citing :cite:t:`borovitskiy2020`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="n">spaces</span><span class="p">:</span> <span class="n">DiscreteSpectrumSpace</span><span class="p">,</span>
+        <span class="n">num_levels</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">25</span><span class="p">,</span>
+        <span class="n">num_levels_per_space</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="k">for</span> <span class="n">space</span> <span class="ow">in</span> <span class="n">spaces</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span>
+                <span class="n">space</span><span class="p">,</span> <span class="n">DiscreteSpectrumSpace</span>
+            <span class="p">),</span> <span class="s2">&quot;One of the spaces is not an instance of DiscreteSpectrumSpace.&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">factor_spaces</span> <span class="o">=</span> <span class="n">spaces</span>  <span class="c1"># List of length S</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_levels</span> <span class="o">=</span> <span class="n">num_levels</span>
+
+        <span class="c1"># Perform a breadth-first search for the smallest eigenvalues.</span>
+        <span class="c1"># Assuming that the eigenvalues come sorted, the next biggest eigenvalue</span>
+        <span class="c1"># can be found by taking a one-index step in any direction from the</span>
+        <span class="c1"># current edge of the search space.</span>
+
+        <span class="k">if</span> <span class="n">num_levels_per_space</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">num_levels_per_space</span> <span class="o">=</span> <span class="n">num_levels</span>
+        <span class="k">assert</span> <span class="n">num_levels</span> <span class="o">&lt;=</span> <span class="n">num_levels_per_space</span> <span class="o">**</span> <span class="nb">len</span><span class="p">(</span>
+            <span class="n">spaces</span>
+        <span class="p">),</span> <span class="s2">&quot;Cannot have more levels than there are possible combinations&quot;</span>
+
+        <span class="c1"># prefetch the eigenvalues of the subspaces</span>
+        <span class="n">factor_space_eigenvalues</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span>
+            <span class="o">*</span><span class="p">[</span>
+                <span class="n">space</span><span class="o">.</span><span class="n">get_eigenvalues</span><span class="p">(</span><span class="n">num_levels_per_space</span><span class="p">)[:,</span> <span class="mi">0</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">space</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">factor_spaces</span>
+            <span class="p">],</span>
+            <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="p">)</span>  <span class="c1"># [S, num_levels_per_space]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">factor_space_eigenindices</span> <span class="o">=</span> <span class="n">_find_lowest_sum_combinations</span><span class="p">(</span>
+            <span class="n">factor_space_eigenvalues</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_levels</span>
+        <span class="p">)</span>  <span class="c1"># [self.num_levels, S]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">factor_space_eigenvalues</span> <span class="o">=</span> <span class="n">factor_space_eigenvalues</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_eigenvalues</span> <span class="o">=</span> <span class="n">factor_space_eigenvalues</span><span class="p">[</span>
+            <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">factor_spaces</span><span class="p">)),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">factor_space_eigenindices</span><span class="p">,</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;ProductDiscreteSpectrumSpace(</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">space</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">space</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">factor_spaces</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the dimension of the product space, equal to the sum of</span>
+<span class="sd">        dimensions of the factors.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="n">space</span><span class="o">.</span><span class="n">dimension</span> <span class="k">for</span> <span class="n">space</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">factor_spaces</span><span class="p">])</span>
+
+<div class="viewcode-block" id="ProductDiscreteSpectrumSpace.random">
+<a class="viewcode-back" href="../../../autoapi/geometric_kernels/spaces/product/index.html#geometric_kernels.spaces.ProductDiscreteSpectrumSpace.random">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">random</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sample random points on the product space by concatenating random points</span>
+<span class="sd">        on the factor spaces via :func:`~.make_product`.</span>
+
+<span class="sd">        :param key:</span>
+<span class="sd">            Either `np.random.RandomState`, `tf.random.Generator`,</span>
+<span class="sd">            `torch.Generator` or `jax.tensor` (representing random state).</span>
+<span class="sd">        :param number:</span>
+<span class="sd">            Number of samples to draw.</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">            An array of `number` uniformly random samples on the space.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">random_points</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">factor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">factor_spaces</span><span class="p">:</span>
+            <span class="n">key</span><span class="p">,</span> <span class="n">factor_random_points</span> <span class="o">=</span> <span class="n">factor</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">number</span><span class="p">)</span>
+            <span class="n">random_points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">factor_random_points</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">key</span><span class="p">,</span> <span class="n">make_product</span><span class="p">(</span><span class="n">random_points</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ProductDiscreteSpectrumSpace.get_eigenfunctions">
+<a class="viewcode-back" href="../../../autoapi/geometric_kernels/spaces/product/index.html#geometric_kernels.spaces.ProductDiscreteSpectrumSpace.get_eigenfunctions">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_eigenfunctions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Eigenfunctions</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the :class:`~.ProductEigenfunctions` object with `num` levels.</span>
+
+<span class="sd">        :param num:</span>
+<span class="sd">            Number of levels. Cannot be larger than the `num_levels` parameter</span>
+<span class="sd">            of the constructor.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">num</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_levels</span>
+
+        <span class="n">max_level</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">factor_space_eigenindices</span><span class="p">[:</span><span class="n">num</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">factor_space_eigenfunctions</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">space</span><span class="o">.</span><span class="n">get_eigenfunctions</span><span class="p">(</span><span class="n">max_level</span><span class="p">)</span> <span class="k">for</span> <span class="n">space</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">factor_spaces</span>
+        <span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">ProductEigenfunctions</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">space</span><span class="o">.</span><span class="n">element_shape</span> <span class="k">for</span> <span class="n">space</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">factor_spaces</span><span class="p">],</span>
+            <span class="p">[</span><span class="n">space</span><span class="o">.</span><span class="n">element_dtype</span> <span class="k">for</span> <span class="n">space</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">factor_spaces</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">factor_space_eigenindices</span><span class="p">[:</span><span class="n">num</span><span class="p">],</span>
+            <span class="o">*</span><span class="n">factor_space_eigenfunctions</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ProductDiscreteSpectrumSpace.get_eigenvalues">
+<a class="viewcode-back" href="../../../autoapi/geometric_kernels/spaces/product/index.html#geometric_kernels.spaces.ProductDiscreteSpectrumSpace.get_eigenvalues">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_eigenvalues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">B</span><span class="o">.</span><span class="n">Numeric</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Eigenvalues of the Laplacian corresponding to the first `num` levels.</span>
+
+<span class="sd">        :param num:</span>
+<span class="sd">            Number of levels. Cannot be larger than the `num_levels` parameter</span>
+<span class="sd">            of the constructor.</span>
+<span class="sd">        :return:</span>
+<span class="sd">            (num, 1)-shaped array containing the eigenvalues.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">num</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_levels</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eigenvalues</span><span class="p">[:</span><span class="n">num</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="ProductDiscreteSpectrumSpace.get_repeated_eigenvalues">
+<a class="viewcode-back" href="../../../autoapi/geometric_kernels/spaces/product/index.html#geometric_kernels.spaces.ProductDiscreteSpectrumSpace.get_repeated_eigenvalues">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_repeated_eigenvalues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">B</span><span class="o">.</span><span class="n">Numeric</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Eigenvalues of the Laplacian corresponding to the first `num` levels,</span>
+<span class="sd">        repeated according to their multiplicity within levels.</span>
+
+<span class="sd">        :param num:</span>
+<span class="sd">            Number of levels. Cannot be larger than the `num_levels` parameter</span>
+<span class="sd">            of the constructor.</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">            (J, 1)-shaped array containing the repeated eigenvalues,`J is</span>
+<span class="sd">            the resulting number of the repeated eigenvalues.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">num</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_levels</span>
+
+        <span class="n">eigenfunctions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_eigenfunctions</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
+        <span class="n">eigenvalues</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_eigenvalues</span><span class="p">[:</span><span class="n">num</span><span class="p">]</span>
+        <span class="n">multiplicities</span> <span class="o">=</span> <span class="n">eigenfunctions</span><span class="o">.</span><span class="n">num_eigenfunctions_per_level</span>
+
+        <span class="n">repeated_eigenvalues</span> <span class="o">=</span> <span class="n">chain</span><span class="p">(</span><span class="n">eigenvalues</span><span class="p">,</span> <span class="n">multiplicities</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">B</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">repeated_eigenvalues</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># [J, 1]</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">element_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return:</span>
+<span class="sd">            Sum of the products of the element shapes of the factor spaces.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">space</span><span class="o">.</span><span class="n">element_shape</span><span class="p">)</span> <span class="k">for</span> <span class="n">space</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">factor_spaces</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">element_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        :return:</span>
+<span class="sd">            B.Numeric.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">B</span><span class="o">.</span><span class="n">Numeric</span></div>
+
+</pre></div>
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022-2024, the GeometricKernels Contributors
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="../../../_static/scripts/bootstrap.min.js?v=ff982861"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    </body>
+</html>

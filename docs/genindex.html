@@ -1,0 +1,2164 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="./">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><link rel="index" title="Index" href="#" /><link rel="search" title="Search" href="search.html" />
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 --><title>Index - GeometricKernels documentation</title>
+<link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?v=302659d7" />
+    <link rel="stylesheet" type="text/css" href="_static/css/bootstrap_namespaced.css?v=7458e3c8" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="index.html"><div class="brand">GeometricKernels  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="index.html">
+  
+  
+  <span class="sidebar-brand-text">GeometricKernels  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="index.html">GeometricKernels</a></li>
+</ul>
+<ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="examples/index.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="examples/examples.html">Spaces</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Spaces</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/Graph.html">Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/GraphEdges.html">GraphEdges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/Hyperbolic.html">Hyperbolic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/HypercubeGraph.html">HypercubeGraph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/Hypersphere.html">Hypersphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/Mesh.html">Mesh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/SPD.html">SPD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/SpecialOrthogonal.html">SpecialOrthogonal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/SpecialUnitary.html">SpecialUnitary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/Torus.html">Torus</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="examples/examples.html#backends">Backends</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Backends</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/backends/JAX_Graph.html">JAX (Graph space)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/backends/PyTorch_Graph.html">PyTorch (Graph space)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/backends/TensorFlow_Graph.html">TensorFlow (Graph space)</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="examples/examples.html#frontends">Frontends</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Frontends</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/frontends/GPflow.html">GPFlow (Mesh space)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/frontends/GPJax.html">GPJax (Mesh space)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/frontends/GPyTorch.html">GPyTorch (Mesh space)</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="examples/examples.html#other">Other</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Other</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="examples/other/Bayesian%20Optimization.html">Bayesian optimization on a sphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/other/Hyperbolic%20Approximations.html">Comparing approximations on Hyperbolic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="examples/other/SPD%20Approximations.html">Comparing approximations on SPD</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="theory/index.html">Theory</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Theory</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="theory/compact.html">Kernels on compact manifolds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="theory/addition_theorem.html">Addition theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="theory/graphs.html">Kernels on graphs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="theory/meshes.html">Kernels on meshes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="theory/symmetric.html">Kernels on non-compact symmetric spaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="theory/product_spaces.html">Kernels on product spaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="theory/product_kernels.html">Product kernels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="theory/feature_maps.html">Feature maps and sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="theory/hypercube_graph.html">Hypercube graph space</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="autoapi/geometric_kernels/index.html">API reference</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of API reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="autoapi/geometric_kernels/feature_maps/index.html">geometric_kernels.feature_maps</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of geometric_kernels.feature_maps</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/feature_maps/base/index.html">geometric_kernels.feature_maps.base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/feature_maps/deterministic/index.html">geometric_kernels.feature_maps.deterministic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/feature_maps/probability_densities/index.html">geometric_kernels.feature_maps.probability_densities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/feature_maps/random_phase/index.html">geometric_kernels.feature_maps.random_phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/feature_maps/rejection_sampling/index.html">geometric_kernels.feature_maps.rejection_sampling</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="autoapi/geometric_kernels/frontends/index.html">geometric_kernels.frontends</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of geometric_kernels.frontends</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/frontends/gpflow/index.html">geometric_kernels.frontends.gpflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/frontends/gpjax/index.html">geometric_kernels.frontends.gpjax</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/frontends/gpytorch/index.html">geometric_kernels.frontends.gpytorch</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/geometric_kernels/jax/index.html">geometric_kernels.jax</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="autoapi/geometric_kernels/kernels/index.html">geometric_kernels.kernels</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of geometric_kernels.kernels</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/kernels/base/index.html">geometric_kernels.kernels.base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/kernels/feature_map/index.html">geometric_kernels.kernels.feature_map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/kernels/hodge_compositional/index.html">geometric_kernels.kernels.hodge_compositional</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/kernels/karhunen_loeve/index.html">geometric_kernels.kernels.karhunen_loeve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/kernels/matern_kernel/index.html">geometric_kernels.kernels.matern_kernel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/kernels/product/index.html">geometric_kernels.kernels.product</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/geometric_kernels/lab_extras/index.html">geometric_kernels.lab_extras</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="autoapi/geometric_kernels/sampling/index.html">geometric_kernels.sampling</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle navigation of geometric_kernels.sampling</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/sampling/samplers/index.html">geometric_kernels.sampling.samplers</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="autoapi/geometric_kernels/spaces/index.html">geometric_kernels.spaces</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle navigation of geometric_kernels.spaces</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/spaces/base/index.html">geometric_kernels.spaces.base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/spaces/circle/index.html">geometric_kernels.spaces.circle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/spaces/eigenfunctions/index.html">geometric_kernels.spaces.eigenfunctions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/spaces/graph/index.html">geometric_kernels.spaces.graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/spaces/graph_edges/index.html">geometric_kernels.spaces.graph_edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/spaces/hyperbolic/index.html">geometric_kernels.spaces.hyperbolic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/spaces/hypercube_graph/index.html">geometric_kernels.spaces.hypercube_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/spaces/hypersphere/index.html">geometric_kernels.spaces.hypersphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/spaces/lie_groups/index.html">geometric_kernels.spaces.lie_groups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/spaces/mesh/index.html">geometric_kernels.spaces.mesh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/spaces/product/index.html">geometric_kernels.spaces.product</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/spaces/so/index.html">geometric_kernels.spaces.so</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/spaces/spd/index.html">geometric_kernels.spaces.spd</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/spaces/su/index.html">geometric_kernels.spaces.su</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/geometric_kernels/tensorflow/index.html">geometric_kernels.tensorflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/geometric_kernels/torch/index.html">geometric_kernels.torch</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="autoapi/geometric_kernels/utils/index.html">geometric_kernels.utils</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle navigation of geometric_kernels.utils</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/utils/manifold_utils/index.html">geometric_kernels.utils.manifold_utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/utils/product/index.html">geometric_kernels.utils.product</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/utils/special_functions/index.html">geometric_kernels.utils.special_functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="autoapi/geometric_kernels/utils/utils/index.html">geometric_kernels.utils.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/geometric_kernels/version/index.html">geometric_kernels.version</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/geometric-kernels/GeometricKernels">GitHub</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          
+<section class="genindex-section">
+  <h1 id="index">Index</h1>
+  <div class="genindex-jumpbox"><a href="#_"><strong>_</strong></a> | <a href="#B"><strong>B</strong></a> | <a href="#C"><strong>C</strong></a> | <a href="#D"><strong>D</strong></a> | <a href="#E"><strong>E</strong></a> | <a href="#F"><strong>F</strong></a> | <a href="#G"><strong>G</strong></a> | <a href="#H"><strong>H</strong></a> | <a href="#I"><strong>I</strong></a> | <a href="#K"><strong>K</strong></a> | <a href="#L"><strong>L</strong></a> | <a href="#M"><strong>M</strong></a> | <a href="#N"><strong>N</strong></a> | <a href="#O"><strong>O</strong></a> | <a href="#P"><strong>P</strong></a> | <a href="#Q"><strong>Q</strong></a> | <a href="#R"><strong>R</strong></a> | <a href="#S"><strong>S</strong></a> | <a href="#T"><strong>T</strong></a> | <a href="#V"><strong>V</strong></a> | <a href="#W"><strong>W</strong></a></div>
+</section>
+<section id="_" class="genindex-section">
+  <h2>_</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/feature_maps/base/index.html#geometric_kernels.feature_maps.base.FeatureMap.__call__">__call__() (geometric_kernels.feature_maps.base.FeatureMap method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/feature_maps/deterministic/index.html#geometric_kernels.feature_maps.deterministic.DeterministicFeatureMapCompact.__call__">(geometric_kernels.feature_maps.deterministic.DeterministicFeatureMapCompact method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/feature_maps/deterministic/index.html#geometric_kernels.feature_maps.deterministic.HodgeDeterministicFeatureMapCompact.__call__">(geometric_kernels.feature_maps.deterministic.HodgeDeterministicFeatureMapCompact method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/feature_maps/index.html#geometric_kernels.feature_maps.DeterministicFeatureMapCompact.__call__">(geometric_kernels.feature_maps.DeterministicFeatureMapCompact method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/feature_maps/index.html#geometric_kernels.feature_maps.FeatureMap.__call__">(geometric_kernels.feature_maps.FeatureMap method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/feature_maps/index.html#geometric_kernels.feature_maps.HodgeDeterministicFeatureMapCompact.__call__">(geometric_kernels.feature_maps.HodgeDeterministicFeatureMapCompact method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/feature_maps/random_phase/index.html#geometric_kernels.feature_maps.random_phase.RandomPhaseFeatureMapCompact.__call__">(geometric_kernels.feature_maps.random_phase.RandomPhaseFeatureMapCompact method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/feature_maps/random_phase/index.html#geometric_kernels.feature_maps.random_phase.RandomPhaseFeatureMapNoncompact.__call__">(geometric_kernels.feature_maps.random_phase.RandomPhaseFeatureMapNoncompact method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/feature_maps/index.html#geometric_kernels.feature_maps.RandomPhaseFeatureMapCompact.__call__">(geometric_kernels.feature_maps.RandomPhaseFeatureMapCompact method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/feature_maps/index.html#geometric_kernels.feature_maps.RandomPhaseFeatureMapNoncompact.__call__">(geometric_kernels.feature_maps.RandomPhaseFeatureMapNoncompact method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/feature_maps/rejection_sampling/index.html#geometric_kernels.feature_maps.rejection_sampling.RejectionSamplingFeatureMapHyperbolic.__call__">(geometric_kernels.feature_maps.rejection_sampling.RejectionSamplingFeatureMapHyperbolic method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/feature_maps/rejection_sampling/index.html#geometric_kernels.feature_maps.rejection_sampling.RejectionSamplingFeatureMapSPD.__call__">(geometric_kernels.feature_maps.rejection_sampling.RejectionSamplingFeatureMapSPD method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/feature_maps/index.html#geometric_kernels.feature_maps.RejectionSamplingFeatureMapHyperbolic.__call__">(geometric_kernels.feature_maps.RejectionSamplingFeatureMapHyperbolic method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/feature_maps/index.html#geometric_kernels.feature_maps.RejectionSamplingFeatureMapSPD.__call__">(geometric_kernels.feature_maps.RejectionSamplingFeatureMapSPD method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/frontends/gpjax/index.html#geometric_kernels.frontends.gpjax.GPJaxGeometricKernel.__call__">(geometric_kernels.frontends.gpjax.GPJaxGeometricKernel method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/frontends/gpytorch/index.html#geometric_kernels.frontends.gpytorch.GPyTorchGeometricKernel.__call__">(geometric_kernels.frontends.gpytorch.GPyTorchGeometricKernel method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/circle/index.html#geometric_kernels.spaces.circle.SinCosEigenfunctions.__call__">(geometric_kernels.spaces.circle.SinCosEigenfunctions method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/eigenfunctions/index.html#geometric_kernels.spaces.eigenfunctions.Eigenfunctions.__call__">(geometric_kernels.spaces.eigenfunctions.Eigenfunctions method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/eigenfunctions/index.html#geometric_kernels.spaces.eigenfunctions.EigenfunctionsFromEigenvectors.__call__">(geometric_kernels.spaces.eigenfunctions.EigenfunctionsFromEigenvectors method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/eigenfunctions/index.html#geometric_kernels.spaces.eigenfunctions.EigenfunctionsWithAdditionTheorem.__call__">(geometric_kernels.spaces.eigenfunctions.EigenfunctionsWithAdditionTheorem method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hypercube_graph/index.html#geometric_kernels.spaces.hypercube_graph.WalshFunctions.__call__">(geometric_kernels.spaces.hypercube_graph.WalshFunctions method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hypersphere/index.html#geometric_kernels.spaces.hypersphere.SphericalHarmonics.__call__">(geometric_kernels.spaces.hypersphere.SphericalHarmonics method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/lie_groups/index.html#geometric_kernels.spaces.lie_groups.LieGroupCharacter.__call__">(geometric_kernels.spaces.lie_groups.LieGroupCharacter method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/lie_groups/index.html#geometric_kernels.spaces.lie_groups.WeylAdditionTheorem.__call__">(geometric_kernels.spaces.lie_groups.WeylAdditionTheorem method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/product/index.html#geometric_kernels.spaces.product.ProductEigenfunctions.__call__">(geometric_kernels.spaces.product.ProductEigenfunctions method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/so/index.html#geometric_kernels.spaces.so.SOCharacter.__call__">(geometric_kernels.spaces.so.SOCharacter method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/so/index.html#geometric_kernels.spaces.so.SOEigenfunctions.__call__">(geometric_kernels.spaces.so.SOEigenfunctions method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/su/index.html#geometric_kernels.spaces.su.SUCharacter.__call__">(geometric_kernels.spaces.su.SUCharacter method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/su/index.html#geometric_kernels.spaces.su.SUEigenfunctions.__call__">(geometric_kernels.spaces.su.SUEigenfunctions method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/frontends/gpytorch/index.html#geometric_kernels.frontends.gpytorch.GPyTorchGeometricKernel.__init__">__init__() (geometric_kernels.frontends.gpytorch.GPyTorchGeometricKernel method)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/kernels/matern_kernel/index.html#geometric_kernels.kernels.matern_kernel.MaternGeometricKernel.__new__">__new__() (geometric_kernels.kernels.matern_kernel.MaternGeometricKernel method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.MaternGeometricKernel.__new__">(geometric_kernels.kernels.MaternGeometricKernel method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="B" class="genindex-section">
+  <h2>B</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/feature_maps/probability_densities/index.html#geometric_kernels.feature_maps.probability_densities.base_density_sample">base_density_sample() (in module geometric_kernels.feature_maps.probability_densities)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.BaseGeometricKernel">BaseGeometricKernel (class in geometric_kernels.kernels)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/kernels/base/index.html#geometric_kernels.kernels.base.BaseGeometricKernel">(class in geometric_kernels.kernels.base)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/utils/utils/index.html#geometric_kernels.utils.utils.binary_vectors_and_subsets">binary_vectors_and_subsets() (in module geometric_kernels.utils.utils)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.bool_like">bool_like() (in module geometric_kernels.lab_extras)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="C" class="genindex-section">
+  <h2>C</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/utils/utils/index.html#geometric_kernels.utils.utils.chain">chain() (in module geometric_kernels.utils.utils)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Circle">Circle (class in geometric_kernels.spaces)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/circle/index.html#geometric_kernels.spaces.circle.Circle">(class in geometric_kernels.spaces.circle)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.CompactMatrixLieGroup">CompactMatrixLieGroup (class in geometric_kernels.spaces)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/lie_groups/index.html#geometric_kernels.spaces.lie_groups.CompactMatrixLieGroup">(class in geometric_kernels.spaces.lie_groups)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.complex_conj">complex_conj() (in module geometric_kernels.lab_extras)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.complex_like">complex_like() (in module geometric_kernels.lab_extras)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Hyperbolic.convert_to_ball">convert_to_ball() (geometric_kernels.spaces.Hyperbolic method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/hyperbolic/index.html#geometric_kernels.spaces.hyperbolic.Hyperbolic.convert_to_ball">(geometric_kernels.spaces.hyperbolic.Hyperbolic method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.cosh">cosh() (in module geometric_kernels.lab_extras)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.count_nonzero">count_nonzero() (in module geometric_kernels.lab_extras)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.create_complex">create_complex() (in module geometric_kernels.lab_extras)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.cumsum">cumsum() (in module geometric_kernels.lab_extras)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="D" class="genindex-section">
+  <h2>D</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.default_feature_map">default_feature_map() (in module geometric_kernels.kernels)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/kernels/matern_kernel/index.html#geometric_kernels.kernels.matern_kernel.default_feature_map">(in module geometric_kernels.kernels.matern_kernel)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/kernels/matern_kernel/index.html#geometric_kernels.kernels.matern_kernel.default_num">default_num() (in module geometric_kernels.kernels.matern_kernel)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/frontends/gpflow/index.html#geometric_kernels.frontends.gpflow.DefaultFloatZeroMeanFunction">DefaultFloatZeroMeanFunction (class in geometric_kernels.frontends.gpflow)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.degree">degree() (in module geometric_kernels.lab_extras)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/feature_maps/index.html#geometric_kernels.feature_maps.DeterministicFeatureMapCompact">DeterministicFeatureMapCompact (class in geometric_kernels.feature_maps)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/feature_maps/deterministic/index.html#geometric_kernels.feature_maps.deterministic.DeterministicFeatureMapCompact">(class in geometric_kernels.feature_maps.deterministic)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Circle.dimension">dimension (geometric_kernels.spaces.Circle property)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/circle/index.html#geometric_kernels.spaces.circle.Circle.dimension">(geometric_kernels.spaces.circle.Circle property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Graph.dimension">(geometric_kernels.spaces.Graph property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/graph/index.html#geometric_kernels.spaces.graph.Graph.dimension">(geometric_kernels.spaces.graph.Graph property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/graph_edges/index.html#geometric_kernels.spaces.graph_edges.GraphEdges.dimension">(geometric_kernels.spaces.graph_edges.GraphEdges property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.GraphEdges.dimension">(geometric_kernels.spaces.GraphEdges property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Hyperbolic.dimension">(geometric_kernels.spaces.Hyperbolic property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hyperbolic/index.html#geometric_kernels.spaces.hyperbolic.Hyperbolic.dimension">(geometric_kernels.spaces.hyperbolic.Hyperbolic property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hypercube_graph/index.html#geometric_kernels.spaces.hypercube_graph.HypercubeGraph.dimension">(geometric_kernels.spaces.hypercube_graph.HypercubeGraph property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.HypercubeGraph.dimension">(geometric_kernels.spaces.HypercubeGraph property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Hypersphere.dimension">(geometric_kernels.spaces.Hypersphere property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hypersphere/index.html#geometric_kernels.spaces.hypersphere.Hypersphere.dimension">(geometric_kernels.spaces.hypersphere.Hypersphere property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Mesh.dimension">(geometric_kernels.spaces.Mesh property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/mesh/index.html#geometric_kernels.spaces.mesh.Mesh.dimension">(geometric_kernels.spaces.mesh.Mesh property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/product/index.html#geometric_kernels.spaces.product.ProductDiscreteSpectrumSpace.dimension">(geometric_kernels.spaces.product.ProductDiscreteSpectrumSpace property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.ProductDiscreteSpectrumSpace.dimension">(geometric_kernels.spaces.ProductDiscreteSpectrumSpace property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/so/index.html#geometric_kernels.spaces.so.SpecialOrthogonal.dimension">(geometric_kernels.spaces.so.SpecialOrthogonal property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/spd/index.html#geometric_kernels.spaces.spd.SymmetricPositiveDefiniteMatrices.dimension">(geometric_kernels.spaces.spd.SymmetricPositiveDefiniteMatrices property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.SpecialOrthogonal.dimension">(geometric_kernels.spaces.SpecialOrthogonal property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.SpecialUnitary.dimension">(geometric_kernels.spaces.SpecialUnitary property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/su/index.html#geometric_kernels.spaces.su.SpecialUnitary.dimension">(geometric_kernels.spaces.su.SpecialUnitary property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.SymmetricPositiveDefiniteMatrices.dimension">(geometric_kernels.spaces.SymmetricPositiveDefiniteMatrices property)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/spaces/base/index.html#geometric_kernels.spaces.base.DiscreteSpectrumSpace.dimension">dimension() (geometric_kernels.spaces.base.DiscreteSpectrumSpace method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/base/index.html#geometric_kernels.spaces.base.NoncompactSymmetricSpace.dimension">(geometric_kernels.spaces.base.NoncompactSymmetricSpace method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/base/index.html#geometric_kernels.spaces.base.Space.dimension">(geometric_kernels.spaces.base.Space method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.DiscreteSpectrumSpace.dimension">(geometric_kernels.spaces.DiscreteSpectrumSpace method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.NoncompactSymmetricSpace.dimension">(geometric_kernels.spaces.NoncompactSymmetricSpace method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Space.dimension">(geometric_kernels.spaces.Space method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.DiscreteSpectrumSpace">DiscreteSpectrumSpace (class in geometric_kernels.spaces)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/base/index.html#geometric_kernels.spaces.base.DiscreteSpectrumSpace">(class in geometric_kernels.spaces.base)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Hyperbolic.distance">distance() (geometric_kernels.spaces.Hyperbolic method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/hyperbolic/index.html#geometric_kernels.spaces.hyperbolic.Hyperbolic.distance">(geometric_kernels.spaces.hyperbolic.Hyperbolic method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.dtype_bool">dtype_bool() (in module geometric_kernels.lab_extras)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.dtype_double">dtype_double() (in module geometric_kernels.lab_extras)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.dtype_integer">dtype_integer() (in module geometric_kernels.lab_extras)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="E" class="genindex-section">
+  <h2>E</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Hypersphere.ehess2rhess">ehess2rhess() (geometric_kernels.spaces.Hypersphere method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/hypersphere/index.html#geometric_kernels.spaces.hypersphere.Hypersphere.ehess2rhess">(geometric_kernels.spaces.hypersphere.Hypersphere method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/eigenfunctions/index.html#geometric_kernels.spaces.eigenfunctions.Eigenfunctions">Eigenfunctions (class in geometric_kernels.spaces.eigenfunctions)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/kernels/karhunen_loeve/index.html#geometric_kernels.kernels.karhunen_loeve.MaternKarhunenLoeveKernel.eigenfunctions">eigenfunctions (geometric_kernels.kernels.karhunen_loeve.MaternKarhunenLoeveKernel property)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.MaternKarhunenLoeveKernel.eigenfunctions">(geometric_kernels.kernels.MaternKarhunenLoeveKernel property)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/eigenfunctions/index.html#geometric_kernels.spaces.eigenfunctions.EigenfunctionsFromEigenvectors">EigenfunctionsFromEigenvectors (class in geometric_kernels.spaces.eigenfunctions)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/spaces/eigenfunctions/index.html#geometric_kernels.spaces.eigenfunctions.EigenfunctionsWithAdditionTheorem">EigenfunctionsWithAdditionTheorem (class in geometric_kernels.spaces.eigenfunctions)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.eigenpairs">eigenpairs() (in module geometric_kernels.lab_extras)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/kernels/karhunen_loeve/index.html#geometric_kernels.kernels.karhunen_loeve.MaternKarhunenLoeveKernel.eigenvalues">eigenvalues() (geometric_kernels.kernels.karhunen_loeve.MaternKarhunenLoeveKernel method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.MaternKarhunenLoeveKernel.eigenvalues">(geometric_kernels.kernels.MaternKarhunenLoeveKernel method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/kernels/karhunen_loeve/index.html#geometric_kernels.kernels.karhunen_loeve.MaternKarhunenLoeveKernel.eigenvalues_laplacian">eigenvalues_laplacian (geometric_kernels.kernels.karhunen_loeve.MaternKarhunenLoeveKernel property)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.MaternKarhunenLoeveKernel.eigenvalues_laplacian">(geometric_kernels.kernels.MaternKarhunenLoeveKernel property)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.eigvalsh">eigvalsh() (in module geometric_kernels.lab_extras)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Circle.element_dtype">element_dtype (geometric_kernels.spaces.Circle property)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/circle/index.html#geometric_kernels.spaces.circle.Circle.element_dtype">(geometric_kernels.spaces.circle.Circle property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Graph.element_dtype">(geometric_kernels.spaces.Graph property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/graph/index.html#geometric_kernels.spaces.graph.Graph.element_dtype">(geometric_kernels.spaces.graph.Graph property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/graph_edges/index.html#geometric_kernels.spaces.graph_edges.GraphEdges.element_dtype">(geometric_kernels.spaces.graph_edges.GraphEdges property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.GraphEdges.element_dtype">(geometric_kernels.spaces.GraphEdges property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Hyperbolic.element_dtype">(geometric_kernels.spaces.Hyperbolic property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hyperbolic/index.html#geometric_kernels.spaces.hyperbolic.Hyperbolic.element_dtype">(geometric_kernels.spaces.hyperbolic.Hyperbolic property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hypercube_graph/index.html#geometric_kernels.spaces.hypercube_graph.HypercubeGraph.element_dtype">(geometric_kernels.spaces.hypercube_graph.HypercubeGraph property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.HypercubeGraph.element_dtype">(geometric_kernels.spaces.HypercubeGraph property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Hypersphere.element_dtype">(geometric_kernels.spaces.Hypersphere property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hypersphere/index.html#geometric_kernels.spaces.hypersphere.Hypersphere.element_dtype">(geometric_kernels.spaces.hypersphere.Hypersphere property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Mesh.element_dtype">(geometric_kernels.spaces.Mesh property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/mesh/index.html#geometric_kernels.spaces.mesh.Mesh.element_dtype">(geometric_kernels.spaces.mesh.Mesh property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/product/index.html#geometric_kernels.spaces.product.ProductDiscreteSpectrumSpace.element_dtype">(geometric_kernels.spaces.product.ProductDiscreteSpectrumSpace property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.ProductDiscreteSpectrumSpace.element_dtype">(geometric_kernels.spaces.ProductDiscreteSpectrumSpace property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/so/index.html#geometric_kernels.spaces.so.SpecialOrthogonal.element_dtype">(geometric_kernels.spaces.so.SpecialOrthogonal property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/spd/index.html#geometric_kernels.spaces.spd.SymmetricPositiveDefiniteMatrices.element_dtype">(geometric_kernels.spaces.spd.SymmetricPositiveDefiniteMatrices property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.SpecialOrthogonal.element_dtype">(geometric_kernels.spaces.SpecialOrthogonal property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.SpecialUnitary.element_dtype">(geometric_kernels.spaces.SpecialUnitary property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/su/index.html#geometric_kernels.spaces.su.SpecialUnitary.element_dtype">(geometric_kernels.spaces.su.SpecialUnitary property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.SymmetricPositiveDefiniteMatrices.element_dtype">(geometric_kernels.spaces.SymmetricPositiveDefiniteMatrices property)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/spaces/base/index.html#geometric_kernels.spaces.base.Space.element_dtype">element_dtype() (geometric_kernels.spaces.base.Space method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Space.element_dtype">(geometric_kernels.spaces.Space method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Circle.element_shape">element_shape (geometric_kernels.spaces.Circle property)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/circle/index.html#geometric_kernels.spaces.circle.Circle.element_shape">(geometric_kernels.spaces.circle.Circle property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Graph.element_shape">(geometric_kernels.spaces.Graph property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/graph/index.html#geometric_kernels.spaces.graph.Graph.element_shape">(geometric_kernels.spaces.graph.Graph property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/graph_edges/index.html#geometric_kernels.spaces.graph_edges.GraphEdges.element_shape">(geometric_kernels.spaces.graph_edges.GraphEdges property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.GraphEdges.element_shape">(geometric_kernels.spaces.GraphEdges property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hypercube_graph/index.html#geometric_kernels.spaces.hypercube_graph.HypercubeGraph.element_shape">(geometric_kernels.spaces.hypercube_graph.HypercubeGraph property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.HypercubeGraph.element_shape">(geometric_kernels.spaces.HypercubeGraph property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Hypersphere.element_shape">(geometric_kernels.spaces.Hypersphere property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hypersphere/index.html#geometric_kernels.spaces.hypersphere.Hypersphere.element_shape">(geometric_kernels.spaces.hypersphere.Hypersphere property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Mesh.element_shape">(geometric_kernels.spaces.Mesh property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/mesh/index.html#geometric_kernels.spaces.mesh.Mesh.element_shape">(geometric_kernels.spaces.mesh.Mesh property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/product/index.html#geometric_kernels.spaces.product.ProductDiscreteSpectrumSpace.element_shape">(geometric_kernels.spaces.product.ProductDiscreteSpectrumSpace property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.ProductDiscreteSpectrumSpace.element_shape">(geometric_kernels.spaces.ProductDiscreteSpectrumSpace property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/so/index.html#geometric_kernels.spaces.so.SpecialOrthogonal.element_shape">(geometric_kernels.spaces.so.SpecialOrthogonal property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/spd/index.html#geometric_kernels.spaces.spd.SymmetricPositiveDefiniteMatrices.element_shape">(geometric_kernels.spaces.spd.SymmetricPositiveDefiniteMatrices property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.SpecialOrthogonal.element_shape">(geometric_kernels.spaces.SpecialOrthogonal property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.SpecialUnitary.element_shape">(geometric_kernels.spaces.SpecialUnitary property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/su/index.html#geometric_kernels.spaces.su.SpecialUnitary.element_shape">(geometric_kernels.spaces.su.SpecialUnitary property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.SymmetricPositiveDefiniteMatrices.element_shape">(geometric_kernels.spaces.SymmetricPositiveDefiniteMatrices property)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/base/index.html#geometric_kernels.spaces.base.Space.element_shape">element_shape() (geometric_kernels.spaces.base.Space method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Hyperbolic.element_shape">(geometric_kernels.spaces.Hyperbolic method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hyperbolic/index.html#geometric_kernels.spaces.hyperbolic.Hyperbolic.element_shape">(geometric_kernels.spaces.hyperbolic.Hyperbolic method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Space.element_shape">(geometric_kernels.spaces.Space method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="F" class="genindex-section">
+  <h2>F</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Mesh.faces">faces (geometric_kernels.spaces.Mesh property)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/mesh/index.html#geometric_kernels.spaces.mesh.Mesh.faces">(geometric_kernels.spaces.mesh.Mesh property)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/kernels/matern_kernel/index.html#geometric_kernels.kernels.matern_kernel.feature_map_from_kernel">feature_map_from_kernel() (in module geometric_kernels.kernels.matern_kernel)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/kernels/matern_kernel/index.html#geometric_kernels.kernels.matern_kernel.feature_map_from_space">feature_map_from_space() (in module geometric_kernels.kernels.matern_kernel)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/feature_maps/index.html#geometric_kernels.feature_maps.FeatureMap">FeatureMap (class in geometric_kernels.feature_maps)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/feature_maps/base/index.html#geometric_kernels.feature_maps.base.FeatureMap">(class in geometric_kernels.feature_maps.base)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/utils/utils/index.html#geometric_kernels.utils.utils.fixed_length_partitions">fixed_length_partitions() (in module geometric_kernels.utils.utils)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.float_like">float_like() (in module geometric_kernels.lab_extras)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/frontends/gpytorch/index.html#geometric_kernels.frontends.gpytorch.GPyTorchGeometricKernel.forward">forward() (geometric_kernels.frontends.gpytorch.GPyTorchGeometricKernel method)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/spaces/graph_edges/index.html#geometric_kernels.spaces.graph_edges.GraphEdges.from_adjacency">from_adjacency() (geometric_kernels.spaces.graph_edges.GraphEdges class method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.GraphEdges.from_adjacency">(geometric_kernels.spaces.GraphEdges class method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.from_numpy">from_numpy() (in module geometric_kernels.lab_extras)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="G" class="genindex-section">
+  <h2>G</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li>
+    geometric_kernels
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/index.html#module-geometric_kernels">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.feature_maps
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/feature_maps/index.html#module-geometric_kernels.feature_maps">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.feature_maps.base
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/feature_maps/base/index.html#module-geometric_kernels.feature_maps.base">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.feature_maps.deterministic
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/feature_maps/deterministic/index.html#module-geometric_kernels.feature_maps.deterministic">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.feature_maps.probability_densities
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/feature_maps/probability_densities/index.html#module-geometric_kernels.feature_maps.probability_densities">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.feature_maps.random_phase
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/feature_maps/random_phase/index.html#module-geometric_kernels.feature_maps.random_phase">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.feature_maps.rejection_sampling
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/feature_maps/rejection_sampling/index.html#module-geometric_kernels.feature_maps.rejection_sampling">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.frontends
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/frontends/index.html#module-geometric_kernels.frontends">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.frontends.gpflow
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/frontends/gpflow/index.html#module-geometric_kernels.frontends.gpflow">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.frontends.gpjax
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/frontends/gpjax/index.html#module-geometric_kernels.frontends.gpjax">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.frontends.gpytorch
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/frontends/gpytorch/index.html#module-geometric_kernels.frontends.gpytorch">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.jax
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/jax/index.html#module-geometric_kernels.jax">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.kernels
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/kernels/index.html#module-geometric_kernels.kernels">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.kernels.base
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/kernels/base/index.html#module-geometric_kernels.kernels.base">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.kernels.feature_map
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/kernels/feature_map/index.html#module-geometric_kernels.kernels.feature_map">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.kernels.hodge_compositional
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/kernels/hodge_compositional/index.html#module-geometric_kernels.kernels.hodge_compositional">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.kernels.karhunen_loeve
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/kernels/karhunen_loeve/index.html#module-geometric_kernels.kernels.karhunen_loeve">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.kernels.matern_kernel
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/kernels/matern_kernel/index.html#module-geometric_kernels.kernels.matern_kernel">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.kernels.product
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/kernels/product/index.html#module-geometric_kernels.kernels.product">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.lab_extras
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/lab_extras/index.html#module-geometric_kernels.lab_extras">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.sampling
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/sampling/index.html#module-geometric_kernels.sampling">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.sampling.samplers
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/sampling/samplers/index.html#module-geometric_kernels.sampling.samplers">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.spaces
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#module-geometric_kernels.spaces">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.spaces.base
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/base/index.html#module-geometric_kernels.spaces.base">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.spaces.circle
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/circle/index.html#module-geometric_kernels.spaces.circle">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.spaces.eigenfunctions
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/eigenfunctions/index.html#module-geometric_kernels.spaces.eigenfunctions">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.spaces.graph
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/graph/index.html#module-geometric_kernels.spaces.graph">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.spaces.graph_edges
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/graph_edges/index.html#module-geometric_kernels.spaces.graph_edges">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.spaces.hyperbolic
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/hyperbolic/index.html#module-geometric_kernels.spaces.hyperbolic">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.spaces.hypercube_graph
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/hypercube_graph/index.html#module-geometric_kernels.spaces.hypercube_graph">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.spaces.hypersphere
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/hypersphere/index.html#module-geometric_kernels.spaces.hypersphere">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.spaces.lie_groups
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/lie_groups/index.html#module-geometric_kernels.spaces.lie_groups">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.spaces.mesh
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/mesh/index.html#module-geometric_kernels.spaces.mesh">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.spaces.product
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/product/index.html#module-geometric_kernels.spaces.product">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.spaces.so
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/so/index.html#module-geometric_kernels.spaces.so">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.spaces.spd
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/spd/index.html#module-geometric_kernels.spaces.spd">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.spaces.su
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/su/index.html#module-geometric_kernels.spaces.su">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.tensorflow
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/tensorflow/index.html#module-geometric_kernels.tensorflow">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.torch
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/torch/index.html#module-geometric_kernels.torch">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.utils
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/utils/index.html#module-geometric_kernels.utils">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.utils.manifold_utils
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/utils/manifold_utils/index.html#module-geometric_kernels.utils.manifold_utils">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.utils.product
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/utils/product/index.html#module-geometric_kernels.utils.product">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.utils.special_functions
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/utils/special_functions/index.html#module-geometric_kernels.utils.special_functions">module</a>
+</li>
+        </ul></li>
+        <li>
+    geometric_kernels.utils.utils
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/utils/utils/index.html#module-geometric_kernels.utils.utils">module</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li>
+    geometric_kernels.version
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/version/index.html#module-geometric_kernels.version">module</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/base/index.html#geometric_kernels.spaces.base.DiscreteSpectrumSpace.get_eigenfunctions">get_eigenfunctions() (geometric_kernels.spaces.base.DiscreteSpectrumSpace method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/base/index.html#geometric_kernels.spaces.base.HodgeDiscreteSpectrumSpace.get_eigenfunctions">(geometric_kernels.spaces.base.HodgeDiscreteSpectrumSpace method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Circle.get_eigenfunctions">(geometric_kernels.spaces.Circle method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/circle/index.html#geometric_kernels.spaces.circle.Circle.get_eigenfunctions">(geometric_kernels.spaces.circle.Circle method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.DiscreteSpectrumSpace.get_eigenfunctions">(geometric_kernels.spaces.DiscreteSpectrumSpace method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Graph.get_eigenfunctions">(geometric_kernels.spaces.Graph method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/graph/index.html#geometric_kernels.spaces.graph.Graph.get_eigenfunctions">(geometric_kernels.spaces.graph.Graph method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/graph_edges/index.html#geometric_kernels.spaces.graph_edges.GraphEdges.get_eigenfunctions">(geometric_kernels.spaces.graph_edges.GraphEdges method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.GraphEdges.get_eigenfunctions">(geometric_kernels.spaces.GraphEdges method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.HodgeDiscreteSpectrumSpace.get_eigenfunctions">(geometric_kernels.spaces.HodgeDiscreteSpectrumSpace method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hypercube_graph/index.html#geometric_kernels.spaces.hypercube_graph.HypercubeGraph.get_eigenfunctions">(geometric_kernels.spaces.hypercube_graph.HypercubeGraph method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.HypercubeGraph.get_eigenfunctions">(geometric_kernels.spaces.HypercubeGraph method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Hypersphere.get_eigenfunctions">(geometric_kernels.spaces.Hypersphere method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hypersphere/index.html#geometric_kernels.spaces.hypersphere.Hypersphere.get_eigenfunctions">(geometric_kernels.spaces.hypersphere.Hypersphere method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Mesh.get_eigenfunctions">(geometric_kernels.spaces.Mesh method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/mesh/index.html#geometric_kernels.spaces.mesh.Mesh.get_eigenfunctions">(geometric_kernels.spaces.mesh.Mesh method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/product/index.html#geometric_kernels.spaces.product.ProductDiscreteSpectrumSpace.get_eigenfunctions">(geometric_kernels.spaces.product.ProductDiscreteSpectrumSpace method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.ProductDiscreteSpectrumSpace.get_eigenfunctions">(geometric_kernels.spaces.ProductDiscreteSpectrumSpace method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/so/index.html#geometric_kernels.spaces.so.SpecialOrthogonal.get_eigenfunctions">(geometric_kernels.spaces.so.SpecialOrthogonal method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.SpecialOrthogonal.get_eigenfunctions">(geometric_kernels.spaces.SpecialOrthogonal method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.SpecialUnitary.get_eigenfunctions">(geometric_kernels.spaces.SpecialUnitary method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/su/index.html#geometric_kernels.spaces.su.SpecialUnitary.get_eigenfunctions">(geometric_kernels.spaces.su.SpecialUnitary method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Graph.get_eigensystem">get_eigensystem() (geometric_kernels.spaces.Graph method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/graph/index.html#geometric_kernels.spaces.graph.Graph.get_eigensystem">(geometric_kernels.spaces.graph.Graph method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Mesh.get_eigensystem">(geometric_kernels.spaces.Mesh method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/mesh/index.html#geometric_kernels.spaces.mesh.Mesh.get_eigensystem">(geometric_kernels.spaces.mesh.Mesh method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/base/index.html#geometric_kernels.spaces.base.DiscreteSpectrumSpace.get_eigenvalues">get_eigenvalues() (geometric_kernels.spaces.base.DiscreteSpectrumSpace method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/base/index.html#geometric_kernels.spaces.base.HodgeDiscreteSpectrumSpace.get_eigenvalues">(geometric_kernels.spaces.base.HodgeDiscreteSpectrumSpace method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Circle.get_eigenvalues">(geometric_kernels.spaces.Circle method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/circle/index.html#geometric_kernels.spaces.circle.Circle.get_eigenvalues">(geometric_kernels.spaces.circle.Circle method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.DiscreteSpectrumSpace.get_eigenvalues">(geometric_kernels.spaces.DiscreteSpectrumSpace method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Graph.get_eigenvalues">(geometric_kernels.spaces.Graph method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/graph/index.html#geometric_kernels.spaces.graph.Graph.get_eigenvalues">(geometric_kernels.spaces.graph.Graph method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/graph_edges/index.html#geometric_kernels.spaces.graph_edges.GraphEdges.get_eigenvalues">(geometric_kernels.spaces.graph_edges.GraphEdges method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.GraphEdges.get_eigenvalues">(geometric_kernels.spaces.GraphEdges method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.HodgeDiscreteSpectrumSpace.get_eigenvalues">(geometric_kernels.spaces.HodgeDiscreteSpectrumSpace method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hypercube_graph/index.html#geometric_kernels.spaces.hypercube_graph.HypercubeGraph.get_eigenvalues">(geometric_kernels.spaces.hypercube_graph.HypercubeGraph method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.HypercubeGraph.get_eigenvalues">(geometric_kernels.spaces.HypercubeGraph method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Hypersphere.get_eigenvalues">(geometric_kernels.spaces.Hypersphere method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hypersphere/index.html#geometric_kernels.spaces.hypersphere.Hypersphere.get_eigenvalues">(geometric_kernels.spaces.hypersphere.Hypersphere method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Mesh.get_eigenvalues">(geometric_kernels.spaces.Mesh method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/mesh/index.html#geometric_kernels.spaces.mesh.Mesh.get_eigenvalues">(geometric_kernels.spaces.mesh.Mesh method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/product/index.html#geometric_kernels.spaces.product.ProductDiscreteSpectrumSpace.get_eigenvalues">(geometric_kernels.spaces.product.ProductDiscreteSpectrumSpace method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.ProductDiscreteSpectrumSpace.get_eigenvalues">(geometric_kernels.spaces.ProductDiscreteSpectrumSpace method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/so/index.html#geometric_kernels.spaces.so.SpecialOrthogonal.get_eigenvalues">(geometric_kernels.spaces.so.SpecialOrthogonal method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.SpecialOrthogonal.get_eigenvalues">(geometric_kernels.spaces.SpecialOrthogonal method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.SpecialUnitary.get_eigenvalues">(geometric_kernels.spaces.SpecialUnitary method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/su/index.html#geometric_kernels.spaces.su.SpecialUnitary.get_eigenvalues">(geometric_kernels.spaces.su.SpecialUnitary method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Graph.get_eigenvectors">get_eigenvectors() (geometric_kernels.spaces.Graph method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/graph/index.html#geometric_kernels.spaces.graph.Graph.get_eigenvectors">(geometric_kernels.spaces.graph.Graph method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/graph_edges/index.html#geometric_kernels.spaces.graph_edges.GraphEdges.get_eigenvectors">(geometric_kernels.spaces.graph_edges.GraphEdges method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.GraphEdges.get_eigenvectors">(geometric_kernels.spaces.GraphEdges method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Mesh.get_eigenvectors">(geometric_kernels.spaces.Mesh method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/mesh/index.html#geometric_kernels.spaces.mesh.Mesh.get_eigenvectors">(geometric_kernels.spaces.mesh.Mesh method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/graph_edges/index.html#geometric_kernels.spaces.graph_edges.GraphEdges.get_number_of_eigenpairs">get_number_of_eigenpairs() (geometric_kernels.spaces.graph_edges.GraphEdges method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.GraphEdges.get_number_of_eigenpairs">(geometric_kernels.spaces.GraphEdges method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.get_random_state">get_random_state() (in module geometric_kernels.lab_extras)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/spaces/base/index.html#geometric_kernels.spaces.base.DiscreteSpectrumSpace.get_repeated_eigenvalues">get_repeated_eigenvalues() (geometric_kernels.spaces.base.DiscreteSpectrumSpace method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/base/index.html#geometric_kernels.spaces.base.HodgeDiscreteSpectrumSpace.get_repeated_eigenvalues">(geometric_kernels.spaces.base.HodgeDiscreteSpectrumSpace method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Circle.get_repeated_eigenvalues">(geometric_kernels.spaces.Circle method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/circle/index.html#geometric_kernels.spaces.circle.Circle.get_repeated_eigenvalues">(geometric_kernels.spaces.circle.Circle method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.DiscreteSpectrumSpace.get_repeated_eigenvalues">(geometric_kernels.spaces.DiscreteSpectrumSpace method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Graph.get_repeated_eigenvalues">(geometric_kernels.spaces.Graph method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/graph/index.html#geometric_kernels.spaces.graph.Graph.get_repeated_eigenvalues">(geometric_kernels.spaces.graph.Graph method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/graph_edges/index.html#geometric_kernels.spaces.graph_edges.GraphEdges.get_repeated_eigenvalues">(geometric_kernels.spaces.graph_edges.GraphEdges method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.GraphEdges.get_repeated_eigenvalues">(geometric_kernels.spaces.GraphEdges method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.HodgeDiscreteSpectrumSpace.get_repeated_eigenvalues">(geometric_kernels.spaces.HodgeDiscreteSpectrumSpace method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hypercube_graph/index.html#geometric_kernels.spaces.hypercube_graph.HypercubeGraph.get_repeated_eigenvalues">(geometric_kernels.spaces.hypercube_graph.HypercubeGraph method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.HypercubeGraph.get_repeated_eigenvalues">(geometric_kernels.spaces.HypercubeGraph method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Hypersphere.get_repeated_eigenvalues">(geometric_kernels.spaces.Hypersphere method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hypersphere/index.html#geometric_kernels.spaces.hypersphere.Hypersphere.get_repeated_eigenvalues">(geometric_kernels.spaces.hypersphere.Hypersphere method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Mesh.get_repeated_eigenvalues">(geometric_kernels.spaces.Mesh method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/mesh/index.html#geometric_kernels.spaces.mesh.Mesh.get_repeated_eigenvalues">(geometric_kernels.spaces.mesh.Mesh method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/product/index.html#geometric_kernels.spaces.product.ProductDiscreteSpectrumSpace.get_repeated_eigenvalues">(geometric_kernels.spaces.product.ProductDiscreteSpectrumSpace method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.ProductDiscreteSpectrumSpace.get_repeated_eigenvalues">(geometric_kernels.spaces.ProductDiscreteSpectrumSpace method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/so/index.html#geometric_kernels.spaces.so.SpecialOrthogonal.get_repeated_eigenvalues">(geometric_kernels.spaces.so.SpecialOrthogonal method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.SpecialOrthogonal.get_repeated_eigenvalues">(geometric_kernels.spaces.SpecialOrthogonal method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.SpecialUnitary.get_repeated_eigenvalues">(geometric_kernels.spaces.SpecialUnitary method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/su/index.html#geometric_kernels.spaces.su.SpecialUnitary.get_repeated_eigenvalues">(geometric_kernels.spaces.su.SpecialUnitary method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/utils/utils/index.html#geometric_kernels.utils.utils.get_resource_file_path">get_resource_file_path() (in module geometric_kernels.utils.utils)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/frontends/gpflow/index.html#geometric_kernels.frontends.gpflow.GPflowGeometricKernel">GPflowGeometricKernel (class in geometric_kernels.frontends.gpflow)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/frontends/gpjax/index.html#geometric_kernels.frontends.gpjax.GPJaxGeometricKernel">GPJaxGeometricKernel (class in geometric_kernels.frontends.gpjax)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/frontends/gpytorch/index.html#geometric_kernels.frontends.gpytorch.GPyTorchGeometricKernel">GPyTorchGeometricKernel (class in geometric_kernels.frontends.gpytorch)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Graph">Graph (class in geometric_kernels.spaces)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/graph/index.html#geometric_kernels.spaces.graph.Graph">(class in geometric_kernels.spaces.graph)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.GraphEdges">GraphEdges (class in geometric_kernels.spaces)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/graph_edges/index.html#geometric_kernels.spaces.graph_edges.GraphEdges">(class in geometric_kernels.spaces.graph_edges)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="H" class="genindex-section">
+  <h2>H</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/utils/utils/index.html#geometric_kernels.utils.utils.hamming_distance">hamming_distance() (in module geometric_kernels.utils.utils)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/feature_maps/index.html#geometric_kernels.feature_maps.HodgeDeterministicFeatureMapCompact">HodgeDeterministicFeatureMapCompact (class in geometric_kernels.feature_maps)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/feature_maps/deterministic/index.html#geometric_kernels.feature_maps.deterministic.HodgeDeterministicFeatureMapCompact">(class in geometric_kernels.feature_maps.deterministic)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.HodgeDiscreteSpectrumSpace">HodgeDiscreteSpectrumSpace (class in geometric_kernels.spaces)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/base/index.html#geometric_kernels.spaces.base.HodgeDiscreteSpectrumSpace">(class in geometric_kernels.spaces.base)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Hyperbolic">Hyperbolic (class in geometric_kernels.spaces)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/hyperbolic/index.html#geometric_kernels.spaces.hyperbolic.Hyperbolic">(class in geometric_kernels.spaces.hyperbolic)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/feature_maps/probability_densities/index.html#geometric_kernels.feature_maps.probability_densities.hyperbolic_density_sample">hyperbolic_density_sample() (in module geometric_kernels.feature_maps.probability_densities)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/utils/manifold_utils/index.html#geometric_kernels.utils.manifold_utils.hyperbolic_distance">hyperbolic_distance() (in module geometric_kernels.utils.manifold_utils)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.HypercubeGraph">HypercubeGraph (class in geometric_kernels.spaces)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/hypercube_graph/index.html#geometric_kernels.spaces.hypercube_graph.HypercubeGraph">(class in geometric_kernels.spaces.hypercube_graph)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Hypersphere">Hypersphere (class in geometric_kernels.spaces)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/hypersphere/index.html#geometric_kernels.spaces.hypersphere.Hypersphere">(class in geometric_kernels.spaces.hypersphere)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="I" class="genindex-section">
+  <h2>I</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/kernels/base/index.html#geometric_kernels.kernels.base.BaseGeometricKernel.init_params">init_params() (geometric_kernels.kernels.base.BaseGeometricKernel method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.BaseGeometricKernel.init_params">(geometric_kernels.kernels.BaseGeometricKernel method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/feature_map/index.html#geometric_kernels.kernels.feature_map.MaternFeatureMapKernel.init_params">(geometric_kernels.kernels.feature_map.MaternFeatureMapKernel method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/hodge_compositional/index.html#geometric_kernels.kernels.hodge_compositional.MaternHodgeCompositionalKernel.init_params">(geometric_kernels.kernels.hodge_compositional.MaternHodgeCompositionalKernel method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/karhunen_loeve/index.html#geometric_kernels.kernels.karhunen_loeve.MaternKarhunenLoeveKernel.init_params">(geometric_kernels.kernels.karhunen_loeve.MaternKarhunenLoeveKernel method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.MaternFeatureMapKernel.init_params">(geometric_kernels.kernels.MaternFeatureMapKernel method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.MaternHodgeCompositionalKernel.init_params">(geometric_kernels.kernels.MaternHodgeCompositionalKernel method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.MaternKarhunenLoeveKernel.init_params">(geometric_kernels.kernels.MaternKarhunenLoeveKernel method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/product/index.html#geometric_kernels.kernels.product.ProductGeometricKernel.init_params">(geometric_kernels.kernels.product.ProductGeometricKernel method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.ProductGeometricKernel.init_params">(geometric_kernels.kernels.ProductGeometricKernel method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Hyperbolic.inner_product">inner_product() (geometric_kernels.spaces.Hyperbolic method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/hyperbolic/index.html#geometric_kernels.spaces.hyperbolic.Hyperbolic.inner_product">(geometric_kernels.spaces.hyperbolic.Hyperbolic method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.int_like">int_like() (in module geometric_kernels.lab_extras)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/spaces/base/index.html#geometric_kernels.spaces.base.NoncompactSymmetricSpace.inv_harish_chandra">inv_harish_chandra() (geometric_kernels.spaces.base.NoncompactSymmetricSpace method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Hyperbolic.inv_harish_chandra">(geometric_kernels.spaces.Hyperbolic method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hyperbolic/index.html#geometric_kernels.spaces.hyperbolic.Hyperbolic.inv_harish_chandra">(geometric_kernels.spaces.hyperbolic.Hyperbolic method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.NoncompactSymmetricSpace.inv_harish_chandra">(geometric_kernels.spaces.NoncompactSymmetricSpace method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/spd/index.html#geometric_kernels.spaces.spd.SymmetricPositiveDefiniteMatrices.inv_harish_chandra">(geometric_kernels.spaces.spd.SymmetricPositiveDefiniteMatrices method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.SymmetricPositiveDefiniteMatrices.inv_harish_chandra">(geometric_kernels.spaces.SymmetricPositiveDefiniteMatrices method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.CompactMatrixLieGroup.inverse">inverse() (geometric_kernels.spaces.CompactMatrixLieGroup static method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/lie_groups/index.html#geometric_kernels.spaces.lie_groups.CompactMatrixLieGroup.inverse">(geometric_kernels.spaces.lie_groups.CompactMatrixLieGroup static method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/lie_groups/index.html#geometric_kernels.spaces.lie_groups.WeylAdditionTheorem.inverse">(geometric_kernels.spaces.lie_groups.WeylAdditionTheorem method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/so/index.html#geometric_kernels.spaces.so.SOEigenfunctions.inverse">(geometric_kernels.spaces.so.SOEigenfunctions method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/so/index.html#geometric_kernels.spaces.so.SpecialOrthogonal.inverse">(geometric_kernels.spaces.so.SpecialOrthogonal static method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.SpecialOrthogonal.inverse">(geometric_kernels.spaces.SpecialOrthogonal static method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.SpecialUnitary.inverse">(geometric_kernels.spaces.SpecialUnitary static method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/su/index.html#geometric_kernels.spaces.su.SpecialUnitary.inverse">(geometric_kernels.spaces.su.SpecialUnitary static method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/su/index.html#geometric_kernels.spaces.su.SUEigenfunctions.inverse">(geometric_kernels.spaces.su.SUEigenfunctions method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.is_complex">is_complex() (in module geometric_kernels.lab_extras)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="K" class="genindex-section">
+  <h2>K</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/frontends/gpflow/index.html#geometric_kernels.frontends.gpflow.GPflowGeometricKernel.K">K() (geometric_kernels.frontends.gpflow.GPflowGeometricKernel method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/kernels/base/index.html#geometric_kernels.kernels.base.BaseGeometricKernel.K">(geometric_kernels.kernels.base.BaseGeometricKernel method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.BaseGeometricKernel.K">(geometric_kernels.kernels.BaseGeometricKernel method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/feature_map/index.html#geometric_kernels.kernels.feature_map.MaternFeatureMapKernel.K">(geometric_kernels.kernels.feature_map.MaternFeatureMapKernel method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/hodge_compositional/index.html#geometric_kernels.kernels.hodge_compositional.MaternHodgeCompositionalKernel.K">(geometric_kernels.kernels.hodge_compositional.MaternHodgeCompositionalKernel method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/karhunen_loeve/index.html#geometric_kernels.kernels.karhunen_loeve.MaternKarhunenLoeveKernel.K">(geometric_kernels.kernels.karhunen_loeve.MaternKarhunenLoeveKernel method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.MaternFeatureMapKernel.K">(geometric_kernels.kernels.MaternFeatureMapKernel method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.MaternHodgeCompositionalKernel.K">(geometric_kernels.kernels.MaternHodgeCompositionalKernel method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.MaternKarhunenLoeveKernel.K">(geometric_kernels.kernels.MaternKarhunenLoeveKernel method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/product/index.html#geometric_kernels.kernels.product.ProductGeometricKernel.K">(geometric_kernels.kernels.product.ProductGeometricKernel method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.ProductGeometricKernel.K">(geometric_kernels.kernels.ProductGeometricKernel method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/frontends/gpflow/index.html#geometric_kernels.frontends.gpflow.GPflowGeometricKernel.K_diag">K_diag() (geometric_kernels.frontends.gpflow.GPflowGeometricKernel method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/kernels/base/index.html#geometric_kernels.kernels.base.BaseGeometricKernel.K_diag">(geometric_kernels.kernels.base.BaseGeometricKernel method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.BaseGeometricKernel.K_diag">(geometric_kernels.kernels.BaseGeometricKernel method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/feature_map/index.html#geometric_kernels.kernels.feature_map.MaternFeatureMapKernel.K_diag">(geometric_kernels.kernels.feature_map.MaternFeatureMapKernel method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/hodge_compositional/index.html#geometric_kernels.kernels.hodge_compositional.MaternHodgeCompositionalKernel.K_diag">(geometric_kernels.kernels.hodge_compositional.MaternHodgeCompositionalKernel method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/karhunen_loeve/index.html#geometric_kernels.kernels.karhunen_loeve.MaternKarhunenLoeveKernel.K_diag">(geometric_kernels.kernels.karhunen_loeve.MaternKarhunenLoeveKernel method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.MaternFeatureMapKernel.K_diag">(geometric_kernels.kernels.MaternFeatureMapKernel method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.MaternHodgeCompositionalKernel.K_diag">(geometric_kernels.kernels.MaternHodgeCompositionalKernel method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.MaternKarhunenLoeveKernel.K_diag">(geometric_kernels.kernels.MaternKarhunenLoeveKernel method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/product/index.html#geometric_kernels.kernels.product.ProductGeometricKernel.K_diag">(geometric_kernels.kernels.product.ProductGeometricKernel method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.ProductGeometricKernel.K_diag">(geometric_kernels.kernels.ProductGeometricKernel method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/utils/special_functions/index.html#geometric_kernels.utils.special_functions.kravchuk_normalized">kravchuk_normalized() (in module geometric_kernels.utils.special_functions)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="L" class="genindex-section">
+  <h2>L</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/spaces/lie_groups/index.html#geometric_kernels.spaces.lie_groups.LieGroupCharacter">LieGroupCharacter (class in geometric_kernels.spaces.lie_groups)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Mesh.load_mesh">load_mesh() (geometric_kernels.spaces.Mesh class method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/mesh/index.html#geometric_kernels.spaces.mesh.Mesh.load_mesh">(geometric_kernels.spaces.mesh.Mesh class method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/utils/utils/index.html#geometric_kernels.utils.utils.log_binomial">log_binomial() (in module geometric_kernels.utils.utils)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.logical_xor">logical_xor() (in module geometric_kernels.lab_extras)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.logspace">logspace() (in module geometric_kernels.lab_extras)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="M" class="genindex-section">
+  <h2>M</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/utils/utils/index.html#geometric_kernels.utils.utils.make_deterministic">make_deterministic() (in module geometric_kernels.utils.utils)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/utils/product/index.html#geometric_kernels.utils.product.make_product">make_product() (in module geometric_kernels.utils.product)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/utils/manifold_utils/index.html#geometric_kernels.utils.manifold_utils.manifold_laplacian">manifold_laplacian() (in module geometric_kernels.utils.manifold_utils)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.MaternFeatureMapKernel">MaternFeatureMapKernel (class in geometric_kernels.kernels)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/kernels/feature_map/index.html#geometric_kernels.kernels.feature_map.MaternFeatureMapKernel">(class in geometric_kernels.kernels.feature_map)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.MaternGeometricKernel">MaternGeometricKernel (class in geometric_kernels.kernels)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/kernels/matern_kernel/index.html#geometric_kernels.kernels.matern_kernel.MaternGeometricKernel">(class in geometric_kernels.kernels.matern_kernel)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.MaternHodgeCompositionalKernel">MaternHodgeCompositionalKernel (class in geometric_kernels.kernels)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/kernels/hodge_compositional/index.html#geometric_kernels.kernels.hodge_compositional.MaternHodgeCompositionalKernel">(class in geometric_kernels.kernels.hodge_compositional)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.MaternKarhunenLoeveKernel">MaternKarhunenLoeveKernel (class in geometric_kernels.kernels)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/kernels/karhunen_loeve/index.html#geometric_kernels.kernels.karhunen_loeve.MaternKarhunenLoeveKernel">(class in geometric_kernels.kernels.karhunen_loeve)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Mesh">Mesh (class in geometric_kernels.spaces)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/mesh/index.html#geometric_kernels.spaces.mesh.Mesh">(class in geometric_kernels.spaces.mesh)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/utils/manifold_utils/index.html#geometric_kernels.utils.manifold_utils.minkowski_inner_product">minkowski_inner_product() (in module geometric_kernels.utils.manifold_utils)</a>
+</li>
+        <li>
+    module
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/index.html#module-geometric_kernels">geometric_kernels</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/feature_maps/index.html#module-geometric_kernels.feature_maps">geometric_kernels.feature_maps</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/feature_maps/base/index.html#module-geometric_kernels.feature_maps.base">geometric_kernels.feature_maps.base</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/feature_maps/deterministic/index.html#module-geometric_kernels.feature_maps.deterministic">geometric_kernels.feature_maps.deterministic</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/feature_maps/probability_densities/index.html#module-geometric_kernels.feature_maps.probability_densities">geometric_kernels.feature_maps.probability_densities</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/feature_maps/random_phase/index.html#module-geometric_kernels.feature_maps.random_phase">geometric_kernels.feature_maps.random_phase</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/feature_maps/rejection_sampling/index.html#module-geometric_kernels.feature_maps.rejection_sampling">geometric_kernels.feature_maps.rejection_sampling</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/frontends/index.html#module-geometric_kernels.frontends">geometric_kernels.frontends</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/frontends/gpflow/index.html#module-geometric_kernels.frontends.gpflow">geometric_kernels.frontends.gpflow</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/frontends/gpjax/index.html#module-geometric_kernels.frontends.gpjax">geometric_kernels.frontends.gpjax</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/frontends/gpytorch/index.html#module-geometric_kernels.frontends.gpytorch">geometric_kernels.frontends.gpytorch</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/jax/index.html#module-geometric_kernels.jax">geometric_kernels.jax</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/index.html#module-geometric_kernels.kernels">geometric_kernels.kernels</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/base/index.html#module-geometric_kernels.kernels.base">geometric_kernels.kernels.base</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/feature_map/index.html#module-geometric_kernels.kernels.feature_map">geometric_kernels.kernels.feature_map</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/hodge_compositional/index.html#module-geometric_kernels.kernels.hodge_compositional">geometric_kernels.kernels.hodge_compositional</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/karhunen_loeve/index.html#module-geometric_kernels.kernels.karhunen_loeve">geometric_kernels.kernels.karhunen_loeve</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/matern_kernel/index.html#module-geometric_kernels.kernels.matern_kernel">geometric_kernels.kernels.matern_kernel</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/product/index.html#module-geometric_kernels.kernels.product">geometric_kernels.kernels.product</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/lab_extras/index.html#module-geometric_kernels.lab_extras">geometric_kernels.lab_extras</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/sampling/index.html#module-geometric_kernels.sampling">geometric_kernels.sampling</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/sampling/samplers/index.html#module-geometric_kernels.sampling.samplers">geometric_kernels.sampling.samplers</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#module-geometric_kernels.spaces">geometric_kernels.spaces</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/base/index.html#module-geometric_kernels.spaces.base">geometric_kernels.spaces.base</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/circle/index.html#module-geometric_kernels.spaces.circle">geometric_kernels.spaces.circle</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/eigenfunctions/index.html#module-geometric_kernels.spaces.eigenfunctions">geometric_kernels.spaces.eigenfunctions</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/graph/index.html#module-geometric_kernels.spaces.graph">geometric_kernels.spaces.graph</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/graph_edges/index.html#module-geometric_kernels.spaces.graph_edges">geometric_kernels.spaces.graph_edges</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hyperbolic/index.html#module-geometric_kernels.spaces.hyperbolic">geometric_kernels.spaces.hyperbolic</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hypercube_graph/index.html#module-geometric_kernels.spaces.hypercube_graph">geometric_kernels.spaces.hypercube_graph</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hypersphere/index.html#module-geometric_kernels.spaces.hypersphere">geometric_kernels.spaces.hypersphere</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/lie_groups/index.html#module-geometric_kernels.spaces.lie_groups">geometric_kernels.spaces.lie_groups</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/mesh/index.html#module-geometric_kernels.spaces.mesh">geometric_kernels.spaces.mesh</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/product/index.html#module-geometric_kernels.spaces.product">geometric_kernels.spaces.product</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/so/index.html#module-geometric_kernels.spaces.so">geometric_kernels.spaces.so</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/spd/index.html#module-geometric_kernels.spaces.spd">geometric_kernels.spaces.spd</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/su/index.html#module-geometric_kernels.spaces.su">geometric_kernels.spaces.su</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/tensorflow/index.html#module-geometric_kernels.tensorflow">geometric_kernels.tensorflow</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/torch/index.html#module-geometric_kernels.torch">geometric_kernels.torch</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/utils/index.html#module-geometric_kernels.utils">geometric_kernels.utils</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/utils/manifold_utils/index.html#module-geometric_kernels.utils.manifold_utils">geometric_kernels.utils.manifold_utils</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/utils/product/index.html#module-geometric_kernels.utils.product">geometric_kernels.utils.product</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/utils/special_functions/index.html#module-geometric_kernels.utils.special_functions">geometric_kernels.utils.special_functions</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/utils/utils/index.html#module-geometric_kernels.utils.utils">geometric_kernels.utils.utils</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/version/index.html#module-geometric_kernels.version">geometric_kernels.version</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="N" class="genindex-section">
+  <h2>N</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.NoncompactSymmetricSpace">NoncompactSymmetricSpace (class in geometric_kernels.spaces)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/base/index.html#geometric_kernels.spaces.base.NoncompactSymmetricSpace">(class in geometric_kernels.spaces.base)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/frontends/gpytorch/index.html#geometric_kernels.frontends.gpytorch.GPyTorchGeometricKernel.nu">nu (geometric_kernels.frontends.gpytorch.GPyTorchGeometricKernel property)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Hyperbolic.num_axes">num_axes (geometric_kernels.spaces.Hyperbolic property)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/hyperbolic/index.html#geometric_kernels.spaces.hyperbolic.Hyperbolic.num_axes">(geometric_kernels.spaces.hyperbolic.Hyperbolic property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/spd/index.html#geometric_kernels.spaces.spd.SymmetricPositiveDefiniteMatrices.num_axes">(geometric_kernels.spaces.spd.SymmetricPositiveDefiniteMatrices property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.SymmetricPositiveDefiniteMatrices.num_axes">(geometric_kernels.spaces.SymmetricPositiveDefiniteMatrices property)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/base/index.html#geometric_kernels.spaces.base.NoncompactSymmetricSpace.num_axes">num_axes() (geometric_kernels.spaces.base.NoncompactSymmetricSpace method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.NoncompactSymmetricSpace.num_axes">(geometric_kernels.spaces.NoncompactSymmetricSpace method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/circle/index.html#geometric_kernels.spaces.circle.SinCosEigenfunctions.num_eigenfunctions">num_eigenfunctions (geometric_kernels.spaces.circle.SinCosEigenfunctions property)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/eigenfunctions/index.html#geometric_kernels.spaces.eigenfunctions.Eigenfunctions.num_eigenfunctions">(geometric_kernels.spaces.eigenfunctions.Eigenfunctions property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/eigenfunctions/index.html#geometric_kernels.spaces.eigenfunctions.EigenfunctionsFromEigenvectors.num_eigenfunctions">(geometric_kernels.spaces.eigenfunctions.EigenfunctionsFromEigenvectors property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hypercube_graph/index.html#geometric_kernels.spaces.hypercube_graph.WalshFunctions.num_eigenfunctions">(geometric_kernels.spaces.hypercube_graph.WalshFunctions property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hypersphere/index.html#geometric_kernels.spaces.hypersphere.SphericalHarmonics.num_eigenfunctions">(geometric_kernels.spaces.hypersphere.SphericalHarmonics property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/lie_groups/index.html#geometric_kernels.spaces.lie_groups.WeylAdditionTheorem.num_eigenfunctions">(geometric_kernels.spaces.lie_groups.WeylAdditionTheorem property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/product/index.html#geometric_kernels.spaces.product.ProductEigenfunctions.num_eigenfunctions">(geometric_kernels.spaces.product.ProductEigenfunctions property)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/circle/index.html#geometric_kernels.spaces.circle.SinCosEigenfunctions.num_eigenfunctions_per_level">num_eigenfunctions_per_level (geometric_kernels.spaces.circle.SinCosEigenfunctions property)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/eigenfunctions/index.html#geometric_kernels.spaces.eigenfunctions.EigenfunctionsFromEigenvectors.num_eigenfunctions_per_level">(geometric_kernels.spaces.eigenfunctions.EigenfunctionsFromEigenvectors property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hypercube_graph/index.html#geometric_kernels.spaces.hypercube_graph.WalshFunctions.num_eigenfunctions_per_level">(geometric_kernels.spaces.hypercube_graph.WalshFunctions property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hypersphere/index.html#geometric_kernels.spaces.hypersphere.SphericalHarmonics.num_eigenfunctions_per_level">(geometric_kernels.spaces.hypersphere.SphericalHarmonics property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/lie_groups/index.html#geometric_kernels.spaces.lie_groups.WeylAdditionTheorem.num_eigenfunctions_per_level">(geometric_kernels.spaces.lie_groups.WeylAdditionTheorem property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/product/index.html#geometric_kernels.spaces.product.ProductEigenfunctions.num_eigenfunctions_per_level">(geometric_kernels.spaces.product.ProductEigenfunctions property)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/spaces/eigenfunctions/index.html#geometric_kernels.spaces.eigenfunctions.Eigenfunctions.num_eigenfunctions_per_level">num_eigenfunctions_per_level() (geometric_kernels.spaces.eigenfunctions.Eigenfunctions method)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Mesh.num_faces">num_faces (geometric_kernels.spaces.Mesh property)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/mesh/index.html#geometric_kernels.spaces.mesh.Mesh.num_faces">(geometric_kernels.spaces.mesh.Mesh property)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/circle/index.html#geometric_kernels.spaces.circle.SinCosEigenfunctions.num_levels">num_levels (geometric_kernels.spaces.circle.SinCosEigenfunctions property)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/eigenfunctions/index.html#geometric_kernels.spaces.eigenfunctions.Eigenfunctions.num_levels">(geometric_kernels.spaces.eigenfunctions.Eigenfunctions property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/eigenfunctions/index.html#geometric_kernels.spaces.eigenfunctions.EigenfunctionsFromEigenvectors.num_levels">(geometric_kernels.spaces.eigenfunctions.EigenfunctionsFromEigenvectors property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hypercube_graph/index.html#geometric_kernels.spaces.hypercube_graph.WalshFunctions.num_levels">(geometric_kernels.spaces.hypercube_graph.WalshFunctions property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hypersphere/index.html#geometric_kernels.spaces.hypersphere.SphericalHarmonics.num_levels">(geometric_kernels.spaces.hypersphere.SphericalHarmonics property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/lie_groups/index.html#geometric_kernels.spaces.lie_groups.WeylAdditionTheorem.num_levels">(geometric_kernels.spaces.lie_groups.WeylAdditionTheorem property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/product/index.html#geometric_kernels.spaces.product.ProductEigenfunctions.num_levels">(geometric_kernels.spaces.product.ProductEigenfunctions property)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Graph.num_vertices">num_vertices (geometric_kernels.spaces.Graph property)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/graph/index.html#geometric_kernels.spaces.graph.Graph.num_vertices">(geometric_kernels.spaces.graph.Graph property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Mesh.num_vertices">(geometric_kernels.spaces.Mesh property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/mesh/index.html#geometric_kernels.spaces.mesh.Mesh.num_vertices">(geometric_kernels.spaces.mesh.Mesh property)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="O" class="genindex-section">
+  <h2>O</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/utils/utils/index.html#geometric_kernels.utils.utils.ordered_pairwise_differences">ordered_pairwise_differences() (in module geometric_kernels.utils.utils)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="P" class="genindex-section">
+  <h2>P</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/utils/product/index.html#geometric_kernels.utils.product.params_to_params_list">params_to_params_list() (in module geometric_kernels.utils.product)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/utils/utils/index.html#geometric_kernels.utils.utils.partition_dominance_cone">partition_dominance_cone() (in module geometric_kernels.utils.utils)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/utils/utils/index.html#geometric_kernels.utils.utils.partition_dominance_or_subpartition_cone">partition_dominance_or_subpartition_cone() (in module geometric_kernels.utils.utils)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/spaces/eigenfunctions/index.html#geometric_kernels.spaces.eigenfunctions.Eigenfunctions.phi_product">phi_product() (geometric_kernels.spaces.eigenfunctions.Eigenfunctions method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/eigenfunctions/index.html#geometric_kernels.spaces.eigenfunctions.EigenfunctionsFromEigenvectors.phi_product">(geometric_kernels.spaces.eigenfunctions.EigenfunctionsFromEigenvectors method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/eigenfunctions/index.html#geometric_kernels.spaces.eigenfunctions.EigenfunctionsWithAdditionTheorem.phi_product">(geometric_kernels.spaces.eigenfunctions.EigenfunctionsWithAdditionTheorem method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/product/index.html#geometric_kernels.spaces.product.ProductEigenfunctions.phi_product">(geometric_kernels.spaces.product.ProductEigenfunctions method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/eigenfunctions/index.html#geometric_kernels.spaces.eigenfunctions.Eigenfunctions.phi_product_diag">phi_product_diag() (geometric_kernels.spaces.eigenfunctions.Eigenfunctions method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/eigenfunctions/index.html#geometric_kernels.spaces.eigenfunctions.EigenfunctionsFromEigenvectors.phi_product_diag">(geometric_kernels.spaces.eigenfunctions.EigenfunctionsFromEigenvectors method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/eigenfunctions/index.html#geometric_kernels.spaces.eigenfunctions.EigenfunctionsWithAdditionTheorem.phi_product_diag">(geometric_kernels.spaces.eigenfunctions.EigenfunctionsWithAdditionTheorem method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/product/index.html#geometric_kernels.spaces.product.ProductEigenfunctions.phi_product_diag">(geometric_kernels.spaces.product.ProductEigenfunctions method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/spaces/base/index.html#geometric_kernels.spaces.base.NoncompactSymmetricSpace.power_function">power_function() (geometric_kernels.spaces.base.NoncompactSymmetricSpace method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Hyperbolic.power_function">(geometric_kernels.spaces.Hyperbolic method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hyperbolic/index.html#geometric_kernels.spaces.hyperbolic.Hyperbolic.power_function">(geometric_kernels.spaces.hyperbolic.Hyperbolic method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.NoncompactSymmetricSpace.power_function">(geometric_kernels.spaces.NoncompactSymmetricSpace method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/spd/index.html#geometric_kernels.spaces.spd.SymmetricPositiveDefiniteMatrices.power_function">(geometric_kernels.spaces.spd.SymmetricPositiveDefiniteMatrices method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.SymmetricPositiveDefiniteMatrices.power_function">(geometric_kernels.spaces.SymmetricPositiveDefiniteMatrices method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.ProductDiscreteSpectrumSpace">ProductDiscreteSpectrumSpace (class in geometric_kernels.spaces)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/product/index.html#geometric_kernels.spaces.product.ProductDiscreteSpectrumSpace">(class in geometric_kernels.spaces.product)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/product/index.html#geometric_kernels.spaces.product.ProductEigenfunctions">ProductEigenfunctions (class in geometric_kernels.spaces.product)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.ProductGeometricKernel">ProductGeometricKernel (class in geometric_kernels.kernels)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/kernels/product/index.html#geometric_kernels.kernels.product.ProductGeometricKernel">(class in geometric_kernels.kernels.product)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/utils/product/index.html#geometric_kernels.utils.product.project_product">project_product() (in module geometric_kernels.utils.product)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="Q" class="genindex-section">
+  <h2>Q</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.qr">qr() (in module geometric_kernels.lab_extras)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="R" class="genindex-section">
+  <h2>R</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/spaces/base/index.html#geometric_kernels.spaces.base.DiscreteSpectrumSpace.random">random() (geometric_kernels.spaces.base.DiscreteSpectrumSpace method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Circle.random">(geometric_kernels.spaces.Circle method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/circle/index.html#geometric_kernels.spaces.circle.Circle.random">(geometric_kernels.spaces.circle.Circle method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.DiscreteSpectrumSpace.random">(geometric_kernels.spaces.DiscreteSpectrumSpace method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Graph.random">(geometric_kernels.spaces.Graph method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/graph/index.html#geometric_kernels.spaces.graph.Graph.random">(geometric_kernels.spaces.graph.Graph method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/graph_edges/index.html#geometric_kernels.spaces.graph_edges.GraphEdges.random">(geometric_kernels.spaces.graph_edges.GraphEdges method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.GraphEdges.random">(geometric_kernels.spaces.GraphEdges method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Hyperbolic.random">(geometric_kernels.spaces.Hyperbolic method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hyperbolic/index.html#geometric_kernels.spaces.hyperbolic.Hyperbolic.random">(geometric_kernels.spaces.hyperbolic.Hyperbolic method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hypercube_graph/index.html#geometric_kernels.spaces.hypercube_graph.HypercubeGraph.random">(geometric_kernels.spaces.hypercube_graph.HypercubeGraph method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.HypercubeGraph.random">(geometric_kernels.spaces.HypercubeGraph method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Hypersphere.random">(geometric_kernels.spaces.Hypersphere method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hypersphere/index.html#geometric_kernels.spaces.hypersphere.Hypersphere.random">(geometric_kernels.spaces.hypersphere.Hypersphere method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Mesh.random">(geometric_kernels.spaces.Mesh method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/mesh/index.html#geometric_kernels.spaces.mesh.Mesh.random">(geometric_kernels.spaces.mesh.Mesh method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/product/index.html#geometric_kernels.spaces.product.ProductDiscreteSpectrumSpace.random">(geometric_kernels.spaces.product.ProductDiscreteSpectrumSpace method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.ProductDiscreteSpectrumSpace.random">(geometric_kernels.spaces.ProductDiscreteSpectrumSpace method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/so/index.html#geometric_kernels.spaces.so.SpecialOrthogonal.random">(geometric_kernels.spaces.so.SpecialOrthogonal method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/spd/index.html#geometric_kernels.spaces.spd.SymmetricPositiveDefiniteMatrices.random">(geometric_kernels.spaces.spd.SymmetricPositiveDefiniteMatrices method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.SpecialOrthogonal.random">(geometric_kernels.spaces.SpecialOrthogonal method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.SpecialUnitary.random">(geometric_kernels.spaces.SpecialUnitary method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/su/index.html#geometric_kernels.spaces.su.SpecialUnitary.random">(geometric_kernels.spaces.su.SpecialUnitary method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.SymmetricPositiveDefiniteMatrices.random">(geometric_kernels.spaces.SymmetricPositiveDefiniteMatrices method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/base/index.html#geometric_kernels.spaces.base.NoncompactSymmetricSpace.random_phases">random_phases() (geometric_kernels.spaces.base.NoncompactSymmetricSpace method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Hyperbolic.random_phases">(geometric_kernels.spaces.Hyperbolic method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hyperbolic/index.html#geometric_kernels.spaces.hyperbolic.Hyperbolic.random_phases">(geometric_kernels.spaces.hyperbolic.Hyperbolic method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.NoncompactSymmetricSpace.random_phases">(geometric_kernels.spaces.NoncompactSymmetricSpace method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/spd/index.html#geometric_kernels.spaces.spd.SymmetricPositiveDefiniteMatrices.random_phases">(geometric_kernels.spaces.spd.SymmetricPositiveDefiniteMatrices method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.SymmetricPositiveDefiniteMatrices.random_phases">(geometric_kernels.spaces.SymmetricPositiveDefiniteMatrices method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/feature_maps/index.html#geometric_kernels.feature_maps.RandomPhaseFeatureMapCompact">RandomPhaseFeatureMapCompact (class in geometric_kernels.feature_maps)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/feature_maps/random_phase/index.html#geometric_kernels.feature_maps.random_phase.RandomPhaseFeatureMapCompact">(class in geometric_kernels.feature_maps.random_phase)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/feature_maps/index.html#geometric_kernels.feature_maps.RandomPhaseFeatureMapNoncompact">RandomPhaseFeatureMapNoncompact (class in geometric_kernels.feature_maps)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/feature_maps/random_phase/index.html#geometric_kernels.feature_maps.random_phase.RandomPhaseFeatureMapNoncompact">(class in geometric_kernels.feature_maps.random_phase)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.reciprocal_no_nan">reciprocal_no_nan() (in module geometric_kernels.lab_extras)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/feature_maps/index.html#geometric_kernels.feature_maps.RejectionSamplingFeatureMapHyperbolic">RejectionSamplingFeatureMapHyperbolic (class in geometric_kernels.feature_maps)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/feature_maps/rejection_sampling/index.html#geometric_kernels.feature_maps.rejection_sampling.RejectionSamplingFeatureMapHyperbolic">(class in geometric_kernels.feature_maps.rejection_sampling)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/feature_maps/index.html#geometric_kernels.feature_maps.RejectionSamplingFeatureMapSPD">RejectionSamplingFeatureMapSPD (class in geometric_kernels.feature_maps)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/feature_maps/rejection_sampling/index.html#geometric_kernels.feature_maps.rejection_sampling.RejectionSamplingFeatureMapSPD">(class in geometric_kernels.feature_maps.rejection_sampling)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/graph_edges/index.html#geometric_kernels.spaces.graph_edges.GraphEdges.resolve_edges">resolve_edges() (geometric_kernels.spaces.graph_edges.GraphEdges method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.GraphEdges.resolve_edges">(geometric_kernels.spaces.GraphEdges method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/graph_edges/index.html#geometric_kernels.spaces.graph_edges.GraphEdges.resolve_triangles">resolve_triangles() (geometric_kernels.spaces.graph_edges.GraphEdges method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.GraphEdges.resolve_triangles">(geometric_kernels.spaces.GraphEdges method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.restore_random_state">restore_random_state() (in module geometric_kernels.lab_extras)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Hyperbolic.rho">rho (geometric_kernels.spaces.Hyperbolic property)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/hyperbolic/index.html#geometric_kernels.spaces.hyperbolic.Hyperbolic.rho">(geometric_kernels.spaces.hyperbolic.Hyperbolic property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/spd/index.html#geometric_kernels.spaces.spd.SymmetricPositiveDefiniteMatrices.rho">(geometric_kernels.spaces.spd.SymmetricPositiveDefiniteMatrices property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.SymmetricPositiveDefiniteMatrices.rho">(geometric_kernels.spaces.SymmetricPositiveDefiniteMatrices property)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/base/index.html#geometric_kernels.spaces.base.NoncompactSymmetricSpace.rho">rho() (geometric_kernels.spaces.base.NoncompactSymmetricSpace method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.NoncompactSymmetricSpace.rho">(geometric_kernels.spaces.NoncompactSymmetricSpace method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="S" class="genindex-section">
+  <h2>S</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/sampling/index.html#geometric_kernels.sampling.sample_at">sample_at() (in module geometric_kernels.sampling)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/sampling/samplers/index.html#geometric_kernels.sampling.samplers.sample_at">(in module geometric_kernels.sampling.samplers)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/sampling/index.html#geometric_kernels.sampling.sampler">sampler() (in module geometric_kernels.sampling)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/sampling/samplers/index.html#geometric_kernels.sampling.samplers.sampler">(in module geometric_kernels.sampling.samplers)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.set_value">set_value() (in module geometric_kernels.lab_extras)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/spaces/circle/index.html#geometric_kernels.spaces.circle.SinCosEigenfunctions">SinCosEigenfunctions (class in geometric_kernels.spaces.circle)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.sinh">sinh() (in module geometric_kernels.lab_extras)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.slogdet">slogdet() (in module geometric_kernels.lab_extras)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.smart_cast">smart_cast() (in module geometric_kernels.lab_extras)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/spaces/so/index.html#geometric_kernels.spaces.so.SOCharacter">SOCharacter (class in geometric_kernels.spaces.so)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/spaces/so/index.html#geometric_kernels.spaces.so.SOEigenfunctions">SOEigenfunctions (class in geometric_kernels.spaces.so)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Space">Space (class in geometric_kernels.spaces)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/base/index.html#geometric_kernels.spaces.base.Space">(class in geometric_kernels.spaces.base)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/frontends/gpflow/index.html#geometric_kernels.frontends.gpflow.GPflowGeometricKernel.space">space (geometric_kernels.frontends.gpflow.GPflowGeometricKernel property)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/frontends/gpjax/index.html#geometric_kernels.frontends.gpjax.GPJaxGeometricKernel.space">(geometric_kernels.frontends.gpjax.GPJaxGeometricKernel property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/frontends/gpytorch/index.html#geometric_kernels.frontends.gpytorch.GPyTorchGeometricKernel.space">(geometric_kernels.frontends.gpytorch.GPyTorchGeometricKernel property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/base/index.html#geometric_kernels.kernels.base.BaseGeometricKernel.space">(geometric_kernels.kernels.base.BaseGeometricKernel property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.BaseGeometricKernel.space">(geometric_kernels.kernels.BaseGeometricKernel property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/hodge_compositional/index.html#geometric_kernels.kernels.hodge_compositional.MaternHodgeCompositionalKernel.space">(geometric_kernels.kernels.hodge_compositional.MaternHodgeCompositionalKernel property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/karhunen_loeve/index.html#geometric_kernels.kernels.karhunen_loeve.MaternKarhunenLoeveKernel.space">(geometric_kernels.kernels.karhunen_loeve.MaternKarhunenLoeveKernel property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.MaternHodgeCompositionalKernel.space">(geometric_kernels.kernels.MaternHodgeCompositionalKernel property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.MaternKarhunenLoeveKernel.space">(geometric_kernels.kernels.MaternKarhunenLoeveKernel property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/product/index.html#geometric_kernels.kernels.product.ProductGeometricKernel.space">(geometric_kernels.kernels.product.ProductGeometricKernel property)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.ProductGeometricKernel.space">(geometric_kernels.kernels.ProductGeometricKernel property)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/feature_maps/probability_densities/index.html#geometric_kernels.feature_maps.probability_densities.spd_density_sample">spd_density_sample() (in module geometric_kernels.feature_maps.probability_densities)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.SpecialOrthogonal">SpecialOrthogonal (class in geometric_kernels.spaces)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/so/index.html#geometric_kernels.spaces.so.SpecialOrthogonal">(class in geometric_kernels.spaces.so)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.SpecialUnitary">SpecialUnitary (class in geometric_kernels.spaces)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/su/index.html#geometric_kernels.spaces.su.SpecialUnitary">(class in geometric_kernels.spaces.su)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/kernels/karhunen_loeve/index.html#geometric_kernels.kernels.karhunen_loeve.MaternKarhunenLoeveKernel.spectrum">spectrum() (geometric_kernels.kernels.karhunen_loeve.MaternKarhunenLoeveKernel static method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/kernels/index.html#geometric_kernels.kernels.MaternKarhunenLoeveKernel.spectrum">(geometric_kernels.kernels.MaternKarhunenLoeveKernel static method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/hypersphere/index.html#geometric_kernels.spaces.hypersphere.SphericalHarmonics">SphericalHarmonics (class in geometric_kernels.spaces.hypersphere)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/feature_maps/probability_densities/index.html#geometric_kernels.feature_maps.probability_densities.student_t_sample">student_t_sample() (in module geometric_kernels.feature_maps.probability_densities)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/spaces/su/index.html#geometric_kernels.spaces.su.SUCharacter">SUCharacter (class in geometric_kernels.spaces.su)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/spaces/su/index.html#geometric_kernels.spaces.su.SUEigenfunctions">SUEigenfunctions (class in geometric_kernels.spaces.su)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.SymmetricPositiveDefiniteMatrices">SymmetricPositiveDefiniteMatrices (class in geometric_kernels.spaces)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/spd/index.html#geometric_kernels.spaces.spd.SymmetricPositiveDefiniteMatrices">(class in geometric_kernels.spaces.spd)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="T" class="genindex-section">
+  <h2>T</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.take_along_axis">take_along_axis() (in module geometric_kernels.lab_extras)</a>
+</li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/utils/manifold_utils/index.html#geometric_kernels.utils.manifold_utils.tangent_onb">tangent_onb() (in module geometric_kernels.utils.manifold_utils)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/lab_extras/index.html#geometric_kernels.lab_extras.trapz">trapz() (in module geometric_kernels.lab_extras)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="V" class="genindex-section">
+  <h2>V</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/spaces/index.html#geometric_kernels.spaces.Mesh.vertices">vertices (geometric_kernels.spaces.Mesh property)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/mesh/index.html#geometric_kernels.spaces.mesh.Mesh.vertices">(geometric_kernels.spaces.mesh.Mesh property)</a>
+</li>
+        </ul></li>
+    </ul></td>
+  </tr></table>
+</section>
+
+<section id="W" class="genindex-section">
+  <h2>W</h2>
+  <table style="width: 100%" class="indextable genindextable"><tr>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/utils/special_functions/index.html#geometric_kernels.utils.special_functions.walsh_function">walsh_function() (in module geometric_kernels.utils.special_functions)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/spaces/hypercube_graph/index.html#geometric_kernels.spaces.hypercube_graph.WalshFunctions">WalshFunctions (class in geometric_kernels.spaces.hypercube_graph)</a>
+</li>
+        <li><a href="autoapi/geometric_kernels/spaces/eigenfunctions/index.html#geometric_kernels.spaces.eigenfunctions.Eigenfunctions.weighted_outerproduct">weighted_outerproduct() (geometric_kernels.spaces.eigenfunctions.Eigenfunctions method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/eigenfunctions/index.html#geometric_kernels.spaces.eigenfunctions.EigenfunctionsFromEigenvectors.weighted_outerproduct">(geometric_kernels.spaces.eigenfunctions.EigenfunctionsFromEigenvectors method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hypercube_graph/index.html#geometric_kernels.spaces.hypercube_graph.WalshFunctions.weighted_outerproduct">(geometric_kernels.spaces.hypercube_graph.WalshFunctions method)</a>
+</li>
+        </ul></li>
+    </ul></td>
+    <td style="width: 33%; vertical-align: top;"><ul>
+        <li><a href="autoapi/geometric_kernels/spaces/eigenfunctions/index.html#geometric_kernels.spaces.eigenfunctions.Eigenfunctions.weighted_outerproduct_diag">weighted_outerproduct_diag() (geometric_kernels.spaces.eigenfunctions.Eigenfunctions method)</a>
+
+        <ul>
+          <li><a href="autoapi/geometric_kernels/spaces/eigenfunctions/index.html#geometric_kernels.spaces.eigenfunctions.EigenfunctionsFromEigenvectors.weighted_outerproduct_diag">(geometric_kernels.spaces.eigenfunctions.EigenfunctionsFromEigenvectors method)</a>
+</li>
+          <li><a href="autoapi/geometric_kernels/spaces/hypercube_graph/index.html#geometric_kernels.spaces.hypercube_graph.WalshFunctions.weighted_outerproduct_diag">(geometric_kernels.spaces.hypercube_graph.WalshFunctions method)</a>
+</li>
+        </ul></li>
+        <li><a href="autoapi/geometric_kernels/spaces/lie_groups/index.html#geometric_kernels.spaces.lie_groups.WeylAdditionTheorem">WeylAdditionTheorem (class in geometric_kernels.spaces.lie_groups)</a>
+</li>
+    </ul></td>
+  </tr></table>
+</section>
+
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022-2024, the GeometricKernels Contributors
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/scripts/furo.js?v=5fa4622c"></script>
+    <script src="_static/scripts/bootstrap.min.js?v=ff982861"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    </body>
+</html>
