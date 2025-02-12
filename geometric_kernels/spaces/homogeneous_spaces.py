@@ -74,6 +74,9 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         """
         raise NotImplementedError
 
+    def _filter_signatures(self):
+        pass
+
     def _difference(self, X: B.Numeric, X2: B.Numeric) -> B.Numeric:
         """
         Pairwise differences between points of the homogeneous space M

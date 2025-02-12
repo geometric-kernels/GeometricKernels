@@ -29,7 +29,7 @@ def _hook_content_formula(lmd, n):
             numer *= n + id_col - id_row
             denom *= l_cols[id_col] + l_row - id_row - id_col - 1
 
-    return numer / denom
+    return numer // denom
 
 
 class StiefelEigenfunctions(AveragingAdditionTheorem):
@@ -138,7 +138,7 @@ class Stiefel(CompactHomogeneousSpace):
             r_diag, B.ones(B.dtype(x), *x.shape[:-2], self.n - self.m), axis=-1
         )
         g = g * r_diag[..., None]
-        diff = 2 * (B.all(B.abs(g[..., : self.m] - x) < 1e-5, axis=-1) - 0.5)
+        diff = 2 * (1.0 * B.all(B.abs(g[..., : self.m] - x) < 1e-5, axis=-1) - 0.5)
         g = g * diff[..., None]
         det_sign_g = B.sign(B.det(g))
         g[:, :, -1] *= det_sign_g[:, None]

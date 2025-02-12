@@ -92,7 +92,7 @@ def feature_map_from_kernel(kernel: MaternKarhunenLoeveKernel):
         return RandomPhaseFeatureMapCompact(
             kernel.space,
             kernel.num_levels,
-            MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES,
+            MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES_HOMOGENEOUS_SPACE,
         )
     else:
         return DeterministicFeatureMapCompact(kernel.space, kernel.num_levels)
@@ -152,7 +152,7 @@ def feature_map_from_space(space: DiscreteSpectrumSpace, num: int):
         )
     elif isinstance(space, CompactHomogeneousSpace):
         return RandomPhaseFeatureMapCompact(
-            space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
+            space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES_HOMOGENEOUS_SPACE
         )
     elif isinstance(space, Hypersphere):
         num_computed_levels = space.num_computed_levels
@@ -286,6 +286,7 @@ class MaternGeometricKernel:
     _DEFAULT_NUM_LEVELS = 25
     _DEFAULT_NUM_LEVELS_LIE_GROUP = 20
     _DEFAULT_NUM_RANDOM_PHASES = 3000
+    _DEFAULT_NUM_RANDOM_PHASES_HOMOGENEOUS_SPACE = 200
 
     def __new__(
         cls,
