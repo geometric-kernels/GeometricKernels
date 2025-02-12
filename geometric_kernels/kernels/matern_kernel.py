@@ -23,6 +23,7 @@ from geometric_kernels.kernels.hodge_compositional import MaternHodgeComposition
 from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import (
     CompactMatrixLieGroup,
+    CompactHomogeneousSpace,
     DiscreteSpectrumSpace,
     Graph,
     GraphEdges,
@@ -84,6 +85,15 @@ def feature_map_from_kernel(kernel: MaternKarhunenLoeveKernel):
             kernel.num_levels,
             MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES,
         )
+    if isinstance(kernel.space, CompactHomogeneousSpace):
+        # Same as above. 
+        # `CompactHomogeneousSpace` does not currently support explicit
+        # eigenfunction computation (they only support addition theorem).
+        return RandomPhaseFeatureMapCompact(
+            kernel.space,
+            kernel.num_levels,
+            MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES,
+        )
     else:
         return DeterministicFeatureMapCompact(kernel.space, kernel.num_levels)
 
@@ -137,6 +147,10 @@ def feature_map_from_kernel(kernel: BaseGeometricKernel):
 @overload
 def feature_map_from_space(space: DiscreteSpectrumSpace, num: int):
     if isinstance(space, CompactMatrixLieGroup):
+        return RandomPhaseFeatureMapCompact(
+            space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
+        )
+    elif isinstance(space, CompactHomogeneousSpace):
         return RandomPhaseFeatureMapCompact(
             space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
         )
@@ -205,6 +219,8 @@ def feature_map_from_space(space: Space, num: int):
 @overload
 def default_num(space: DiscreteSpectrumSpace) -> int:
     if isinstance(space, CompactMatrixLieGroup):
+        return MaternGeometricKernel._DEFAULT_NUM_LEVELS_LIE_GROUP
+    elif isinstance(space, CompactHomogeneousSpace):
         return MaternGeometricKernel._DEFAULT_NUM_LEVELS_LIE_GROUP
     elif isinstance(space, (Graph, Mesh)):
         return min(
