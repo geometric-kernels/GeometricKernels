@@ -38,7 +38,7 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
             Samples from the uniform distribution on the stabilizer H.
         """
         self.M = M
-        self.dim = M.G.dim - M.H.dim
+        self.dim = M.dim
         self.G_n = M.G.n
         self.samples_H = samples_H
         self.samples_H = self.M.embed_stabilizer(samples_H)
@@ -54,11 +54,13 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
             for character in G_eigenfunctions._characters
         ]
 
-        self.G_eigenfunctions = G_eigenfunctions
+        self._filter_signatures()
+        print(f"Filtered out {len(G_eigenfunctions._signatures) - len(self._signatures)} eigenspaces of dimension 0.")
+        self._num_levels = len(self._signatures)
+        
         self.G_torus_representative = G_eigenfunctions._torus_representative
         self.G_difference = G_eigenfunctions._difference
 
-        self._num_levels = num_levels
 
     @abc.abstractmethod
     def _compute_projected_character_value_at_e(self, signature):
@@ -75,8 +77,29 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         raise NotImplementedError
 
     def _filter_signatures(self):
-        pass
-
+        """
+        Filters out the eigenspaces of dimension 0. 
+        This is necessary to avoid numerical issues.
+        Eigenspaces of dimension 0 correspond to 
+        the characters equal to 0 on the identity element.
+        """
+        filtered_signatures = []
+        filtered_dimensions = []
+        filtered_characters = []
+        filtered_eigenvalues = []
+        for signature, dimension, character, eigenvalue in zip(
+            self._signatures, self._dimensions, self._characters, self._eigenvalues
+        ):
+            if self._compute_projected_character_value_at_e(signature) != 0:
+                filtered_signatures.append(signature)
+                filtered_dimensions.append(dimension)
+                filtered_characters.append(character)
+                filtered_eigenvalues.append(eigenvalue)
+        self._signatures = filtered_signatures
+        self._dimensions = filtered_dimensions
+        self._characters = filtered_characters
+        self._eigenvalues = np.array(filtered_eigenvalues)    
+        
     def _difference(self, X: B.Numeric, X2: B.Numeric) -> B.Numeric:
         """
         Pairwise differences between points of the homogeneous space M
@@ -225,21 +248,20 @@ class CompactHomogeneousSpace(DiscreteSpectrumSpace):
     Grassmannians SO(n)/(SO(m) x SO(n-m)).
     """
 
-    def __init__(self, G: CompactMatrixLieGroup, H, samples_H, average_order):
+    def __init__(self, G: CompactMatrixLieGroup, dim_H, samples_H, average_order):
         """
         :param G:
             A Lie group.
-        :param H:
-            Stabilizer subgroup.
+        :param dim_H:
+            Dimension of the stabilizer.
         :param samples_H:
             Random samples from the stabilizer.
         :param average_order:
             Average order.
         """
         self.G = G
-        self.H = H
         self.samples_H = samples_H
-        self.dim = self.G.dimension - self.H.dimension
+        self.dim = self.G.dimension - dim_H
         self.average_order = average_order
 
     @property

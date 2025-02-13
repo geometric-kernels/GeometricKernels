@@ -5,9 +5,10 @@ its spectrum, the :class:`StiefelEigenfunctions` class.
 
 import lab as B
 import numpy as np
+import math
 from opt_einsum import contract as einsum
 
-from geometric_kernels.lab_extras import qr
+from geometric_kernels.lab_extras import qr, dtype_double
 from geometric_kernels.spaces.homogeneous_spaces import (
     AveragingAdditionTheorem,
     CompactHomogeneousSpace,
@@ -31,6 +32,15 @@ def _hook_content_formula(lmd, n):
 
     return numer // denom
 
+def sample_SO2(key, number):
+        key, thetas = B.random.randn(key, dtype_double(key), number, 1)
+        thetas = 2 * math.pi * thetas
+        c = B.cos(thetas)
+        s = B.sin(thetas)
+        r1 = B.stack(c, s, axis=-1)
+        r2 = B.stack(-s, c, axis=-1)
+        q = B.concat(r1, r2, axis=-2)
+        return key, q
 
 class StiefelEigenfunctions(AveragingAdditionTheorem):
     def _compute_projected_character_value_at_e(self, signature):
@@ -87,23 +97,37 @@ class Stiefel(CompactHomogeneousSpace):
         """
 
         assert n > m, "n should be greater than m"
-        H = SpecialOrthogonal(n - m)
         G = SpecialOrthogonal(n)
-        key, samples_H = H.random(key, average_order)
+        if n-m >= 3:
+            H = SpecialOrthogonal(n - m)
+            key, samples_H = H.random(key, average_order)
+            dim_H = H.dim
+        elif n-m == 2:
+            # H is a circle
+            key, samples_H = sample_SO2(key, average_order)
+            dim_H = 1
+        else:
+            # H is a two point set {+1, -1}
+            average_order = 2
+            samples_H = B.zeros(dtype_double(key), average_order)
+            samples_H[0], samples_H[1] = 1, -1
+            samples_H = B.reshape(samples_H, average_order, 1, 1)
+            dim_H = 0
+
         new_space = super().__new__(cls)
-        new_space.__init__(G=G, H=H, samples_H=samples_H, average_order=average_order, n=n, m=m)  # type: ignore
+        new_space.__init__(G=G, dim_H=dim_H, samples_H=samples_H, average_order=average_order, n=n, m=m)  # type: ignore
         return key, new_space
 
     def __init__(
         self,
         G: SpecialOrthogonal,
-        H: SpecialOrthogonal,
+        dim_H: int,
         samples_H: B.Numeric,
         average_order: int,
         n: int,
         m: int,
     ):
-        super().__init__(G=G, H=H, samples_H=samples_H, average_order=average_order)
+        super().__init__(G=G, dim_H=dim_H, samples_H=samples_H, average_order=average_order)
         self.n = n
         self.m = m
 
