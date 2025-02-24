@@ -48,7 +48,7 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
 
         self._signatures = G_eigenfunctions._signatures.copy()
         self._eigenvalues = np.copy(G_eigenfunctions._eigenvalues)
-        self._dimensions = G_eigenfunctions._dimensions.copy()
+        self.G_dimensions = G_eigenfunctions._dimensions.copy()
         self._characters = [
             AveragedLieGroupCharacter(self.average_order, character)
             for character in G_eigenfunctions._characters
@@ -62,13 +62,15 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         self.G_torus_representative = G_eigenfunctions._torus_representative
         self.G_difference = G_eigenfunctions._difference
 
+        self._num_eigenfunctions: Optional[int] = None  # To be computed when needed.
 
     @abc.abstractmethod
     def _compute_projected_character_value_at_e(self, signature):
         """
         The value of the character on class of identity element.
-        This is equal to the dimension of invariant space.
-
+        This is equal to the number of zonal spherical functions, 
+        it corresponds to $r_\lambda$ from :cite:t:`azangulov2024a`.
+        
         :param signature:
             Signature of the character.
 
@@ -88,19 +90,21 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         filtered_dimensions = []
         filtered_characters = []
         filtered_eigenvalues = []
-        for signature, dimension, character, eigenvalue in zip(
-            self._signatures, self._dimensions, self._characters, self._eigenvalues
+        for signature, G_dimension, character, eigenvalue in zip(
+            self._signatures, self.G_dimensions, self._characters, self._eigenvalues
         ):
             if self._compute_projected_character_value_at_e(signature) != 0:
                 filtered_signatures.append(signature)
-                filtered_dimensions.append(dimension)
+                filtered_dimensions.append(G_dimension)
                 filtered_characters.append(character)
                 filtered_eigenvalues.append(eigenvalue)
         self._signatures = filtered_signatures
-        self._dimensions = filtered_dimensions
+        self.G_dimensions = filtered_dimensions
         self._characters = filtered_characters
         self._eigenvalues = np.array(filtered_eigenvalues)    
-        self._projected_dimensions = [self._compute_projected_character_value_at_e(sgn) 
+        self._eigenspace_dimensions = [G_dim * self._compute_projected_character_value_at_e(sgn) 
+                                      for G_dim, sgn in zip(self.G_dimensions, self._signatures)]
+        self._num_zonal_spherical_functions = [self._compute_projected_character_value_at_e(sgn) 
                                       for sgn in self._signatures]
         
     def _difference(self, X: B.Numeric, X2: B.Numeric) -> B.Numeric:
@@ -132,7 +136,7 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         level (representation). Uses the fact that such a sum is always
         proportional to a certain integral of the character of the
         representation over the isotropy subgroup of the homogeneous space.
-        See :cite:t:`azangulov2022` for mathematical details.
+        See :cite:t:`azangulov2024a` for mathematical details.
 
         To ensure that the resulting function is positive definite, we average
         over both the left and right shifts (the result is an approximation):
@@ -166,7 +170,7 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
             (degree * chi(torus_repr)[..., None]).reshape(
                 X.shape[0], X2.shape[0], 1
             )  # [N1, N2, 1]
-            for degree, chi in zip(self._dimensions, self._characters)
+            for degree, chi in zip(self.G_dimensions, self._characters)
         ]
 
         return B.concat(*values, axis=-1)  # [N, N2, L]
@@ -186,10 +190,9 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         """
         ones = B.ones(B.dtype(X), *X.shape[:-2], 1)  
         values = [
-            degree
-            * self._compute_projected_character_value_at_e(signature)
+            eigenspace_dimension
             * ones  # [N, 1]
-            for signature, degree in zip(self._signatures, self._projected_dimensions)
+            for eigenspace_dimension in self._eigenspace_dimensions
         ]
         return B.concat(*values, axis=1)  # [N, L]
 
@@ -208,7 +211,7 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
     @property
     def num_eigenfunctions_per_level(self) -> List[int]:
         """Number of eigenfunctions per level"""
-        return [d**2 for d in self._projected_dimensions]
+        return self._eigenspace_dimensions
 
 
 class AveragedLieGroupCharacter(abc.ABC):
