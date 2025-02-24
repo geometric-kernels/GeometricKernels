@@ -6,7 +6,7 @@ import abc
 
 import lab as B
 import numpy as np
-from beartype.typing import Optional
+from beartype.typing import Optional, List
 from opt_einsum import contract as einsum
 
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
@@ -53,8 +53,9 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
             AveragedLieGroupCharacter(self.average_order, character)
             for character in G_eigenfunctions._characters
         ]
-
+        
         self._filter_signatures()
+        
         print(f"Filtered out {len(G_eigenfunctions._signatures) - len(self._signatures)} eigenspaces of dimension 0.")
         self._num_levels = len(self._signatures)
         
@@ -99,6 +100,8 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         self._dimensions = filtered_dimensions
         self._characters = filtered_characters
         self._eigenvalues = np.array(filtered_eigenvalues)    
+        self._projected_dimensions = [self._compute_projected_character_value_at_e(sgn) 
+                                      for sgn in self._signatures]
         
     def _difference(self, X: B.Numeric, X2: B.Numeric) -> B.Numeric:
         """
@@ -134,7 +137,7 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         To ensure that the resulting function is positive definite, we average
         over both the left and right shifts (the result is an approximation):
 
-        .. math:: \chi_X(g1,g2) \approx \frac{1}{S^2}\sum_{i=1}^S\sum_{j=1}^S \chi_G(h_i g2^{-1} g1 h_j)
+        .. math:: \chi_X(g1,g2) \approx \frac{1}{S^2}\sum_{i=1}^S\sum_{j=1}^S \chi_G(h^{-1}_i g2^{-1} g1 h_j)
 
         :param X:
             [N1, ...]
@@ -186,7 +189,7 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
             degree
             * self._compute_projected_character_value_at_e(signature)
             * ones  # [N, 1]
-            for signature, degree in zip(self._signatures, self._dimensions)
+            for signature, degree in zip(self._signatures, self._projected_dimensions)
         ]
         return B.concat(*values, axis=1)  # [N, L]
 
@@ -197,13 +200,15 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
 
     @property
     def num_eigenfunctions(self) -> int:
-        """Number of eigenfunctions, M"""
-        return self._num_levels
+        if self._num_eigenfunctions is None:
+            self._num_eigenfunctions = sum(self.num_eigenfunctions_per_level)
+        return self._num_eigenfunctions
+
 
     @property
-    def num_eigenfunctions_per_level(self) -> B.Numeric:
+    def num_eigenfunctions_per_level(self) -> List[int]:
         """Number of eigenfunctions per level"""
-        return [1] * self.num_levels
+        return [d**2 for d in self._projected_dimensions]
 
 
 class AveragedLieGroupCharacter(abc.ABC):
