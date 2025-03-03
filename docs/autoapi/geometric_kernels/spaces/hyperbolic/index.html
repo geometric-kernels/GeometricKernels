@@ -1,0 +1,716 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../../../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../../../../genindex.html" /><link rel="search" title="Search" href="../../../../search.html" /><link rel="next" title="geometric_kernels.spaces.hypercube_graph" href="../hypercube_graph/index.html" /><link rel="prev" title="geometric_kernels.spaces.graph_edges" href="../graph_edges/index.html" />
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
+        <title>geometric_kernels.spaces.hyperbolic - GeometricKernels documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/furo-extensions.css?v=302659d7" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/css/bootstrap_namespaced.css?v=7458e3c8" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../../../index.html"><div class="brand">GeometricKernels  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../../../index.html">
+  
+  
+  <span class="sidebar-brand-text">GeometricKernels  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../index.html">GeometricKernels</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../examples/index.html">Examples</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../examples/examples.html">Spaces</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Spaces</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/Graph.html">Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/GraphEdges.html">GraphEdges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/Hyperbolic.html">Hyperbolic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/HypercubeGraph.html">HypercubeGraph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/Hypersphere.html">Hypersphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/Mesh.html">Mesh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/SPD.html">SPD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/SpecialOrthogonal.html">SpecialOrthogonal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/SpecialUnitary.html">SpecialUnitary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/Torus.html">Torus</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../examples/examples.html#backends">Backends</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Backends</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/backends/JAX_Graph.html">JAX (Graph space)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/backends/PyTorch_Graph.html">PyTorch (Graph space)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/backends/TensorFlow_Graph.html">TensorFlow (Graph space)</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../examples/examples.html#frontends">Frontends</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Frontends</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/frontends/GPflow.html">GPFlow (Mesh space)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/frontends/GPJax.html">GPJax (Mesh space)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/frontends/GPyTorch.html">GPyTorch (Mesh space)</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../examples/examples.html#other">Other</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Other</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/other/Bayesian%20Optimization.html">Bayesian optimization on a sphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/other/Hyperbolic%20Approximations.html">Comparing approximations on Hyperbolic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../examples/other/SPD%20Approximations.html">Comparing approximations on SPD</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../theory/index.html">Theory</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Theory</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../theory/compact.html">Kernels on compact manifolds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../theory/addition_theorem.html">Addition theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../theory/graphs.html">Kernels on graphs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../theory/meshes.html">Kernels on meshes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../theory/symmetric.html">Kernels on non-compact symmetric spaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../theory/product_spaces.html">Kernels on product spaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../theory/product_kernels.html">Product kernels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../theory/feature_maps.html">Feature maps and sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../theory/hypercube_graph.html">Hypercube graph space</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../../index.html">API reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of API reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../feature_maps/index.html">geometric_kernels.feature_maps</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of geometric_kernels.feature_maps</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../feature_maps/base/index.html">geometric_kernels.feature_maps.base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../feature_maps/deterministic/index.html">geometric_kernels.feature_maps.deterministic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../feature_maps/probability_densities/index.html">geometric_kernels.feature_maps.probability_densities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../feature_maps/random_phase/index.html">geometric_kernels.feature_maps.random_phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../feature_maps/rejection_sampling/index.html">geometric_kernels.feature_maps.rejection_sampling</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../frontends/index.html">geometric_kernels.frontends</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of geometric_kernels.frontends</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../frontends/gpflow/index.html">geometric_kernels.frontends.gpflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../frontends/gpjax/index.html">geometric_kernels.frontends.gpjax</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../frontends/gpytorch/index.html">geometric_kernels.frontends.gpytorch</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../jax/index.html">geometric_kernels.jax</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../kernels/index.html">geometric_kernels.kernels</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of geometric_kernels.kernels</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../kernels/base/index.html">geometric_kernels.kernels.base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../kernels/feature_map/index.html">geometric_kernels.kernels.feature_map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../kernels/hodge_compositional/index.html">geometric_kernels.kernels.hodge_compositional</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../kernels/karhunen_loeve/index.html">geometric_kernels.kernels.karhunen_loeve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../kernels/matern_kernel/index.html">geometric_kernels.kernels.matern_kernel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../kernels/product/index.html">geometric_kernels.kernels.product</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../lab_extras/index.html">geometric_kernels.lab_extras</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../sampling/index.html">geometric_kernels.sampling</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle navigation of geometric_kernels.sampling</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../sampling/samplers/index.html">geometric_kernels.sampling.samplers</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current has-children"><a class="reference internal" href="../index.html">geometric_kernels.spaces</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle navigation of geometric_kernels.spaces</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../base/index.html">geometric_kernels.spaces.base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../circle/index.html">geometric_kernels.spaces.circle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../eigenfunctions/index.html">geometric_kernels.spaces.eigenfunctions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../graph/index.html">geometric_kernels.spaces.graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../graph_edges/index.html">geometric_kernels.spaces.graph_edges</a></li>
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">geometric_kernels.spaces.hyperbolic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../hypercube_graph/index.html">geometric_kernels.spaces.hypercube_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../hypersphere/index.html">geometric_kernels.spaces.hypersphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../lie_groups/index.html">geometric_kernels.spaces.lie_groups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../mesh/index.html">geometric_kernels.spaces.mesh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../product/index.html">geometric_kernels.spaces.product</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../so/index.html">geometric_kernels.spaces.so</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../spd/index.html">geometric_kernels.spaces.spd</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../su/index.html">geometric_kernels.spaces.su</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../tensorflow/index.html">geometric_kernels.tensorflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../torch/index.html">geometric_kernels.torch</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../utils/index.html">geometric_kernels.utils</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle navigation of geometric_kernels.utils</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../utils/manifold_utils/index.html">geometric_kernels.utils.manifold_utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../utils/product/index.html">geometric_kernels.utils.product</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../utils/special_functions/index.html">geometric_kernels.utils.special_functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../utils/utils/index.html">geometric_kernels.utils.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../version/index.html">geometric_kernels.version</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/geometric-kernels/GeometricKernels">GitHub</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../../../../_sources/autoapi/geometric_kernels/spaces/hyperbolic/index.rst.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="module-geometric_kernels.spaces.hyperbolic">
+<span id="geometric-kernels-spaces-hyperbolic"></span><h1>geometric_kernels.spaces.hyperbolic<a class="headerlink" href="#module-geometric_kernels.spaces.hyperbolic" title="Link to this heading">¶</a></h1>
+<p>This module provides the <a class="reference internal" href="#geometric_kernels.spaces.hyperbolic.Hyperbolic" title="geometric_kernels.spaces.hyperbolic.Hyperbolic"><code class="xref py py-class docutils literal notranslate"><span class="pre">Hyperbolic</span></code></a> space.</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="geometric_kernels.spaces.hyperbolic.Hyperbolic">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">geometric_kernels.spaces.hyperbolic.</span></span><span class="sig-name descname"><span class="pre">Hyperbolic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/geometric_kernels/spaces/hyperbolic.html#Hyperbolic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geometric_kernels.spaces.hyperbolic.Hyperbolic" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../base/index.html#geometric_kernels.spaces.base.NoncompactSymmetricSpace" title="geometric_kernels.spaces.base.NoncompactSymmetricSpace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">geometric_kernels.spaces.base.NoncompactSymmetricSpace</span></code></a>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">geomstats.geometry.hyperboloid.Hyperboloid</span></code></p>
+<p>The GeometricKernels space representing the n-dimensional hyperbolic space
+<span class="math notranslate nohighlight">\(\mathbb{H}_n\)</span>. We use the hyperboloid model of the hyperbolic space.</p>
+<p>The elements of this space are represented by (n+1)-dimensional vectors
+satisfying</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[x_0^2 - x_1^2 - \ldots - x_n^2 = 1,\]</div>
+</div>
+<p>i.e. lying on the hyperboloid.</p>
+<p>The class inherits the interface of geomstats’s <cite>Hyperbolic</cite> with
+<cite>point_type=extrinsic</cite>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>A tutorial on how to use this space is available in the
+<a class="reference internal" href="../../../../examples/Hyperbolic.html"><span class="doc">Hyperbolic.ipynb</span></a> notebook.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dim</strong> – Dimension of the hyperbolic space, denoted by n in docstrings.</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As mentioned in <a class="reference internal" href="../index.html#quotient-note"><span class="std std-ref">this note</span></a>, any symmetric space
+is a quotient G/H. For the hyperbolic space <span class="math notranslate nohighlight">\(\mathbb{H}_n\)</span>, the group
+of symmetries <span class="math notranslate nohighlight">\(G\)</span> is the proper Lorentz group <span class="math notranslate nohighlight">\(SO(1, n)\)</span>,  while the
+isotropy subgroup <span class="math notranslate nohighlight">\(H\)</span> is the special orthogonal group <span class="math notranslate nohighlight">\(SO(n)\)</span>. See the
+mathematical details in <span id="id1">Azangulov <em>et al.</em> [<a class="reference internal" href="../../../../bibliography.html#id9" title="Iskander Azangulov, Andrei Smolensky, Alexander Terenin, and Viacheslav Borovitskiy. Stationary Kernels and Gaussian Processes on Lie Groups and their Homogeneous Spaces II: non-compact symmetric spaces. Journal of Machine Learning Research, 25(281):1–51, 2024.">2024</a>]</span>.</p>
+</div>
+<div class="admonition-citation admonition">
+<p class="admonition-title">Citation</p>
+<p>If you use this GeometricKernels space in your research, please consider
+citing <span id="id2">Azangulov <em>et al.</em> [<a class="reference internal" href="../../../../bibliography.html#id9" title="Iskander Azangulov, Andrei Smolensky, Alexander Terenin, and Viacheslav Borovitskiy. Stationary Kernels and Gaussian Processes on Lie Groups and their Homogeneous Spaces II: non-compact symmetric spaces. Journal of Machine Learning Research, 25(281):1–51, 2024.">2024</a>]</span>.</p>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="geometric_kernels.spaces.hyperbolic.Hyperbolic.convert_to_ball">
+<span class="sig-name descname"><span class="pre">convert_to_ball</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">point</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/geometric_kernels/spaces/hyperbolic.html#Hyperbolic.convert_to_ball"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geometric_kernels.spaces.hyperbolic.Hyperbolic.convert_to_ball" title="Link to this definition">¶</a></dt>
+<dd><p>Converts the <cite>point</cite> from the hyperboloid model to the Poincare model.
+This corresponds to a stereographic projection onto the ball.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Param<span class="colon">:</span></dt>
+<dd class="field-odd"><p>An […, n+1]-shaped array of points on the hyperboloid.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An […, n]-shaped array of points in the Poincare ball.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geometric_kernels.spaces.hyperbolic.Hyperbolic.distance">
+<span class="sig-name descname"><span class="pre">distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/geometric_kernels/spaces/hyperbolic.html#Hyperbolic.distance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geometric_kernels.spaces.hyperbolic.Hyperbolic.distance" title="Link to this definition">¶</a></dt>
+<dd><p>Calls <a class="reference internal" href="../../utils/manifold_utils/index.html#geometric_kernels.utils.manifold_utils.hyperbolic_distance" title="geometric_kernels.utils.manifold_utils.hyperbolic_distance"><code class="xref py py-func docutils literal notranslate"><span class="pre">hyperbolic_distance()</span></code></a> on the same inputs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x1</strong> (<em>lab.Numeric</em>)</p></li>
+<li><p><strong>x2</strong> (<em>lab.Numeric</em>)</p></li>
+<li><p><strong>diag</strong> (<em>beartype.typing.Optional</em><em>[</em><em>bool</em><em>]</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>lab.Numeric</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geometric_kernels.spaces.hyperbolic.Hyperbolic.element_shape">
+<span class="sig-name descname"><span class="pre">element_shape</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/geometric_kernels/spaces/hyperbolic.html#Hyperbolic.element_shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geometric_kernels.spaces.hyperbolic.Hyperbolic.element_shape" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>[n+1].</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geometric_kernels.spaces.hyperbolic.Hyperbolic.inner_product">
+<span class="sig-name descname"><span class="pre">inner_product</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vector_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vector_b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/geometric_kernels/spaces/hyperbolic.html#Hyperbolic.inner_product"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geometric_kernels.spaces.hyperbolic.Hyperbolic.inner_product" title="Link to this definition">¶</a></dt>
+<dd><p>Calls <a class="reference internal" href="../../utils/manifold_utils/index.html#geometric_kernels.utils.manifold_utils.minkowski_inner_product" title="geometric_kernels.utils.manifold_utils.minkowski_inner_product"><code class="xref py py-func docutils literal notranslate"><span class="pre">minkowski_inner_product()</span></code></a> on <cite>vector_a</cite> and <cite>vector_b</cite>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geometric_kernels.spaces.hyperbolic.Hyperbolic.inv_harish_chandra">
+<span class="sig-name descname"><span class="pre">inv_harish_chandra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/geometric_kernels/spaces/hyperbolic.html#Hyperbolic.inv_harish_chandra"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geometric_kernels.spaces.hyperbolic.Hyperbolic.inv_harish_chandra" title="Link to this definition">¶</a></dt>
+<dd><p>Implements <span class="math notranslate nohighlight">\(c^{-1}(\lambda)\)</span>, where <span class="math notranslate nohighlight">\(c\)</span> is the Harish-Chandra’s <span class="math notranslate nohighlight">\(c\)</span>
+function.</p>
+<p>This is one of the computational primitives required to (approximately)
+compute the <a class="reference internal" href="../../feature_maps/index.html#geometric_kernels.feature_maps.RandomPhaseFeatureMapNoncompact" title="geometric_kernels.feature_maps.RandomPhaseFeatureMapNoncompact"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomPhaseFeatureMapNoncompact</span></code></a>
+feature map and <a class="reference internal" href="../../kernels/index.html#geometric_kernels.kernels.MaternFeatureMapKernel" title="geometric_kernels.kernels.MaternFeatureMapKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaternFeatureMapKernel</span></code></a> on top of it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>lam</strong> (<em>lab.Numeric</em>) – A batch of frequencies, vectors of dimension equal to the rank of
+symmetric space.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="math notranslate nohighlight">\(c^{-1}(\lambda)\)</span> evaluated at every <span class="math notranslate nohighlight">\(\lambda\)</span> in the batch <cite>lam</cite>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>lab.Numeric</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geometric_kernels.spaces.hyperbolic.Hyperbolic.power_function">
+<span class="sig-name descname"><span class="pre">power_function</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lam</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/geometric_kernels/spaces/hyperbolic.html#Hyperbolic.power_function"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geometric_kernels.spaces.hyperbolic.Hyperbolic.power_function" title="Link to this definition">¶</a></dt>
+<dd><p>Implements the <em>power function</em> <span class="math notranslate nohighlight">\(p^{\lambda}(g, h)\)</span>, the integrand
+appearing in the definition of the zonal spherical function</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[\pi^{\lambda}(g) = \int_{H} \underbrace{p^{\lambda}(g, h)}_{= e^{(i \lambda + \rho) a(h \cdot g)}} d h,\]</div>
+</div>
+<p>where <span class="math notranslate nohighlight">\(\lambda \in i \cdot \mathbb{R}^r\)</span>, with <span class="math notranslate nohighlight">\(r\)</span> denoting the rank of
+the symmetric space and <span class="math notranslate nohighlight">\(i\)</span> the imaginary unit, is a sort of frequency,
+<span class="math notranslate nohighlight">\(g\)</span> is an element of the group of symmetries <span class="math notranslate nohighlight">\(G\)</span>, <span class="math notranslate nohighlight">\(h\)</span> is an element
+of its isotropy subgroup <span class="math notranslate nohighlight">\(H\)</span> (<span class="math notranslate nohighlight">\(G\)</span> and <span class="math notranslate nohighlight">\(H\)</span> are defined <a class="reference internal" href="../index.html#quotient-note"><span class="std std-ref">here</span></a>), <span class="math notranslate nohighlight">\(\rho \in \mathbb{R}^r\)</span> is as in <a class="reference internal" href="#geometric_kernels.spaces.hyperbolic.Hyperbolic.rho" title="geometric_kernels.spaces.hyperbolic.Hyperbolic.rho"><code class="xref py py-meth docutils literal notranslate"><span class="pre">rho()</span></code></a>, and
+the function <span class="math notranslate nohighlight">\(a\)</span> is a certain space-dependent algebraic operation.</p>
+<p>This is one of the computational primitives required to (approximately)
+compute the <a class="reference internal" href="../../feature_maps/index.html#geometric_kernels.feature_maps.RandomPhaseFeatureMapNoncompact" title="geometric_kernels.feature_maps.RandomPhaseFeatureMapNoncompact"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomPhaseFeatureMapNoncompact</span></code></a>
+feature map and <a class="reference internal" href="../../kernels/index.html#geometric_kernels.kernels.MaternFeatureMapKernel" title="geometric_kernels.kernels.MaternFeatureMapKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaternFeatureMapKernel</span></code></a> on top of it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lam</strong> (<em>lab.Numeric</em>) – <p>A batch of L vectors of dimension <cite>rank</cite>, the rank of the
+symmetric space, representing the “sort of frequencies”.</p>
+<p>Typically of shape [1, L, rank].</p>
+</p></li>
+<li><p><strong>g</strong> (<em>lab.Numeric</em>) – <p>A batch of N elements of the space (these can always be thought of
+as elements of the group of symmetries <span class="math notranslate nohighlight">\(G\)</span> since the symmetric
+space <span class="math notranslate nohighlight">\(G/H\)</span> can be trivially embedded into the group <span class="math notranslate nohighlight">\(G\)</span>).</p>
+<p>Typically of shape [N, 1, &lt;axes&gt;], where &lt;axes&gt; is the shape of
+the elements of the space.</p>
+</p></li>
+<li><p><strong>h</strong> (<em>lab.Numeric</em>) – <p>A batch of L elements of the isotropy subgroup <span class="math notranslate nohighlight">\(H\)</span>.</p>
+<p>Typically of shape [1, L, &lt;axes_p&gt;], where &lt;axes_p&gt; is the shape of
+arrays representing the elements of the isotropy subgroup <span class="math notranslate nohighlight">\(H\)</span>.</p>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An array of shape [N, L] with complex number entries, representing
+the value of the values of <span class="math notranslate nohighlight">\(p^{\lambda_l}(g_n, h_l)\)</span> for all
+<span class="math notranslate nohighlight">\(1 \leq n \leq N\)</span> and <span class="math notranslate nohighlight">\(1 \leq l \leq L\)</span>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>lab.Numeric</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Actually, <span class="math notranslate nohighlight">\(a\)</span> may be a more appropriate primitive than the power
+function <span class="math notranslate nohighlight">\(p^{\lambda}\)</span>: everything but <span class="math notranslate nohighlight">\(a\)</span> in the definition of
+the latter is either standard or available as other primitives.
+Us using <span class="math notranslate nohighlight">\(p^{\lambda}\)</span> as a primitive is quite arbitrary.</p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geometric_kernels.spaces.hyperbolic.Hyperbolic.random">
+<span class="sig-name descname"><span class="pre">random</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/geometric_kernels/spaces/hyperbolic.html#Hyperbolic.random"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geometric_kernels.spaces.hyperbolic.Hyperbolic.random" title="Link to this definition">¶</a></dt>
+<dd><p>Non-uniform random sampling, reimplements the algorithm from geomstats.</p>
+<p>Always returns [N, n+1] float64 array of the <cite>key</cite>’s backend.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> – Either <cite>np.random.RandomState</cite>, <cite>tf.random.Generator</cite>,
+<cite>torch.Generator</cite> or <cite>jax.tensor</cite> (representing random state).</p></li>
+<li><p><strong>number</strong> – Number of samples to draw.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An array of <cite>number</cite> random samples on the space.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="geometric_kernels.spaces.hyperbolic.Hyperbolic.random_phases">
+<span class="sig-name descname"><span class="pre">random_phases</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../../../_modules/geometric_kernels/spaces/hyperbolic.html#Hyperbolic.random_phases"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#geometric_kernels.spaces.hyperbolic.Hyperbolic.random_phases" title="Link to this definition">¶</a></dt>
+<dd><p>Sample uniformly random points on the isotropy subgroup <span class="math notranslate nohighlight">\(H\)</span> (defined
+<a class="reference internal" href="../index.html#quotient-note"><span class="std std-ref">here</span></a>).</p>
+<p>This is one of the computational primitives required to (approximately)
+compute the <a class="reference internal" href="../../feature_maps/index.html#geometric_kernels.feature_maps.RandomPhaseFeatureMapNoncompact" title="geometric_kernels.feature_maps.RandomPhaseFeatureMapNoncompact"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomPhaseFeatureMapNoncompact</span></code></a>
+feature map and <a class="reference internal" href="../../kernels/index.html#geometric_kernels.kernels.MaternFeatureMapKernel" title="geometric_kernels.kernels.MaternFeatureMapKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaternFeatureMapKernel</span></code></a> on top of it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> – Either <cite>np.random.RandomState</cite>, <cite>tf.random.Generator</cite>,
+<cite>torch.Generator</cite> or <cite>jax.tensor</cite> (representing random state).</p></li>
+<li><p><strong>num</strong> – Number of samples to draw.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An array of <cite>num</cite> uniformly random samples in the isotropy
+subgroup <span class="math notranslate nohighlight">\(H\)</span>.</p>
+</dd>
+</dl>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This does not sample random points on the space itself. Since the
+space itself is non-compact, uniform sampling on it is in principle
+impossible. However, the isotropy subgroup <span class="math notranslate nohighlight">\(H\)</span> is always
+compact and thus allows uniform sampling needed to approximate the
+zonal spherical functions <span class="math notranslate nohighlight">\(\pi^{\lambda}(\cdot)\)</span> via Monte Carlo.</p>
+</div>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="geometric_kernels.spaces.hyperbolic.Hyperbolic.dimension">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dimension</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#geometric_kernels.spaces.hyperbolic.Hyperbolic.dimension" title="Link to this definition">¶</a></dt>
+<dd><p>Returns n, the <cite>dim</cite> parameter that was passed down to <cite>__init__</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="geometric_kernels.spaces.hyperbolic.Hyperbolic.element_dtype">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">element_dtype</span></span><a class="headerlink" href="#geometric_kernels.spaces.hyperbolic.Hyperbolic.element_dtype" title="Link to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>B.Float.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="geometric_kernels.spaces.hyperbolic.Hyperbolic.num_axes">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">num_axes</span></span><a class="headerlink" href="#geometric_kernels.spaces.hyperbolic.Hyperbolic.num_axes" title="Link to this definition">¶</a></dt>
+<dd><p>Number of axes in an array representing a point in the space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><ol class="arabic simple">
+<li></li>
+</ol>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="geometric_kernels.spaces.hyperbolic.Hyperbolic.rho">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">rho</span></span><a class="headerlink" href="#geometric_kernels.spaces.hyperbolic.Hyperbolic.rho" title="Link to this definition">¶</a></dt>
+<dd><p><cite>rho</cite> vector of dimension equal to the rank of the symmetric space.</p>
+<p>Algebraically, weighted sum of <em>roots</em>, depends only on the space.</p>
+<p>This is one of the computational primitives required to (approximately)
+compute the <a class="reference internal" href="../../feature_maps/index.html#geometric_kernels.feature_maps.RandomPhaseFeatureMapNoncompact" title="geometric_kernels.feature_maps.RandomPhaseFeatureMapNoncompact"><code class="xref py py-class docutils literal notranslate"><span class="pre">RandomPhaseFeatureMapNoncompact</span></code></a>
+feature map and <a class="reference internal" href="../../kernels/index.html#geometric_kernels.kernels.MaternFeatureMapKernel" title="geometric_kernels.kernels.MaternFeatureMapKernel"><code class="xref py py-class docutils literal notranslate"><span class="pre">MaternFeatureMapKernel</span></code></a> on top of it.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="../hypercube_graph/index.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">geometric_kernels.spaces.hypercube_graph</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="../graph_edges/index.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">geometric_kernels.spaces.graph_edges</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022-2024, the GeometricKernels Contributors
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">geometric_kernels.spaces.hyperbolic</a><ul>
+<li><a class="reference internal" href="#module-contents">Module Contents</a><ul>
+<li><a class="reference internal" href="#geometric_kernels.spaces.hyperbolic.Hyperbolic"><code class="docutils literal notranslate"><span class="pre">Hyperbolic</span></code></a><ul>
+<li><a class="reference internal" href="#geometric_kernels.spaces.hyperbolic.Hyperbolic.convert_to_ball"><code class="docutils literal notranslate"><span class="pre">Hyperbolic.convert_to_ball()</span></code></a></li>
+<li><a class="reference internal" href="#geometric_kernels.spaces.hyperbolic.Hyperbolic.distance"><code class="docutils literal notranslate"><span class="pre">Hyperbolic.distance()</span></code></a></li>
+<li><a class="reference internal" href="#geometric_kernels.spaces.hyperbolic.Hyperbolic.element_shape"><code class="docutils literal notranslate"><span class="pre">Hyperbolic.element_shape()</span></code></a></li>
+<li><a class="reference internal" href="#geometric_kernels.spaces.hyperbolic.Hyperbolic.inner_product"><code class="docutils literal notranslate"><span class="pre">Hyperbolic.inner_product()</span></code></a></li>
+<li><a class="reference internal" href="#geometric_kernels.spaces.hyperbolic.Hyperbolic.inv_harish_chandra"><code class="docutils literal notranslate"><span class="pre">Hyperbolic.inv_harish_chandra()</span></code></a></li>
+<li><a class="reference internal" href="#geometric_kernels.spaces.hyperbolic.Hyperbolic.power_function"><code class="docutils literal notranslate"><span class="pre">Hyperbolic.power_function()</span></code></a></li>
+<li><a class="reference internal" href="#geometric_kernels.spaces.hyperbolic.Hyperbolic.random"><code class="docutils literal notranslate"><span class="pre">Hyperbolic.random()</span></code></a></li>
+<li><a class="reference internal" href="#geometric_kernels.spaces.hyperbolic.Hyperbolic.random_phases"><code class="docutils literal notranslate"><span class="pre">Hyperbolic.random_phases()</span></code></a></li>
+<li><a class="reference internal" href="#geometric_kernels.spaces.hyperbolic.Hyperbolic.dimension"><code class="docutils literal notranslate"><span class="pre">Hyperbolic.dimension</span></code></a></li>
+<li><a class="reference internal" href="#geometric_kernels.spaces.hyperbolic.Hyperbolic.element_dtype"><code class="docutils literal notranslate"><span class="pre">Hyperbolic.element_dtype</span></code></a></li>
+<li><a class="reference internal" href="#geometric_kernels.spaces.hyperbolic.Hyperbolic.num_axes"><code class="docutils literal notranslate"><span class="pre">Hyperbolic.num_axes</span></code></a></li>
+<li><a class="reference internal" href="#geometric_kernels.spaces.hyperbolic.Hyperbolic.rho"><code class="docutils literal notranslate"><span class="pre">Hyperbolic.rho</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/scripts/furo.js?v=5fa4622c"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["\\(", "\\)"]], "processEscapes": true, "displayMath": [["\\[", "\\]"]]}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../../../_static/scripts/bootstrap.min.js?v=ff982861"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    </body>
+</html>

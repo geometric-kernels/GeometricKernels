@@ -1,0 +1,1305 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Matérn and Heat Kernels on Graphs: JAX Backend" href="backends/JAX_Graph.html" /><link rel="prev" title="Matérn and Heat Kernels on the Special Unitary Group \(\mathrm{SU}(n)\)" href="SpecialUnitary.html" />
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
+        <title>Matérn and Heat Kernels on Tori - GeometricKernels documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=302659d7" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap_namespaced.css?v=7458e3c8" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">GeometricKernels  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">GeometricKernels  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">GeometricKernels</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Examples</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 current has-children"><a class="reference internal" href="examples.html">Spaces</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Spaces</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="Graph.html">Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="GraphEdges.html">GraphEdges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Hyperbolic.html">Hyperbolic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="HypercubeGraph.html">HypercubeGraph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Hypersphere.html">Hypersphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Mesh.html">Mesh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SPD.html">SPD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SpecialOrthogonal.html">SpecialOrthogonal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SpecialUnitary.html">SpecialUnitary</a></li>
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">Torus</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="examples.html#backends">Backends</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Backends</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="backends/JAX_Graph.html">JAX (Graph space)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="backends/PyTorch_Graph.html">PyTorch (Graph space)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="backends/TensorFlow_Graph.html">TensorFlow (Graph space)</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="examples.html#frontends">Frontends</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Frontends</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="frontends/GPflow.html">GPFlow (Mesh space)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="frontends/GPJax.html">GPJax (Mesh space)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="frontends/GPyTorch.html">GPyTorch (Mesh space)</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="examples.html#other">Other</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Other</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="other/Bayesian%20Optimization.html">Bayesian optimization on a sphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="other/Hyperbolic%20Approximations.html">Comparing approximations on Hyperbolic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="other/SPD%20Approximations.html">Comparing approximations on SPD</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../theory/index.html">Theory</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Theory</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../theory/compact.html">Kernels on compact manifolds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/addition_theorem.html">Addition theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/graphs.html">Kernels on graphs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/meshes.html">Kernels on meshes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/symmetric.html">Kernels on non-compact symmetric spaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/product_spaces.html">Kernels on product spaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/product_kernels.html">Product kernels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/feature_maps.html">Feature maps and sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/hypercube_graph.html">Hypercube graph space</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../autoapi/geometric_kernels/index.html">API reference</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of API reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/geometric_kernels/feature_maps/index.html">geometric_kernels.feature_maps</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of geometric_kernels.feature_maps</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/feature_maps/base/index.html">geometric_kernels.feature_maps.base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/feature_maps/deterministic/index.html">geometric_kernels.feature_maps.deterministic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/feature_maps/probability_densities/index.html">geometric_kernels.feature_maps.probability_densities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/feature_maps/random_phase/index.html">geometric_kernels.feature_maps.random_phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/feature_maps/rejection_sampling/index.html">geometric_kernels.feature_maps.rejection_sampling</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/geometric_kernels/frontends/index.html">geometric_kernels.frontends</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of geometric_kernels.frontends</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/frontends/gpflow/index.html">geometric_kernels.frontends.gpflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/frontends/gpjax/index.html">geometric_kernels.frontends.gpjax</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/frontends/gpytorch/index.html">geometric_kernels.frontends.gpytorch</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/geometric_kernels/jax/index.html">geometric_kernels.jax</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/geometric_kernels/kernels/index.html">geometric_kernels.kernels</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of geometric_kernels.kernels</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/kernels/base/index.html">geometric_kernels.kernels.base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/kernels/feature_map/index.html">geometric_kernels.kernels.feature_map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/kernels/hodge_compositional/index.html">geometric_kernels.kernels.hodge_compositional</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/kernels/karhunen_loeve/index.html">geometric_kernels.kernels.karhunen_loeve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/kernels/matern_kernel/index.html">geometric_kernels.kernels.matern_kernel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/kernels/product/index.html">geometric_kernels.kernels.product</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/geometric_kernels/lab_extras/index.html">geometric_kernels.lab_extras</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/geometric_kernels/sampling/index.html">geometric_kernels.sampling</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle navigation of geometric_kernels.sampling</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/sampling/samplers/index.html">geometric_kernels.sampling.samplers</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/index.html">geometric_kernels.spaces</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle navigation of geometric_kernels.spaces</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/base/index.html">geometric_kernels.spaces.base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/circle/index.html">geometric_kernels.spaces.circle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/eigenfunctions/index.html">geometric_kernels.spaces.eigenfunctions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/graph/index.html">geometric_kernels.spaces.graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/graph_edges/index.html">geometric_kernels.spaces.graph_edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/hyperbolic/index.html">geometric_kernels.spaces.hyperbolic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/hypercube_graph/index.html">geometric_kernels.spaces.hypercube_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/hypersphere/index.html">geometric_kernels.spaces.hypersphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/lie_groups/index.html">geometric_kernels.spaces.lie_groups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/mesh/index.html">geometric_kernels.spaces.mesh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/product/index.html">geometric_kernels.spaces.product</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/so/index.html">geometric_kernels.spaces.so</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/spd/index.html">geometric_kernels.spaces.spd</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/su/index.html">geometric_kernels.spaces.su</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/geometric_kernels/tensorflow/index.html">geometric_kernels.tensorflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/geometric_kernels/torch/index.html">geometric_kernels.torch</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/geometric_kernels/utils/index.html">geometric_kernels.utils</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle navigation of geometric_kernels.utils</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/utils/manifold_utils/index.html">geometric_kernels.utils.manifold_utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/utils/product/index.html">geometric_kernels.utils.product</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/utils/special_functions/index.html">geometric_kernels.utils.special_functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/utils/utils/index.html">geometric_kernels.utils.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/geometric_kernels/version/index.html">geometric_kernels.version</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/geometric-kernels/GeometricKernels">GitHub</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../_sources/examples/Torus.nblink.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># To run this in Google Colab, uncomment the following line</span>
+<span class="c1"># !pip install geometric_kernels</span>
+
+<span class="c1"># If you want to use a version of the library from a specific branch on GitHub,</span>
+<span class="c1"># say, from the &quot;devel&quot; branch, uncomment the line below instead</span>
+<span class="c1"># !pip install &quot;git+https://github.com/geometric-kernels/GeometricKernels@devel&quot;</span>
+</pre></div>
+</div>
+</div>
+<section id="Matérn-and-Heat-Kernels-on-Tori">
+<h1>Matérn and Heat Kernels on Tori<a class="headerlink" href="#Matérn-and-Heat-Kernels-on-Tori" title="Link to this heading">¶</a></h1>
+<p>This notebook shows how define and evaluate kernels on the two-dimensional torus <span class="math notranslate nohighlight">\(\mathbb{T}^2\)</span>.</p>
+<p>Any torus <span class="math notranslate nohighlight">\(\mathbb{T}^d\)</span> is a <em>product manifold</em> <span class="math notranslate nohighlight">\(\mathbb{T}^d = \mathbb{T}^1 \times \ldots \times \mathbb{T}^1\)</span> where <span class="math notranslate nohighlight">\(\mathbb{T}^1 = \mathbb{S}_1\)</span> is the circle. So this notebook also shows the basics of working with product manifolds.</p>
+<p><strong>Note:</strong> the kind of torus we consider here (product of circles) is the <em>flat torus</em>. Its Riemannian geometry is different from the Riemannian geometry that the often-visualized donut shape inherits from the ambient <span class="math notranslate nohighlight">\(\mathbb{R}^3\)</span>. Rather than that, its Riemannian geometry is the geometry of the product manifold while the geometry of each individual circle is inherited from the ambient <span class="math notranslate nohighlight">\(\mathbb{R}^2\)</span> space. It follows that <span class="math notranslate nohighlight">\(\mathbb{T}^d\)</span> can be embedded in
+<span class="math notranslate nohighlight">\(\mathbb{R}^{2 d}\)</span> and the Riemannian geometry that this embedding inherits from the ambient <span class="math notranslate nohighlight">\(\mathbb{R}^{2 d}\)</span> coincides with the Riemannian geometry of the flat torus. It is useful to think of the flat torus as the square (<span class="math notranslate nohighlight">\(d\)</span>-dimensional hypercube) with opposite sides glued together. Another way to think about the flat torus is that functions on the flat torus are exactly <span class="math notranslate nohighlight">\(2 \pi\)</span>-periodic functions (in each of the variables) on <span class="math notranslate nohighlight">\(\mathbb{R}^d\)</span>.</p>
+<p>We use the <strong>numpy</strong> backend here.</p>
+<!--TABLE OF CONTENTS--><section id="Contents">
+<h2>Contents<a class="headerlink" href="#Contents" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#Basics"><span class="std std-ref">Basics</span></a></p>
+<ul>
+<li><p><a class="reference internal" href="#Defining-a-Space"><span class="std std-ref">Defining a Space</span></a></p></li>
+<li><p><a class="reference internal" href="#Defining-a-Kernel"><span class="std std-ref">Defining a Kernel</span></a></p></li>
+<li><p><a class="reference internal" href="#Evaluating-Kernels-on-Random-Inputs"><span class="std std-ref">Evaluating Kernels on Random Inputs</span></a></p></li>
+<li><p><a class="reference internal" href="#Visualize-Kernels"><span class="std std-ref">Visualize Kernels</span></a></p></li>
+<li><p><a class="reference internal" href="#Product-Kernel-vs-Kernel-on-the-Product-Space"><span class="std std-ref">Product Kernel vs Kernel on the Product Space</span></a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#Feature-Maps-and-Sampling"><span class="std std-ref">Feature Maps and Sampling</span></a></p>
+<ul>
+<li><p><a class="reference internal" href="#Defining-a-Feature-Map"><span class="std std-ref">Defining a Feature Map</span></a></p></li>
+<li><p><a class="reference internal" href="#Efficient-Sampling-using-Feature-Maps"><span class="std std-ref">Efficient Sampling using Feature Maps</span></a></p></li>
+<li><p><a class="reference internal" href="#Feature-Maps-and-Sampling-for-Product-Kernels"><span class="std std-ref">Feature Maps and Sampling for Product Kernels</span></a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#Citation"><span class="std std-ref">Citation</span></a></p></li>
+</ul>
+</section>
+<section id="Basics">
+<h2>Basics<a class="headerlink" href="#Basics" title="Link to this heading">¶</a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import a backend, we use numpy in this example.</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="c1"># Import the geometric_kernels backend.</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">geometric_kernels</span>
+
+<span class="c1"># Note: if you are using a backend other than numpy,</span>
+<span class="c1"># you _must_ uncomment one of the following lines</span>
+<span class="c1"># import geometric_kernels.tensorflow</span>
+<span class="c1"># import geometric_kernels.torch</span>
+<span class="c1"># import geometric_kernels.jax</span>
+
+<span class="c1"># Import the spaces and an appropriate kernel.</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geometric_kernels.spaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">Circle</span><span class="p">,</span> <span class="n">ProductDiscreteSpectrumSpace</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geometric_kernels.kernels</span><span class="w"> </span><span class="kn">import</span> <span class="n">MaternGeometricKernel</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpl</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO (geometric_kernels): Numpy backend is enabled. To enable other backends, don&#39;t forget to `import geometric_kernels.*backend name*`.
+INFO (geometric_kernels): We may be suppressing some logging of external libraries. To override the logging policy, call `logging.basicConfig`.
+</pre></div></div>
+</div>
+<section id="Defining-a-Space">
+<h3>Defining a Space<a class="headerlink" href="#Defining-a-Space" title="Link to this heading">¶</a></h3>
+<p>First we create a GeometricKernels <code class="docutils literal notranslate"><span class="pre">space</span></code> that corresponds to the 2-dimensional torus <span class="math notranslate nohighlight">\(\mathbb{T}^2\)</span>. We use <code class="docutils literal notranslate"><span class="pre">ProductDiscreteSpectrumSpace</span></code> which takes a number of <code class="docutils literal notranslate"><span class="pre">DiscreteSpectrumSpace</span></code> instances (e.g. <code class="docutils literal notranslate"><span class="pre">Circle()</span></code>) and constructs their product space.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ProductDiscreteSpectrumSpace</span></code> has an optional parameter <code class="docutils literal notranslate"><span class="pre">num_levels</span></code> which determines the <em>maximal</em> order of approximation of the kernel (<em>number of levels</em>). <code class="docutils literal notranslate"><span class="pre">ProductDiscreteSpectrumSpace</span></code> uses the parameter <code class="docutils literal notranslate"><span class="pre">num_levels</span></code> for precomputation. There is a sensible default value for this parameter, so change it only if you know what you are doing.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">torus</span> <span class="o">=</span> <span class="n">ProductDiscreteSpectrumSpace</span><span class="p">(</span><span class="n">Circle</span><span class="p">(),</span> <span class="n">Circle</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Defining-a-Kernel">
+<h3>Defining a Kernel<a class="headerlink" href="#Defining-a-Kernel" title="Link to this heading">¶</a></h3>
+<p>First, we create a generic Matérn kernel.</p>
+<p>To initialize <code class="docutils literal notranslate"><span class="pre">MaternGeometricKernel</span></code> you just need to provide a <code class="docutils literal notranslate"><span class="pre">Space</span></code> object, in our case this is the <code class="docutils literal notranslate"><span class="pre">torus</span></code> we have just created above.</p>
+<p>There is also an optional second parameter <code class="docutils literal notranslate"><span class="pre">num</span></code> which determines the order of approximation of the kernel (<em>number of levels</em>). There is a sensible default value for each of the spaces in the library, so change it only if you know what you are doing.</p>
+<p>A brief account on theory behind the kernels on product spaces can be found on this <a class="reference external" href="https://geometric-kernels.github.io/GeometricKernels/theory/product_spaces.html">documentation page</a>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">kernel</span> <span class="o">=</span> <span class="n">MaternGeometricKernel</span><span class="p">(</span><span class="n">torus</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>To support JAX, our classes do not keep variables you might want to differentiate over in their state. Instead, some methods take a <code class="docutils literal notranslate"><span class="pre">params</span></code> dictionary as input, returning its modified version.</p>
+<p>The next line initializes the dictionary of kernel parameters <code class="docutils literal notranslate"><span class="pre">params</span></code> with some default values.</p>
+<p><strong>Note:</strong> our kernels do not provide the outputscale/variance parameter frequently used in Gaussian processes. However, it is usually trivial to add it by multiplying the kernel by an (optimizable) constant.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">params</span> <span class="o">=</span> <span class="n">kernel</span><span class="o">.</span><span class="n">init_params</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;params:&#39;</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+params: {&#39;nu&#39;: array([inf]), &#39;lengthscale&#39;: array([1.])}
+</pre></div></div>
+</div>
+<p>To define two different kernels, Matern-3/2 and Matern-∞ (aka heat, RBF, squared exponential, diffusion), we need two different versions of <code class="docutils literal notranslate"><span class="pre">params</span></code>:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">LENGTHSCALE</span> <span class="o">=</span> <span class="mf">0.5</span>
+
+<span class="n">params</span><span class="p">[</span><span class="s2">&quot;lengthscale&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">LENGTHSCALE</span><span class="p">])</span>
+<span class="n">params_32</span>  <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">params_inf</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="k">del</span> <span class="n">params</span>
+<span class="n">params_32</span><span class="p">[</span><span class="s2">&quot;nu&quot;</span><span class="p">]</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">3</span><span class="o">/</span><span class="mi">2</span><span class="p">])</span>
+<span class="n">params_inf</span><span class="p">[</span><span class="s2">&quot;nu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<p>Now two kernels are <em>defined</em> and we proceed to evaluating both on a set of random inputs.</p>
+</section>
+<section id="Evaluating-Kernels-on-Random-Inputs">
+<h3>Evaluating Kernels on Random Inputs<a class="headerlink" href="#Evaluating-Kernels-on-Random-Inputs" title="Link to this heading">¶</a></h3>
+<p>We start by sampling <code class="docutils literal notranslate"><span class="pre">10</span></code> (uniformly) random points on the torus <span class="math notranslate nohighlight">\(\mathbb{T}^2\)</span></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">key</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
+
+<span class="n">key</span><span class="p">,</span> <span class="n">xs</span> <span class="o">=</span> <span class="n">torus</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[[1.2033522  2.24823221]
+ [3.90882469 3.14784521]
+ [2.7503245  4.29432427]
+ [4.93455351 4.4780389 ]
+ [4.90073254 2.3263541 ]
+ [1.71274985 3.52609963]
+ [1.73707615 3.16096475]
+ [5.03831148 0.08650972]
+ [6.02016711 4.85581287]
+ [5.50364706 5.54579816]]
+</pre></div></div>
+</div>
+<p>Now we evaluate the two kernel matrices.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">kernel_mat_32</span>  <span class="o">=</span> <span class="n">kernel</span><span class="o">.</span><span class="n">K</span><span class="p">(</span><span class="n">params_32</span><span class="p">,</span>  <span class="n">xs</span><span class="p">,</span> <span class="n">xs</span><span class="p">)</span>
+<span class="n">kernel_mat_inf</span> <span class="o">=</span> <span class="n">kernel</span><span class="o">.</span><span class="n">K</span><span class="p">(</span><span class="n">params_inf</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">xs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Finally, we visualize these matrices using <code class="docutils literal notranslate"><span class="pre">imshow</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># find common range of values</span>
+<span class="n">minmin</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">kernel_mat_32</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">kernel_mat_inf</span><span class="p">)])</span>
+<span class="n">maxmax</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">kernel_mat_32</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">kernel_mat_inf</span><span class="p">)])</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s1">&#39;viridis&#39;</span><span class="p">)</span>
+
+<span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">kernel_mat_32</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">minmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">maxmax</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;k_32&#39;</span><span class="p">)</span>
+
+<span class="n">ax2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">kernel_mat_inf</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">minmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">maxmax</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;k_inf&#39;</span><span class="p">)</span>
+
+<span class="c1"># add space for color bar</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">right</span><span class="o">=</span><span class="mf">0.85</span><span class="p">)</span>
+<span class="n">cbar_ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mf">0.88</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
+
+<span class="c1"># add colorbar</span>
+<span class="n">sm</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">(</span><span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+                           <span class="n">norm</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">minmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">maxmax</span><span class="p">))</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sm</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cbar_ax</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_Torus_22_0.png" src="../_images/examples_Torus_22_0.png" />
+</div>
+</div>
+</section>
+<section id="Visualize-Kernels">
+<h3>Visualize Kernels<a class="headerlink" href="#Visualize-Kernels" title="Link to this heading">¶</a></h3>
+<p>The torus <span class="math notranslate nohighlight">\(\mathbb{T}^2\)</span> is one of the few manifolds we can easily visualize. Because of this, beyond kernel matrices, we will plot the functions <span class="math notranslate nohighlight">\(k_{\nu, \kappa}(\text{pole}, \cdot)\)</span>.</p>
+<p>In practice, we visualize <span class="math notranslate nohighlight">\(k_{\nu, \kappa}(\)</span> <code class="docutils literal notranslate"><span class="pre">base_point</span></code> <span class="math notranslate nohighlight">\(, x)\)</span> for $x <span class="math">\in `$ ``other_points`</span>. We represent the torus as the square whose sides are assumed to be glued.</p>
+<p>We define <code class="docutils literal notranslate"><span class="pre">base_point</span></code> and <code class="docutils literal notranslate"><span class="pre">other_points</span></code> in the next cell.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">base_point</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]])</span>
+
+<span class="c1"># define discretization</span>
+<span class="n">_NUM_PTS</span> <span class="o">=</span> <span class="mi">128</span>
+
+<span class="c1"># generate a grid on the torus</span>
+<span class="n">x1s</span><span class="p">,</span> <span class="n">x2s</span> <span class="o">=</span>  <span class="n">np</span><span class="o">.</span><span class="n">mgrid</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">:</span><span class="n">_NUM_PTS</span><span class="o">*</span><span class="mi">1</span><span class="n">j</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="p">:</span><span class="n">_NUM_PTS</span><span class="o">*</span><span class="mi">1</span><span class="n">j</span><span class="p">]</span>
+<span class="n">other_points</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">x1s</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">ravel</span><span class="p">(</span><span class="n">x2s</span><span class="p">)]</span>
+</pre></div>
+</div>
+</div>
+<p>The next cell evaluates <span class="math notranslate nohighlight">\(k_{\nu, \kappa}(\)</span> <code class="docutils literal notranslate"><span class="pre">base_point</span></code> <span class="math notranslate nohighlight">\(, x)\)</span> for $x <span class="math">\in `$ ``other_points`</span> for <span class="math notranslate nohighlight">\(\nu\)</span> either <span class="math notranslate nohighlight">\(3/2\)</span> or <span class="math notranslate nohighlight">\(\infty\)</span>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">kernel_vals_32</span>  <span class="o">=</span> <span class="n">kernel</span><span class="o">.</span><span class="n">K</span><span class="p">(</span><span class="n">params_32</span><span class="p">,</span>  <span class="n">base_point</span><span class="p">,</span> <span class="n">other_points</span><span class="p">)</span>
+<span class="n">kernel_vals_inf</span> <span class="o">=</span> <span class="n">kernel</span><span class="o">.</span><span class="n">K</span><span class="p">(</span><span class="n">params_inf</span><span class="p">,</span> <span class="n">base_point</span><span class="p">,</span> <span class="n">other_points</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Finally, we are ready to plot the results.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">12.8</span><span class="p">,</span> <span class="mf">4.8</span><span class="p">),</span> <span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s1">&#39;viridis&#39;</span><span class="p">)</span>
+
+<span class="c1"># find common range of values</span>
+<span class="n">minmin_vis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">kernel_vals_32</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">kernel_vals_inf</span><span class="p">)])</span>
+<span class="n">maxmax_vis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">kernel_vals_32</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">kernel_vals_inf</span><span class="p">)])</span>
+
+<span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span> <span class="n">kernel_vals_32</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">_NUM_PTS</span><span class="p">,</span> <span class="n">_NUM_PTS</span><span class="p">),</span> <span class="n">vmin</span><span class="o">=</span><span class="n">minmin_vis</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">maxmax_vis</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">kernel_vals_inf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">_NUM_PTS</span><span class="p">,</span> <span class="n">_NUM_PTS</span><span class="p">),</span> <span class="n">vmin</span><span class="o">=</span><span class="n">minmin_vis</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">maxmax_vis</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+
+<span class="c1"># Remove axis</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+
+<span class="c1"># plot the base point</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">_NUM_PTS</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="n">_NUM_PTS</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">_NUM_PTS</span><span class="o">//</span><span class="mi">2</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">_NUM_PTS</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="n">_NUM_PTS</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">_NUM_PTS</span><span class="o">//</span><span class="mi">2</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+
+
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$k_{3/2, \kappa}($base_point, other_points$)$&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;$k_{\infty, \kappa}($base_point, other_points$)$&#39;</span><span class="p">)</span>
+
+<span class="c1"># add color bar</span>
+<span class="n">sm</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">(</span><span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+                           <span class="n">norm</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">minmin_vis</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">maxmax_vis</span><span class="p">))</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">right</span><span class="o">=</span><span class="mf">0.85</span><span class="p">)</span>
+<span class="n">cbar_ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mf">0.88</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sm</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cbar_ax</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_Torus_29_0.png" src="../_images/examples_Torus_29_0.png" />
+</div>
+</div>
+<p>Notice how the kernel is getting “cut” on the left and continues on the right. This is because the sides of this rectangle are actually glued together.</p>
+</section>
+<section id="Product-Kernel-vs-Kernel-on-the-Product-Space">
+<h3>Product Kernel vs Kernel on the Product Space<a class="headerlink" href="#Product-Kernel-vs-Kernel-on-the-Product-Space" title="Link to this heading">¶</a></h3>
+<p>Here we describe an alternative way to define a kernel on torus, as a product kernel. The theory behind such kernels is briefly described on this <a class="reference external" href="https://geometric-kernels.github.io/GeometricKernels/theory/product_kernels.html">documentation page</a>.</p>
+<p>Basically, a product kernel is a product of kernels. The advantage of using it is that it maintains a separate lengthscale for each of the factors of the product space, i.e. for each of the circles that make the torus. This allows you to use ARD, as in <a class="reference external" href="https://gaussianprocess.org/gpml/chapters/RW.pdf">Rasmussen and Williams (2006)</a>. Also, we only support products of discrete spectrum spaces (via <code class="docutils literal notranslate"><span class="pre">ProductDiscreteSpectrumSpace</span></code>), whereas product kernels (<code class="docutils literal notranslate"><span class="pre">ProductGeometricKernel</span></code>) can be
+defined on arbitrary products of GeometricKernels spaces.</p>
+<p><strong>Note:</strong> product kernels do not coincide with kernels on product spaces unless <span class="math notranslate nohighlight">\(\nu = \infty\)</span> and all lengthscales coincide. We will demonstrate this below.</p>
+<p>We import the <code class="docutils literal notranslate"><span class="pre">ProductGeometricKernel</span></code> class</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geometric_kernels.kernels</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProductGeometricKernel</span>
+</pre></div>
+</div>
+</div>
+<p>We define a new generic <code class="docutils literal notranslate"><span class="pre">product_kernel</span></code> as the product of two <code class="docutils literal notranslate"><span class="pre">MaternKarhunenLoeveKernel</span></code> on the <code class="docutils literal notranslate"><span class="pre">Circle</span></code>, initialize and set its paramters.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">product_kernel</span> <span class="o">=</span> <span class="n">ProductGeometricKernel</span><span class="p">(</span><span class="n">MaternGeometricKernel</span><span class="p">(</span><span class="n">Circle</span><span class="p">(),</span> <span class="mi">30</span><span class="p">),</span>
+                                        <span class="n">MaternGeometricKernel</span><span class="p">(</span><span class="n">Circle</span><span class="p">(),</span> <span class="mi">30</span><span class="p">))</span>
+<span class="n">product_params</span> <span class="o">=</span> <span class="n">product_kernel</span><span class="o">.</span><span class="n">init_params</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;params:&#39;</span><span class="p">,</span> <span class="n">product_params</span><span class="p">)</span>
+
+<span class="n">product_params</span><span class="p">[</span><span class="s2">&quot;lengthscale&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">LENGTHSCALE</span><span class="p">,</span> <span class="n">LENGTHSCALE</span><span class="p">])</span>
+<span class="n">product_params_32</span>  <span class="o">=</span> <span class="n">product_params</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">product_params_inf</span> <span class="o">=</span> <span class="n">product_params</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="k">del</span> <span class="n">product_params</span>
+<span class="n">product_params_32</span><span class="p">[</span><span class="s2">&quot;nu&quot;</span><span class="p">]</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">3</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="o">/</span><span class="mi">2</span><span class="p">])</span>
+<span class="n">product_params_inf</span><span class="p">[</span><span class="s2">&quot;nu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+params: {&#39;nu&#39;: array([inf, inf]), &#39;lengthscale&#39;: array([1., 1.])}
+</pre></div></div>
+</div>
+<p>Next we compute the value of the <code class="docutils literal notranslate"><span class="pre">product_kernel</span></code> for <span class="math notranslate nohighlight">\(\nu = 3/2\)</span> and for <span class="math notranslate nohighlight">\(\nu = \infty\)</span>. After this we compute the difference between the values of the <code class="docutils literal notranslate"><span class="pre">product_kernel</span></code> and the <code class="docutils literal notranslate"><span class="pre">kernel</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">product_kernel_vals_32</span>  <span class="o">=</span> <span class="n">product_kernel</span><span class="o">.</span><span class="n">K</span><span class="p">(</span><span class="n">product_params_32</span><span class="p">,</span>  <span class="n">base_point</span><span class="p">,</span> <span class="n">other_points</span><span class="p">)</span>
+<span class="n">product_kernel_vals_inf</span> <span class="o">=</span> <span class="n">product_kernel</span><span class="o">.</span><span class="n">K</span><span class="p">(</span><span class="n">product_params_inf</span><span class="p">,</span> <span class="n">base_point</span><span class="p">,</span> <span class="n">other_points</span><span class="p">)</span>
+<span class="n">product_diff_32</span>  <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">kernel_vals_32</span>  <span class="o">-</span> <span class="n">product_kernel_vals_32</span><span class="p">)</span>
+<span class="n">product_diff_inf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">kernel_vals_inf</span> <span class="o">-</span> <span class="n">product_kernel_vals_inf</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>We visualize the <code class="docutils literal notranslate"><span class="pre">kernel</span></code> and <code class="docutils literal notranslate"><span class="pre">product_kernel</span></code> for <span class="math notranslate nohighlight">\(\nu = 3/2\)</span> as well as the difference between them.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">,</span> <span class="n">ax3</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">12.8</span><span class="p">,</span> <span class="mf">4.8</span><span class="p">),</span> <span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s1">&#39;viridis&#39;</span><span class="p">)</span>
+
+<span class="c1"># find common range of values</span>
+<span class="n">product_minmin_vis_32</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">kernel_vals_32</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">product_kernel_vals_32</span><span class="p">)])</span>
+<span class="n">product_maxmax_vis_32</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">kernel_vals_32</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">product_kernel_vals_32</span><span class="p">)])</span>
+
+<span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>        <span class="n">kernel_vals_32</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">_NUM_PTS</span><span class="p">,</span> <span class="n">_NUM_PTS</span><span class="p">),</span> <span class="n">vmin</span><span class="o">=</span><span class="n">product_minmin_vis_32</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">product_maxmax_vis_32</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">product_kernel_vals_32</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">_NUM_PTS</span><span class="p">,</span> <span class="n">_NUM_PTS</span><span class="p">),</span> <span class="n">vmin</span><span class="o">=</span><span class="n">product_minmin_vis_32</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">product_maxmax_vis_32</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>       <span class="n">product_diff_32</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">_NUM_PTS</span><span class="p">,</span> <span class="n">_NUM_PTS</span><span class="p">),</span> <span class="n">vmin</span><span class="o">=</span><span class="n">product_minmin_vis_32</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">product_maxmax_vis_32</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+
+
+<span class="c1"># Remove axis</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+
+<span class="c1"># plot the base point</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">_NUM_PTS</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="n">_NUM_PTS</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">_NUM_PTS</span><span class="o">//</span><span class="mi">2</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">_NUM_PTS</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="n">_NUM_PTS</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">_NUM_PTS</span><span class="o">//</span><span class="mi">2</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">_NUM_PTS</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="n">_NUM_PTS</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">_NUM_PTS</span><span class="o">//</span><span class="mi">2</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$k_{3/2, \kappa}^{T^2}($base_point, other_points$)$&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;$k_{3/2, \kappa}^</span><span class="si">{S_1}</span><span class="s1"> \otimes k_{3/2, \kappa}^</span><span class="si">{S_1}</span><span class="s1">($base_point, other_points$)$&#39;</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Difference&#39;</span><span class="p">)</span>
+
+<span class="c1"># add color bar</span>
+<span class="n">sm</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">(</span><span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+                           <span class="n">norm</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">product_minmin_vis_32</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">product_maxmax_vis_32</span><span class="p">))</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">right</span><span class="o">=</span><span class="mf">0.85</span><span class="p">)</span>
+<span class="n">cbar_ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mf">0.88</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sm</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cbar_ax</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_Torus_39_0.png" src="../_images/examples_Torus_39_0.png" />
+</div>
+</div>
+<p>We see that the <code class="docutils literal notranslate"><span class="pre">kernel</span></code> differs from the <code class="docutils literal notranslate"><span class="pre">product_kernel</span></code>, despite having the same parameters.</p>
+<p>We visualize the <code class="docutils literal notranslate"><span class="pre">kernel</span></code> and <code class="docutils literal notranslate"><span class="pre">product_kernel</span></code> for <span class="math notranslate nohighlight">\(\nu = \infty\)</span> as well as the difference between them.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">,</span> <span class="n">ax3</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">12.8</span><span class="p">,</span> <span class="mf">4.8</span><span class="p">),</span> <span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+<span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s1">&#39;viridis&#39;</span><span class="p">)</span>
+
+<span class="c1"># find common range of values</span>
+<span class="n">product_minmin_vis_inf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">kernel_vals_inf</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">product_kernel_vals_inf</span><span class="p">)])</span>
+<span class="n">product_maxmax_vis_inf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">kernel_vals_inf</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">product_kernel_vals_inf</span><span class="p">)])</span>
+
+<span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>        <span class="n">kernel_vals_inf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">_NUM_PTS</span><span class="p">,</span> <span class="n">_NUM_PTS</span><span class="p">),</span> <span class="n">vmin</span><span class="o">=</span><span class="n">product_minmin_vis_inf</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">product_maxmax_vis_inf</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">product_kernel_vals_inf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">_NUM_PTS</span><span class="p">,</span> <span class="n">_NUM_PTS</span><span class="p">),</span> <span class="n">vmin</span><span class="o">=</span><span class="n">product_minmin_vis_inf</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">product_maxmax_vis_inf</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span>       <span class="n">product_diff_inf</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">_NUM_PTS</span><span class="p">,</span> <span class="n">_NUM_PTS</span><span class="p">),</span> <span class="n">vmin</span><span class="o">=</span><span class="n">product_minmin_vis_inf</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">product_maxmax_vis_inf</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+
+
+<span class="c1"># Remove axis</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+
+<span class="c1"># plot the base point</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">_NUM_PTS</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="n">_NUM_PTS</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">_NUM_PTS</span><span class="o">//</span><span class="mi">2</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">_NUM_PTS</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="n">_NUM_PTS</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">_NUM_PTS</span><span class="o">//</span><span class="mi">2</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">_NUM_PTS</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="p">[</span><span class="n">_NUM_PTS</span><span class="o">//</span><span class="mi">2</span><span class="p">,</span> <span class="n">_NUM_PTS</span><span class="o">//</span><span class="mi">2</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">25</span><span class="p">)</span>
+
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;$k_{\infty, \kappa}^{T^2}($base_point, other_points$)$&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;$k_{\infty, \kappa}^</span><span class="si">{S_1}</span><span class="s1"> \otimes k_{\infty, \kappa}^</span><span class="si">{S_1}</span><span class="s1">($base_point, other_points$)$&#39;</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Difference&#39;</span><span class="p">)</span>
+
+<span class="c1"># add color bar</span>
+<span class="n">sm</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">(</span><span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+                           <span class="n">norm</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">product_minmin_vis_inf</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">product_maxmax_vis_inf</span><span class="p">))</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">right</span><span class="o">=</span><span class="mf">0.85</span><span class="p">)</span>
+<span class="n">cbar_ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mf">0.88</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sm</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cbar_ax</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_Torus_42_0.png" src="../_images/examples_Torus_42_0.png" />
+</div>
+</div>
+<p>We see that the <code class="docutils literal notranslate"><span class="pre">kernel</span></code> and the <code class="docutils literal notranslate"><span class="pre">product_kernel</span></code> are the same in this case, as theory predicts.</p>
+</section>
+</section>
+<section id="Feature-Maps-and-Sampling">
+<h2>Feature Maps and Sampling<a class="headerlink" href="#Feature-Maps-and-Sampling" title="Link to this heading">¶</a></h2>
+<p>Here we show how to get an approximate finite-dimensional feature map for heat and Matérn kernels on the torus, i.e. such <span class="math notranslate nohighlight">\(\phi\)</span> that</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[k(x, x') \approx \langle \phi(x), \phi(x') \rangle_{\mathbb{R}^M}.\]</div>
+</div>
+<p>This might be useful for speeding up computations. We showcase this below by showing how to efficiently sample the Gaussian process <span class="math notranslate nohighlight">\(\mathrm{GP}(0, k)\)</span>.</p>
+<p>For a brief theoretical introduction into feature maps, see this <a class="reference external" href="https://geometric-kernels.github.io/GeometricKernels/theory/feature_maps.html">documentation page</a>.</p>
+<section id="Defining-a-Feature-Map">
+<h3>Defining a Feature Map<a class="headerlink" href="#Defining-a-Feature-Map" title="Link to this heading">¶</a></h3>
+<p>The simplest way to get an approximate finite-dimensional feature map is to use the <code class="docutils literal notranslate"><span class="pre">default_feature_map</span></code> function from <code class="docutils literal notranslate"><span class="pre">geometric_kernels.kernels</span></code>. It has an optional keyword argument <code class="docutils literal notranslate"><span class="pre">num</span></code> which determines the number of features, the <span class="math notranslate nohighlight">\(M\)</span> above. Below we rely on the default value of <code class="docutils literal notranslate"><span class="pre">num</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geometric_kernels.kernels</span><span class="w"> </span><span class="kn">import</span> <span class="n">default_feature_map</span>
+
+<span class="n">feature_map</span> <span class="o">=</span> <span class="n">default_feature_map</span><span class="p">(</span><span class="n">kernel</span><span class="o">=</span><span class="n">kernel</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The resulting <code class="docutils literal notranslate"><span class="pre">feature_map</span></code> is a function that takes the array of inputs and parameters of the kernel. There is also an optional parameter <code class="docutils literal notranslate"><span class="pre">normalize</span></code> that determines if <span class="math notranslate nohighlight">\(\langle \phi(x), \phi(x) \rangle_{\mathbb{R}^M} \approx 1\)</span> or not. For the (hyper)torus, <code class="docutils literal notranslate"><span class="pre">normalize</span></code> follows the standard behavior of <code class="docutils literal notranslate"><span class="pre">MaternKarhunenLoeveKernel</span></code>, being <code class="docutils literal notranslate"><span class="pre">True</span></code> by default.</p>
+<p><code class="docutils literal notranslate"><span class="pre">feature_map</span></code> outputs a tuple. Its <strong>second</strong> element is <span class="math notranslate nohighlight">\(\phi(x)\)</span> evaluated at all inputs <span class="math notranslate nohighlight">\(x\)</span>. Its first element is either <code class="docutils literal notranslate"><span class="pre">None</span></code> for determinstic feature maps, or contains the updated <code class="docutils literal notranslate"><span class="pre">key</span></code> for randomized feature maps which take <code class="docutils literal notranslate"><span class="pre">key</span></code> as a keyword argument. For <code class="docutils literal notranslate"><span class="pre">default_feature_map</span></code> on a <code class="docutils literal notranslate"><span class="pre">ProductDiscreteSpectrumSpace</span></code> space, the first element is <code class="docutils literal notranslate"><span class="pre">None</span></code> since the feature map is <em>deterministic</em>.</p>
+<p>In the next cell, we evaluate the feature map at random points, using <code class="docutils literal notranslate"><span class="pre">params_32</span></code> as kernel parameters. We check the basic property of the feature map: <span class="math notranslate nohighlight">\(k(x, x') \approx \langle \phi(x), \phi(x') \rangle_{\mathbb{R}^M}\)</span>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># xs are random points from above</span>
+<span class="n">_</span><span class="p">,</span> <span class="n">embedding</span> <span class="o">=</span> <span class="n">feature_map</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">params_32</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;xs (shape = </span><span class="si">%s</span><span class="s1">):</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">xs</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">xs</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;emedding (shape = </span><span class="si">%s</span><span class="s1">):</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">embedding</span><span class="p">))</span>
+
+<span class="n">kernel_mat_32</span>  <span class="o">=</span> <span class="n">kernel</span><span class="o">.</span><span class="n">K</span><span class="p">(</span><span class="n">params_32</span><span class="p">,</span>  <span class="n">xs</span><span class="p">,</span> <span class="n">xs</span><span class="p">)</span>
+<span class="n">kernel_mat_32_alt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">embedding</span><span class="p">,</span> <span class="n">embedding</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;||k(xs, xs) - phi(xs) * phi(xs)^T|| =&#39;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">kernel_mat_32</span> <span class="o">-</span> <span class="n">kernel_mat_32_alt</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+xs (shape = (10, 2)):
+[[1.2033522  2.24823221]
+ [3.90882469 3.14784521]
+ [2.7503245  4.29432427]
+ [4.93455351 4.4780389 ]
+ [4.90073254 2.3263541 ]
+ [1.71274985 3.52609963]
+ [1.73707615 3.16096475]
+ [5.03831148 0.08650972]
+ [6.02016711 4.85581287]
+ [5.50364706 5.54579816]]
+
+emedding (shape = (10, 79)):
+[[ 2.20941641e-01 -1.77201327e-01  2.20282049e-01  1.01558006e-01
+   2.63837948e-01 -8.20588337e-02  1.02008762e-01 -2.13180970e-01
+   2.65008968e-01 -4.67241284e-02 -2.13017530e-01 -1.61796025e-01
+   1.46224685e-01 -2.20048929e-02 -1.00321356e-01 -5.71665986e-02
+  -2.60625250e-01  1.32953172e-01 -1.65276398e-01 -1.20157684e-01
+   1.49370104e-01  3.70909012e-02  1.69099188e-01 -3.35212520e-02
+  -1.52824987e-01  1.38996113e-01  6.91272842e-02 -1.38512143e-01
+  -7.00919906e-02  6.66250650e-02  3.31348101e-02  1.73085521e-01
+   8.60810549e-02  1.15844560e-01 -1.44008385e-01  5.86214004e-02
+  -7.28732814e-02 -1.17277704e-01 -5.83260139e-02  1.05990832e-01
+   5.27126854e-02  3.37500180e-02  1.53867942e-01  1.70786900e-02
+   7.78625623e-02 -9.84010909e-02  4.53492214e-02  1.09267048e-02
+  -1.07795796e-01 -4.78452886e-02  2.20500257e-02 -1.24297465e-01
+   5.72838494e-02 -9.27003297e-03  1.15237390e-02  9.14521446e-02
+  -1.13685750e-01 -1.12300848e-01 -5.58508617e-02 -5.68281586e-02
+  -2.82624902e-02  8.73722809e-02 -4.02664734e-02 -7.89635233e-02
+   3.63912053e-02 -2.80179483e-03 -1.27735163e-02  2.76406941e-02
+   1.26015243e-01  1.85929182e-02 -7.41799261e-02  8.76401535e-02
+  -4.03899255e-02  4.43489841e-02 -2.04387155e-02  9.76578668e-03
+   4.85684310e-03 -9.63429298e-02 -4.79144701e-02]
+ [ 2.20941641e-01 -2.82703673e-01 -1.76764417e-03 -2.03503918e-01
+  -1.96241297e-01  2.62330284e-01  1.64025671e-03  2.52968275e-01
+   1.58171944e-03  2.18064613e-01  2.72706546e-03  7.92165549e-03
+   2.17937743e-01 -2.05788857e-01 -2.57354770e-03 -1.98444691e-01
+  -2.48170327e-03 -1.03851144e-02 -6.49343772e-05 -2.85711541e-01
+  -1.78645128e-03  8.47538576e-03  1.05991208e-04  2.33171771e-01
+   2.91599208e-03 -1.55209609e-01 -2.91171278e-03  1.03626831e-01
+  -1.15585383e-01  1.49077536e-01  2.79667586e-03  1.43757276e-01
+   2.69686845e-03 -1.38268895e-01 -8.64545560e-04  1.54225147e-01
+   9.64314254e-04 -6.41179323e-03 -1.20284436e-04 -1.76398954e-01
+  -3.30922224e-03  1.17842613e-01  1.47371238e-03 -1.31441669e-01
+  -1.64377902e-03  1.08314288e-01  2.70953048e-03 -1.08062252e-01
+   7.86614017e-03 -1.05531868e-01 -2.63992698e-03 -1.01765660e-01
+  -2.54571361e-03  1.46261683e-01  9.14521583e-04 -1.06467788e-02
+  -6.65704702e-05 -9.38173919e-02 -1.76000250e-03  1.04643934e-01
+   1.96310706e-03  4.70877145e-03  1.17792029e-04  1.29546030e-01
+   3.24065202e-03 -1.29319829e-01 -1.61724378e-03  9.41353599e-03
+   1.17723497e-04 -7.64371895e-02 -2.39041865e-03  7.21727634e-02
+   1.80543403e-03 -8.05015117e-02 -2.01378140e-03  1.07846980e-01
+   2.02319582e-03 -7.85046995e-03 -1.47273831e-04]
+ [ 2.20941641e-01 -1.14777842e-01 -2.58361256e-01 -2.61343785e-01
+   1.07814274e-01  1.36777428e-01  3.07881622e-01 -5.64259032e-02
+  -1.27012905e-01 -1.46188868e-01  1.61828388e-01  1.54647709e-01
+  -1.53765075e-01  1.77170072e-01 -1.96124012e-01 -7.30894085e-02
+   8.09086311e-02 -8.23124315e-02 -1.85282654e-01  8.18426425e-02
+   1.84225174e-01 -1.10921599e-01  1.22788171e-01  1.10288527e-01
+  -1.22087371e-01  1.47521453e-01  4.83313754e-02 -6.00217188e-02
+   1.43163871e-01 -1.81965134e-01 -5.96159069e-02  7.50675541e-02
+   2.45938341e-02  3.25152657e-02  7.31908243e-02 -7.75554485e-02
+  -1.74574837e-01  1.18971688e-01  3.89778248e-02 -1.18292671e-01
+  -3.87553632e-02  4.57580683e-02 -5.06533402e-02 -1.09142196e-01
+   1.20818404e-01 -1.09744248e-02 -1.07790948e-01  6.20149651e-04
+  -1.08346398e-01  1.37315336e-02  1.34871308e-01 -5.66478105e-03
+  -5.56395557e-02 -3.40784362e-04 -7.67094712e-04  5.95384648e-02
+   1.34019182e-01 -5.16483132e-02 -1.69211594e-02  1.23191615e-01
+   4.03603686e-02 -9.31389143e-03 -9.14811670e-02  9.26073345e-03
+   9.09590485e-02 -4.97527072e-04  5.50753319e-04  8.69229970e-02
+  -9.62221592e-02 -6.63840461e-02  3.79673077e-02  4.23550857e-03
+   4.16012222e-02 -1.01025398e-02 -9.92272822e-02  5.88256930e-04
+   1.92726319e-04 -1.02774418e-01 -3.36712316e-02]
+ [ 2.20941641e-01 -6.56481509e-02 -2.74981475e-01  6.22925615e-02
+  -2.75760998e-01 -1.86467389e-02 -7.81058980e-02  8.25466672e-02
+   3.45764565e-01 -1.94562913e-01  9.85133760e-02 -1.96905776e-01
+  -9.37428815e-02 -5.62030821e-02  2.84574037e-02  2.48803672e-01
+  -1.25977193e-01  5.99438781e-02  2.51087895e-01  2.85380754e-02
+   1.19537900e-01  1.87964937e-01 -9.51726114e-02  8.94863280e-02
+  -4.53097671e-02  1.00368062e-01  1.18426150e-01 -9.59727074e-02
+   1.22015328e-01  2.95088681e-02  3.48180644e-02 -1.30631888e-01
+  -1.54135004e-01  2.97365834e-02  1.24558110e-01 -3.78057374e-02
+  -1.58357506e-01 -1.03062090e-01 -1.21604884e-01 -4.90657892e-02
+  -5.78936408e-02  9.73761856e-02 -4.93046524e-02 -1.23799646e-01
+   6.26836888e-02  6.41297054e-02 -8.73310222e-02  6.83085591e-02
+   8.41027189e-02  1.91258407e-02 -2.60453281e-02 -8.46675878e-02
+   1.15299251e-01 -2.14695391e-02 -8.99298068e-02 -2.64336803e-02
+  -1.10723186e-01 -5.61869966e-02 -6.62960865e-02  7.14335878e-02
+   8.42858241e-02 -6.92984644e-02  9.43697729e-02 -3.29916059e-02
+   4.49275519e-02 -7.29358578e-02  3.69297389e-02 -8.97999318e-02
+   4.54685547e-02 -7.04661127e-02 -2.97133807e-02 -3.95751310e-02
+   5.38929131e-02  5.03140186e-02 -6.85169945e-02  4.40845112e-02
+   5.20161380e-02  5.42776382e-02  6.40431989e-02]
+ [ 2.20941641e-01 -1.93852221e-01  2.05780971e-01  5.29322096e-02
+  -2.77709691e-01 -4.67880566e-02  4.96671727e-02  2.45474294e-01
+  -2.60579622e-01 -1.30075579e-02 -2.17693398e-01 -2.02791600e-01
+  -8.02195693e-02 -3.19285853e-03 -5.34354125e-02  1.67513837e-02
+   2.80349754e-01  1.82299142e-01 -1.93516971e-01  7.21132370e-02
+  -7.65507450e-02  1.29420794e-02  2.16597555e-01  5.11958105e-03
+   8.56808792e-02  1.19143060e-01  9.95159889e-02 -8.31203226e-02
+   1.31108782e-01  2.97652544e-02  2.48618654e-02 -1.56163887e-01
+  -1.30438178e-01  7.60499311e-02 -8.07296848e-02 -1.19956390e-01
+   1.27337940e-01 -1.25998004e-01 -1.05241681e-01 -4.98418357e-02
+  -4.16311245e-02  5.63829690e-03  9.43620641e-02 -8.89349580e-03
+  -1.48840800e-01 -1.07577261e-01  1.29019190e-02  7.90274999e-02
+   7.41213925e-02 -2.72624953e-02  3.26963619e-03  1.43033121e-01
+  -1.71541990e-02 -7.33456095e-02  7.78589520e-02 -6.87922397e-02
+   7.30253892e-02 -5.77654958e-02 -4.82494779e-02  9.11156691e-02
+   7.61056994e-02  1.19722659e-01 -1.43585367e-02  4.73594576e-02
+  -5.67989813e-03 -5.64130944e-03 -9.44124817e-02 -5.29109122e-03
+  -8.85512590e-02  4.54366044e-02 -6.15131939e-02  5.74967201e-02
+  -6.89567682e-03 -9.06917192e-02  1.08768080e-02  6.05427805e-02
+   5.05692456e-02  5.67842232e-02  4.74298555e-02]
+ [ 2.20941641e-01 -2.62066757e-01 -1.06044831e-01 -3.99969227e-02
+   2.79865571e-01  4.77950276e-02  1.93401699e-02 -3.34430295e-01
+  -1.35326603e-01  1.56712773e-01  1.51659879e-01 -2.09351500e-01
+  -6.10865110e-02 -2.90666418e-02 -2.81294453e-02  2.03384454e-01
+   1.96826724e-01  2.54420379e-01  1.02950738e-01  7.42371241e-02
+   3.00399156e-02 -1.60967723e-01 -1.55777637e-01 -4.69686465e-02
+  -4.54542352e-02 -6.29130423e-02 -1.41917053e-01  6.41290924e-02
+  -1.41371710e-01  1.18764895e-02  2.67905721e-02 -8.31019062e-02
+  -1.87458390e-01 -7.93209402e-02 -3.20970724e-02  1.74861931e-01
+   7.07575584e-02  6.86849705e-02  1.54937168e-01  2.00415340e-02
+   4.52089955e-02  5.24088274e-02  5.07190082e-02 -1.15534545e-01
+  -1.11809362e-01  3.54976289e-03  1.08290008e-01  9.13460198e-02
+   5.82686128e-02 -6.79752828e-04 -2.07367199e-02  4.75635124e-03
+   1.45098512e-01 -1.14611095e-01 -4.63771686e-02 -7.31091463e-02
+  -2.95834815e-02 -2.35335972e-02 -5.30862702e-02  5.18794941e-02
+   1.17027959e-01 -4.07832032e-03 -1.24414321e-01 -1.19000991e-03
+  -3.63027576e-02  7.85597217e-02  7.60267185e-02  5.01123751e-02
+   4.84966004e-02  2.63478134e-02 -7.17924144e-02  1.46375977e-03
+   4.46538436e-02 -3.22683846e-03 -9.84387893e-02 -3.69526582e-02
+  -8.33565212e-02 -2.35716908e-02 -5.31722003e-02]
+ [ 2.20941641e-01 -2.82656154e-01 -5.47632805e-03 -4.67925094e-02
+   2.78809886e-01  6.03085636e-02  1.16844963e-03 -3.59344347e-01
+  -6.96212518e-03  2.17918002e-01  8.44728541e-03 -2.06132929e-01
+  -7.11957013e-02 -4.72860818e-02 -1.83297857e-03  2.81750802e-01
+   1.09216743e-02  2.70190269e-01  5.23480747e-03  9.33202946e-02
+   1.80803616e-03 -2.20393515e-01 -8.54324519e-03 -7.61211270e-02
+  -2.95072862e-03 -1.54974835e-01 -9.01671717e-03  7.42663886e-02
+  -1.36319494e-01  3.42261733e-02  1.99134087e-03 -2.03934253e-01
+  -1.18652649e-02 -9.90767097e-02 -1.91956395e-03  1.81860020e-01
+   3.52345107e-03  1.66591758e-01  9.69261079e-03  5.75386819e-02
+   3.34770493e-03  8.43976525e-02  3.27155651e-03 -1.54915911e-01
+  -6.00509780e-03  1.08023050e-01  8.38732668e-03  8.52530208e-02
+   6.68673987e-02 -2.42001396e-02 -1.87899227e-03  1.44194834e-01
+   1.11958437e-02 -1.15370114e-01 -2.23524088e-03 -9.04894550e-02
+  -1.75318999e-03 -6.71345411e-02 -3.90600943e-03  1.23228648e-01
+   7.16966636e-03 -1.22199582e-01 -9.48804737e-03 -4.22061870e-02
+  -3.27705132e-03  1.01955063e-01  3.95214487e-03  7.99674870e-02
+   3.09982736e-03 -7.61160980e-02 -7.39578638e-03  5.15850802e-02
+   4.00526480e-03 -9.46868717e-02 -7.35185430e-03 -8.49544885e-02
+  -4.94280631e-03 -6.66332478e-02 -3.87684328e-03]
+ [ 2.20941641e-01  2.81651971e-01  2.44265993e-02  9.05186404e-02
+  -2.67826188e-01  1.16250551e-01  1.00819661e-02 -3.43961661e-01
+  -2.98304807e-02  2.14825583e-01  3.75443914e-02 -1.73367480e-01
+  -1.32300148e-01  9.01753640e-02  1.57596648e-02 -2.66810504e-01
+  -4.66296326e-02 -2.26435396e-01 -1.96378767e-02 -1.72797322e-01
+  -1.49860515e-02 -1.82730888e-01 -3.19353025e-02 -1.39445549e-01
+  -2.43704601e-02  1.50038176e-01  3.98377532e-02 -1.28730487e-01
+   8.67580689e-02  6.41003826e-02  1.70197698e-02 -1.89659954e-01
+  -5.03580264e-02 -1.71125619e-01 -1.48410711e-02  1.15330320e-01
+   1.00021580e-02 -1.35648303e-01 -3.60169909e-02 -1.03515899e-01
+  -2.74852770e-02 -1.44215641e-01 -2.52041139e-02  9.71943071e-02
+   1.69863434e-02  1.01925683e-01  3.67489005e-02  2.85975762e-02
+   1.04506006e-01  4.41719683e-02  1.59260278e-02 -1.30695842e-01
+  -4.71218670e-02  3.85626720e-02  3.34439320e-03  1.40922112e-01
+   1.22216363e-02 -1.12661550e-01 -2.99136070e-02  7.59283894e-02
+   2.01603120e-02 -9.69744174e-02 -3.49637413e-02 -7.40030930e-02
+  -2.66815215e-02  3.37148425e-02  5.89223699e-03  1.23206369e-01
+   2.15323896e-02  6.94312789e-02  3.20570669e-02 -8.43685164e-02
+  -3.04187337e-02  5.68602647e-02  2.05007427e-02  2.75896614e-02
+   7.32553640e-03  1.00822716e-01  2.67701900e-02]
+ [ 2.20941641e-01  4.04083847e-02 -2.79806458e-01  2.72986733e-01
+  -7.35032985e-02  5.02987549e-02 -3.48291983e-01 -1.35432384e-02
+   9.37796841e-02 -2.09170956e-01 -6.17018934e-02  1.88597900e-01
+  -1.09500887e-01 -2.64793186e-01 -7.81095105e-02  7.12971374e-02
+   2.10314494e-02  3.53404624e-02 -2.44713806e-01 -2.05188498e-02
+   1.42082063e-01 -1.93551510e-01 -5.70944211e-02  1.12376977e-01
+   3.31493073e-02 -6.47520718e-02  1.41087455e-01  1.09366982e-01
+  -1.10169706e-01 -8.34288073e-02  1.81781953e-01  2.24637016e-02
+  -4.89458701e-02  2.08582823e-02 -1.44432452e-01 -2.10113765e-02
+   1.45492548e-01 -6.36847539e-02  1.38761890e-01  3.69756876e-02
+  -8.05658494e-02 -1.19297834e-01 -3.51908430e-02  1.20173448e-01
+   3.54491343e-02  9.10017366e-02  5.88048510e-02  5.37159896e-02
+  -9.40952657e-02  1.18936819e-01  7.68563568e-02 -3.20244447e-02
+  -2.06940303e-02  1.03920247e-02 -7.19592144e-02 -1.82038967e-02
+   1.26052251e-01 -4.13078347e-02  9.00051090e-02  4.16110231e-02
+  -9.06657222e-02  9.41873212e-02  6.08633592e-02 -5.46856312e-02
+  -3.53375717e-02 -6.16610439e-02 -1.81889648e-02  1.08012760e-01
+   3.18619371e-02  5.02603291e-02 -5.76390263e-02  6.39957711e-02
+   4.13537359e-02 -6.44654828e-02 -4.16572612e-02 -2.23651914e-02
+   4.87312274e-02  3.91775083e-02 -8.53633681e-02]
+ [ 2.20941641e-01  2.09269223e-01 -1.90081255e-01  2.01073583e-01
+  -1.98730736e-01  1.91868899e-01 -1.74276373e-01 -1.89633302e-01
+   1.72245758e-01  2.09084801e-02 -2.17077055e-01  2.55582235e-03
+  -2.18066687e-01  1.94958136e-02 -2.02410399e-01 -1.92686545e-02
+   2.00051976e-01  2.48027543e-03 -2.25285811e-03 -2.11620907e-01
+   1.92217313e-01  2.62187183e-04 -2.72209272e-03 -2.23702130e-02
+   2.32253130e-01 -9.28766704e-02 -1.24388202e-01 -1.07822503e-01
+  -1.11681730e-01 -8.81419145e-02 -1.18047021e-01  8.71149123e-02
+   1.16671574e-01 -1.06496564e-01  9.67318566e-02 -1.10308332e-01
+   1.00194123e-01 -1.23789057e-03 -1.65788655e-03  1.05618724e-01
+   1.41453426e-01 -1.17564669e-02  1.22058571e-01 -1.21772591e-02
+   1.26427341e-01 -1.06356316e-01 -2.06799587e-02 -1.08318410e-01
+  -2.53941261e-03 -1.02386666e-01 -1.99080986e-02  1.01193688e-01
+   1.96761356e-02 -1.08525735e-01  9.85749730e-02 -2.54427314e-03
+   2.31098785e-03  5.84128747e-02  7.82314057e-02  6.05036123e-02
+   8.10314963e-02 -1.49176310e-03 -2.90058931e-04  1.27279518e-01
+   2.47482733e-02 -1.24288416e-02  1.29039333e-01 -2.91381280e-04
+   3.02519312e-03 -6.53818762e-02  3.96682279e-02  7.37374408e-02
+   1.43375334e-02  7.63766816e-02  1.48507083e-02  6.46880833e-02
+   8.66356897e-02  1.51654492e-03  2.03108376e-03]]
+
+||k(xs, xs) - phi(xs) * phi(xs)^T|| = 2.5753823296802577e-15
+</pre></div></div>
+</div>
+</section>
+<section id="Efficient-Sampling-using-Feature-Maps">
+<h3>Efficient Sampling using Feature Maps<a class="headerlink" href="#Efficient-Sampling-using-Feature-Maps" title="Link to this heading">¶</a></h3>
+<p>GeometricKernels provides a simple tool to efficiently sample (without incurring cubic costs) the Gaussian process <span class="math notranslate nohighlight">\(f \sim \mathrm{GP}(0, k)\)</span>, based on an approximate finite-dimensional feature map <span class="math notranslate nohighlight">\(\phi\)</span>. The underlying machinery is briefly discussed in this <a class="reference external" href="https://geometric-kernels.github.io/GeometricKernels/theory/feature_maps.html">documentation page</a>.</p>
+<p>The function <code class="docutils literal notranslate"><span class="pre">sampler</span></code> from <code class="docutils literal notranslate"><span class="pre">geometric_kernels.sampling</span></code> takes in a feature map and, optionally, the keyword argument <code class="docutils literal notranslate"><span class="pre">s</span></code> that specifies the number of samples to generate. It returns a function we name <code class="docutils literal notranslate"><span class="pre">sample_paths</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">sample_paths</span></code> operates much like <code class="docutils literal notranslate"><span class="pre">feature_map</span></code> above: it takes in the points where to evaluate the samples and kernel parameters. Additionally, it takes in the keyword argument <code class="docutils literal notranslate"><span class="pre">key</span></code> that specifies randomness in the JAX style. <code class="docutils literal notranslate"><span class="pre">sample_paths</span></code> returns a tuple. Its first element is the updated <code class="docutils literal notranslate"><span class="pre">key</span></code>. Its second element is an array containing the value of samples evaluated at the input points.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geometric_kernels.sampling</span><span class="w"> </span><span class="kn">import</span> <span class="n">sampler</span>
+
+<span class="n">sample_paths</span> <span class="o">=</span> <span class="n">sampler</span><span class="p">(</span><span class="n">feature_map</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># introduce random state for reproducibility (optional)</span>
+<span class="c1"># `key` is jax&#39;s terminology</span>
+<span class="n">key</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
+
+<span class="c1"># new random state is returned along with the samples</span>
+<span class="n">key</span><span class="p">,</span> <span class="n">samples</span> <span class="o">=</span> <span class="n">sample_paths</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">params_32</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Two samples evaluated at the xs are:&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Two samples evaluated at the xs are:
+[[ 0.31634816 -2.38559012]
+ [-0.61819585  0.12209121]
+ [ 0.8101087  -1.70702319]
+ [-0.63509083  1.0057374 ]
+ [ 0.1851223   0.51089693]
+ [ 0.02621555  0.15314556]
+ [-0.19946012  0.37070016]
+ [ 0.25204997 -0.28420479]
+ [-0.92386637  1.50608757]
+ [ 2.0426702  -0.31522709]]
+</pre></div></div>
+</div>
+<section id="Visualizing-Samples">
+<h4>Visualizing Samples<a class="headerlink" href="#Visualizing-Samples" title="Link to this heading">¶</a></h4>
+<p>Here we visualize samples as functions on the torus.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">key</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="mi">1234</span><span class="p">)</span>
+<span class="n">key</span><span class="p">,</span> <span class="n">samples</span> <span class="o">=</span> <span class="n">sample_paths</span><span class="p">(</span><span class="n">other_points</span><span class="p">,</span> <span class="n">params_32</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">)</span>
+
+<span class="n">sample1</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">sample2</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">12.8</span><span class="p">,</span> <span class="mf">4.8</span><span class="p">),</span> <span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s1">&#39;viridis&#39;</span><span class="p">)</span>
+
+<span class="c1"># find common range of values</span>
+<span class="n">minmin_vis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">sample1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">sample2</span><span class="p">)])</span>
+<span class="n">maxmax_vis</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">sample1</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">sample2</span><span class="p">)])</span>
+
+<span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">sample1</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">_NUM_PTS</span><span class="p">,</span> <span class="n">_NUM_PTS</span><span class="p">),</span> <span class="n">vmin</span><span class="o">=</span><span class="n">minmin_vis</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">maxmax_vis</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">sample2</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">_NUM_PTS</span><span class="p">,</span> <span class="n">_NUM_PTS</span><span class="p">),</span> <span class="n">vmin</span><span class="o">=</span><span class="n">minmin_vis</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">maxmax_vis</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+
+<span class="c1"># Remove axis</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Sample #1: $f(\cdot)$ for $\cdot$ in other_points, $f \sim \mathrm</span><span class="si">{GP}</span><span class="s1">(0, k_{3/2, \kappa}^{T^2})$&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Sample #2: $f(\cdot)$ for $\cdot$ in other_points, $f \sim \mathrm</span><span class="si">{GP}</span><span class="s1">(0, k_{3/2, \kappa}^{T^2})$&#39;</span><span class="p">)</span>
+
+<span class="c1"># add color bar</span>
+<span class="n">sm</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">(</span><span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+                           <span class="n">norm</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">minmin_vis</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">maxmax_vis</span><span class="p">))</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">right</span><span class="o">=</span><span class="mf">0.85</span><span class="p">)</span>
+<span class="n">cbar_ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mf">0.88</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sm</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cbar_ax</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_Torus_53_0.png" src="../_images/examples_Torus_53_0.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="Feature-Maps-and-Sampling-for-Product-Kernels">
+<h3>Feature Maps and Sampling for Product Kernels<a class="headerlink" href="#Feature-Maps-and-Sampling-for-Product-Kernels" title="Link to this heading">¶</a></h3>
+<p>This functionality is not implemented yet, unfortunately.</p>
+</section>
+</section>
+<section id="Citation">
+<h2>Citation<a class="headerlink" href="#Citation" title="Link to this heading">¶</a></h2>
+<p>If you are using (hyper)tori and GeometricKernels, please consider citing</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@article{mostowsky2024,
+      title = {The GeometricKernels Package: Heat and Matérn Kernels for Geometric Learning on Manifolds, Meshes, and Graphs},
+      author = {Peter Mostowsky and Vincent Dutordoir and Iskander Azangulov and Noémie Jaquier and Michael John Hutchinson and Aditya Ravuri and Leonel Rozo and Alexander Terenin and Viacheslav Borovitskiy},
+      year = {2024},
+      journal = {arXiv:2407.08086},
+}
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@inproceedings{borovitskiy2020,
+    title={Matérn Gaussian processes on Riemannian manifolds},
+    author={Viacheslav Borovitskiy and Alexander Terenin and Peter Mostowsky and Marc Peter Deisenroth},
+    booktitle={Advances in Neural Information Processing Systems},
+    year={2020}
+}
+</pre></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="backends/JAX_Graph.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Matérn and Heat Kernels on Graphs: <strong>JAX Backend</strong></div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="SpecialUnitary.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Matérn and Heat Kernels on the Special Unitary Group <span class="math notranslate nohighlight">\(\mathrm{SU}(n)\)</span></div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022-2024, the GeometricKernels Contributors
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Matérn and Heat Kernels on Tori</a><ul>
+<li><a class="reference internal" href="#Contents">Contents</a></li>
+<li><a class="reference internal" href="#Basics">Basics</a><ul>
+<li><a class="reference internal" href="#Defining-a-Space">Defining a Space</a></li>
+<li><a class="reference internal" href="#Defining-a-Kernel">Defining a Kernel</a></li>
+<li><a class="reference internal" href="#Evaluating-Kernels-on-Random-Inputs">Evaluating Kernels on Random Inputs</a></li>
+<li><a class="reference internal" href="#Visualize-Kernels">Visualize Kernels</a></li>
+<li><a class="reference internal" href="#Product-Kernel-vs-Kernel-on-the-Product-Space">Product Kernel vs Kernel on the Product Space</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Feature-Maps-and-Sampling">Feature Maps and Sampling</a><ul>
+<li><a class="reference internal" href="#Defining-a-Feature-Map">Defining a Feature Map</a></li>
+<li><a class="reference internal" href="#Efficient-Sampling-using-Feature-Maps">Efficient Sampling using Feature Maps</a><ul>
+<li><a class="reference internal" href="#Visualizing-Samples">Visualizing Samples</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Feature-Maps-and-Sampling-for-Product-Kernels">Feature Maps and Sampling for Product Kernels</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Citation">Citation</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=5fa4622c"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["\\(", "\\)"]], "processEscapes": true, "displayMath": [["\\[", "\\]"]]}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/scripts/bootstrap.min.js?v=ff982861"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    </body>
+</html>

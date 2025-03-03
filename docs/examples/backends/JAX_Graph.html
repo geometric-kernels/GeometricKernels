@@ -1,0 +1,1055 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../../genindex.html" /><link rel="search" title="Search" href="../../search.html" /><link rel="next" title="Matérn and Heat Kernels on Graphs: PyTorch Backend" href="PyTorch_Graph.html" /><link rel="prev" title="Matérn and Heat Kernels on Tori" href="../Torus.html" />
+
+    <!-- Generated with Sphinx 8.1.3 and Furo 2024.08.06 -->
+        <title>Matérn and Heat Kernels on Graphs: JAX Backend - GeometricKernels documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo.css?v=354aac6f" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/furo-extensions.css?v=302659d7" />
+    <link rel="stylesheet" type="text/css" href="../../_static/css/bootstrap_namespaced.css?v=7458e3c8" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../../index.html"><div class="brand">GeometricKernels  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../../index.html">
+  
+  
+  <span class="sidebar-brand-text">GeometricKernels  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../index.html">GeometricKernels</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../index.html">Examples</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Examples</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="../examples.html">Spaces</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of Spaces</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../Graph.html">Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../GraphEdges.html">GraphEdges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Hyperbolic.html">Hyperbolic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../HypercubeGraph.html">HypercubeGraph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Hypersphere.html">Hypersphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Mesh.html">Mesh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../SPD.html">SPD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../SpecialOrthogonal.html">SpecialOrthogonal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../SpecialUnitary.html">SpecialUnitary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../Torus.html">Torus</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current has-children"><a class="reference internal" href="../examples.html#backends">Backends</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of Backends</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">JAX (Graph space)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="PyTorch_Graph.html">PyTorch (Graph space)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="TensorFlow_Graph.html">TensorFlow (Graph space)</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../examples.html#frontends">Frontends</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of Frontends</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../frontends/GPflow.html">GPFlow (Mesh space)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../frontends/GPJax.html">GPJax (Mesh space)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../frontends/GPyTorch.html">GPyTorch (Mesh space)</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../examples.html#other">Other</a><input class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><div class="visually-hidden">Toggle navigation of Other</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../other/Bayesian%20Optimization.html">Bayesian optimization on a sphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../other/Hyperbolic%20Approximations.html">Comparing approximations on Hyperbolic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../other/SPD%20Approximations.html">Comparing approximations on SPD</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../theory/index.html">Theory</a><input class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><div class="visually-hidden">Toggle navigation of Theory</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../theory/compact.html">Kernels on compact manifolds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../theory/addition_theorem.html">Addition theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../theory/graphs.html">Kernels on graphs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../theory/meshes.html">Kernels on meshes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../theory/symmetric.html">Kernels on non-compact symmetric spaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../theory/product_spaces.html">Kernels on product spaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../theory/product_kernels.html">Product kernels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../theory/feature_maps.html">Feature maps and sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../theory/hypercube_graph.html">Hypercube graph space</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../autoapi/geometric_kernels/index.html">API reference</a><input class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><div class="visually-hidden">Toggle navigation of API reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../autoapi/geometric_kernels/feature_maps/index.html">geometric_kernels.feature_maps</a><input class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><div class="visually-hidden">Toggle navigation of geometric_kernels.feature_maps</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/feature_maps/base/index.html">geometric_kernels.feature_maps.base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/feature_maps/deterministic/index.html">geometric_kernels.feature_maps.deterministic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/feature_maps/probability_densities/index.html">geometric_kernels.feature_maps.probability_densities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/feature_maps/random_phase/index.html">geometric_kernels.feature_maps.random_phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/feature_maps/rejection_sampling/index.html">geometric_kernels.feature_maps.rejection_sampling</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../autoapi/geometric_kernels/frontends/index.html">geometric_kernels.frontends</a><input class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><div class="visually-hidden">Toggle navigation of geometric_kernels.frontends</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/frontends/gpflow/index.html">geometric_kernels.frontends.gpflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/frontends/gpjax/index.html">geometric_kernels.frontends.gpjax</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/frontends/gpytorch/index.html">geometric_kernels.frontends.gpytorch</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../autoapi/geometric_kernels/jax/index.html">geometric_kernels.jax</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../autoapi/geometric_kernels/kernels/index.html">geometric_kernels.kernels</a><input class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><div class="visually-hidden">Toggle navigation of geometric_kernels.kernels</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/kernels/base/index.html">geometric_kernels.kernels.base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/kernels/feature_map/index.html">geometric_kernels.kernels.feature_map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/kernels/hodge_compositional/index.html">geometric_kernels.kernels.hodge_compositional</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/kernels/karhunen_loeve/index.html">geometric_kernels.kernels.karhunen_loeve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/kernels/matern_kernel/index.html">geometric_kernels.kernels.matern_kernel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/kernels/product/index.html">geometric_kernels.kernels.product</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../autoapi/geometric_kernels/lab_extras/index.html">geometric_kernels.lab_extras</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../autoapi/geometric_kernels/sampling/index.html">geometric_kernels.sampling</a><input class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><div class="visually-hidden">Toggle navigation of geometric_kernels.sampling</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/sampling/samplers/index.html">geometric_kernels.sampling.samplers</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../autoapi/geometric_kernels/spaces/index.html">geometric_kernels.spaces</a><input class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><div class="visually-hidden">Toggle navigation of geometric_kernels.spaces</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/spaces/base/index.html">geometric_kernels.spaces.base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/spaces/circle/index.html">geometric_kernels.spaces.circle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/spaces/eigenfunctions/index.html">geometric_kernels.spaces.eigenfunctions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/spaces/graph/index.html">geometric_kernels.spaces.graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/spaces/graph_edges/index.html">geometric_kernels.spaces.graph_edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/spaces/hyperbolic/index.html">geometric_kernels.spaces.hyperbolic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/spaces/hypercube_graph/index.html">geometric_kernels.spaces.hypercube_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/spaces/hypersphere/index.html">geometric_kernels.spaces.hypersphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/spaces/lie_groups/index.html">geometric_kernels.spaces.lie_groups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/spaces/mesh/index.html">geometric_kernels.spaces.mesh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/spaces/product/index.html">geometric_kernels.spaces.product</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/spaces/so/index.html">geometric_kernels.spaces.so</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/spaces/spd/index.html">geometric_kernels.spaces.spd</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/spaces/su/index.html">geometric_kernels.spaces.su</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../autoapi/geometric_kernels/tensorflow/index.html">geometric_kernels.tensorflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../autoapi/geometric_kernels/torch/index.html">geometric_kernels.torch</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../autoapi/geometric_kernels/utils/index.html">geometric_kernels.utils</a><input class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><div class="visually-hidden">Toggle navigation of geometric_kernels.utils</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/utils/manifold_utils/index.html">geometric_kernels.utils.manifold_utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/utils/product/index.html">geometric_kernels.utils.product</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/utils/special_functions/index.html">geometric_kernels.utils.special_functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../autoapi/geometric_kernels/utils/utils/index.html">geometric_kernels.utils.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../autoapi/geometric_kernels/version/index.html">geometric_kernels.version</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/geometric-kernels/GeometricKernels">GitHub</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../../_sources/examples/backends/JAX_Graph.nblink.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># To run this in Google Colab, uncomment the following line</span>
+<span class="c1"># !pip install geometric_kernels</span>
+
+<span class="c1"># If you want to use a version of the library from a specific branch on GitHub,</span>
+<span class="c1"># say, from the &quot;devel&quot; branch, uncomment the line below instead</span>
+<span class="c1"># !pip install &quot;git+https://github.com/geometric-kernels/GeometricKernels@devel&quot;</span>
+</pre></div>
+</div>
+</div>
+<section id="Matérn-and-Heat-Kernels-on-Graphs:-JAX-Backend">
+<h1>Matérn and Heat Kernels on Graphs: <strong>JAX Backend</strong><a class="headerlink" href="#Matérn-and-Heat-Kernels-on-Graphs:-JAX-Backend" title="Link to this heading">¶</a></h1>
+<p>This notebook shows how define and evaluate kernels on a simple graph. By this we mean kernels <span class="math notranslate nohighlight">\(k: V \times V \to \mathbb{R}\)</span> where <span class="math notranslate nohighlight">\(V\)</span> is a vertex set of a graph. The graph <strong>must be</strong> undirected and have nonnegative weights. The edges of this graph define the geometry: you expect that nodes connected by edges with large weights to be more correlated than nodes connected by edges with small weights.</p>
+<p>At the very end of the notebook we also show how to construct <em>approximate finite-dimensional feature maps</em> for the kernels on graphs and how to use these to efficiently sample the Gaussian processes <span class="math notranslate nohighlight">\(\mathrm{GP}(0, k)\)</span>.</p>
+<p>We use the <strong>JAX</strong> backend here.</p>
+<p><strong>Important:</strong> if you want to model a <strong>signal on the edges</strong> of a graph <span class="math notranslate nohighlight">\(G\)</span>, you can consider modeling the signal on the nodes of the <a class="reference external" href="https://en.wikipedia.org/wiki/Line_graph">line graph</a>. The line graph of <span class="math notranslate nohighlight">\(G\)</span> has a node for each edge of <span class="math notranslate nohighlight">\(G\)</span> and its two nodes are connected by an edge if the corresponding edges in <span class="math notranslate nohighlight">\(G\)</span> used to share a common node. To build the line graph, you can use the
+<a class="reference external" href="https://networkx.org/documentation/stable/reference/generated/networkx.generators.line.line_graph.html#line-graph">line_graph</a> function of <code class="docutils literal notranslate"><span class="pre">networkx</span></code>. Alternatively, especially for the flow-type data, you might want to use specialized edge kernels, see <a class="reference external" href="https://arxiv.org/abs/2310.19450">Yang et al. (2023)</a> and <a class="reference external" href="https://arxiv.org/abs/2311.01198%3E">Alain et al. (2023)</a>. These are not implemented in GeometricKernels at the moment.</p>
+<!--TABLE OF CONTENTS--><section id="Contents">
+<h2>Contents<a class="headerlink" href="#Contents" title="Link to this heading">¶</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="#Basics"><span class="std std-ref">Basics</span></a></p>
+<ul>
+<li><p><a class="reference internal" href="#Defining-a-Space"><span class="std std-ref">Defining a Space</span></a></p></li>
+<li><p><a class="reference internal" href="#Defining-a-Kernel"><span class="std std-ref">Defining a Kernel</span></a></p></li>
+<li><p><a class="reference internal" href="#Evaluating-Kernels-on-Random-Inputs"><span class="std std-ref">Evaluating Kernels on Random Inputs</span></a></p></li>
+<li><p><a class="reference internal" href="#Visualize-Kernels"><span class="std std-ref">Visualize Kernels</span></a></p></li>
+<li><p><a class="reference internal" href="#A-Note-on-Prior-Variance"><span class="std std-ref">A Note on Prior Variance</span></a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#Feature-Maps-and-Sampling"><span class="std std-ref">Feature Maps and Sampling</span></a></p>
+<ul>
+<li><p><a class="reference internal" href="#Defining-a-Feature-Map"><span class="std std-ref">Defining a Feature Map</span></a></p></li>
+<li><p><a class="reference internal" href="#Efficient-Sampling-using-Feature-Maps"><span class="std std-ref">Efficient Sampling using Feature Maps</span></a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#Citation"><span class="std std-ref">Citation</span></a></p></li>
+</ul>
+</section>
+<section id="Basics">
+<h2>Basics<a class="headerlink" href="#Basics" title="Link to this heading">¶</a></h2>
+<p>Note the <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">geometric_kernels.jax</span></code> below. It is <strong>crucial</strong> and <strong>yet not enough</strong> to channel all the computations through JAX.</p>
+<p>GeometricKernels’ support of multiple backends works through <strong>multiple dispatch</strong> (function overloading). For example, even with the aforementioned import, the kernel evaluation code</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">kernel</span><span class="o">.</span><span class="n">K</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">xs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>will output a NumPy array if <code class="docutils literal notranslate"><span class="pre">xs</span></code>, <code class="docutils literal notranslate"><span class="pre">params[&quot;lengthscale&quot;]</span></code>, and <code class="docutils literal notranslate"><span class="pre">params[&quot;nu&quot;]</span></code> are all NumPy arrays, and it will use NumPy for internal computations.</p>
+<p>To make the kernel evaluation code above output a JAX array and use JAX for internal computations, you need to make sure that <strong>all inputs</strong>, i.e. <code class="docutils literal notranslate"><span class="pre">xs</span></code>, <code class="docutils literal notranslate"><span class="pre">params[&quot;lengthscale&quot;]</span></code>, and <code class="docutils literal notranslate"><span class="pre">params[&quot;nu&quot;]</span></code>, <strong>are JAX arrays</strong>.</p>
+<p>It is crucial to understand that <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">geometric_kernels.jax</span></code> merely <strong>enables</strong> a backend, without <strong>forcing it</strong> throughout the code.</p>
+<p>Hypothetically, you could always work with all four backends enabled at the same time, writing</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geometric_kernels</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">geometric_kernels.tensorflow</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">geometric_kernels.torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">geometric_kernels.jax</span>
+</pre></div>
+</div>
+<p>However, this would require all heavy-weight backends to be installed in your environment at the same time, which we imagine to be undesirable in most use cases.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import a backend, we use jax in this example.</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">jax</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">jax.numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">jnp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">jax.random</span><span class="w"> </span><span class="kn">import</span> <span class="n">PRNGKey</span>
+<span class="n">jax</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s2">&quot;jax_enable_x64&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="c1"># enable float64 in JAX</span>
+
+<span class="c1"># Import the geometric_kernels backend.</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">geometric_kernels</span>
+
+<span class="c1"># Note: if you are using a backend other than numpy,</span>
+<span class="c1"># you _must_ uncomment one of the following lines</span>
+<span class="c1"># import geometric_kernels.tensorflow</span>
+<span class="c1"># import geometric_kernels.torch</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">geometric_kernels.jax</span>
+
+<span class="c1"># Import a space and an appropriate kernel.</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geometric_kernels.spaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">Graph</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geometric_kernels.kernels</span><span class="w"> </span><span class="kn">import</span> <span class="n">MaternGeometricKernel</span>
+
+<span class="c1"># We use networkx to visualize graphs</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpl</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO (geometric_kernels): Numpy backend is enabled, as always. To enable other backends, don&#39;t forget `import geometric_kernels.*backend name*`.
+INFO (geometric_kernels): JAX backend enabled.
+</pre></div></div>
+</div>
+<section id="Defining-a-Space">
+<h3>Defining a Space<a class="headerlink" href="#Defining-a-Space" title="Link to this heading">¶</a></h3>
+<p>First we create and visualize a simple <em>star graph</em> using <code class="docutils literal notranslate"><span class="pre">networkx</span></code></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">nx_graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">star_graph</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Define graph layout to reuse it later on (so that graph appears the same on all pictures).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pos</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">spring_layout</span><span class="p">(</span><span class="n">nx_graph</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Visualize the graph.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span><span class="mi">4</span><span class="p">))</span>
+<span class="n">nx</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">nx_graph</span><span class="p">,</span> <span class="n">node_color</span> <span class="o">=</span> <span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">(),</span> <span class="n">pos</span><span class="o">=</span><span class="n">pos</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_backends_JAX_Graph_12_0.png" src="../../_images/examples_backends_JAX_Graph_12_0.png" />
+</div>
+</div>
+<p>The following cell turns the <code class="docutils literal notranslate"><span class="pre">nx_graph</span></code> created above into a GeometricKernels <code class="docutils literal notranslate"><span class="pre">Graph</span></code> space.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">normalize_laplacian</span></code> parameter controls whether to use the eigenvectors of the <em>unnormalized Laplacian</em> or the <em>symmetric normalized Laplacian</em> as features (see the optional Theory section below for details). You may want to try both <code class="docutils literal notranslate"><span class="pre">normalize_laplacian=False</span></code> and <code class="docutils literal notranslate"><span class="pre">normalize_laplacian=True</span></code> for your task. The former is the default.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">graph</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">to_numpy_array</span><span class="p">(</span><span class="n">nx_graph</span><span class="p">)),</span> <span class="n">normalize_laplacian</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Defining-a-Kernel">
+<h3>Defining a Kernel<a class="headerlink" href="#Defining-a-Kernel" title="Link to this heading">¶</a></h3>
+<p>First, we create a generic Matérn kernel.</p>
+<p>To initialize <code class="docutils literal notranslate"><span class="pre">MaternGeometricKernel</span></code> you just need to provide a <code class="docutils literal notranslate"><span class="pre">Space</span></code> object, in our case this is the <code class="docutils literal notranslate"><span class="pre">graph</span></code> we have just created above.</p>
+<p>There is also an optional second parameter <code class="docutils literal notranslate"><span class="pre">num</span></code> which determines the order of approximation of the kernel (<em>number of levels</em>). There is a sensible default value for each of the spaces in the library, so change it only if you know what you are doing.</p>
+<p>A brief account on theory behind the kernels on graphs can be found on this <a class="reference external" href="https://geometric-kernels.github.io/GeometricKernels/theory/graphs.html">documentation page</a>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">kernel</span> <span class="o">=</span> <span class="n">MaternGeometricKernel</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>To support JAX, our classes do not keep variables you might want to differentiate over in their state. Instead, some methods take a <code class="docutils literal notranslate"><span class="pre">params</span></code> dictionary as input, returning its modified version.</p>
+<p>The next line initializes the dictionary of kernel parameters <code class="docutils literal notranslate"><span class="pre">params</span></code> with some default values.</p>
+<p><strong>Note:</strong> our kernels do not provide the outputscale/variance parameter frequently used in Gaussian processes. However, it is usually trivial to add it by multiplying the kernel by an (optimizable) constant.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">params</span> <span class="o">=</span> <span class="n">kernel</span><span class="o">.</span><span class="n">init_params</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;params:&#39;</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+params: {&#39;lengthscale&#39;: array(1.), &#39;nu&#39;: array(inf)}
+</pre></div></div>
+</div>
+<p>To define two different kernels, Matern-3/2 and Matern-∞ (aka heat, RBF, squared exponential, diffusion), we need two different versions of <code class="docutils literal notranslate"><span class="pre">params</span></code> we define below.</p>
+<p><strong>Note:</strong> unlike the Euclidean or the manifold case, the <span class="math notranslate nohighlight">\(1/2, 3/2, 5/2\)</span> may fail to be the reasonable values of <span class="math notranslate nohighlight">\(\nu\)</span>. On the other hand, the parameter <span class="math notranslate nohighlight">\(\nu\)</span> is optimizable in the same way in which the legnthscale is. Keep in mind though, that the optimization problem may require finding some trial and error to find good a initialization and that reasonable <span class="math notranslate nohighlight">\(\kappa\)</span> and <span class="math notranslate nohighlight">\(\nu\)</span> will heavily depend on the specific graph in a way that is hard to predict.</p>
+<p><strong>Note:</strong> consider a graph with the scaled adjacency <span class="math notranslate nohighlight">\(\mathbf{A}' = \alpha^2 \mathbf{A}\)</span>, for some <span class="math notranslate nohighlight">\(\alpha &gt; 0\)</span>. Denote the kernel corresponding to <span class="math notranslate nohighlight">\(\mathbf{A}\)</span> by <span class="math notranslate nohighlight">\(k_{\nu, \kappa}\)</span> and the kernel corresponding to <span class="math notranslate nohighlight">\(\mathbf{A}'\)</span> by <span class="math notranslate nohighlight">\(k_{\nu, \kappa}'\)</span>. Then, as apparent from <a class="reference external" href="https://geometric-kernels.github.io/GeometricKernels/theory/graphs.html">the theory</a>, for the normalized graph Laplacian we have <span class="math notranslate nohighlight">\(k_{\nu, \kappa}' (i, j) = k_{\nu, \kappa} (i, j)\)</span>.
+On the other hand, for the unnormalized graph Laplacian, we have <span class="math notranslate nohighlight">\(k_{\nu, \kappa}' (i, j) = k_{\nu, \alpha \cdot \kappa} (i, j)\)</span>, i.e. the lengthscale changes.</p>
+<p><strong>Note:</strong> setting <code class="docutils literal notranslate"><span class="pre">params[&quot;lengthscale&quot;]</span></code> and <code class="docutils literal notranslate"><span class="pre">params[&quot;nu&quot;]</span></code> as <code class="docutils literal notranslate"><span class="pre">jnp.array</span></code>, as opposed to simple <code class="docutils literal notranslate"><span class="pre">float</span></code>s, NumPy arrays or arrays of any other backend, is crucial for multiple dispatch to be able to channel all the computations through JAX. Remember that the backend that is used for internal computation is determined by the types of the inputs.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;lengthscale&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">2.0</span><span class="p">])</span>
+<span class="n">params_32</span>  <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">params_inf</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="k">del</span> <span class="n">params</span>
+<span class="n">params_32</span><span class="p">[</span><span class="s2">&quot;nu&quot;</span><span class="p">]</span>  <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">3</span><span class="o">/</span><span class="mi">2</span><span class="p">])</span>
+<span class="n">params_inf</span><span class="p">[</span><span class="s2">&quot;nu&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">jnp</span><span class="o">.</span><span class="n">inf</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<p>Now two kernels are <em>defined</em> and we proceed to evaluating both on a set of random inputs.</p>
+</section>
+<section id="Evaluating-Kernels-on-Random-Inputs">
+<h3>Evaluating Kernels on Random Inputs<a class="headerlink" href="#Evaluating-Kernels-on-Random-Inputs" title="Link to this heading">¶</a></h3>
+<p>We start by sampling <code class="docutils literal notranslate"><span class="pre">3</span></code> (uniformly) random points on our graph. An explicit <code class="docutils literal notranslate"><span class="pre">key</span></code> parameter is needed to support JAX as one of the backends.</p>
+<p><strong>Note:</strong> it is important that <code class="docutils literal notranslate"><span class="pre">xs</span></code> is a <code class="docutils literal notranslate"><span class="pre">jnp.array</span></code>, as opposed to a NumPy array or an array of any other backend. This is crucial for multiple dispatch to be able to channel all the computations through JAX. Remember thah the backend that is used for internal computation is determined by the types of the inputs. In the cell below, <code class="docutils literal notranslate"><span class="pre">graph.random</span></code> outputs a <code class="docutils literal notranslate"><span class="pre">jnp.array</span></code> because <code class="docutils literal notranslate"><span class="pre">key</span></code> is of JAX origin, using <code class="docutils literal notranslate"><span class="pre">np.random.RandomState(1234)</span></code> instead of <code class="docutils literal notranslate"><span class="pre">PRNGKey(1234)</span></code> below could break
+cells bellow by outputting a NumPy array instead of a <code class="docutils literal notranslate"><span class="pre">jnp.array</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">key</span> <span class="o">=</span> <span class="n">PRNGKey</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
+
+<span class="n">key</span><span class="p">,</span> <span class="n">xs</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[[5]
+ [3]
+ [0]]
+</pre></div></div>
+</div>
+<p>Now we evaluate the two kernel matrices.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">kernel_mat_32</span>  <span class="o">=</span> <span class="n">kernel</span><span class="o">.</span><span class="n">K</span><span class="p">(</span><span class="n">params_32</span><span class="p">,</span>  <span class="n">xs</span><span class="p">,</span> <span class="n">xs</span><span class="p">)</span>
+<span class="n">kernel_mat_inf</span> <span class="o">=</span> <span class="n">kernel</span><span class="o">.</span><span class="n">K</span><span class="p">(</span><span class="n">params_inf</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">xs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Finally, we visualize these matrices using <code class="docutils literal notranslate"><span class="pre">imshow</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># find common range of values</span>
+<span class="n">minmin</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">kernel_mat_32</span><span class="p">),</span> <span class="n">jnp</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">kernel_mat_inf</span><span class="p">))</span>
+<span class="n">maxmax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">jnp</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">kernel_mat_32</span><span class="p">),</span> <span class="n">jnp</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">kernel_mat_inf</span><span class="p">))</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">nrows</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ncols</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s1">&#39;viridis&#39;</span><span class="p">)</span>
+
+<span class="n">ax1</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">kernel_mat_32</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">minmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">maxmax</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;k_32&#39;</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+
+<span class="n">ax2</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">kernel_mat_inf</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="n">minmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">maxmax</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;k_inf&#39;</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+
+<span class="c1"># add space for color bar</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">right</span><span class="o">=</span><span class="mf">0.85</span><span class="p">)</span>
+<span class="n">cbar_ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">([</span><span class="mf">0.88</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
+
+<span class="c1"># add colorbar</span>
+<span class="n">sm</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">(</span><span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+                           <span class="n">norm</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">minmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">maxmax</span><span class="p">))</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sm</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cbar_ax</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_backends_JAX_Graph_30_0.png" src="../../_images/examples_backends_JAX_Graph_30_0.png" />
+</div>
+</div>
+</section>
+<section id="Visualize-Kernels">
+<h3>Visualize Kernels<a class="headerlink" href="#Visualize-Kernels" title="Link to this heading">¶</a></h3>
+<p>Here we visualize <span class="math notranslate nohighlight">\(k_{\nu, \kappa}(\)</span> <code class="docutils literal notranslate"><span class="pre">base_point</span></code> <span class="math notranslate nohighlight">\(, x)\)</span> for $x <span class="math">\in `$ ``other_points`</span>. We define <code class="docutils literal notranslate"><span class="pre">base_point</span></code> and <code class="docutils literal notranslate"><span class="pre">other_points</span></code> in the next cell.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">base_point</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1"># choosing a fixed node for kernel visualization</span>
+<span class="n">other_points</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<p>The next cell evaluates <span class="math notranslate nohighlight">\(k_{\nu, \kappa}(\)</span> <code class="docutils literal notranslate"><span class="pre">base_point</span></code> <span class="math notranslate nohighlight">\(, x)\)</span> for $x <span class="math">\in `$ ``other_points`</span> for <span class="math notranslate nohighlight">\(\nu\)</span> either <span class="math notranslate nohighlight">\(3/2\)</span> or <span class="math notranslate nohighlight">\(\infty\)</span>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">values_32</span>  <span class="o">=</span> <span class="n">kernel</span><span class="o">.</span><span class="n">K</span><span class="p">(</span><span class="n">params_32</span><span class="p">,</span>  <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">base_point</span><span class="p">]]),</span>
+                              <span class="n">other_points</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+<span class="n">values_inf</span> <span class="o">=</span> <span class="n">kernel</span><span class="o">.</span><span class="n">K</span><span class="p">(</span><span class="n">params_inf</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">base_point</span><span class="p">]]),</span>
+                              <span class="n">other_points</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>We also evaluate the variances <span class="math notranslate nohighlight">\(k_{\nu, \kappa}(x, x)\)</span> for $x <span class="math">\in `$ ``other_points`</span> for <span class="math notranslate nohighlight">\(\nu\)</span> either <span class="math notranslate nohighlight">\(3/2\)</span> or <span class="math notranslate nohighlight">\(\infty\)</span>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Get prior variances k(*, *) for * in nodes:</span>
+<span class="n">variance_32</span>  <span class="o">=</span> <span class="n">kernel</span><span class="o">.</span><span class="n">K_diag</span><span class="p">(</span><span class="n">params_32</span><span class="p">,</span>  <span class="n">other_points</span><span class="p">)</span>
+<span class="n">variance_inf</span> <span class="o">=</span> <span class="n">kernel</span><span class="o">.</span><span class="n">K_diag</span><span class="p">(</span><span class="n">params_inf</span><span class="p">,</span> <span class="n">other_points</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Here are the actual visualization routines.</p>
+<p><strong>Note:</strong> the top right plot shows <code class="docutils literal notranslate"><span class="pre">k(base_point,</span> <span class="pre">*)</span></code> where <code class="docutils literal notranslate"><span class="pre">*</span></code> goes through all nodes and <code class="docutils literal notranslate"><span class="pre">base_point</span></code> has red outline.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s1">&#39;viridis&#39;</span><span class="p">)</span>
+
+<span class="c1"># Set the colorbar limits:</span>
+<span class="n">vmin</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">values_32</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">values_inf</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+<span class="n">vmax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">variance_32</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">variance_inf</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+
+
+<span class="c1"># Red outline for the base_point:</span>
+<span class="n">edgecolors</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)]</span><span class="o">*</span><span class="n">graph</span><span class="o">.</span><span class="n">num_vertices</span>
+<span class="n">edgecolors</span><span class="p">[</span><span class="n">base_point</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Save graph layout so that graph appears the same in every plot</span>
+<span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;pos&#39;</span><span class="p">:</span> <span class="n">pos</span><span class="p">}</span>
+
+
+<span class="n">fig</span><span class="p">,</span> <span class="p">((</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">),</span> <span class="p">(</span><span class="n">ax3</span><span class="p">,</span> <span class="n">ax4</span><span class="p">))</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">12.8</span><span class="p">,</span> <span class="mf">9.6</span><span class="p">))</span>
+
+<span class="c1"># Plot variance 32</span>
+<span class="n">nx</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">nx_graph</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax1</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">node_color</span><span class="o">=</span><span class="n">variance_32</span><span class="p">,</span>
+        <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="n">sm</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">(</span><span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+                           <span class="n">norm</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">))</span>
+<span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sm</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Variance: $k_{3/2, \kappa}(\cdot, \cdot)$ for $\cdot$ in nodes&#39;</span><span class="p">)</span>
+
+<span class="c1"># Plot kernel values 32</span>
+<span class="n">nx</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">nx_graph</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">node_color</span><span class="o">=</span><span class="n">values_32</span><span class="p">,</span>
+        <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span> <span class="n">edgecolors</span><span class="o">=</span><span class="n">edgecolors</span><span class="p">,</span>
+        <span class="n">linewidths</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="n">sm</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">(</span><span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+                           <span class="n">norm</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">))</span>
+<span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sm</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Kernel: $k_{3/2, \kappa}($</span><span class="si">%d</span><span class="s1">$, \cdot)$ for $\cdot$ in nodes&#39;</span> <span class="o">%</span> <span class="n">base_point</span><span class="p">)</span>
+
+<span class="c1"># Plot variance inf</span>
+<span class="n">nx</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">nx_graph</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax3</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">node_color</span><span class="o">=</span><span class="n">variance_inf</span><span class="p">,</span>
+        <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="n">sm</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">(</span><span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+                           <span class="n">norm</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">))</span>
+<span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sm</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax3</span><span class="p">)</span>
+<span class="n">ax3</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Variance: $k_{\infty, \kappa}(\cdot, \cdot)$ for $\cdot$ in nodes&#39;</span><span class="p">)</span>
+
+<span class="c1"># Plot kernel values inf</span>
+<span class="n">nx</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">nx_graph</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax4</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">node_color</span><span class="o">=</span><span class="n">values_inf</span><span class="p">,</span>
+        <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span> <span class="n">edgecolors</span><span class="o">=</span><span class="n">edgecolors</span><span class="p">,</span>
+        <span class="n">linewidths</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="n">sm</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">(</span><span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+                           <span class="n">norm</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">))</span>
+<span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sm</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax4</span><span class="p">)</span>
+<span class="n">ax4</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Kernel: $k_{\infty, \kappa}($</span><span class="si">%d</span><span class="s1">$, \cdot)$ for $\cdot$ in nodes&#39;</span> <span class="o">%</span> <span class="n">base_point</span><span class="p">)</span>
+
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_backends_JAX_Graph_39_0.png" src="../../_images/examples_backends_JAX_Graph_39_0.png" />
+</div>
+</div>
+</section>
+<section id="A-Note-on-Prior-Variance">
+<h3>A Note on Prior Variance<a class="headerlink" href="#A-Note-on-Prior-Variance" title="Link to this heading">¶</a></h3>
+<p>Note that the <strong>variance changes from node to node</strong> on this graph.</p>
+<p>For example, for the <strong>unnormalized Laplacian</strong>, the variance is related to the expected <em>return time of a random walk</em>: how many steps, on average, does it take a particle randomly walking over the graph and starting in node x to return back to node x. For the center node, the expected return time is 2. For other nodes, it is always higher. Hence the variance in the center is <em>lower</em> than in the other nodes. This argument is inspired by <a class="reference external" href="https://arxiv.org/pdf/2010.15538.pdf">Borovitskiy et al.
+(2021)</a>.</p>
+<p>For the <strong>symmetric normalized Laplacian</strong> the situation is different.</p>
+<p>See this <a class="reference external" href="https://github.com/spbu-math-cs/Graph-Gaussian-Processes/blob/main/examples/graph_variance.ipynb">Jupyter notebook</a> for more examples of how variance differs for different graphs.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Variance in the center node is </span><span class="si">%0.2f</span><span class="s1">,&#39;</span> <span class="o">%</span> <span class="n">variance_32</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+      <span class="s1">&#39;variance in the side nodes is </span><span class="si">%0.2f</span><span class="s1">.&#39;</span> <span class="o">%</span> <span class="n">variance_32</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+      <span class="s1">&#39;The average variance is </span><span class="si">%0.2f</span><span class="s1">.&#39;</span> <span class="o">%</span> <span class="n">jnp</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">variance_32</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Variance in the center node is 0.49, variance in the side nodes is 1.09. The average variance is 1.00.
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Feature-Maps-and-Sampling">
+<h2>Feature Maps and Sampling<a class="headerlink" href="#Feature-Maps-and-Sampling" title="Link to this heading">¶</a></h2>
+<p>Here we show how to get an approximate finite-dimensional feature map for heat and Matérn kernels on graphs, i.e. such <span class="math notranslate nohighlight">\(\phi\)</span> that</p>
+<div class="math-wrapper docutils container">
+<div class="math notranslate nohighlight">
+\[k(x, x') \approx \langle \phi(x), \phi(x') \rangle_{\mathbb{R}^M}.\]</div>
+</div>
+<p>This might be useful for speeding up computations. We showcase this below by showing how to efficiently sample the Gaussian process <span class="math notranslate nohighlight">\(\mathrm{GP}(0, k)\)</span>.</p>
+<p>For a brief theoretical introduction into feature maps, see this <a class="reference external" href="https://geometric-kernels.github.io/GeometricKernels/theory/feature_maps.html">documentation page</a>.</p>
+<section id="Defining-a-Feature-Map">
+<h3>Defining a Feature Map<a class="headerlink" href="#Defining-a-Feature-Map" title="Link to this heading">¶</a></h3>
+<p>The simplest way to get an approximate finite-dimensional feature map is to use the <code class="docutils literal notranslate"><span class="pre">default_feature_map</span></code> function from <code class="docutils literal notranslate"><span class="pre">geometric_kernels.kernels</span></code>. It has an optional keyword argument <code class="docutils literal notranslate"><span class="pre">num</span></code> which determines the number of features, the <span class="math notranslate nohighlight">\(M\)</span> above. Below we rely on the default value of <code class="docutils literal notranslate"><span class="pre">num</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geometric_kernels.kernels</span><span class="w"> </span><span class="kn">import</span> <span class="n">default_feature_map</span>
+
+<span class="n">feature_map</span> <span class="o">=</span> <span class="n">default_feature_map</span><span class="p">(</span><span class="n">kernel</span><span class="o">=</span><span class="n">kernel</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The resulting <code class="docutils literal notranslate"><span class="pre">feature_map</span></code> is a function that takes the array of inputs and parameters of the kernel. There is also an optional parameter <code class="docutils literal notranslate"><span class="pre">normalize</span></code> that determines if <span class="math notranslate nohighlight">\(\langle \phi(x), \phi(x) \rangle_{\mathbb{R}^M} \approx 1\)</span> or not. For graphs, <code class="docutils literal notranslate"><span class="pre">normalize</span></code> follows the standard behavior of <code class="docutils literal notranslate"><span class="pre">MaternKarhunenLoeveKernel</span></code>, being <code class="docutils literal notranslate"><span class="pre">True</span></code> by default.</p>
+<p><code class="docutils literal notranslate"><span class="pre">feature_map</span></code> outputs a tuple. Its <strong>second</strong> element is <span class="math notranslate nohighlight">\(\phi(x)\)</span> evaluated at all inputs <span class="math notranslate nohighlight">\(x\)</span>. Its first element is either <code class="docutils literal notranslate"><span class="pre">None</span></code> for determinstic feature maps, or contains the updated <code class="docutils literal notranslate"><span class="pre">key</span></code> for randomized feature maps which take <code class="docutils literal notranslate"><span class="pre">key</span></code> as a keyword argument. For <code class="docutils literal notranslate"><span class="pre">default_feature_map</span></code> on a <code class="docutils literal notranslate"><span class="pre">Graph</span></code> space, the first element is <code class="docutils literal notranslate"><span class="pre">None</span></code> since the feature map is <em>deterministic</em>.</p>
+<p>In the next cell, we evaluate the feature map at random points, using <code class="docutils literal notranslate"><span class="pre">params_32</span></code> as kernel parameters. We check the basic property of the feature map: <span class="math notranslate nohighlight">\(k(x, x') \approx \langle \phi(x), \phi(x') \rangle_{\mathbb{R}^M}\)</span>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># xs are random points from above</span>
+<span class="n">_</span><span class="p">,</span> <span class="n">embedding</span> <span class="o">=</span> <span class="n">feature_map</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">params_32</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;xs (shape = </span><span class="si">%s</span><span class="s1">):</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">xs</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">xs</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;emedding (shape = </span><span class="si">%s</span><span class="s1">):</span><span class="se">\n</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">embedding</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">embedding</span><span class="p">))</span>
+
+<span class="n">kernel_mat_32</span>  <span class="o">=</span> <span class="n">kernel</span><span class="o">.</span><span class="n">K</span><span class="p">(</span><span class="n">params_32</span><span class="p">,</span>  <span class="n">xs</span><span class="p">,</span> <span class="n">xs</span><span class="p">)</span>
+<span class="n">kernel_mat_32_alt</span> <span class="o">=</span> <span class="n">jnp</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">embedding</span><span class="p">,</span> <span class="n">embedding</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;||k(xs, xs) - phi(xs) * phi(xs)^T|| =&#39;</span><span class="p">,</span> <span class="n">jnp</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">kernel_mat_32</span> <span class="o">-</span> <span class="n">kernel_mat_32_alt</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+xs (shape = (3, 1)):
+[[5]
+ [3]
+ [0]]
+
+emedding (shape = (3, 7)):
+[[ 6.41113328e-01 -1.49568079e-01 -6.27429672e-01 -1.91494425e-01
+  -4.33620981e-01 -1.78784271e-01  4.54128597e-02]
+ [ 6.41113328e-01  2.18591915e-01  1.75155061e-01 -5.48113035e-01
+  -2.98734457e-17  5.42042498e-01  4.54128597e-02]
+ [ 6.41113328e-01  0.00000000e+00  0.00000000e+00  0.00000000e+00
+   0.00000000e+00 -0.00000000e+00 -2.72477158e-01]]
+
+||k(xs, xs) - phi(xs) * phi(xs)^T|| = 4.041272810440265e-16
+</pre></div></div>
+</div>
+</section>
+<section id="Efficient-Sampling-using-Feature-Maps">
+<h3>Efficient Sampling using Feature Maps<a class="headerlink" href="#Efficient-Sampling-using-Feature-Maps" title="Link to this heading">¶</a></h3>
+<p>GeometricKernels provides a simple tool to efficiently sample (without incurring cubic costs) the Gaussian process <span class="math notranslate nohighlight">\(f \sim \mathrm{GP}(0, k)\)</span>, based on an approximate finite-dimensional feature map <span class="math notranslate nohighlight">\(\phi\)</span>. The underlying machinery is briefly discussed in this <a class="reference external" href="https://geometric-kernels.github.io/GeometricKernels/theory/feature_maps.html">documentation page</a>.</p>
+<p>The function <code class="docutils literal notranslate"><span class="pre">sampler</span></code> from <code class="docutils literal notranslate"><span class="pre">geometric_kernels.sampling</span></code> takes in a feature map and, optionally, the keyword argument <code class="docutils literal notranslate"><span class="pre">s</span></code> that specifies the number of samples to generate. It returns a function we name <code class="docutils literal notranslate"><span class="pre">sample_paths</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">sample_paths</span></code> operates much like <code class="docutils literal notranslate"><span class="pre">feature_map</span></code> above: it takes in the points where to evaluate the samples and kernel parameters. Additionally, it takes in the keyword argument <code class="docutils literal notranslate"><span class="pre">key</span></code> that specifies randomness in the JAX style. <code class="docutils literal notranslate"><span class="pre">sample_paths</span></code> returns a tuple. Its first element is the updated <code class="docutils literal notranslate"><span class="pre">key</span></code>. Its second element is an array containing the value of samples evaluated at the input points.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geometric_kernels.sampling</span><span class="w"> </span><span class="kn">import</span> <span class="n">sampler</span>
+
+<span class="n">sample_paths</span> <span class="o">=</span> <span class="n">sampler</span><span class="p">(</span><span class="n">feature_map</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># introduce random state for reproducibility (optional)</span>
+<span class="c1"># `key` is jax&#39;s terminology</span>
+<span class="n">key</span> <span class="o">=</span> <span class="n">PRNGKey</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
+
+<span class="c1"># new random state is returned along with the samples</span>
+<span class="n">key</span><span class="p">,</span> <span class="n">samples</span> <span class="o">=</span> <span class="n">sample_paths</span><span class="p">(</span><span class="n">xs</span><span class="p">,</span> <span class="n">params_32</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Two samples evaluated at the xs are:&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Two samples evaluated at the xs are:
+[[ 0.3998562   0.46701571]
+ [ 1.33493251 -0.18550569]
+ [ 0.50898399 -0.45234307]]
+</pre></div></div>
+</div>
+<section id="Visualizing-Samples">
+<h4>Visualizing Samples<a class="headerlink" href="#Visualizing-Samples" title="Link to this heading">¶</a></h4>
+<p>Here we visualize samples as functions on a graph.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">key</span> <span class="o">=</span> <span class="n">PRNGKey</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
+<span class="n">key</span><span class="p">,</span> <span class="n">samples</span> <span class="o">=</span> <span class="n">sample_paths</span><span class="p">(</span><span class="n">other_points</span><span class="p">,</span> <span class="n">params_32</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">)</span>
+
+<span class="n">sample1</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">sample2</span> <span class="o">=</span> <span class="n">samples</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+
+<span class="n">cmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s1">&#39;viridis&#39;</span><span class="p">)</span>
+
+<span class="c1"># Set the colorbar limits:</span>
+<span class="n">vmin</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">sample1</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">sample2</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+<span class="n">vmax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">sample1</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">sample2</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+
+<span class="c1"># Save graph layout so that graph appears the same in every plot</span>
+<span class="n">kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;pos&#39;</span><span class="p">:</span> <span class="n">pos</span><span class="p">}</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">12.8</span><span class="p">,</span> <span class="mf">4.8</span><span class="p">))</span>
+
+<span class="c1"># Plot sample #1</span>
+<span class="n">nx</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">nx_graph</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax1</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">node_color</span><span class="o">=</span><span class="n">sample1</span><span class="p">,</span>
+        <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="n">sm</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">(</span><span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+                           <span class="n">norm</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">))</span>
+<span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sm</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax1</span><span class="p">)</span>
+<span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Sample #1: $f(\cdot)$ for $\cdot$ in nodes, $f \sim \mathrm</span><span class="si">{GP}</span><span class="s1">(0, k_{3/2, \kappa})$&#39;</span><span class="p">)</span>
+
+
+<span class="c1"># Plot sample #2</span>
+<span class="n">nx</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">nx_graph</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span> <span class="n">node_color</span><span class="o">=</span><span class="n">sample2</span><span class="p">,</span>
+        <span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="n">sm</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">ScalarMappable</span><span class="p">(</span><span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+                           <span class="n">norm</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">Normalize</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="n">vmin</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">))</span>
+<span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">sm</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">)</span>
+<span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;Sample #2: $f(\cdot)$ for $\cdot$ in nodes, $f \sim \mathrm</span><span class="si">{GP}</span><span class="s1">(0, k_{3/2, \kappa})$&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_backends_JAX_Graph_52_0.png" src="../../_images/examples_backends_JAX_Graph_52_0.png" />
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="Citation">
+<h2>Citation<a class="headerlink" href="#Citation" title="Link to this heading">¶</a></h2>
+<p>If you are using graphs and GeometricKernels, please consider citing</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@article{mostowsky2024,
+      title = {The GeometricKernels Package: Heat and Matérn Kernels for Geometric Learning on Manifolds, Meshes, and Graphs},
+      author = {Peter Mostowsky and Vincent Dutordoir and Iskander Azangulov and Noémie Jaquier and Michael John Hutchinson and Aditya Ravuri and Leonel Rozo and Alexander Terenin and Viacheslav Borovitskiy},
+      year = {2024},
+      journal = {arXiv:2407.08086},
+}
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@article{borovitskiy2020,
+    title={Matern Gaussian processes on Riemannian manifolds},
+    author={Viacheslav Borovitskiy and Alexander Terenin and Peter Mostowsky and Marc Peter Deisenroth},
+    booktitle={Advances in Neural Information Processing Systems},
+    year={2020}}
+</pre></div>
+</div>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>@inproceedings{kondor2002,
+  title={Diffusion Kernels on Graphs and Other Discrete Structures},
+  author={Kondor, Risi Imre and Lafferty, John},
+  booktitle={International Conference on Machine Learning},
+  year={2002}}
+</pre></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="PyTorch_Graph.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Matérn and Heat Kernels on Graphs: <strong>PyTorch Backend</strong></div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="../Torus.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Matérn and Heat Kernels on Tori</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022-2024, the GeometricKernels Contributors
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Matérn and Heat Kernels on Graphs: <strong>JAX Backend</strong></a><ul>
+<li><a class="reference internal" href="#Contents">Contents</a></li>
+<li><a class="reference internal" href="#Basics">Basics</a><ul>
+<li><a class="reference internal" href="#Defining-a-Space">Defining a Space</a></li>
+<li><a class="reference internal" href="#Defining-a-Kernel">Defining a Kernel</a></li>
+<li><a class="reference internal" href="#Evaluating-Kernels-on-Random-Inputs">Evaluating Kernels on Random Inputs</a></li>
+<li><a class="reference internal" href="#Visualize-Kernels">Visualize Kernels</a></li>
+<li><a class="reference internal" href="#A-Note-on-Prior-Variance">A Note on Prior Variance</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Feature-Maps-and-Sampling">Feature Maps and Sampling</a><ul>
+<li><a class="reference internal" href="#Defining-a-Feature-Map">Defining a Feature Map</a></li>
+<li><a class="reference internal" href="#Efficient-Sampling-using-Feature-Maps">Efficient Sampling using Feature Maps</a><ul>
+<li><a class="reference internal" href="#Visualizing-Samples">Visualizing Samples</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Citation">Citation</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/scripts/furo.js?v=5fa4622c"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["\\(", "\\)"]], "processEscapes": true, "displayMath": [["\\[", "\\]"]]}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/scripts/bootstrap.min.js?v=ff982861"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    </body>
+</html>

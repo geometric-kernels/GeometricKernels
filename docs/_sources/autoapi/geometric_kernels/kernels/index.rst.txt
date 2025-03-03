@@ -1,0 +1,827 @@
+geometric_kernels.kernels
+=========================
+
+.. py:module:: geometric_kernels.kernels
+
+.. autoapi-nested-parse::
+
+   This module provides the abstract base class for geometric kernels and
+   specialized classes for various types of spaces.
+
+   Unless you know exactly what you are doing, always use the
+   :class:`MaternGeometricKernel` that "just works".
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/geometric_kernels/kernels/base/index
+   /autoapi/geometric_kernels/kernels/feature_map/index
+   /autoapi/geometric_kernels/kernels/hodge_compositional/index
+   /autoapi/geometric_kernels/kernels/karhunen_loeve/index
+   /autoapi/geometric_kernels/kernels/matern_kernel/index
+   /autoapi/geometric_kernels/kernels/product/index
+
+
+
+
+
+
+Package Contents
+----------------
+
+.. py:class:: BaseGeometricKernel(space)
+
+   Bases: :py:obj:`abc.ABC`
+
+
+   Abstract base class for geometric kernels.
+
+   :param space:
+       The space on which the kernel is defined.
+
+
+   .. py:method:: K(params, X, X2 = None, **kwargs)
+      :abstractmethod:
+
+
+      Compute the cross-covariance matrix between two batches of vectors of
+      inputs, or batches of matrices of inputs, depending on the space.
+
+      :param params:
+          A dict of kernel parameters, typically containing two keys:
+          `"lengthscale"` for length scale and `"nu"` for smoothness.
+
+          The types of values in the params dict determine the output type
+          and the backend used for the internal computations, see the
+          warning below for more details.
+
+          .. note::
+              The values `params["lengthscale"]` and `params["nu"]` are
+              typically (1,)-shaped arrays of the suitable backend. This
+              serves to point at the backend to be used for internal
+              computations.
+
+              In some cases, for example, when the kernel is
+              :class:`~.kernels.ProductGeometricKernel`, the values of
+              `params` may be (s,)-shaped arrays instead, where `s` is the
+              number of factors.
+
+          .. note::
+              Finite values of `params["nu"]` typically correspond to the
+              generalized (geometric) Matérn kernels.
+
+              Infinite `params["nu"]` typically corresponds to the heat
+              kernel (a.k.a. diffusion kernel, generalized squared
+              exponential kernel, generalized Gaussian kernel,
+              generalized RBF kernel). Although it is often considered to be
+              a separate entity, we treat the heat kernel as a member of
+              the Matérn family, with smoothness parameter equal to infinity.
+
+      :param X:
+          A batch of N inputs, each of which is a vector or a matrix,
+          depending on how the elements of the `self.space` are represented.
+      :param X2:
+          A batch of M inputs, each of which is a vector or a matrix,
+          depending on how the elements of the `self.space` are represented.
+
+          `X2=None` sets `X2=X1`.
+
+          Defaults to None.
+
+      :return:
+          The N x M cross-covariance matrix.
+
+      .. warning::
+         The types of values in the `params` dict determine the backend
+         used for internal computations and the output type.
+
+         Even if, say, `geometric_kernels.jax` is imported but the values in
+         the `params` dict are NumPy arrays, the output type will be a NumPy
+         array, and NumPy will be used for internal computations. To get a
+         JAX array as an output and use JAX for internal computations, all
+         the values in the `params` dict must be JAX arrays.
+
+
+
+   .. py:method:: K_diag(params, X, **kwargs)
+      :abstractmethod:
+
+
+      Returns the diagonal of the covariance matrix `self.K(params, X, X)`,
+      typically in a more efficient way than actually computing the full
+      covariance matrix with `self.K(params, X, X)` and then extracting its
+      diagonal.
+
+      :param params:
+          Same as for :meth:`~.K`.
+
+      :param X:
+          A batch of N inputs, each of which is a vector or a matrix,
+          depending on how the elements of the `self.space` are represented.
+
+      :return:
+          The N-dimensional vector representing the diagonal of the
+          covariance matrix `self.K(params, X, X)`.
+
+
+
+   .. py:method:: init_params()
+      :abstractmethod:
+
+
+      Initializes the dict of the trainable parameters of the kernel.
+
+      It typically contains only two keys: `"nu"` and `"lengthscale"`.
+
+      This dict can be modified and is passed around into such methods as
+      :meth:`~.K` or :meth:`~.K_diag`, as the `params` argument.
+
+      .. note::
+          The values in the returned dict are always of the NumPy array type.
+          Thus, if you want to use some other backend for internal
+          computations when calling :meth:`~.K` or :meth:`~.K_diag`, you
+          need to replace the values with the analogs typed as arrays of
+          the desired backend.
+
+
+
+   .. py:property:: space
+      :type: beartype.typing.Union[geometric_kernels.spaces.Space, beartype.typing.List[geometric_kernels.spaces.Space]]
+
+
+      The space on which the kernel is defined.
+
+
+
+.. py:class:: MaternFeatureMapKernel(space, feature_map, key, normalize = True)
+
+   Bases: :py:obj:`geometric_kernels.kernels.base.BaseGeometricKernel`
+
+
+   This class computes a (Matérn) kernel based on a feature map.
+
+   .. math :: k_{\nu, \kappa}(x, y) = \langle \phi_{\nu, \kappa}(x), \phi_{\nu, \kappa}(y) \rangle_{\mathbb{R}^n}
+
+   where $\langle \cdot , \cdot \rangle_{\mathbb{R}^n}$ is the standard inner
+   product in $\mathbb{R}^n$ and $\phi_{\nu, \kappa}: X \to \mathbb{R}^n$ is
+   an arbitrary function called *feature map*. We assume that it depends
+   on the smoothness and length scale parameters $\nu$ and $\kappa$,
+   respectively, which makes this kernel specifically Matérn.
+
+   .. note::
+       A brief introduction into feature maps and related kernels can be
+       found on :doc:`this page </theory/feature_maps>`.
+
+       Note that the finite-dimensional feature maps this kernel is meant to
+       be used with are, in most cases, some approximations of the
+       intractable infinite-dimensional feature maps.
+
+   :param space:
+       The space on which the kernel is defined.
+   :param feature_map:
+       A :class:`~.feature_maps.FeatureMap` object that represents an
+       arbitrary function $\phi_{\nu, \kappa}: X \to \mathbb{R}^n$, where
+       $X$ is the `space`, $n$ can be an arbitrary finite integer, and
+       $\nu, \kappa$ are the smoothness and length scale parameters.
+   :param key:
+       Random state, either `np.random.RandomState`,
+       `tf.random.Generator`, `torch.Generator` or `jax.tensor` (which
+       represents a random state).
+
+       Many feature maps used in the library are randomized, thus requiring a
+       `key` to work. The :class:`MaternFeatureMapKernel` uses this `key` to
+       make them (and thus the kernel) deterministic, applying the utility
+       function :func:`~.make_deterministic` to the pair `feature_map, key`.
+
+       .. note::
+          Even if the `feature_map` is deterministic, you need to provide a
+          valid key, although it will essentially be ignored. In the future,
+          we should probably make the `key` parameter optional.
+
+   :param normalize:
+       This parameter is directly passed on to the `feature_map` as a keyword
+       argument "normalize". If normalize=True, then either $k(x, x) = 1$ for
+       all $x \in X$, or $\int_X k(x, x) d x = 1$, depending on the type of
+       the feature map and on the space $X$.
+
+       .. note::
+           For many kernel methods, $k(\cdot, \cdot)$ and $a k(\cdot, \cdot)$
+           are indistinguishable, whatever the positive constant $a$ is. For
+           these, it makes sense to use normalize=False to save up some
+           computational overhead. For others, like for the Gaussian process
+           regression, the normalization of the kernel might be important. In
+           these cases, you will typically want to set normalize=True.
+
+
+   .. py:method:: K(params, X, X2 = None, **kwargs)
+
+      Compute the cross-covariance matrix between two batches of vectors of
+      inputs, or batches of matrices of inputs, depending on the space.
+
+      :param params:
+          A dict of kernel parameters, typically containing two keys:
+          `"lengthscale"` for length scale and `"nu"` for smoothness.
+
+          The types of values in the params dict determine the output type
+          and the backend used for the internal computations, see the
+          warning below for more details.
+
+          .. note::
+              The values `params["lengthscale"]` and `params["nu"]` are
+              typically (1,)-shaped arrays of the suitable backend. This
+              serves to point at the backend to be used for internal
+              computations.
+
+              In some cases, for example, when the kernel is
+              :class:`~.kernels.ProductGeometricKernel`, the values of
+              `params` may be (s,)-shaped arrays instead, where `s` is the
+              number of factors.
+
+          .. note::
+              Finite values of `params["nu"]` typically correspond to the
+              generalized (geometric) Matérn kernels.
+
+              Infinite `params["nu"]` typically corresponds to the heat
+              kernel (a.k.a. diffusion kernel, generalized squared
+              exponential kernel, generalized Gaussian kernel,
+              generalized RBF kernel). Although it is often considered to be
+              a separate entity, we treat the heat kernel as a member of
+              the Matérn family, with smoothness parameter equal to infinity.
+
+      :param X:
+          A batch of N inputs, each of which is a vector or a matrix,
+          depending on how the elements of the `self.space` are represented.
+      :param X2:
+          A batch of M inputs, each of which is a vector or a matrix,
+          depending on how the elements of the `self.space` are represented.
+
+          `X2=None` sets `X2=X1`.
+
+          Defaults to None.
+
+      :return:
+          The N x M cross-covariance matrix.
+
+      .. warning::
+         The types of values in the `params` dict determine the backend
+         used for internal computations and the output type.
+
+         Even if, say, `geometric_kernels.jax` is imported but the values in
+         the `params` dict are NumPy arrays, the output type will be a NumPy
+         array, and NumPy will be used for internal computations. To get a
+         JAX array as an output and use JAX for internal computations, all
+         the values in the `params` dict must be JAX arrays.
+
+
+
+   .. py:method:: K_diag(params, X, **kwargs)
+
+      Returns the diagonal of the covariance matrix `self.K(params, X, X)`,
+      typically in a more efficient way than actually computing the full
+      covariance matrix with `self.K(params, X, X)` and then extracting its
+      diagonal.
+
+      :param params:
+          Same as for :meth:`~.K`.
+
+      :param X:
+          A batch of N inputs, each of which is a vector or a matrix,
+          depending on how the elements of the `self.space` are represented.
+
+      :return:
+          The N-dimensional vector representing the diagonal of the
+          covariance matrix `self.K(params, X, X)`.
+
+
+
+   .. py:method:: init_params()
+
+      Initializes the dict of the trainable parameters of the kernel.
+
+      Returns `dict(nu=np.array([np.inf]), lengthscale=np.array([1.0]))`.
+
+      This dict can be modified and is passed around into such methods as
+      :meth:`~.K` or :meth:`~.K_diag`, as the `params` argument.
+
+      .. note::
+          The values in the returned dict are always of the NumPy array type.
+          Thus, if you want to use some other backend for internal
+          computations when calling :meth:`~.K` or :meth:`~.K_diag`, you
+          need to replace the values with the analogs typed as arrays of
+          the desired backend.
+
+
+
+.. py:class:: MaternGeometricKernel
+
+   This class represents a Matérn geometric kernel that "just works". Unless
+   you really know what you are doing, you should always use this kernel class.
+
+   Upon creation, unpacks into a specific geometric kernel based on the
+   provided space, and, optionally, the associated (approximate) feature map.
+
+
+   .. py:method:: __new__(space, num = None, normalize = True, return_feature_map = False, **kwargs)
+
+      Construct a kernel and (if `return_feature_map` is `True`) a
+      feature map on `space`.
+
+      .. note::
+         See :doc:`this page </theory/feature_maps>` for a brief
+         introduction into feature maps.
+
+      :param space:
+          Space to construct the kernel on.
+      :param num:
+          If provided, controls the "order of approximation" of the kernel.
+          For the discrete spectrum spaces, this means the number of "levels"
+          that go into the truncated series that defines the kernel (for
+          example, these are unique eigenvalues for the
+          :class:`~.spaces.Hypersphere` or eigenvalues with repetitions for
+          the :class:`~.spaces.Graph` or for the :class:`~.spaces.Mesh`).
+          For the non-compact symmetric spaces
+          (:class:`~.spaces.NoncompactSymmetricSpace`), this is the number
+          of random phases used to construct the kernel.
+
+          If num=None, we use a (hopefully) reasonable default, which is
+          space-dependent.
+      :param normalize:
+          Normalize the kernel (and the feature map). If normalize=True,
+          then either $k(x, x) = 1$ for all $x \in X$, where $X$ is the
+          `space`, or $\int_X k(x, x) d x = 1$, depending on the space.
+
+          Defaults to True.
+
+          .. note::
+              For many kernel methods, $k(\cdot, \cdot)$ and
+              $a k(\cdot, \cdot)$ are indistinguishable, whatever the
+              positive constant $a$ is. For these, it makes sense to use
+              normalize=False to save up some computational overhead. For
+              others, like for the Gaussian process regression, the
+              normalization of the kernel might be important. In
+              these cases, you will typically want to set normalize=True.
+
+      :param return_feature_map:
+          If `True`, return a feature map (needed e.g. for efficient sampling
+          from Gaussian processes) along with the kernel.
+
+          Default is False.
+
+      :param ``**kwargs``:
+          Any additional keyword arguments to be passed to the kernel
+          (like `key`).
+
+      .. note::
+         For non-compact symmetric spaces, like :class:`~.spaces.Hyperbolic`
+         or :class:`~.spaces.SymmetricPositiveDefiniteMatrices`, the `key`
+         **must** be provided in ``**kwargs``.
+
+
+
+.. py:class:: MaternHodgeCompositionalKernel(space, num_levels, normalize = True)
+
+   Bases: :py:obj:`geometric_kernels.kernels.base.BaseGeometricKernel`
+
+
+   This class is similar to :class:`~.kernels.MaternKarhunenLoeveKernel`, but
+   provides a more expressive family of kernels on the spaces where Hodge
+   decomposition is available.
+
+   The resulting kernel is a sum of three kernels,
+
+   .. math:: k(x, x') = a k_{\text{harmonic}}(x, x') + b k_{\text{gradient}}(x, x') + c k_{\text{curl}}(x, x'),
+
+   where $a, b, c$ are weights $a, b, c \geq 0$ and $a + b + c = 1$, and
+   $k_{\text{harmonic}}$, $k_{\text{gradient}}$, $k_{\text{curl}}$ are the
+   instances of :class:`~.kernels.MaternKarhunenLoeveKernel` that only use the
+   eigenpairs of the Laplacian corresponding to a single part of the Hodge
+   decomposition.
+
+   The parameters of this kernel are represented by a dict with three keys:
+   `"harmonic"`, `"gradient"`, `"curl"`, each corresponding to a dict with
+   keys `"logit"`, `"nu"`, `"lengthscale"`, where `"nu"` and `"lengthscale"`
+   are the parameters of the respective :class:`~.kernels.MaternKarhunenLoeveKernel`,
+   while the `"logit"` parameters determine the weights $a, b, c$ in the
+   formula above: $a, b, c$ are the `"logit"` parameters normalized to
+   satisfy $a + b + c = 1$.
+
+   Same as for :class:`~.kernels.MaternKarhunenLoeveKernel`, these kernels can sometimes
+   be computed more efficiently using addition theorems.
+
+   .. note::
+       A brief introduction into the theory behind
+       :class:`~.kernels.MaternHodgeCompositionalKernel` can be found in
+       :doc:`this </theory/graphs>` documentation page.
+
+   :param space:
+       The space to define the kernel upon, a subclass of :class:`~.spaces.HodgeDiscreteSpectrumSpace`.
+
+   :param num_levels:
+       Number of levels to include in the summation.
+
+   :param normalize:
+       Whether to normalize kernel to have unit average variance.
+
+
+   .. py:method:: K(params, X, X2 = None, **kwargs)
+
+      Compute the cross-covariance matrix between two batches of vectors of
+      inputs, or batches of matrices of inputs, depending on the space.
+
+
+
+   .. py:method:: K_diag(params, X, **kwargs)
+
+      Returns the diagonal of the covariance matrix `self.K(params, X, X)`,
+      typically in a more efficient way than actually computing the full
+      covariance matrix with `self.K(params, X, X)` and then extracting its
+      diagonal.
+
+
+
+   .. py:method:: init_params()
+
+      Initialize the three sets of parameters for the three kernels.
+
+
+
+   .. py:property:: space
+      :type: geometric_kernels.spaces.HodgeDiscreteSpectrumSpace
+
+
+      The space on which the kernel is defined.
+
+
+
+.. py:class:: MaternKarhunenLoeveKernel(space, num_levels, normalize = True, eigenvalues_laplacian = None, eigenfunctions = None)
+
+   Bases: :py:obj:`geometric_kernels.kernels.base.BaseGeometricKernel`
+
+
+   This class approximates Matérn kernel by its truncated Mercer decomposition,
+   in terms of the eigenfunctions & eigenvalues of the Laplacian on the space.
+
+   .. math:: k(x, x') = \sum_{l=0}^{L-1} S(\sqrt\lambda_l) \sum_{s=1}^{d_l} f_{ls}(x) f_{ls}(x'),
+
+   where $\lambda_l$ and $f_{ls}(\cdot)$ are the eigenvalues and
+   eigenfunctions of the Laplacian such that
+   $\Delta f_{ls} = \lambda_l f_{ls}$, and $S(\cdot)$ is the spectrum
+   of the Matérn kernel. The eigenvalues and eigenfunctions belong to the
+   :class:`~.spaces.DiscreteSpectrumSpace` instance.
+
+   We denote
+
+   .. math:: G_l(\cdot, \cdot') = \sum_{s=1}^{d_l} f_{ls}(\cdot) f_{ls}(\cdot')
+
+   and term the sets $[f_{ls}]_{s=1}^{d_l}$  *"levels"*.
+
+   For many spaces, like the sphere, we can employ addition
+   theorems to efficiently compute $G_l(\cdot, \cdot')$ without calculating
+   the individual $f_{ls}(\cdot)$. Note that $\lambda_l$ are not required to
+   be unique: it is possible that for some $l,l'$, $\lambda_l = \lambda_{l'}$.
+   In other words, the "levels" do not necessarily correspond to full
+   eigenspaces. A level may even correspond to a single eigenfunction.
+
+   .. note::
+       A brief introduction into the theory behind
+       :class:`MaternKarhunenLoeveKernel` can be found in
+       :doc:`this </theory/compact>` & :doc:`this </theory/addition_theorem>`
+       documentation pages.
+
+   :param space:
+       The space to define the kernel upon.
+   :param num_levels:
+       Number of levels to include in the summation.
+   :param normalize:
+       Whether to normalize kernel to have unit average variance.
+   :param eigenvalues_laplacian:
+       Allowing to pass the eigenvalues of the Laplacian directly, instead of
+       computing them from the space. If provided, `eigenfunctions` must also
+       be provided. Used for :class:`~.spaces.HodgeDiscreteSpectrumSpace`.
+   :param eigenfunctions:
+       Allowing to pass the eigenfunctions directly, instead of computing them
+       from the space. If provided, `eigenvalues_laplacian` must also be provided.
+       Used for :class:`~.spaces.HodgeDiscreteSpectrumSpace`.
+
+
+   .. py:method:: K(params, X, X2 = None, **kwargs)
+
+      Compute the cross-covariance matrix between two batches of vectors of
+      inputs, or batches of matrices of inputs, depending on the space.
+
+      :param params:
+          A dict of kernel parameters, typically containing two keys:
+          `"lengthscale"` for length scale and `"nu"` for smoothness.
+
+          The types of values in the params dict determine the output type
+          and the backend used for the internal computations, see the
+          warning below for more details.
+
+          .. note::
+              The values `params["lengthscale"]` and `params["nu"]` are
+              typically (1,)-shaped arrays of the suitable backend. This
+              serves to point at the backend to be used for internal
+              computations.
+
+              In some cases, for example, when the kernel is
+              :class:`~.kernels.ProductGeometricKernel`, the values of
+              `params` may be (s,)-shaped arrays instead, where `s` is the
+              number of factors.
+
+          .. note::
+              Finite values of `params["nu"]` typically correspond to the
+              generalized (geometric) Matérn kernels.
+
+              Infinite `params["nu"]` typically corresponds to the heat
+              kernel (a.k.a. diffusion kernel, generalized squared
+              exponential kernel, generalized Gaussian kernel,
+              generalized RBF kernel). Although it is often considered to be
+              a separate entity, we treat the heat kernel as a member of
+              the Matérn family, with smoothness parameter equal to infinity.
+
+      :param X:
+          A batch of N inputs, each of which is a vector or a matrix,
+          depending on how the elements of the `self.space` are represented.
+      :param X2:
+          A batch of M inputs, each of which is a vector or a matrix,
+          depending on how the elements of the `self.space` are represented.
+
+          `X2=None` sets `X2=X1`.
+
+          Defaults to None.
+
+      :return:
+          The N x M cross-covariance matrix.
+
+      .. warning::
+         The types of values in the `params` dict determine the backend
+         used for internal computations and the output type.
+
+         Even if, say, `geometric_kernels.jax` is imported but the values in
+         the `params` dict are NumPy arrays, the output type will be a NumPy
+         array, and NumPy will be used for internal computations. To get a
+         JAX array as an output and use JAX for internal computations, all
+         the values in the `params` dict must be JAX arrays.
+
+
+
+   .. py:method:: K_diag(params, X, **kwargs)
+
+      Returns the diagonal of the covariance matrix `self.K(params, X, X)`,
+      typically in a more efficient way than actually computing the full
+      covariance matrix with `self.K(params, X, X)` and then extracting its
+      diagonal.
+
+      :param params:
+          Same as for :meth:`~.K`.
+
+      :param X:
+          A batch of N inputs, each of which is a vector or a matrix,
+          depending on how the elements of the `self.space` are represented.
+
+      :return:
+          The N-dimensional vector representing the diagonal of the
+          covariance matrix `self.K(params, X, X)`.
+
+
+
+   .. py:method:: eigenvalues(params)
+
+      Eigenvalues of the kernel.
+
+      :param params:
+          Parameters of the kernel. Must contain keys `"lengthscale"` and
+          `"nu"`. The shapes of `params["lengthscale"]` and `params["nu"]`
+          are `(1,)`.
+
+      :return:
+          An [L, 1]-shaped array.
+
+
+
+   .. py:method:: init_params()
+
+      Initializes the dict of the trainable parameters of the kernel.
+
+      Returns `dict(nu=np.array([np.inf]), lengthscale=np.array([1.0]))`.
+
+      This dict can be modified and is passed around into such methods as
+      :meth:`~.K` or :meth:`~.K_diag`, as the `params` argument.
+
+      .. note::
+          The values in the returned dict are always of the NumPy array type.
+          Thus, if you want to use some other backend for internal
+          computations when calling :meth:`~.K` or :meth:`~.K_diag`, you
+          need to replace the values with the analogs typed as arrays of
+          the desired backend.
+
+
+
+   .. py:method:: spectrum(s, nu, lengthscale, dimension)
+      :staticmethod:
+
+
+      Static method computing the spectrum of the Matérn kernel with
+      hyperparameters `nu` and `lengthscale` on the space with eigenvalues `s`
+      and dimension `dimension`.
+
+      :param s:
+          The eigenvalues of the space.
+      :param nu:
+          The smoothness parameter of the kernel.
+      :param lengthscale:
+          The length scale parameter of the kernel.
+      :param dimension:
+          The dimension of the space.
+
+      :return:
+          The spectrum of the Matérn kernel.
+
+
+
+   .. py:property:: eigenfunctions
+      :type: geometric_kernels.spaces.eigenfunctions.Eigenfunctions
+
+
+      Eigenfunctions of the kernel.
+
+
+
+   .. py:property:: eigenvalues_laplacian
+      :type: lab.Numeric
+
+
+      Eigenvalues of the Laplacian.
+
+
+
+   .. py:property:: space
+      :type: geometric_kernels.spaces.DiscreteSpectrumSpace
+
+
+      The space on which the kernel is defined.
+
+
+
+.. py:class:: ProductGeometricKernel(*kernels, dimension_indices = None)
+
+   Bases: :py:obj:`geometric_kernels.kernels.base.BaseGeometricKernel`
+
+
+   Product kernel, defined as the product of a sequence of kernels.
+
+   See :doc:`this page </theory/product_kernels>` for a brief account on
+   theory behind product kernels and the :doc:`Torus.ipynb </examples/Torus>`
+   notebook for a tutorial on how to use them.
+
+   :param ``*kernels``:
+       A sequence of kernels to compute the product of. Cannot contain another
+       instance of :class:`ProductGeometricKernel`. We denote the number of
+       factors, i.e. the length of the "sequence", by s.
+   :param dimension_indices:
+       Determines how a product kernel input vector `x` is to be mapped into
+       the inputs `xi` for the factor kernels. `xi` are assumed to be equal to
+       `x[dimension_indices[i]]`, possibly up to a reshape. Such a reshape
+       might be necessary to accommodate the spaces whose elements are matrices
+       rather than vectors, as determined by `element_shapes`. The
+       transformation of `x` into the list of `xi`\ s is performed
+       by :func:`~.project_product`.
+
+       If None, assumes the each input is layed-out flattened and concatenated,
+       in the same order as the factor spaces. In this case, the inverse to
+       :func:`~.project_product` is :func:`~.make_product`.
+
+       Defaults to None.
+
+   .. note::
+       `params` of a :class:`ProductGeometricKernel` are such that
+       `params["lengthscale"]` and `params["nu"]` are (s,)-shaped arrays, where
+       `s` is the number of factors.
+
+       Basically, `params["lengthscale"][i]` stores the length scale parameter
+       for the `i`-th factor kernel. Same goes for `params["nu"]`. Importantly,
+       this enables *automatic relevance determination*-like behavior.
+
+
+   .. py:method:: K(params, X, X2=None, **kwargs)
+
+      Compute the cross-covariance matrix between two batches of vectors of
+      inputs, or batches of matrices of inputs, depending on the space.
+
+      :param params:
+          A dict of kernel parameters, typically containing two keys:
+          `"lengthscale"` for length scale and `"nu"` for smoothness.
+
+          The types of values in the params dict determine the output type
+          and the backend used for the internal computations, see the
+          warning below for more details.
+
+          .. note::
+              The values `params["lengthscale"]` and `params["nu"]` are
+              typically (1,)-shaped arrays of the suitable backend. This
+              serves to point at the backend to be used for internal
+              computations.
+
+              In some cases, for example, when the kernel is
+              :class:`~.kernels.ProductGeometricKernel`, the values of
+              `params` may be (s,)-shaped arrays instead, where `s` is the
+              number of factors.
+
+          .. note::
+              Finite values of `params["nu"]` typically correspond to the
+              generalized (geometric) Matérn kernels.
+
+              Infinite `params["nu"]` typically corresponds to the heat
+              kernel (a.k.a. diffusion kernel, generalized squared
+              exponential kernel, generalized Gaussian kernel,
+              generalized RBF kernel). Although it is often considered to be
+              a separate entity, we treat the heat kernel as a member of
+              the Matérn family, with smoothness parameter equal to infinity.
+
+      :param X:
+          A batch of N inputs, each of which is a vector or a matrix,
+          depending on how the elements of the `self.space` are represented.
+      :param X2:
+          A batch of M inputs, each of which is a vector or a matrix,
+          depending on how the elements of the `self.space` are represented.
+
+          `X2=None` sets `X2=X1`.
+
+          Defaults to None.
+
+      :return:
+          The N x M cross-covariance matrix.
+
+      .. warning::
+         The types of values in the `params` dict determine the backend
+         used for internal computations and the output type.
+
+         Even if, say, `geometric_kernels.jax` is imported but the values in
+         the `params` dict are NumPy arrays, the output type will be a NumPy
+         array, and NumPy will be used for internal computations. To get a
+         JAX array as an output and use JAX for internal computations, all
+         the values in the `params` dict must be JAX arrays.
+
+
+
+   .. py:method:: K_diag(params, X)
+
+      Returns the diagonal of the covariance matrix `self.K(params, X, X)`,
+      typically in a more efficient way than actually computing the full
+      covariance matrix with `self.K(params, X, X)` and then extracting its
+      diagonal.
+
+      :param params:
+          Same as for :meth:`~.K`.
+
+      :param X:
+          A batch of N inputs, each of which is a vector or a matrix,
+          depending on how the elements of the `self.space` are represented.
+
+      :return:
+          The N-dimensional vector representing the diagonal of the
+          covariance matrix `self.K(params, X, X)`.
+
+
+
+   .. py:method:: init_params()
+
+      Returns a dict `params` where `params["lengthscale"]` is the
+      concatenation of all `self.kernels[i].init_params()["lengthscale"]` and
+      same for `params["nu"]`.
+
+
+
+   .. py:property:: space
+      :type: beartype.typing.List[geometric_kernels.spaces.Space]
+
+
+      The list of spaces upon which the factor kernels are defined.
+
+
+
+.. py:function:: default_feature_map(*, space = None, num = None, kernel = None)
+
+   Constructs the default feature map for the specified space or kernel.
+
+   :param space:
+       A space to construct the feature map on. If provided, kernel must
+       either be omitted or set to None.
+   :param kernel:
+       A kernel to construct the feature map from. If provided, `space` and
+       `num` must either be omitted or set to None.
+   :param num:
+       Controls the number of features (dimensionality of the feature
+       map). If omitted or set to None, the default value for each
+       respective space is used. Must only be provided when
+       constructing a feature map on a space (not from a kernel).
+
+   :return:
+       Callable which is the respective feature map.
+
+
