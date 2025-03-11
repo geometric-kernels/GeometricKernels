@@ -7,6 +7,7 @@ import lab as B
 import numpy as np
 import math
 from opt_einsum import contract as einsum
+from functools import lru_cache
 
 from geometric_kernels.lab_extras import qr, dtype_double
 from geometric_kernels.spaces.homogeneous_spaces import (
@@ -16,21 +17,63 @@ from geometric_kernels.spaces.homogeneous_spaces import (
 from geometric_kernels.spaces.so import SpecialOrthogonal
 
 
-def _hook_content_formula(lmd, n):
-    """
-    A combinatorial formula used to calculate the dimension of invariant space
-    of the Stiefeld manifold (among other things).
-    """
-    numer = 1
-    denom = 1
 
-    l_cols = [sum([row_l >= i + 1 for row_l in lmd]) for i in range(lmd[0])]
-    for id_row, l_row in enumerate(lmd):
-        for id_col in range(l_row):
-            numer *= n + id_col - id_row
-            denom *= l_cols[id_col] + l_row - id_row - id_col - 1
+def generate_intertwining_weights(n, omega):
+    """
+    Generate possible highest weights when branching from SO(n) to SO(n-1).
+    omega: tuple representing the highest weight of SO(n).
+    """
+    mu = n // 2
+    if n % 2 == 0:  # Even n = 2mu
+        m_mu_abs = abs(omega[-1])
+        def gen(k, prev):
+            if k == mu - 1:  # omega' has mu - 1 components
+                yield ()
+            else:
+                # Lower bound: |m_mu| for m_{mu-1}', else m_{k+1}
+                lower = m_mu_abs if k == mu - 2 else omega[k + 1]
+                upper = min(prev, omega[k])
+                for m in range(lower, upper + 1):
+                    for tail in gen(k + 1, m):
+                        yield (m,) + tail
+        for weight in gen(0, omega[0]):
+            yield weight
+    else:  # Odd n = 2mu + 1
+        def gen(k, prev):
+            if k == mu:  # omega' has mu components
+                yield ()
+            else:
+                # Lower bound: |m_mu'| for last component, else m_{k+1}
+                if k == mu - 1:
+                    lower = -omega[k]  # m_mu >= |m_mu'|
+                    upper = omega[k]
+                else:
+                    lower = omega[k + 1]
+                    upper = min(prev, omega[k])
+                for m in range(lower, upper + 1):
+                    for tail in gen(k + 1, m):
+                        yield (m,) + tail
+        for weight in gen(0, omega[0]):
+            yield weight
 
-    return numer // denom
+@lru_cache(maxsize=None)
+def multiplicity(n, m, omega):
+    """
+    Compute the multiplicity of the representation with highest weight omega
+    in L^2(SO(n)/SO(n - m)).
+    """
+    if m == 0:
+        # Base case: if omega is the trivial representation
+        if all(x == 0 for x in omega):
+            return 1
+        return 0
+    if n <= m:
+        return 0  # Invalid case
+    # Recursive case: branch from SO(n) to SO(n-1)
+    total = 0
+    for omega_prime in generate_intertwining_weights(n, omega):
+        total += multiplicity(n - 1, m - 1, omega_prime)
+    return total
 
 def sample_SO2(key, number):
         key, thetas = B.random.randn(key, dtype_double(key), number, 1)
@@ -56,12 +99,7 @@ class StiefelEigenfunctions(AveragingAdditionTheorem):
             Value of character on the class of identity element.
         """
 
-        m_ = min(self.M.m, self.M.n - self.M.m)
-        if m_ < self.M.G.rank and signature[m_] > 0:
-            return 0
-        signature_abs = tuple(abs(x) for x in signature)
-        return _hook_content_formula(signature_abs, m_)
-
+        return multiplicity(self.M.n, self.M.m, signature)
 
 class Stiefel(CompactHomogeneousSpace):
     r"""
@@ -127,10 +165,10 @@ class Stiefel(CompactHomogeneousSpace):
         n: int,
         m: int,
     ):
-        super().__init__(G=G, dim_H=dim_H, samples_H=samples_H, average_order=average_order)
         self.n = n
         self.m = m
-
+        super().__init__(G=G, dim_H=dim_H, samples_H=samples_H, average_order=average_order)
+        
     def project_to_manifold(self, g):
         """
         Take first m columns of an orthogonal matrix.
