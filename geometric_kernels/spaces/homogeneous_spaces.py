@@ -28,7 +28,7 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         *levels* here do not necessarily correspond to full eigenspaces.
     """
 
-    def __init__(self, M, num_levels: int, samples_H):
+    def __init__(self, M, num_levels: int, samples_H, addition_theorem="two_sided"):
         """
         :param M:
             CompactHomogeneousSpace.
@@ -63,6 +63,8 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         self.G_difference = G_eigenfunctions._difference
 
         self._num_eigenfunctions: Optional[int] = None  # To be computed when needed.
+
+        self.addition_theorem_type = addition_theorem
 
     @abc.abstractmethod
     def _compute_projected_character_value_at_e(self, signature):
@@ -126,7 +128,53 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         diff = self.G_difference(g, g2)
         return diff
 
-    def _addition_theorem(
+    
+    def _addition_theorem_one_sided(
+        self, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs
+    ) -> B.Numeric:
+        r"""
+        For each level (that corresponds to a unitary irreducible
+        representation of the group of symmetries), computes the sum of outer
+        products of Laplace-Beltrami eigenfunctions that correspond to this
+        level (representation). Uses the fact that such a sum is always
+        proportional to a certain integral of the character of the
+        representation over the isotropy subgroup of the homogeneous space.
+        See :cite:t:`azangulov2024a` for mathematical details.
+
+        To ensure that the resulting function is positive definite, we average
+        over both the left and right shifts (the result is an approximation):
+
+        .. math:: \chi_X(g1,g2) \approx \frac{1}{S^2}\sum_{i=1}^S\sum_{j=1}^S \chi_G(h^{-1}_i g2^{-1} g1 h_j)
+
+        :param X:
+            [N1, ...]
+        :param X2:
+            [N2, ...]
+        :param ``**kwargs``:
+            Any additional parameters
+
+        :return:
+            [N1, N2, L]
+        """
+
+        # [N * N2, G_n, G_n]
+        diff = self._difference(X, X2).reshape(-1, self.G_n, self.G_n)
+        # [N * N2 * samples_H, G_n, G_n]
+        diff_h = self.G_difference(diff, self.samples_H).reshape(
+            -1, self.G_n, self.G_n
+        )
+        # [N * N2 * samples_H, T]
+        torus_repr = self.G_torus_representative(diff_h)
+        values = [
+            (degree * chi.one_sided(torus_repr)[..., None]).reshape(
+                X.shape[0], X2.shape[0], 1
+            )  # [N1, N2, 1]
+            for degree, chi in zip(self.G_dimensions, self._characters)
+        ]
+
+        return B.concat(*values, axis=-1)  # [N, N2, L]
+
+    def _addition_theorem_two_sided(
         self, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs
     ) -> B.Numeric:
         r"""
@@ -167,7 +215,7 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         # [samples_H * N * N2 * samples_H, T]
         torus_repr = self.G_torus_representative(h1_diff_h2)
         values = [
-            (degree * chi(torus_repr)[..., None]).reshape(
+            (degree * chi.two_sided(torus_repr)[..., None]).reshape(
                 X.shape[0], X2.shape[0], 1
             )  # [N1, N2, 1]
             for degree, chi in zip(self.G_dimensions, self._characters)
@@ -175,6 +223,14 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
 
         return B.concat(*values, axis=-1)  # [N, N2, L]
 
+    def _addition_theorem(
+            self, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs
+    ) -> B.Numeric:
+        if self.addition_theorem_type == "one_sided":
+            return self._addition_theorem_one_sided(X, X2, **kwargs)
+        else:
+            return self._addition_theorem_two_sided(X, X2, **kwargs)
+        
     def _addition_theorem_diag(self, X: B.Numeric, **parameters) -> B.Numeric:
         """
         A more efficient way of computing the diagonals of the matrices
@@ -233,7 +289,7 @@ class AveragedLieGroupCharacter(abc.ABC):
         self.character = character
         self.average_order = average_order
 
-    def __call__(self, gammas_h1_x_h2):
+    def two_sided(self, gammas_h1_x_h2):
         """
         Compute characters from the torus embedding and then averages w.r.t. H.
 
@@ -244,6 +300,19 @@ class AveragedLieGroupCharacter(abc.ABC):
             self.character(gammas_h1_x_h2), self.average_order, -1, self.average_order
         )
         avg_character = einsum("ugv->g", character_h1_x_h2) / (self.average_order**2)
+        return avg_character
+
+    def one_sided(self, gammas_x_h):
+        """
+        Compute characters from the torus embedding and then averages w.r.t. H.
+
+        :param gammas_h1_x_h2:
+            [average_order*n*average_order, T]
+        """
+        character_x_h = B.reshape(
+            self.character(gammas_x_h), -1, self.average_order
+        )
+        avg_character = einsum("gv->g", character_x_h) / (self.average_order)
         return avg_character
 
 

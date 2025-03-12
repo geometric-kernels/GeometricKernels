@@ -119,7 +119,7 @@ class Stiefel(CompactHomogeneousSpace):
         citing :cite:t:`azangulov2022`.
     """
 
-    def __new__(cls, n: int, m: int, key, average_order: int = 100):
+    def __new__(cls, n: int, m: int, key, average_order: int = 100, addition_theorem="two_sided"):
         """
         :param n:
             The number of rows.
@@ -153,7 +153,7 @@ class Stiefel(CompactHomogeneousSpace):
             dim_H = 0
 
         new_space = super().__new__(cls)
-        new_space.__init__(G=G, dim_H=dim_H, samples_H=samples_H, average_order=average_order, n=n, m=m)  # type: ignore
+        new_space.__init__(G=G, dim_H=dim_H, samples_H=samples_H, average_order=average_order, n=n, m=m, addition_theorem=addition_theorem)  # type: ignore
         return key, new_space
 
     def __init__(
@@ -164,11 +164,12 @@ class Stiefel(CompactHomogeneousSpace):
         average_order: int,
         n: int,
         m: int,
+        addition_theorem: str = "two_sided",
     ):
         self.n = n
         self.m = m
         super().__init__(G=G, dim_H=dim_H, samples_H=samples_H, average_order=average_order)
-        
+        self.addition_theorem = addition_theorem
     def project_to_manifold(self, g):
         """
         Take first m columns of an orthogonal matrix.
@@ -237,7 +238,7 @@ class Stiefel(CompactHomogeneousSpace):
         return res
 
     def get_eigenfunctions(self, num: int) -> AveragingAdditionTheorem:
-        eigenfunctions = StiefelEigenfunctions(self, num, self.samples_H)
+        eigenfunctions = StiefelEigenfunctions(self, num, self.samples_H, addition_theorem=self.addition_theorem)
         return eigenfunctions
 
     def get_repeated_eigenvalues(self, num: int) -> B.Numeric:
