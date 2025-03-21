@@ -218,9 +218,7 @@ def feature_map_from_space(space: Space, num: int):
 
 @overload
 def default_num(space: DiscreteSpectrumSpace) -> int:
-    if isinstance(space, CompactMatrixLieGroup):
-        return MaternGeometricKernel._DEFAULT_NUM_LEVELS_LIE_GROUP
-    elif isinstance(space, CompactHomogeneousSpace):
+    if isinstance(space, CompactMatrixLieGroup) or isinstance(space, CompactHomogeneousSpace):
         return MaternGeometricKernel._DEFAULT_NUM_LEVELS_LIE_GROUP
     elif isinstance(space, (Graph, Mesh)):
         return min(
@@ -352,16 +350,8 @@ class MaternGeometricKernel:
         """
 
         kernel: BaseGeometricKernel
-        if isinstance(space, DiscreteSpectrumSpace):
-            num = num or default_num(space)
-            if isinstance(space, HodgeDiscreteSpectrumSpace):
-                kernel = MaternHodgeCompositionalKernel(space, num, normalize=normalize)
-            else:
-                kernel = MaternKarhunenLoeveKernel(space, num, normalize=normalize)
-            if return_feature_map:
-                feature_map = default_feature_map(kernel=kernel)
 
-        elif isinstance(space, NoncompactSymmetricSpace):
+        if isinstance(space, NoncompactSymmetricSpace) or isinstance(space, CompactHomogeneousSpace):
             num = num or default_num(space)
             if "key" in kwargs:
                 key = kwargs["key"]
@@ -374,10 +364,20 @@ class MaternGeometricKernel:
                     )
                     % str(type(space))
                 )
+            
             feature_map = default_feature_map(space=space, num=num)
             kernel = MaternFeatureMapKernel(
                 space, feature_map, key, normalize=normalize
             )
+        elif isinstance(space, DiscreteSpectrumSpace):
+            num = num or default_num(space)
+            if isinstance(space, HodgeDiscreteSpectrumSpace):
+                kernel = MaternHodgeCompositionalKernel(space, num, normalize=normalize)
+            else:
+                kernel = MaternKarhunenLoeveKernel(space, num, normalize=normalize)
+            if return_feature_map:
+                feature_map = default_feature_map(kernel=kernel)
+
         else:
             raise NotImplementedError
 
