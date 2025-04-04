@@ -120,7 +120,7 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         :return:
             [N1, N2, ...] an array of points in `G`.
         """
-
+        
         g = self.M.embed_manifold(X)
         g2 = self.M.embed_manifold(X2)
         diff = self.G_difference(g, g2)
@@ -128,7 +128,7 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
 
     
     def _addition_theorem(
-        self, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs
+        self, X: B.Numeric, X2: B.Numeric, **kwargs
     ) -> B.Numeric:
         r"""
         For each level (that corresponds to a unitary irreducible
@@ -154,9 +154,15 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         :return:
             [N1, N2, L]
         """
-
+        X_, X2_ = X, X2
+        
+        if X.shape[-1] != self.M.n:
+             X_ = self.M.embed_manifold(X)
+        if X2.shape[-1] != self.M.n:
+             X2_ = self.M.embed_manifold(X2)
+        
         # [N * N2, G_n, G_n]
-        diff = self._difference(X, X2).reshape(-1, self.G_n, self.G_n)
+        diff = self.G_difference(X_, X2_).reshape(-1, self.G_n, self.G_n)
         # [N * N2 * samples_H, G_n, G_n]
         diff_h = self.G_difference(diff, self.samples_H).reshape(
             -1, self.G_n, self.G_n
@@ -314,7 +320,7 @@ class CompactHomogeneousSpace(DiscreteSpectrumSpace):
         """
         raise NotImplementedError
 
-    def random(self, key, number: int):
+    def random(self, key, number: int, project=False):
         """
         Samples random points from the uniform distribution on M.
 
@@ -327,4 +333,7 @@ class CompactHomogeneousSpace(DiscreteSpectrumSpace):
             [number, ...] an array of randomly generated points.
         """
         key, raw_samples = self.G.random(key, number)
-        return key, self.project_to_manifold(raw_samples)
+        if project:
+            return key, self.project_to_manifold(raw_samples)
+        else:
+            return key, raw_samples
