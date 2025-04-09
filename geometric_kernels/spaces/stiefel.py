@@ -194,17 +194,16 @@ class Stiefel(CompactHomogeneousSpace):
             [..., n, n] array of points in SO(n).
         """
 
-        g, r = qr(x, mode="complete")
-        r_diag = einsum("...ii->...i", r[..., : self.m, : self.m])
-        r_diag = B.concat(
-            r_diag, B.ones(B.dtype(x), *x.shape[:-2], self.n - self.m), axis=-1
-        )
-        g = g * r_diag[..., None]
-        diff = 2 * (1.0 * B.all(B.abs(g[..., : self.m] - x) < 1e-5, axis=-1) - 0.5)
-        g = g * diff[..., None]
-        det_sign_g = B.sign(B.det(g))
-        g[:, :, -1] *= det_sign_g[:, None]
+        p = B.matmul(x, B.transpose(x, [0, 2, 1]))  # Shape: (b, n, n)
+        r = B.randn(B.dtype(x), *x.shape[:-1], self.n-self.m)  # Shape: (b, n, n - m)
+        
+        r_orth = r - B.matmul(p, r)  # (b, n, n - m)
 
+        q, _ = qr(r_orth)   # (b, n, n - m)
+
+        g = B.concat(x, q, axis=2)  # (b, n, n)
+        det = B.sign(B.det(g))
+        g[:, :, -1] *= det[:, None]
         return g
 
     def embed_stabilizer(self, h):
