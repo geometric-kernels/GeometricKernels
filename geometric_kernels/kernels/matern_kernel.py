@@ -23,6 +23,7 @@ from geometric_kernels.kernels.hodge_compositional import MaternHodgeComposition
 from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import (
     CompactMatrixLieGroup,
+    Grassmannian,
     CompactHomogeneousSpace,
     DiscreteSpectrumSpace,
     Graph,
@@ -77,7 +78,7 @@ def default_feature_map(
 
 @overload
 def feature_map_from_kernel(kernel: MaternKarhunenLoeveKernel):
-    if isinstance(kernel.space, CompactMatrixLieGroup):
+    if isinstance(kernel.space, CompactMatrixLieGroup) or isinstance(kernel.space, Grassmannian):
         # Because `CompactMatrixLieGroup` does not currently support explicit
         # eigenfunction computation (they only support addition theorem).
         return RandomPhaseFeatureMapCompact(
@@ -284,7 +285,7 @@ class MaternGeometricKernel:
     _DEFAULT_NUM_LEVELS = 25
     _DEFAULT_NUM_LEVELS_LIE_GROUP = 20
     _DEFAULT_NUM_RANDOM_PHASES = 3000
-    _DEFAULT_NUM_RANDOM_PHASES_HOMOGENEOUS_SPACE = 100
+    _DEFAULT_NUM_RANDOM_PHASES_HOMOGENEOUS_SPACE = 200
 
     def __new__(
         cls,

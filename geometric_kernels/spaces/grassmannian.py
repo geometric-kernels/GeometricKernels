@@ -5,15 +5,42 @@ its spectrum, the :class:`GrassmannianEigenfunctions` class.
 
 import lab as B
 import numpy as np
+import operator
+import json
+from functools import reduce
+import itertools
 from opt_einsum import contract as einsum
+import math
+import sympy
+from beartype.typing import List, Tuple, Optional
+from geometric_kernels.lab_extras import qr, dtype_double, from_numpy
+from geometric_kernels.spaces.eigenfunctions import EigenfunctionsWithAdditionTheorem
+from geometric_kernels.spaces import DiscreteSpectrumSpace
+from geometric_kernels.spaces.so import SpecialOrthogonal, SOEigenfunctions
 
-from geometric_kernels.lab_extras import qr
-from geometric_kernels.spaces.homogeneous_spaces import (
-    AveragingAdditionTheorem,
-    CompactHomogeneousSpace,
-)
-from geometric_kernels.spaces.so import SpecialOrthogonal
+from geometric_kernels.utils.utils import get_resource_file_path
 
+class SO2():
+    """
+    Dummy class for the circle(SO(2)) matrices.
+    """
+
+    def __init__(self):
+        self.dim = 1
+     
+    def random(self, key, number):
+        """
+        Randomly samples `number` matrices of size 2 x 2.
+        Each sample is uniformly sampled over SO(2).
+        """
+        key, thetas = B.random.randn(key, dtype_double(key), number, 1)
+        thetas = 2 * math.pi * thetas
+        c = B.cos(thetas)
+        s = B.sin(thetas)
+        r1 = B.stack(c, s, axis=-1)
+        r2 = B.stack(-s, c, axis=-1)
+        q = B.concat(r1, r2, axis=-2)
+        return key, q
 
 class _SOxSO:
     """
@@ -23,8 +50,14 @@ class _SOxSO:
 
     def __init__(self, n: int, m: int):
         self.n, self.m = n, m
-        self.so_n = SpecialOrthogonal(n)
-        self.so_m = SpecialOrthogonal(m)
+        if n == 2:
+            self.so_n = SO2()
+        else:
+            self.so_n = SpecialOrthogonal(n)
+        if m == 2:
+            self.so_m = SO2()
+        else:
+            self.so_m = SpecialOrthogonal(m)
         self.dim = self.so_n.dim + self.so_m.dim
 
     def random(self, key, number):
@@ -46,24 +79,246 @@ class _SOxSO:
         return key, res
 
 
-class GrassmannianEigenfunctions(AveragingAdditionTheorem):
-    def _compute_projected_character_value_at_e(self, signature) -> int:
-        """
-        Value of character on class of identity element is equal to the
-        dimension of invariant space. In case of the Grassmannian this value
-        always equal to 1, since the space is symmetric.
+class GrassmannianZonalSphericalFunction:
+    """
+    The class that represents a zonal spherical function on the Grassmannian
 
-        :param signature:
-            The signature of a representation.
+    These are polynomials whose coefficients are precomputed and stored in a
+    file. By default, there are 20 precomputed characters for n from 3 to 10.
+    If you want more, use the `compute_grassmannian_zsf.py` script.
+
+    :param n:
+        The order n of the Gr(n, m).
+    :param n:
+        The order m of the Gr(n, m).
+    :param signature:
+        The signature that determines a particular character (and an
+        irreducible unitary representation along with it).
+    """
+
+    def __init__(self, n: int, m:int, signature: Tuple[int, ...]):
+        self.signature = signature
+        self.n = n
+        self.m = m
+        self.coeffs, self.monoms = self._load()
+        self.normalization = np.sum(self.coeffs)  # Normalization factor for the character
+    def _load(self):
+        group_name = "Gr({},{})".format(self.n, self.m)
+        with get_resource_file_path("precomputed_grassmanian_zsf.json") as file_path:
+            with file_path.open("r") as file:
+                character_formulas = json.load(file)
+                try:
+                    cs, ms = character_formulas[group_name][str(self.signature)]
+                    coeffs, monoms = (np.array(data) for data in (cs, ms))
+                    return coeffs, monoms
+                except KeyError as e:
+                    raise KeyError(
+                        "Unable to retrieve character parameters for signature {} of {}, "
+                        "perhaps it is not precomputed."
+                        "Run compute_characters.py with changed parameters.".format(
+                            e.args[0], group_name
+                        )
+                    ) from None
+
+    def __call__(self, gammas: B.Numeric) -> B.Numeric:
+        char_val = B.zeros(B.dtype(gammas), *gammas.shape[:-1])
+        for coeff, monom in zip(self.coeffs, self.monoms):
+            char_val += coeff * B.prod(
+                gammas ** B.cast(B.dtype(gammas), from_numpy(gammas, monom)), axis=-1
+            )
+        return char_val/ self.normalization
+
+
+class GrassmannianEigenfunctions(EigenfunctionsWithAdditionTheorem):
+    def __init__(self, space, num_levels, compute_zsf=True):
+        super().__init__()
+        self.space = space
+        
+        self.n = space.n
+        self.m = space.m
+        self._num_levels = num_levels
+        self.rank = min(self.m, self.n - self.m)
+        
+        self.G_eigenfunctions = SOEigenfunctions(self.n, num_levels=0, compute_characters=False)
+
+        self._signatures = self._generate_signatures(num_levels)
+        self._eigenvalues = np.array([self._compute_eigenvalue(sgn) for sgn in self._signatures])
+        self.G_dimensions = [self.G_eigenfunctions._compute_dimension(signature)
+                                for signature in self._signatures]
+        if compute_zsf:
+            self._zsf = [self._compute_zsf(self.n, self.m, sgn) for sgn in self._signatures]
+        
+        self._num_eigenfunctions = None
+
+    def _generate_signatures(self, num_levels: int) -> List[Tuple[int, ...]]:
+        eigen_map = {}
+        rank = self.rank
+        if rank <= 1:
+            SIGNATURE_SUM = 100
+        else:
+            SIGNATURE_SUM = 20
+        if num_levels <= 0:
+            return []
+
+        if rank <= 0:
+            raise ValueError("m must be less than n")
+        # Degree 0: The empty partition
+        sgn_trivial = tuple([0]*rank)
+        eigen_map[sgn_trivial] = 0.0
+
+        # Iterate through degrees (sum of parts of the partition)
+        for degree in range(1, SIGNATURE_SUM):
+            for p_dict in sympy.utilities.iterables.partitions(degree):
+                partition_list = []
+                for val, count in sorted(p_dict.items(), reverse=True):
+                    partition_list.extend([val] * count)
+                kappa = list(partition_list)
+
+                if len(kappa) <= rank: # Filter by max allowed length for this Grassmannian
+                    kappa = kappa + [0] * (rank - len(kappa))  # Pad with zeros to match rank
+                    sgn = tuple(kappa)
+                    if sgn not in eigen_map:
+                        eigen_map[sgn] = self._compute_eigenvalue(sgn)
+
+        # Convert to list of (eigenvalue, kappa) for sorting
+        # Sort by eigenvalue, then by partition degree, then by partition tuple (lexicographically)
+        # for stable and canonical tie-breaking.
+        sorted_eigenpairs = sorted(
+            [(eig, sgn) for sgn, eig in eigen_map.items()],
+            key=lambda x: (x[0], sum(x[1]), x[1])
+        )
+        signatures = [sgn for _, sgn in sorted_eigenpairs]
+        return signatures[:num_levels]
+
+    def _compute_eigenvalue(self, signature):
+        """
+        Computes the eigenvalue of the Laplace-Beltrami operator.
+        """
+        if signature[0] == 0:
+            return 0.0
+        
+        eigenvalue = 0.0
+        for j_idx, sgn_j in enumerate(signature):
+            if signature[j_idx] == 0:
+                break
+            j = j_idx + 1
+            eigenvalue += sgn_j * (sgn_j + self.n - 2 * j)
+        return eigenvalue
+
+
+    def _compute_zsf(
+        self, n: int, m: int, signature: Tuple[int, ...]
+    ) -> GrassmannianZonalSphericalFunction:
+        return GrassmannianZonalSphericalFunction(n, m, signature)
+
+    def _difference(self, X: B.Numeric, X2: B.Numeric) -> B.Numeric:
+        """
+        Pairwise differences between points of the homogeneous space M
+        embedded into G.
+
+        :param X:
+            [N1, ...] an array of points in `M`.
+        :param X2:
+            [N2, ...] an array of points in `M`.
 
         :return:
-            Value at e, the identity element.
+            [N1, N2, ...] an array of points in `G`.
         """
+        
+        g = self.space.embed_manifold(X)
+        g2 = self.space.embed_manifold(X2)
+        diff = self.G_eigenfunctions._difference(g, g2, inverse_X=True)
+        diff = self.space.project_to_manifold(diff)
+        return diff
 
-        return 1
+    def _torus_representative(
+            self, X: B.Numeric, **kwargs
+        ) -> B.Numeric:
+        """
+        Computes the torus representative of the difference between two matrices.
+        For the Grassmannian, this is just the difference itself.
+        """
+        # X has shape [..., n, m]
+        X_ = X[..., :self.m, :] # [..., m, m]
+        X_T_X = einsum('...ji,...jk->...ik', X_, X_)
+        eigvals = B.eig(X_T_X, compute_eigvecs=False)
+        eigvals = B.sort(eigvals, axis=-1, descending=True)[..., :self.rank]  # Sort eigenvalues
+        return eigvals
 
+    def _addition_theorem(
+            self, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs
+        ) -> B.Numeric:
+            r"""
+            For each level (that corresponds to a unitary irreducible
+            representation of the group), computes the sum of outer products of
+            Laplace-Beltrami eigenfunctions that correspond to this level
+            (representation). Uses the fact that such sums are equal to the
+            character of the representation multiplied by the dimension of that
+            representation. See :cite:t:`azangulov2024a` for mathematical details.
 
-class Grassmannian(CompactHomogeneousSpace):
+            :param X:
+                An [N, n, n]-shaped array, a batch of N matrices of size nxn.
+            :param X2:
+                An [N2, n, n]-shaped array, a batch of N2 matrices of size nxn.
+
+                Defaults to None, in which case X is used for X2.
+            :param ``**kwargs``:
+                Any additional parameters.
+
+            :return:
+                An array of shape [N, N2, L].
+            """
+            if X2 is None:
+                X2 = X
+            diff = self._difference(X, X2)
+            torus_repr_diff = self._torus_representative(diff)
+            values = [
+                repr_dim * zsf(torus_repr_diff)[..., None]  # [N, N2, 1]
+                for zsf, repr_dim in zip(self._zsf, self.G_dimensions)
+            ]
+            return B.concat(*values, axis=-1)  # [N, N2, L]
+
+    def _addition_theorem_diag(self, X: B.Numeric, **kwargs) -> B.Numeric:
+        """
+        A more efficient way of computing the diagonals of the matrices
+        `self._addition_theorem(X, X)[:, :, l]` for all l from 0 to L-1.
+
+        :param X:
+            As in :meth:`_addition_theorem`.
+        :param ``**kwargs``:
+            As in :meth:`_addition_theorem`.
+
+        :return:
+            An array of shape [N, L].
+        """
+        ones = B.ones(B.dtype(X), *X.shape[:-2], 1)
+        values = [
+            repr_dim * ones  # [N, 1], because chi(X*inv(X))=repr_dim
+            for repr_dim in self.G_dimensions
+        ]
+        return B.concat(*values, axis=1)  # [N, L]
+    
+    @property
+    def num_eigenfunctions_per_level(self) -> List[int]:
+        """
+        The number of eigenfunctions per level.
+
+        :return:
+            List of ones of length num_levels.
+        """
+        return self.G_dimensions
+
+    @property
+    def num_eigenfunctions(self) -> int:
+        if self._num_eigenfunctions is None:
+            self._num_eigenfunctions = sum(self.num_eigenfunctions_per_level)
+        return self._num_eigenfunctions
+
+    @property
+    def num_levels(self) -> int:
+        return self._num_levels
+
+class Grassmannian(DiscreteSpectrumSpace):
     r"""
     The GeometricKernels space representing the Grassmannian manifold Gr(n, m)
     as the homogeneous space O(n) / (O(m) x O(n-m)) which also happens
@@ -84,7 +339,7 @@ class Grassmannian(CompactHomogeneousSpace):
         citing :cite:t:`azangulov2022`.
     """
 
-    def __new__(cls, n, m, key, average_order=100):
+    def __init__(self, n: int, m: int):
         """
         :param n:
             The number of rows.
@@ -98,17 +353,15 @@ class Grassmannian(CompactHomogeneousSpace):
         :return:
             A tuple (new random state, a realization of Gr(m, n)).
         """
-
         assert n > m, "n should be greater than m"
-        H = _SOxSO(m, n - m)
-        G = SpecialOrthogonal(n)
-        key, samples_H = H.random(key, average_order)
-        new_space = super().__new__(cls)
-        new_space.__init__(G=G, H=H, samples_H=samples_H, average_order=average_order)
-        new_space.n = n
-        new_space.m = m
-        new_space.dim = G.dim - H.dim
-        return key, new_space
+        assert (m > 1) and (m < n-1), "Isomorphic to hypersphere, use Hypersphere class instead"
+        
+        super().__init__()
+        self.H = _SOxSO(m, n - m)
+        self.G = SpecialOrthogonal(n)
+        self.dim_H = self.H.dim
+        self.n = n
+        self.m = m
 
     def project_to_manifold(self, g):
         """
@@ -129,25 +382,27 @@ class Grassmannian(CompactHomogeneousSpace):
         [n, n] one using QR algorithm.
 
         :param x:
-            [..., n, m] array of points in Gr(n, m).
+            [..., n, m] array of points in V(m, n).
 
         :return g:
             [..., n, n] array of points in SO(n).
         """
+        if x.shape[-1] == self.n:
+            # If x is already in SO(n), just return it
+            return x
 
-        g, r = qr(x, mode="complete")
-        r_diag = einsum("...ii->...i", r[..., : self.m, : self.m])
-        r_diag = B.concat(
-            r_diag, B.ones(B.dtype(x), *x.shape[:-2], self.n - self.m), axis=-1
-        )
-        g = g * r_diag[:, None]
-        diff = 2 * (B.all(B.abs(g[..., : self.m] - x) < 1e-5, axis=-1) - 0.5)
-        g = g * diff[..., None]
-        det_sign_g = B.sign(B.det(g))
-        g[:, :, -1] *= det_sign_g[:, None]
+        p = B.matmul(x, B.transpose(x, [0, 2, 1]))  # Shape: (b, n, n)
+        r = B.randn(B.dtype(x), *x.shape[:-1], self.n-self.m)  # Shape: (b, n, n - m)
+        
+        r_orth = r - B.matmul(p, r)  # (b, n, n - m)
 
-        assert B.all((B.abs(x - g[:, :, : x.shape[-1]])) < 1e-6)
+        q, _ = qr(r_orth)   # (b, n, n - m)
+
+        g = B.concat(x, q, axis=2)  # (b, n, n)
+        det = B.sign(B.det(g))
+        g[:, :, -1] *= det[:, None]
         return g
+
 
     def embed_stabilizer(self, h):
         """
@@ -162,15 +417,15 @@ class Grassmannian(CompactHomogeneousSpace):
         """
         return h
 
-    def get_eigenfunctions(self, num: int) -> AveragingAdditionTheorem:
-        eigenfunctions = GrassmannianEigenfunctions(self, num, self.samples_H)
+    def get_eigenfunctions(self, num: int) -> GrassmannianEigenfunctions:
+        eigenfunctions = GrassmannianEigenfunctions(self, num)
         return eigenfunctions
 
     def get_repeated_eigenvalues(self, num: int) -> B.Numeric:
         return self.get_eigenvalues(num)
 
     def get_eigenvalues(self, num: int) -> B.Numeric:
-        eigenfunctions = GrassmannianEigenfunctions(self, num, self.samples_H)
+        eigenfunctions = GrassmannianEigenfunctions(self, num)
         eigenvalues = np.array(eigenfunctions._eigenvalues)
         return B.reshape(eigenvalues, -1, 1)  # [num, 1]
 
@@ -181,3 +436,36 @@ class Grassmannian(CompactHomogeneousSpace):
             [n, m].
         """
         return [self.n, self.m]
+
+    @property
+    def element_dtype(self):
+        """
+        Return the data type of the elements of the Grassmannian.
+        """
+        return B.Float
+
+    @property
+    def dimension(self):
+        """
+        Return the dimension of the Grassmannian.
+        """
+        return self.n * (self.n - self.m)
+
+    def random(self, key, number: int, project=False):
+        """
+        Samples random points from the uniform distribution on M.
+
+        :param key:
+            A random state.
+        :param number:
+            A number of random to generate.
+
+        :return:
+            [number, ...] an array of randomly generated points.
+        """
+        key, raw_samples = self.G.random(key, number)
+        if project:
+            return key, self.project_to_manifold(raw_samples)
+        else:
+            return key, raw_samples
+
