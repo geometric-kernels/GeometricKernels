@@ -78,6 +78,44 @@ class _SOxSO:
         res = B.concat(l, r, axis=-1)  # [number, n + m, n + m]
         return key, res
 
+class _S_OxO:
+    """
+    Helper class for sampling. Represents SO(n) x SO(m), as described by
+    (n+m) x (n+m) block-diagonal matrices.
+    """
+
+    def __init__(self, n: int, m: int):
+        self.n, self.m = n, m
+        if n == 2:
+            self.so_n = SO2()
+        else:
+            self.so_n = SpecialOrthogonal(n)
+        if m == 2:
+            self.so_m = SO2()
+        else:
+            self.so_m = SpecialOrthogonal(m)
+        self.dim = self.so_n.dim + self.so_m.dim
+
+    def random(self, key, number):
+        """
+        Randomly samples `number` matrices of size (n+m) x (n+m).
+
+        Each sample has a form of `[[H_n, 0], [0, H_m]]`. The upper left block
+        is uniformly sampled over SO(n), and the lower right block is
+        uniformly sampled over SO(m).
+        """
+        key, sign = B.randint(key, dtype_double(key), number, lower=0, upper=2)
+        sign = 2*sign - 1  # convert to -1, 1
+        key, h_u = self.so_n.random(key, number)  # [number, n, n]
+        key, h_d = self.so_m.random(key, number)  # [number, m, m]
+        h_u, h_d = sign[:,None,None] * h_u, sign[:,None,None] * h_d  # Apply sign to both blocks
+        zeros = B.zeros(B.dtype(h_u), number, self.n, self.m)  # [number, n, m]
+        zeros_t = B.transpose(zeros)
+
+        # [number, n + m, n], [number, n + m, m]
+        l, r = B.concat(h_u, zeros_t, axis=-2), B.concat(zeros, h_d, axis=-2)
+        res = B.concat(l, r, axis=-1)  # [number, n + m, n + m]
+        return key, res
 
 class GrassmannianZonalSphericalFunction:
     """
@@ -138,7 +176,7 @@ class GrassmannianEigenfunctions(EigenfunctionsWithAdditionTheorem):
         self.m = space.m
         self._num_levels = num_levels
         self.rank = min(self.m, self.n - self.m)
-        
+        self.G_rank = space.G.rank
         self.G_eigenfunctions = SOEigenfunctions(self.n, num_levels=0, compute_characters=False)
 
         self._signatures = self._generate_signatures(num_levels)
@@ -163,7 +201,7 @@ class GrassmannianEigenfunctions(EigenfunctionsWithAdditionTheorem):
         if rank <= 0:
             raise ValueError("m must be less than n")
         # Degree 0: The empty partition
-        sgn_trivial = tuple([0]*rank)
+        sgn_trivial = tuple([0]*self.G_rank)
         eigen_map[sgn_trivial] = 0.0
 
         # Iterate through degrees (sum of parts of the partition)
@@ -175,9 +213,10 @@ class GrassmannianEigenfunctions(EigenfunctionsWithAdditionTheorem):
                 kappa = list(partition_list)
 
                 if len(kappa) <= rank: # Filter by max allowed length for this Grassmannian
-                    kappa = kappa + [0] * (rank - len(kappa))  # Pad with zeros to match rank
+                    kappa = kappa + [0] * (self.G_rank - len(kappa))  # Pad with zeros to match rank
+                    kappa_even = all(x % 2 == 0 for x in kappa)
                     sgn = tuple(kappa)
-                    if sgn not in eigen_map:
+                    if sgn not in eigen_map and kappa_even:
                         eigen_map[sgn] = self._compute_eigenvalue(sgn)
 
         # Convert to list of (eigenvalue, kappa) for sorting
