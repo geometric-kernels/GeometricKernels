@@ -25,7 +25,7 @@ from tqdm import tqdm
 
 from geometric_kernels.spaces.so import SOEigenfunctions
 from geometric_kernels.spaces.su import SUEigenfunctions  # noqa
-from geometric_kernels.spaces.grassmannian import GrassmannianEigenfunctions
+from geometric_kernels.spaces.grassmannian import GrassmannianEigenfunctions, Grassmannian
 from geometric_kernels.utils.utils import (
     get_resource_file_path,
     partition_dominance_cone,
@@ -157,7 +157,7 @@ def compute_grassmanninan_zsf(n, m, signature):
 if __name__ == "__main__":
     characters = {}
     if not recalculate:
-        with get_resource_file_path("precomputed_characters.json") as storage_file_name:
+        with get_resource_file_path("precomputed_grassmanian_zsf.json") as storage_file_name:
             with open(storage_file_name, "r") as file:
                 characters = json.load(file)
 
@@ -165,7 +165,8 @@ if __name__ == "__main__":
         for m in range(2, n-1):
             group_name = "Gr({},{})".format(n, m)
             print(group_name)
-            eigenfunctions = GrassmannianEigenfunctions(None, n, m, order, compute_zsf=False)
+            grassmanian = Grassmannian(n, m)
+            eigenfunctions = GrassmannianEigenfunctions(grassmanian, order, compute_zsf=False)
             if recalculate or (not recalculate and group_name not in characters):
                 characters[group_name] = {}
             for signature in tqdm(eigenfunctions._signatures):
