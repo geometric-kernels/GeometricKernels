@@ -76,7 +76,7 @@ def multiplicity(n, m, omega):
     return total
 
 def sample_SO2(key, number):
-        key, thetas = B.random.randn(key, dtype_double(key), number, 1)
+        key, thetas = B.random.rand(key, dtype_double(key), number, 1)
         thetas = 2 * math.pi * thetas
         c = B.cos(thetas)
         s = B.sin(thetas)

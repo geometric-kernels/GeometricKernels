@@ -33,7 +33,7 @@ class SO2():
         Randomly samples `number` matrices of size 2 x 2.
         Each sample is uniformly sampled over SO(2).
         """
-        key, thetas = B.random.randn(key, dtype_double(key), number, 1)
+        key, thetas = B.random.rand(key, dtype_double(key), number, 1)
         thetas = 2 * math.pi * thetas
         c = B.cos(thetas)
         s = B.sin(thetas)
@@ -449,7 +449,7 @@ class Grassmannian(DiscreteSpectrumSpace):
         """
         Return the dimension of the Grassmannian.
         """
-        return self.n * (self.n - self.m)
+        return self.m * (self.n - self.m)
 
     def random(self, key, number: int, project=False):
         """
