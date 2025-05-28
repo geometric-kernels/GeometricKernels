@@ -181,7 +181,7 @@ class GrassmannianEigenfunctions(EigenfunctionsWithAdditionTheorem):
 
         self._signatures = self._generate_signatures(num_levels)
         self._eigenvalues = np.array([self._compute_eigenvalue(sgn) for sgn in self._signatures])
-        self.G_dimensions = [self.G_eigenfunctions._compute_dimension(signature)
+        self.repr_dim = [(1+(signature[-1] != 0)) * self.G_eigenfunctions._compute_dimension(signature)
                                 for signature in self._signatures]
         if compute_zsf:
             self._zsf = [self._compute_zsf(self.n, self.m, sgn) for sgn in self._signatures]
@@ -281,7 +281,7 @@ class GrassmannianEigenfunctions(EigenfunctionsWithAdditionTheorem):
         X_ = X[..., :self.m, :] # [..., m, m]
         X_T_X = einsum('...ji,...jk->...ik', X_, X_)
         eigvals = B.eig(X_T_X, compute_eigvecs=False)
-        eigvals = B.sort(eigvals, axis=-1, descending=True)[..., :self.rank]  # Sort eigenvalues
+        eigvals = B.sort(eigvals, axis=-1, descending=False)[..., :self.rank]  # Sort eigenvalues
         return eigvals
 
     def _addition_theorem(
@@ -313,7 +313,7 @@ class GrassmannianEigenfunctions(EigenfunctionsWithAdditionTheorem):
             torus_repr_diff = self._torus_representative(diff)
             values = [
                 repr_dim * zsf(torus_repr_diff)[..., None]  # [N, N2, 1]
-                for zsf, repr_dim in zip(self._zsf, self.G_dimensions)
+                for zsf, repr_dim in zip(self._zsf, self.repr_dim)
             ]
             return B.concat(*values, axis=-1)  # [N, N2, L]
 
@@ -333,7 +333,7 @@ class GrassmannianEigenfunctions(EigenfunctionsWithAdditionTheorem):
         ones = B.ones(B.dtype(X), *X.shape[:-2], 1)
         values = [
             repr_dim * ones  # [N, 1], because chi(X*inv(X))=repr_dim
-            for repr_dim in self.G_dimensions
+            for repr_dim in self.repr_dim
         ]
         return B.concat(*values, axis=1)  # [N, L]
     
@@ -345,7 +345,7 @@ class GrassmannianEigenfunctions(EigenfunctionsWithAdditionTheorem):
         :return:
             List of ones of length num_levels.
         """
-        return self.G_dimensions
+        return self.repr_dim
 
     @property
     def num_eigenfunctions(self) -> int:
