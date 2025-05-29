@@ -123,7 +123,7 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         
         g = self.M.embed_manifold(X)
         g2 = self.M.embed_manifold(X2)
-        diff = self.G_difference(g, g2)
+        diff = self.G_difference(g, g2, inverse_X=True)
         return diff
 
     

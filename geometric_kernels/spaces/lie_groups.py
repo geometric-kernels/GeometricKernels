@@ -199,7 +199,6 @@ class WeylAdditionTheorem(EigenfunctionsWithAdditionTheorem):
             :cite:t:`azangulov2024a`. This is because $\chi(x y x^{-1})=\chi(y)$
             which implies that $\chi(x y) = \chi(y x)$.
         """
-        print(X.shape, X2.shape)
         if inverse_X:
             X_inv = self.inverse(X)
             diff = einsum('nij,mjk->nmik', X_inv, X2)  # (N, N2, n, n)
