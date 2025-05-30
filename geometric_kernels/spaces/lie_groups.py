@@ -8,11 +8,13 @@ import abc
 
 import lab as B
 import numpy as np
+
+from lab import einsum
 from beartype.typing import List, Optional, Tuple
 
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import EigenfunctionsWithAdditionTheorem
-from opt_einsum import contract as einsum
+
 
 class LieGroupCharacter(abc.ABC):
     """

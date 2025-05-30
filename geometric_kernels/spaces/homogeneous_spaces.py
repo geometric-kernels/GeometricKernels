@@ -7,7 +7,7 @@ import abc
 import lab as B
 import numpy as np
 from beartype.typing import Optional, List
-from opt_einsum import contract as einsum
+from lab import einsum
 
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import EigenfunctionsWithAdditionTheorem
@@ -126,7 +126,7 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         diff = self.G_difference(g, g2, inverse_X=True)
         return diff
 
-    
+
     def _addition_theorem(
         self, X: B.Numeric, X2: B.Numeric, **kwargs
     ) -> B.Numeric:
@@ -177,7 +177,7 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         ]
 
         return B.concat(*values, axis=-1)  # [N, N2, L]
-        
+
 
     def _addition_theorem_diag(self, X: B.Numeric, **parameters) -> B.Numeric:
         """

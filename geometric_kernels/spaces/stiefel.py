@@ -5,8 +5,7 @@ its spectrum, the :class:`StiefelEigenfunctions` class.
 
 import lab as B
 import numpy as np
-import math
-from opt_einsum import contract as einsum
+
 from functools import lru_cache
 
 from geometric_kernels.lab_extras import qr, dtype_double
@@ -56,8 +55,9 @@ def generate_intertwining_weights(n, omega):
         for weight in gen(0, omega[0]):
             yield weight
 
+
 @lru_cache(maxsize=None)
-def multiplicity(n, m, omega):
+def stiefel_multiplicity(n, m, omega):
     """
     Compute the multiplicity of the representation with highest weight omega
     in L^2(SO(n)/SO(n - m)).
@@ -72,18 +72,9 @@ def multiplicity(n, m, omega):
     # Recursive case: branch from SO(n) to SO(n-1)
     total = 0
     for omega_prime in generate_intertwining_weights(n, omega):
-        total += multiplicity(n - 1, m - 1, omega_prime)
+        total += stiefel_multiplicity(n - 1, m - 1, omega_prime)
     return total
 
-def sample_SO2(key, number):
-        key, thetas = B.random.rand(key, dtype_double(key), number, 1)
-        thetas = 2 * math.pi * thetas
-        c = B.cos(thetas)
-        s = B.sin(thetas)
-        r1 = B.stack(c, s, axis=-1)
-        r2 = B.stack(-s, c, axis=-1)
-        q = B.concat(r1, r2, axis=-2)
-        return key, q
 
 class StiefelEigenfunctions(AveragingAdditionTheorem):
     def _compute_projected_character_value_at_e(self, signature):
@@ -99,7 +90,7 @@ class StiefelEigenfunctions(AveragingAdditionTheorem):
             Value of character on the class of identity element.
         """
 
-        return multiplicity(self.M.n, self.M.m, signature)
+        return stiefel_multiplicity(self.M.n, self.M.m, signature)
 
 class Stiefel(CompactHomogeneousSpace):
     r"""
@@ -136,14 +127,11 @@ class Stiefel(CompactHomogeneousSpace):
 
         assert n > m, "n should be greater than m"
         G = SpecialOrthogonal(n)
-        if n-m >= 3:
+        
+        if n-m >=2:
             H = SpecialOrthogonal(n - m)
             key, samples_H = H.random(key, average_order)
             dim_H = H.dim
-        elif n-m == 2:
-            # H is a circle
-            key, samples_H = sample_SO2(key, average_order)
-            dim_H = 1
         else:
             # H is a two point set {+1, -1}
             average_order = 2
@@ -236,6 +224,12 @@ class Stiefel(CompactHomogeneousSpace):
         return res
 
     def get_eigenfunctions(self, num: int) -> AveragingAdditionTheorem:
+        """
+        Returns the :class:`~.AveragingAdditionTheorem` object with `num` levels.
+
+        :param num:
+            Number of levels.
+        """
         eigenfunctions = StiefelEigenfunctions(self, num, self.samples_H)
         return eigenfunctions
 
@@ -267,4 +261,3 @@ class Stiefel(CompactHomogeneousSpace):
         Return the dimension of the Stiefel manifold.
         """
         return self.n * self.m - self.m * (self.m + 1) // 2
-

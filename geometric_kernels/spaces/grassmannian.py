@@ -5,13 +5,10 @@ its spectrum, the :class:`GrassmannianEigenfunctions` class.
 
 import lab as B
 import numpy as np
-import operator
 import json
-from functools import reduce
-import itertools
-from opt_einsum import contract as einsum
-import math
 import sympy
+
+from lab import einsum
 from beartype.typing import List, Tuple, Optional
 from geometric_kernels.lab_extras import qr, dtype_double, from_numpy
 from geometric_kernels.spaces.eigenfunctions import EigenfunctionsWithAdditionTheorem
@@ -20,44 +17,19 @@ from geometric_kernels.spaces.so import SpecialOrthogonal, SOEigenfunctions
 
 from geometric_kernels.utils.utils import get_resource_file_path
 
-class SO2():
-    """
-    Dummy class for the circle(SO(2)) matrices.
-    """
 
-    def __init__(self):
-        self.dim = 1
-     
-    def random(self, key, number):
-        """
-        Randomly samples `number` matrices of size 2 x 2.
-        Each sample is uniformly sampled over SO(2).
-        """
-        key, thetas = B.random.rand(key, dtype_double(key), number, 1)
-        thetas = 2 * math.pi * thetas
-        c = B.cos(thetas)
-        s = B.sin(thetas)
-        r1 = B.stack(c, s, axis=-1)
-        r2 = B.stack(-s, c, axis=-1)
-        q = B.concat(r1, r2, axis=-2)
-        return key, q
-
-class _SOxSO:
+class GrassmannainStabilizer:
     """
-    Helper class for sampling. Represents SO(n) x SO(m), as described by
-    (n+m) x (n+m) block-diagonal matrices.
+    Helper class for sampling from Grassmannian stabilizer that is represented as S(O(n) x O(m))
+    by (n+m) x (n+m) block-diagonal matrices.
     """
 
     def __init__(self, n: int, m: int):
         self.n, self.m = n, m
-        if n == 2:
-            self.so_n = SO2()
-        else:
-            self.so_n = SpecialOrthogonal(n)
-        if m == 2:
-            self.so_m = SO2()
-        else:
-            self.so_m = SpecialOrthogonal(m)
+
+        self.so_n = SpecialOrthogonal(n)
+        self.so_m = SpecialOrthogonal(m)
+        
         self.dim = self.so_n.dim + self.so_m.dim
 
     def random(self, key, number):
@@ -65,50 +37,16 @@ class _SOxSO:
         Randomly samples `number` matrices of size (n+m) x (n+m).
 
         Each sample has a form of `[[H_n, 0], [0, H_m]]`. The upper left block
-        is uniformly sampled over SO(n), and the lower right block is
-        uniformly sampled over SO(m).
-        """
-        key, h_u = self.so_n.random(key, number)  # [number, n, n]
-        key, h_d = self.so_m.random(key, number)  # [number, m, m]
-        zeros = B.zeros(B.dtype(h_u), number, self.n, self.m)  # [number, n, m]
-        zeros_t = B.transpose(zeros)
-
-        # [number, n + m, n], [number, n + m, m]
-        l, r = B.concat(h_u, zeros_t, axis=-2), B.concat(zeros, h_d, axis=-2)
-        res = B.concat(l, r, axis=-1)  # [number, n + m, n + m]
-        return key, res
-
-class _S_OxO:
-    """
-    Helper class for sampling. Represents SO(n) x SO(m), as described by
-    (n+m) x (n+m) block-diagonal matrices.
-    """
-
-    def __init__(self, n: int, m: int):
-        self.n, self.m = n, m
-        if n == 2:
-            self.so_n = SO2()
-        else:
-            self.so_n = SpecialOrthogonal(n)
-        if m == 2:
-            self.so_m = SO2()
-        else:
-            self.so_m = SpecialOrthogonal(m)
-        self.dim = self.so_n.dim + self.so_m.dim
-
-    def random(self, key, number):
-        """
-        Randomly samples `number` matrices of size (n+m) x (n+m).
-
-        Each sample has a form of `[[H_n, 0], [0, H_m]]`. The upper left block
-        is uniformly sampled over SO(n), and the lower right block is
-        uniformly sampled over SO(m).
+        is uniformly sampled over O(n), and the lower right block is
+        uniformly sampled over O(m), and the signs of the blocks are adjusted 
         """
         key, sign = B.randint(key, dtype_double(key), number, lower=0, upper=2)
         sign = 2*sign - 1  # convert to -1, 1
         key, h_u = self.so_n.random(key, number)  # [number, n, n]
         key, h_d = self.so_m.random(key, number)  # [number, m, m]
-        h_u, h_d = sign[:,None,None] * h_u, sign[:,None,None] * h_d  # Apply sign to both blocks
+        h_u[:,:, -1] *= sign[:, None]  # Ensure the last column of h_u has the same sign as the block
+        h_d[:,:,-1] *= sign[:, None]  # Ensure the last column of h_d has the same sign as the block
+        
         zeros = B.zeros(B.dtype(h_u), number, self.n, self.m)  # [number, n, m]
         zeros_t = B.transpose(zeros)
 
@@ -116,6 +54,7 @@ class _S_OxO:
         l, r = B.concat(h_u, zeros_t, axis=-2), B.concat(zeros, h_d, axis=-2)
         res = B.concat(l, r, axis=-1)  # [number, n + m, n + m]
         return key, res
+
 
 class GrassmannianZonalSphericalFunction:
     """
@@ -396,7 +335,7 @@ class Grassmannian(DiscreteSpectrumSpace):
         assert (m > 1) and (m < n-1), "Isomorphic to hypersphere, use Hypersphere class instead"
         
         super().__init__()
-        self.H = _SOxSO(m, n - m)
+        self.H = GrassmannainStabilizer(m, n - m)
         self.G = SpecialOrthogonal(n)
         self.dim_H = self.H.dim
         self.n = n
