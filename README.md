@@ -120,6 +120,22 @@ This should output
  [0.36 0.36 1.  ]]
 ```
 
+## Notebooks
+
+You can find numerous example notebooks for GeometricKernels [here in the docs](https://geometric-kernels.github.io/GeometricKernels/examples/index.html) or [here in the tree](https://github.com/geometric-kernels/GeometricKernels/tree/main/notebooks). These cover every *space* (e.g., sphere, graph), *backend* (e.g., Torch, JAX), *frontend* (e.g., GPyTorch, GPflow), and more.
+
+## Application Examples
+
+Looking for practical use cases of GeometricKernels? Check out
+
+* [PeMS Regression](https://github.com/vabor112/pems-regression):
+  A benchmark suite for graph node regression with uncertainty. This project employs GeometricKernels among other tools, and offers processed data, baseline models, and an [example notebook](https://github.com/vabor112/pems-regression/tree/main/notebooks/GeometricProbabilisticModels.ipynb) for experiments on graph-structured data.
+  Notably, in this benchmark, geometric Gaussian processes built with GeometricKernels have been shown to outperform various alternative methods, including ensembles of graph neural networks and Bayesian graph neural networks.
+
+* [Bayesian optimization demonstration](https://github.com/geometric-kernels/GeometricKernels/blob/main/notebooks/other/Bayesian%20Optimization.ipynb):
+  A minimal notebook illustrating the use of GeometricKernels with the [`botorch`](https://botorch.org/) library for Bayesian optimization.
+  This is a simple, self-contained example designed to demonstrate core concepts rather than to reflect a real-world scenario.
+
 ## Documentation
 
 The documentation for GeometricKernels is available on a [separate website](https://geometric-kernels.github.io/GeometricKernels/index.html).

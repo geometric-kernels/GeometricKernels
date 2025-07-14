@@ -18,3 +18,4 @@ mypy
 
 # For running some tests
 scikit-learn
+geoopt
