@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.3.1 - 21.07.2025
+* Example Applications by @vabor112 in https://github.com/geometric-kernels/GeometricKernels/pull/157
+
 ## v0.3 - 29.01.2025
 * Implementation of kernels on the edge space of graphs or simplicial complexes by @cookbook-ms in https://github.com/geometric-kernels/GeometricKernels/pull/139
 
