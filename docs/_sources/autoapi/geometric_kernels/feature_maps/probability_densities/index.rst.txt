@@ -1,0 +1,157 @@
+geometric_kernels.feature_maps.probability_densities
+====================================================
+
+.. py:module:: geometric_kernels.feature_maps.probability_densities
+
+.. autoapi-nested-parse::
+
+   This module provide the routines for sampling from the Gaussian and Student-t
+   probability densities in a backend-agnostic way. It also provides the routines
+   for sampling the non-standard probability densities that arise in relation to
+   the :class:`~.spaces.Hyperbolic` and
+   :class:`~.spaces.SymmetricPositiveDefiniteMatrices` spaces.
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:function:: base_density_sample(key, size, params, dim, rho, shifted_laplacian = True)
+
+   The Matérn kernel's spectral density is $p_{\nu,\kappa}(\lambda)$, where
+   $\nu$ is the smoothness parameter, $\kappa$ is the length scale and
+   $p_{\nu,\kappa}$ is the Student's t or Gaussian density, depending on the
+   smoothness.
+
+   We call it "base density" and this function returns a sample from it.
+
+   :param key:
+       Either `np.random.RandomState`, `tf.random.Generator`,
+       `torch.Generator` or `jax.tensor` (representing random state).
+   :param size:
+       The returned array `samples` will have the shape `(*size, dim)`.
+   :param params:
+       Params of the kernel.
+   :param dim:
+       Dimensionality of the space the kernel is defined on.
+   :param rho:
+       $\rho$ vector of the space.
+   :param shifted_laplacian:
+       If True, assumes that the kernels are defined in terms of the shifted
+       Laplacian. This often makes Matérn kernels more flexible by widening
+       the effective range of the length scale parameter.
+
+       Defaults to True.
+
+   :return:
+       `Tuple(key, samples)` where `samples` is a `(*size, dim)`-shaped array
+       of samples, and `key` is the updated random key for `jax`, or the
+       similar random state (generator) for any other backend.
+
+
+.. py:function:: hyperbolic_density_sample(key, size, params, dim, shifted_laplacian = True)
+
+   This function samples from the full (i.e., including the $c(\lambda)^{-2}$
+   factor, where $c$ is the Harish-Chandra's $c$-function) spectral density of
+   the heat/Matérn kernel on the hyperbolic space, using rejection sampling.
+
+   :param key:
+       Either `np.random.RandomState`, `tf.random.Generator`,
+       `torch.Generator` or `jax.tensor` (representing random state).
+   :param size:
+       Shape of the returned sample.
+   :param params:
+       Params of the kernel.
+   :param dim:
+       Dimensionality of the space the kernel is defined on.
+   :param shifted_laplacian:
+       If True, assumes that the kernels are defined in terms of the shifted
+       Laplacian. This often makes Matérn kernels more flexible by widening
+       the effective range of the length scale parameter.
+
+       Defaults to True.
+
+   :return:
+       `Tuple(key, samples)` where `samples` is a `size`-shaped array of
+       samples, and `key` is the updated random key for `jax`, or the similar
+       random state (generator) for any other backend.
+
+
+.. py:function:: spd_density_sample(key, size, params, degree, rho, shifted_laplacian = True)
+
+   This function samples from the full (i.e., including the $c(\lambda)^{-2}$
+   factor, where $c$ is the Harish-Chandra's $c$-function) spectral density
+   of the heat/Matérn kernel on the manifold of symmetric positive definite
+   matrices, using rejection sampling.
+
+   :param key:
+       Either `np.random.RandomState`, `tf.random.Generator`,
+       `torch.Generator` or `jax.tensor` (representing random state).
+   :param size:
+       The returned array `samples` will have the shape `(*size, D)`.
+   :param params:
+       Params of the kernel.
+   :param dim:
+       Dimensionality of the space the kernel is defined on.
+   :param degree:
+       The degree D of the SPD(D) space.
+   :param rho:
+       $\rho$ vector of the space, D-dimensional.
+   :param shifted_laplacian:
+       If True, assumes that the kernels are defined in terms of the shifted
+       Laplacian. This often makes Matérn kernels more flexible by widening
+       the effective range of the length scale parameter.
+
+       Defaults to True.
+
+   :return:
+       `Tuple(key, samples)` where `samples` is a `(*size, D)`-shaped array of
+       samples, and `key` is the updated random key for `jax`, or the similar
+       random state (generator) for any other backend.
+
+
+.. py:function:: student_t_sample(key, loc, shape, df, size, dtype = None)
+
+   Sample from the multivariate Student's t-distribution with mean vector
+   `loc`, shape matrix `shape` and `df` degrees of freedom, using `key` random
+   state, and returning sample of shape `size`.
+
+   A multivariate Student's t random vector $T$ with $\nu$ degrees of freedom,
+   a mean vector $\mu$ and a shape matrix $\Sigma$ can be represented as
+
+   .. math:: T = \frac{Z}{\sqrt{V/\nu}} + \mu,
+
+   where $Z \sim N(0, \Sigma)$ and $V \sim \chi^2(\nu)$. The $\chi^2(\nu)$
+   distribution, in its turn, is the same as $\Gamma(\nu / 2, 2)$ distribution,
+   and therefore $V/\nu \sim \Gamma(\nu / 2, 2 / \nu)$. We use these properties
+   to sample a multivariate Student's t random vector by sampling a Gaussian
+   random vector and a Gamma random variable.
+
+   .. warning:: The `shape` parameter has little to do with tensor shapes,
+       it is similar to the covariance matrix in the Gaussian distribution.
+
+   :param key:
+       Either `np.random.RandomState`, `tf.random.Generator`,
+       `torch.Generator` or `jax.tensor` (representing random state).
+   :param loc:
+       Mean vector of the multivariate Student's t-distribution.
+       An array of shape (n,).
+   :param shape:
+       Shape matrix of the multivariate Student's t-distribution.
+       An array of shape (n, n).
+   :param size:
+       The returned array `samples` will have the shape `(*size, n)`.
+   :param df:
+       The number of degrees of freedom of the Student-t distribution,
+       represented as a (1,)-array of the used backend.
+   :param dtype:
+       dtype of the returned tensor.
+
+   :return:
+       `Tuple(key, samples)` where `samples` is a `(*size, n)`-shaped array of
+       samples of type `dtype`, and `key` is the updated random key for `jax`,
+       or the similar random state (generator) for any other backend.
+
+
