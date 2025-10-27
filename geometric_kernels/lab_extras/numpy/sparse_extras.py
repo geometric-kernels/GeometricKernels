@@ -3,7 +3,7 @@ import sys
 import lab as B
 import scipy
 import scipy.sparse as sp
-from beartype.typing import Union
+from beartype.typing import TypeAlias, Union
 from lab import dispatch
 from plum import Signature
 
@@ -14,7 +14,7 @@ SparseArray defines a lab data type that covers all possible sparse
 scipy arrays, so that multiple dispatch works with such arrays.
 """
 if sys.version_info[:2] <= (3, 8):
-    SparseArray = Union[
+    SparseArray: TypeAlias = Union[
         sp.bsr_matrix,
         sp.coo_matrix,
         sp.csc_matrix,
@@ -24,7 +24,7 @@ if sys.version_info[:2] <= (3, 8):
         sp.lil_matrix,
     ]
 else:
-    SparseArray = Union[
+    SparseArray: TypeAlias = Union[
         sp.sparray,
         sp.spmatrix,
     ]
