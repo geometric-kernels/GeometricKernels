@@ -85,6 +85,8 @@ def student_t_sample(
     _check_1_dim_vector(loc, "loc")
     _check_matrix(shape, "shape")
 
+    n = B.shape(loc)[0]
+
     shape_sqrt = B.chol(shape)
     dtype = dtype or dtype_double(key)
     key, z = B.randn(key, dtype, *size, n)
@@ -339,7 +341,7 @@ def _sample_mixture_matern(
     .. todo::
         Update proposition numbers when the paper gets published.
     """
-    _check_1_dim(alpha, "alpha")
+    _check_1_dim_vector(alpha, "alpha")
     m = B.shape(alpha)[0] - 1
     if m < 0:
         raise ValueError("The mixture must contain at least 1 component.")

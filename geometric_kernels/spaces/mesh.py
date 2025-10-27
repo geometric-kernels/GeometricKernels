@@ -62,7 +62,7 @@ class Mesh(DiscreteSpectrumSpace):
         self._vertices = vertices
         if B.shape(self._vertices)[1] != 3:
             # make sure we are in R^3.
-            raise ValueError(f"The last dimension (axis) of `_vertices` must be 3.")
+            raise ValueError("The last dimension (axis) of `_vertices` must be 3.")
 
         self._faces = faces
         self._eigenvalues = None

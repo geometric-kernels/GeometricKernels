@@ -63,7 +63,7 @@ class ProductGeometricKernel(BaseGeometricKernel):
         self.spaces: List[Space] = []
         for kernel in self.kernels:
             # Make sure there is no product kernel in the list of kernels.
-            if isinstance(kernel, ProductGeometricKernel):
+            if not isinstance(kernel.space, Space):  # as opposed to List[Space]
                 raise NotImplementedError(
                     "One of the provided kernels is a product kernel itself."
                 )
@@ -88,7 +88,7 @@ class ProductGeometricKernel(BaseGeometricKernel):
                 for idx in idx_list:
                     if idx < 0:
                         raise ValueError(
-                            f"Expected all `dimension_indices` to be non-negative."
+                            "Expected all `dimension_indices` to be non-negative."
                         )
 
             self.dimension_indices = dimension_indices

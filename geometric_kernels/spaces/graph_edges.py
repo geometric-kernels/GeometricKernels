@@ -219,7 +219,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
             result[oriented_edges[i, 1], oriented_edges[i, 0]] = -i - 1
         return result.tocsr()
 
-    def _checks_oriented_edges(
+    def _checks_oriented_edges(  # NOQA: C901
         self, oriented_edges: B.Numeric, num_nodes: int, comprehensive: bool = False
     ):
         """
@@ -247,24 +247,26 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
         if B.any(oriented_edges[:, 0] - oriented_edges[:, 1] == 0):
             raise ValueError("Loops are not allowed.")
 
-        if comprehensive:
-            num_edges = oriented_edges.shape[0]
+        if not comprehensive:
+            return
 
-            for i in range(num_edges):
-                for j in range(i + 1, num_edges):
-                    if B.all(oriented_edges[i, :] == oriented_edges[j, :]):
-                        raise ValueError(
-                            "`oriented_edges` must not contain duplicate edges."
-                        )
-                    if B.all(oriented_edges[i, :] == oriented_edges[j, ::-1]):
-                        raise ValueError(
-                            "`oriented_edges` must not contain duplicate edges."
-                        )
+        num_edges = oriented_edges.shape[0]
 
-            if set(range(self.num_nodes)) != set(B.to_numpy(B.flatten(oriented_edges))):
-                raise ValueError("`oriented_edges` must contain all nodes.")
+        for i in range(num_edges):
+            for j in range(i + 1, num_edges):
+                if B.all(oriented_edges[i, :] == oriented_edges[j, :]):
+                    raise ValueError(
+                        "`oriented_edges` must not contain duplicate edges."
+                    )
+                if B.all(oriented_edges[i, :] == oriented_edges[j, ::-1]):
+                    raise ValueError(
+                        "`oriented_edges` must not contain duplicate edges."
+                    )
 
-    def _checks_oriented_triangles(
+        if set(range(self.num_nodes)) != set(B.to_numpy(B.flatten(oriented_edges))):
+            raise ValueError("`oriented_edges` must contain all nodes.")
+
+    def _checks_oriented_triangles(  # NOQA: C901
         self, oriented_triangles: B.Numeric, comprehensive=False
     ):
         """
@@ -276,7 +278,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
         :param comprehensive:
             If True, perform more extensive checks.
         """
-        _check_matrix(oriented_triangles)
+        _check_matrix(oriented_triangles, "oriented_triangles")
         if B.shape(oriented_triangles)[1] != 3:
             raise ValueError("`oriented_triangles` must have shape (*, 3).")
 
@@ -293,28 +295,30 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
             raise ValueError(
                 "The absolute values in `oriented_triangles` must be less than `self.num_edges`."
             )
-        if not (
-            B.all(
-                B.abs(oriented_triangles[:, 0]) - B.abs(oriented_triangles[:, 1]) != 0
+        if (
+            B.any(
+                B.abs(oriented_triangles[:, 0]) - B.abs(oriented_triangles[:, 1]) == 0
             )
-            or B.all(
-                B.abs(oriented_triangles[:, 0]) - B.abs(oriented_triangles[:, 2]) != 0
+            and B.any(
+                B.abs(oriented_triangles[:, 0]) - B.abs(oriented_triangles[:, 2]) == 0
             )
-            or B.all(
-                B.abs(oriented_triangles[:, 1]) - B.abs(oriented_triangles[:, 2]) != 0
+            and B.any(
+                B.abs(oriented_triangles[:, 1]) - B.abs(oriented_triangles[:, 2]) == 0
             )
         ):
             raise ValueError("Triangles must consist of 3 different edges.")
 
-        if comprehensive:
-            num_triangles = oriented_triangles.shape[0]
+        if not comprehensive:
+            return
 
-            for i in range(num_triangles):
-                for j in range(i + 1, num_triangles):
-                    if B.all(oriented_triangles[i, :] == oriented_triangles[j, :]):
-                        raise ValueError(
-                            "The oriented_triangles array must not contain duplicate triangles."
-                        )
+        num_triangles = oriented_triangles.shape[0]
+
+        for i in range(num_triangles):
+            for j in range(i + 1, num_triangles):
+                if B.all(oriented_triangles[i, :] == oriented_triangles[j, :]):
+                    raise ValueError(
+                        "The oriented_triangles array must not contain duplicate triangles."
+                    )
 
     def _checks_compatible(
         self,
@@ -397,7 +401,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
             where i = e1[0], j = e2[0], k = e3[0], and e1, e2, e3 are the
             oriented edges constituting the triangle `t`.
         """
-        _check_1_dim_vector(ts)
+        _check_1_dim_vector(ts, "ts")
         if not (B.all(B.abs(ts) >= 0) and B.all(B.abs(ts) < self.num_triangles)):
             raise ValueError("`abs(ts)` must lie in the interval [1, `num_edges`].")
 

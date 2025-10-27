@@ -4,6 +4,7 @@ import lab as B
 from beartype.typing import Dict, List
 
 from geometric_kernels.lab_extras import smart_cast
+from geometric_kernels.utils.utils import _check_1_dim_vector
 
 
 def params_to_params_list(

@@ -215,12 +215,12 @@ class ProductEigenfunctions(Eigenfunctions):
             self.eigenindicies, self.nums_per_level
         )
 
-        if self.eigenindices.shape[-1] != len(self.eigenfunctions):
+        if self.eigenindicies.shape[-1] != len(self.eigenfunctions):
             raise ValueError(
                 "Expected to have S `eigenfunctions` and `eigenindicies` of shape [L, S], "
                 "where S is the number of spaces and L is the number of levels, "
                 f"but got S1={len(self.eigenfunctions)} eigenfunctions and "
-                f"the tshape of `eigenindicies` is {self.eigenindices.shape}, which is incompatible."
+                f"the tshape of `eigenindicies` is {self.eigenindicies.shape}, which is incompatible."
             )
 
     def __call__(self, X: B.Numeric, **kwargs) -> B.Numeric:

@@ -148,7 +148,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         :return:
             The spectrum of the Matérn kernel.
         """
-        _check_1_vector(lenghtscale, "lengthscale")
+        _check_1_vector(lengthscale, "lengthscale")
         _check_1_vector(nu, "nu")
 
         # Note: 1.0 in safe_nu can be replaced by any finite positive value
@@ -228,12 +228,12 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         if "lengthscale" not in params:
             raise ValueError("`params` must contain `lengthscale`.")
         if params["lengthscale"].shape != (1,):
-            raise ValueError(f"`params['lengthscale']` must be a 1-vector.")
+            raise ValueError("`params['lengthscale']` must be a 1-vector.")
 
         if "nu" not in params:
             raise ValueError("`params` must contain `nu`.")
         if params["nu"].shape != (1,):
-            raise ValueError(f"`params['nu']` must be a 1-vector.")
+            raise ValueError("`params['nu']` must be a 1-vector.")
 
         weights = B.cast(B.dtype(params["nu"]), self.eigenvalues(params))  # [L, 1]
         Phi = self.eigenfunctions
@@ -247,12 +247,12 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         if "lengthscale" not in params:
             raise ValueError("`params` must contain `lengthscale`.")
         if params["lengthscale"].shape != (1,):
-            raise ValueError(f"`params['lengthscale']` must be a 1-vector.")
+            raise ValueError("`params['lengthscale']` must be a 1-vector.")
 
         if "nu" not in params:
             raise ValueError("`params` must contain `nu`.")
         if params["nu"].shape != (1,):
-            raise ValueError(f"`params['nu']` must be a 1-vector.")
+            raise ValueError("`params['nu']` must be a 1-vector.")
 
         weights = B.cast(B.dtype(params["nu"]), self.eigenvalues(params))  # [L, 1]
         Phi = self.eigenfunctions
