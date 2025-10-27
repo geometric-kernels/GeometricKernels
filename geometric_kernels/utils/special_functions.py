@@ -11,6 +11,7 @@ from geometric_kernels.lab_extras import (
     int_like,
     take_along_axis,
 )
+from geometric_kernels.utils.utils import _check_matrix
 
 
 def walsh_function(d: int, combination: List[int], x: B.Bool) -> B.Float:
@@ -35,8 +36,9 @@ def walsh_function(d: int, combination: List[int], x: B.Bool) -> B.Float:
         batch. An array of shape [N].
 
     """
-    assert x.ndim == 2
-    assert x.shape[-1] == d
+    _check_matrix(x, "x")
+    if B.shape(x)[-1] != d:
+        raise ValueError("`x` must live in `d`-dimensional space.")
 
     indices = B.cast(int_like(x), from_numpy(x, combination))[None, :]
 
@@ -91,9 +93,12 @@ def kravchuk_normalized(
     :return:
         $G_{d, j, m}/G_{d, j, 0}$ where $G_{d, j, m}$ is the Kravchuk polynomial.
     """
-    assert d > 0
-    assert 0 <= j and j <= d
-    assert B.all(0 <= m) and B.all(m <= d)
+    if d <= 0:
+        raise ValueError("`d` must be positive.")
+    if not (0 <= j and j <= d):
+        raise ValueError("`j` must lie in the interval [0, d].")
+    if not (B.all(0 <= m) and B.all(m <= d)):
+        raise ValueError("`m` must lie in the interval [0, d].")
 
     m = B.cast(B.dtype_float(m), m)
 

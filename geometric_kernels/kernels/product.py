@@ -63,7 +63,8 @@ class ProductGeometricKernel(BaseGeometricKernel):
         self.spaces: List[Space] = []
         for kernel in self.kernels:
             # Make sure there is no product kernel in the list of kernels.
-            assert isinstance(kernel.space, Space)
+            if isinstance(kernel, ProductGeometricKernel):
+                raise NotImplementedError("One of the provided kernels is a product kernel itself.")
             self.spaces.append(kernel.space)
         self.element_shapes = [space.element_shape for space in self.spaces]
         self.element_dtypes = [space.element_dtype for space in self.spaces]
@@ -77,9 +78,12 @@ class ProductGeometricKernel(BaseGeometricKernel):
                 self.dimension_indices.append(inds[i : i + dim])
                 i += dim
         else:
-            assert len(dimension_indices) == len(self.kernels)
+            if len(dimension_indices) != len(self.kernels):
+                raise ValueError(f"`dimension_indices` must correspond to `kernels`, but got {len(kernels)} kernels and {len(dimension_indices)} dimension indices.")
             for idx_list in dimension_indices:
-                assert all(idx >= 0 for idx in idx_list)
+                for idx in idx_list:
+                    if idx < 0:
+                        raise ValueError(f"Expected all `dimension_indices` to be non-negative.")
 
             self.dimension_indices = dimension_indices
 
@@ -99,10 +103,13 @@ class ProductGeometricKernel(BaseGeometricKernel):
         nu_list: List[B.NPNumeric] = []
         lengthscale_list: List[B.NPNumeric] = []
 
-        for kernel in self.kernels:
+        for kernel_idx, kernel in enumerate(self.kernels):
             cur_params = kernel.init_params()
-            assert cur_params["lengthscale"].shape == (1,)
-            assert cur_params["nu"].shape == (1,)
+            if cur_params["lengthscale"].shape != (1,):
+                raise ValueError(f"All kernels' `lengthscale`s must be 1-vectors, but {kernel_idx}th kernel ({kernel}) violates this.")
+            if cur_params["nu"].shape != (1,):
+                raise ValueError(f"All kernels' `nu`s must be 1-vectors, but {kernel_idx}th kernel ({kernel}) violates this.")
+            
             nu_list.append(cur_params["nu"])
             lengthscale_list.append(cur_params["lengthscale"])
 

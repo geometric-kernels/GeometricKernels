@@ -11,6 +11,7 @@ from geometric_kernels.kernels.base import BaseGeometricKernel
 from geometric_kernels.lab_extras import from_numpy, is_complex
 from geometric_kernels.spaces import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
+from geometric_kernels.utils.utils import _check_field_in_params, _check_1_vector
 
 
 class MaternKarhunenLoeveKernel(BaseGeometricKernel):
@@ -73,13 +74,18 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         self.num_levels = num_levels  # in code referred to as `L`.
 
         if eigenvalues_laplacian is None:
-            assert eigenfunctions is None
+            if eigenfunctions is not None:
+                raise ValueError("If you provide `eigenfunctions`, you must also provide the corresponding `eigenvalues_laplacian`.")
             eigenvalues_laplacian = self.space.get_eigenvalues(self.num_levels)
             eigenfunctions = self.space.get_eigenfunctions(self.num_levels)
         else:
-            assert eigenfunctions is not None
-            assert eigenvalues_laplacian.shape == (num_levels, 1)
-            assert eigenfunctions.num_levels == num_levels
+            if eigenfunctions is None:
+                raise ValueError("If you provide `eigenvalues_laplacian`, you must also provide the corresponding `eigenfunctions`.")
+            if eigenvalues_laplacian.shape != (num_levels, 1):
+                raise ValueError(f"Expected `eigenvalues_laplacian` to have shape [num_levels={num_levels}, 1] but got {eigenvalues_laplacian.shape}")
+            if eigenfunctions.num_levels != num_levels:
+                raise ValueError(f"`num_levels` must coincide with `num_levels` in the provided `eigenfunctions`,"
+                f"but `num_levels`={num_levels} and `eigenfunctions.num_levels`={eigenfunctions.num_levels}")
 
         self._eigenvalues_laplacian = eigenvalues_laplacian
         self._eigenfunctions = eigenfunctions
@@ -134,8 +140,8 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         :return:
             The spectrum of the Matérn kernel.
         """
-        assert lengthscale.shape == (1,)
-        assert nu.shape == (1,)
+        _check_1_vector(lenghtscale, "lengthscale")
+        _check_1_vector(nu, "nu")
 
         # Note: 1.0 in safe_nu can be replaced by any finite positive value
         safe_nu = B.where(nu == np.inf, B.cast(B.dtype(lengthscale), np.r_[1.0]), nu)
@@ -180,11 +186,12 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         :return:
             An [L, 1]-shaped array.
         """
-        assert "lengthscale" in params
-        assert params["lengthscale"].shape == (1,)
-        assert "nu" in params
-        assert params["nu"].shape == (1,)
+        _check_field_in_params(params, "lengthscale")
+        _check_1_vector(params["lengthscale"], "params[\"lengthscale\"]")
 
+        _check_field_in_params(params, "nu")
+        _check_1_vector(params["nu"], "params[\"nu\"]")
+        
         spectral_values = self.spectrum(
             self.eigenvalues_laplacian,
             nu=params["nu"],
@@ -210,10 +217,16 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
     def K(
         self, params: Dict[str, B.Numeric], X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs  # type: ignore
     ) -> B.Numeric:
-        assert "lengthscale" in params
-        assert params["lengthscale"].shape == (1,)
-        assert "nu" in params
-        assert params["nu"].shape == (1,)
+        if "lengthscale" not in params:
+            raise ValueError("`params` must contain `lengthscale`.")
+        if params["lengthscale"].shape != (1,):
+            raise ValueError(f"`params['lengthscale']` must be a 1-vector.")
+
+        if "nu" not in params:
+            raise ValueError("`params` must contain `nu`.")
+        if params["nu"].shape != (1,):
+            raise ValueError(f"`params['nu']` must be a 1-vector.")
+        
 
         weights = B.cast(B.dtype(params["nu"]), self.eigenvalues(params))  # [L, 1]
         Phi = self.eigenfunctions
@@ -224,11 +237,16 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             return K
 
     def K_diag(self, params: Dict[str, B.Numeric], X: B.Numeric, **kwargs) -> B.Numeric:
-        assert "lengthscale" in params
-        assert params["lengthscale"].shape == (1,)
-        assert "nu" in params
-        assert params["nu"].shape == (1,)
+        if "lengthscale" not in params:
+            raise ValueError("`params` must contain `lengthscale`.")
+        if params["lengthscale"].shape != (1,):
+            raise ValueError(f"`params['lengthscale']` must be a 1-vector.")
 
+        if "nu" not in params:
+            raise ValueError("`params` must contain `nu`.")
+        if params["nu"].shape != (1,):
+            raise ValueError(f"`params['nu']` must be a 1-vector.")
+        
         weights = B.cast(B.dtype(params["nu"]), self.eigenvalues(params))  # [L, 1]
         Phi = self.eigenfunctions
         K_diag = Phi.weighted_outerproduct_diag(weights, X, **kwargs)  # [N,]

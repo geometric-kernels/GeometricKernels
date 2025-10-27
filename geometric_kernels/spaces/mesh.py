@@ -60,7 +60,10 @@ class Mesh(DiscreteSpectrumSpace):
 
     def __init__(self, vertices: np.ndarray, faces: np.ndarray):
         self._vertices = vertices
-        assert self._vertices.shape[1] == 3  # make sure we all is in R^3.
+        if B.shape(self._vertices)[1] != 3:
+            # make sure we are in R^3.
+            raise ValueError(f"The last dimension (axis) of `_vertices` must be 3.")
+
         self._faces = faces
         self._eigenvalues = None
         self._eigenfunctions = None

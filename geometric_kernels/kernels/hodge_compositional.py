@@ -11,6 +11,7 @@ from beartype.typing import Dict, Optional
 from geometric_kernels.kernels.base import BaseGeometricKernel
 from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import HodgeDiscreteSpectrumSpace
+from geometric_kernels.utils.utils import _check_field_in_params, _check_1_vector
 
 
 class MaternHodgeCompositionalKernel(BaseGeometricKernel):
@@ -129,13 +130,9 @@ class MaternHodgeCompositionalKernel(BaseGeometricKernel):
         inputs, or batches of matrices of inputs, depending on the space.
         """
 
-        assert all(
-            key in params for key in ["harmonic", "gradient", "curl"]
-        ), "MaternHodgeCompositionalKernel's parameters must contain keys 'harmonic', 'gradient', 'curl'."
-        assert all(
-            B.shape(params[key]["logit"]) == (1,)
-            for key in ["harmonic", "gradient", "curl"]
-        ), "The 'logit' parameters of MaternHodgeCompositionalKernel must have shape (1,)."
+        for key in ("harmonic", "gradient", "curl"):
+            _check_field_in_params(params, key)
+            _check_1_vector(params[key]["logit"], f"params[\"{key}\"][\"logit\"]")
 
         # Copy the parameters to avoid modifying the original dict.
         params = {key: params[key].copy() for key in ["harmonic", "gradient", "curl"]}
@@ -162,13 +159,9 @@ class MaternHodgeCompositionalKernel(BaseGeometricKernel):
         diagonal.
         """
 
-        assert all(
-            key in params for key in ["harmonic", "gradient", "curl"]
-        ), "MaternHodgeCompositionalKernel's parameters must contain keys 'harmonic', 'gradient', 'curl'."
-        assert all(
-            B.shape(params[key]["logit"]) == (1,)
-            for key in ["harmonic", "gradient", "curl"]
-        ), "The 'logit' parameters of MaternHodgeCompositionalKernel must have shape (1,)."
+        for key in ("harmonic", "gradient", "curl"):
+            _check_field_in_params(params, key)
+            _check_1_vector(params[key]["logit"], f"params[\"{key}\"][\"logit\"]")        
 
         # Copy the parameters to avoid modifying the original dict.
         params = {key: params[key].copy() for key in ["harmonic", "gradient", "curl"]}

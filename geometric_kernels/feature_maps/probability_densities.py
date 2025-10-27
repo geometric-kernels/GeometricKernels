@@ -22,8 +22,7 @@ from geometric_kernels.lab_extras import (
     eigvalsh,
     from_numpy,
 )
-from geometric_kernels.utils.utils import ordered_pairwise_differences
-
+from geometric_kernels.utils.utils import ordered_pairwise_differences, _check_field_in_params, _check_1_vector, _check_1_dim_vector, _check_matrix
 
 def student_t_sample(
     key: B.RandomState,
@@ -74,13 +73,11 @@ def student_t_sample(
         samples of type `dtype`, and `key` is the updated random key for `jax`,
         or the similar random state (generator) for any other backend.
     """
-    assert B.shape(df) == (1,), "df must be a 1-vector."
+    _check_1_vector(df, "df")
 
-    n = int(B.length(loc))
-
-    assert B.shape(loc) == (n,), "loc must be a 1-dim vector"
-    assert B.shape(shape) == (n, n), "shape must be a matrix"
-
+    _check_1_dim_vector(loc, "loc")
+    _check_matrix(shape, "shape")
+    
     shape_sqrt = B.chol(shape)
     dtype = dtype or dtype_double(key)
     key, z = B.randn(key, dtype, *size, n)
@@ -140,11 +137,12 @@ def base_density_sample(
         of samples, and `key` is the updated random key for `jax`, or the
         similar random state (generator) for any other backend.
     """
-    assert "lengthscale" in params
-    assert params["lengthscale"].shape == (1,)
-    assert "nu" in params
-    assert params["nu"].shape == (1,)
+    _check_field_in_params(params, "lengthscale")
+    _check_1_vector(params["lengthscale"], "params[\"lengthscale\"]")
 
+    _check_field_in_params(params, "nu")
+    _check_1_vector(params["nu"], "params[\"nu\"]")
+    
     nu = params["nu"]
     L = params["lengthscale"]
 
@@ -232,7 +230,8 @@ def _alphas(n: int) -> B.Numeric:
     .. todo::
         Update proposition numbers when the paper gets published.
     """
-    assert n >= 2
+    if n < 2:
+        raise ValueError("Dimension of the hyperbolic space `n` must be >= 2.")
     x, j = symbols("x, j")
     if (n % 2) == 0:
         m = n // 2
@@ -269,9 +268,10 @@ def _sample_mixture_heat(
     .. todo::
         Update proposition numbers when the paper gets published.
     """
-    assert B.rank(alpha) == 1
+    _check_1_dim_vector(alpha, "alpha")
     m = B.shape(alpha)[0] - 1
-    assert m >= 0
+    if m < 0:
+        raise ValueError("The mixture must contain at least 1 component.")
     dtype = B.dtype(lengthscale)
     js = B.range(dtype, 0, m + 1)
 
@@ -332,9 +332,10 @@ def _sample_mixture_matern(
     .. todo::
         Update proposition numbers when the paper gets published.
     """
-    assert B.rank(alpha) == 1
-    m = B.shape(alpha)[0] - 1
-    assert m >= 0
+    _check_1_dim(alpha, "alpha")
+    m = B.shape(alpha)[0] - 1 
+    if m < 0:
+        raise ValueError("The mixture must contain at least 1 component.")    
     dtype = B.dtype(lengthscale)
     js = B.range(dtype, 0, m + 1)
     if shifted_laplacian:
@@ -397,10 +398,11 @@ def hyperbolic_density_sample(
         samples, and `key` is the updated random key for `jax`, or the similar
         random state (generator) for any other backend.
     """
-    assert "lengthscale" in params
-    assert params["lengthscale"].shape == (1,)
-    assert "nu" in params
-    assert params["nu"].shape == (1,)
+    _check_field_in_params(params, "lengthscale")
+    _check_1_vector(params["lengthscale"], "params[\"lengthscale\"]")
+    
+    _check_field_in_params(params, "nu")
+    _check_1_vector(params["nu"], "params[\"nu\"]")
 
     nu = params["nu"]
     L = params["lengthscale"]
@@ -477,11 +479,12 @@ def spd_density_sample(
         samples, and `key` is the updated random key for `jax`, or the similar
         random state (generator) for any other backend.
     """
-    assert "lengthscale" in params
-    assert params["lengthscale"].shape == (1,)
-    assert "nu" in params
-    assert params["nu"].shape == (1,)
+    _check_field_in_params(params, "nu")
+    _check_1_vector(params["nu"], "params[\"nu\"]")
 
+    _check_field_in_params(params, "lengthscale")
+    _check_1_vector(params["lengthscale"], "params[\"lengthscale\"]")    
+    
     nu = params["nu"]
     L = params["lengthscale"]
 
@@ -514,7 +517,6 @@ def spd_density_sample(
         diffp = B.pi * B.abs(diffp)
         logprod = B.sum(B.log(B.tanh(diffp)), axis=-1)
         prod = B.exp(logprod)
-        assert B.all(prod > 0)
 
         # accept with probability `prod`
         key, u = B.rand(key, B.dtype(L), 1)

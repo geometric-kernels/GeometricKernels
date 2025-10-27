@@ -27,7 +27,8 @@ def euclidean_matern_12_kernel(
         The kernel values evaluated at `r`, an array of shape [...].
     """
 
-    assert B.all(r >= 0.0)
+    if not B.all(r >= 0.0):
+        raise ValueError("Distances must be non-negative.")
 
     return B.exp(-r / lengthscale)
 
@@ -49,7 +50,8 @@ def euclidean_matern_32_kernel(
         The kernel values evaluated at `r`, an array of shape [...].
     """
 
-    assert B.all(r >= 0.0)
+    if not B.all(r >= 0.0):
+        raise ValueError("Distances must be non-negative.")
 
     sqrt3 = sqrt(3.0)
     r = r / lengthscale
@@ -73,7 +75,8 @@ def euclidean_matern_52_kernel(
         The kernel values evaluated at `r`, an array of shape [...].
     """
 
-    assert B.all(r >= 0.0)
+    if not B.all(r >= 0.0):
+        raise ValueError("Distances must be non-negative.")    
 
     sqrt5 = sqrt(5.0)
     r = r / lengthscale
@@ -97,7 +100,8 @@ def euclidean_rbf_kernel(
         The kernel values evaluated at `r`, an array of shape [...].
     """
 
-    assert B.all(r >= 0.0)
+    if not B.all(r >= 0.0):
+        raise ValueError("Distances must be non-negative.")    
 
     r = r / lengthscale
     return B.exp(-0.5 * r**2)

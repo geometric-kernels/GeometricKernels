@@ -43,8 +43,10 @@ def _spd_heat_kernel_2x2_base(
     if x2 is None:
         x2 = x
 
-    assert x.shape == (2, 2)
-    assert x2.shape == (2, 2)
+    if B.shape(x) != (2, 2):
+        raise ValueError("`x` must have shape [2, 2].")
+    if x2.shape != (2, 2):
+        raise ValueError("`x2` must have shape [2, 2].")
 
     cl_1 = np.linalg.cholesky(x)
     cl_2 = np.linalg.cholesky(x2)
@@ -53,7 +55,8 @@ def _spd_heat_kernel_2x2_base(
     # Note: singular values that np.linalg.svd outputs are sorted, the following
     # code relies on this fact.
     H1, H2 = np.log(singular_values[0]), np.log(singular_values[1])
-    assert H1 >= H2
+    if H1 < H2:
+        raise RuntimeError("Expected `np.linalg.svd` to return sorted eigenvalues.")
 
     r_H_sq = H1 * H1 + H2 * H2
     alpha = H1 - H2

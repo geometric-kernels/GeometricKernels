@@ -11,6 +11,7 @@ from beartype.typing import Optional
 
 from geometric_kernels.lab_extras import float_like
 from geometric_kernels.utils.utils import hamming_distance
+from geometric_kernels.utils.utils import _check_matrix, _check_1_vector
 
 
 def hypercube_graph_heat_kernel(
@@ -36,9 +37,12 @@ def hypercube_graph_heat_kernel(
     if X2 is None:
         X2 = X
 
-    assert lengthscale.shape == (1,)
-    assert X.ndim == 2 and X2.ndim == 2
-    assert X.shape[-1] == X2.shape[-1]
+    _check_1_vector(lengthscale, "lengthscale")
+    _check_matrix(X, "X")
+    _check_matrix(X2, "X2")
+
+    if X.shape[-1] != X2.shape[-1]:
+        raise ValueError("`X` and `X2` must live in a same-dimensional space.")
 
     if normalized_laplacian:
         d = X.shape[-1]
