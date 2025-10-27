@@ -4,9 +4,8 @@ This module provides the :class:`EdgeGraph` space.
 
 import lab as B
 import numpy as np
-from beartype.door import is_bearable
 from beartype.typing import Dict, List, Optional, Tuple, Union
-from scipy.sparse import csr_matrix, lil_matrix
+from scipy.sparse import csr_matrix, issparse, lil_matrix
 
 from geometric_kernels.lab_extras import (
     SparseArray,
@@ -446,7 +445,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
         """
         if isinstance(adjacency_matrix, np.ndarray):
             index = csr_matrix(adjacency_matrix, dtype=int)
-        elif is_bearable(adjacency_matrix, SparseArray):
+        elif issparse(adjacency_matrix):
             index = csr_matrix(adjacency_matrix, dtype=int, copy=True)
         else:
             raise ValueError(
