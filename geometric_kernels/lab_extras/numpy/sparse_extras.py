@@ -3,9 +3,14 @@ import sys
 import lab as B
 import scipy
 import scipy.sparse as sp
-from beartype.typing import TypeAlias, Union
+from beartype.typing import Union
 from lab import dispatch
 from plum import Signature
+
+try:
+    from typing import TypeAlias  # Py3.10+
+except ImportError:
+    from typing_extensions import TypeAlias
 
 from .extras import _Numeric
 
