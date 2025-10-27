@@ -7,11 +7,6 @@ from beartype.typing import Union
 from lab import dispatch
 from plum import Signature
 
-try:
-    from typing import TypeAlias  # Py3.10+
-except ImportError:
-    from typing_extensions import TypeAlias
-
 from .extras import _Numeric
 
 """
@@ -19,7 +14,7 @@ SparseArray defines a lab data type that covers all possible sparse
 scipy arrays, so that multiple dispatch works with such arrays.
 """
 if sys.version_info[:2] <= (3, 8):
-    SparseArray: TypeAlias = Union[
+    SparseArray = Union[
         sp.bsr_matrix,
         sp.coo_matrix,
         sp.csc_matrix,
@@ -29,7 +24,7 @@ if sys.version_info[:2] <= (3, 8):
         sp.lil_matrix,
     ]
 else:
-    SparseArray: TypeAlias = Union[
+    SparseArray = Union[
         sp.sparray,
         sp.spmatrix,
     ]
