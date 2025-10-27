@@ -76,7 +76,7 @@ def euclidean_matern_52_kernel(
     """
 
     if not B.all(r >= 0.0):
-        raise ValueError("Distances must be non-negative.")    
+        raise ValueError("Distances must be non-negative.")
 
     sqrt5 = sqrt(5.0)
     r = r / lengthscale
@@ -101,7 +101,7 @@ def euclidean_rbf_kernel(
     """
 
     if not B.all(r >= 0.0):
-        raise ValueError("Distances must be non-negative.")    
+        raise ValueError("Distances must be non-negative.")
 
     r = r / lengthscale
     return B.exp(-0.5 * r**2)

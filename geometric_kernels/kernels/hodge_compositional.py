@@ -11,7 +11,7 @@ from beartype.typing import Dict, Optional
 from geometric_kernels.kernels.base import BaseGeometricKernel
 from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import HodgeDiscreteSpectrumSpace
-from geometric_kernels.utils.utils import _check_field_in_params, _check_1_vector
+from geometric_kernels.utils.utils import _check_1_vector, _check_field_in_params
 
 
 class MaternHodgeCompositionalKernel(BaseGeometricKernel):
@@ -132,7 +132,7 @@ class MaternHodgeCompositionalKernel(BaseGeometricKernel):
 
         for key in ("harmonic", "gradient", "curl"):
             _check_field_in_params(params, key)
-            _check_1_vector(params[key]["logit"], f"params[\"{key}\"][\"logit\"]")
+            _check_1_vector(params[key]["logit"], f'params["{key}"]["logit"]')
 
         # Copy the parameters to avoid modifying the original dict.
         params = {key: params[key].copy() for key in ["harmonic", "gradient", "curl"]}
@@ -161,7 +161,7 @@ class MaternHodgeCompositionalKernel(BaseGeometricKernel):
 
         for key in ("harmonic", "gradient", "curl"):
             _check_field_in_params(params, key)
-            _check_1_vector(params[key]["logit"], f"params[\"{key}\"][\"logit\"]")        
+            _check_1_vector(params[key]["logit"], f'params["{key}"]["logit"]')
 
         # Copy the parameters to avoid modifying the original dict.
         params = {key: params[key].copy() for key in ["harmonic", "gradient", "curl"]}

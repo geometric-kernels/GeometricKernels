@@ -240,7 +240,7 @@ def partition_dominance_cone(partition: Tuple[int, ...]) -> Set[Tuple[int, ...]]
 
 
 def partition_dominance_or_subpartition_cone(
-    partition: Tuple[int, ...]
+    partition: Tuple[int, ...],
 ) -> Set[Tuple[int, ...]]:
     """
     Calculates subpartitions and partitions dominated by a given one and having
@@ -386,7 +386,6 @@ def _check_1_dim_vector(x, desc):
 def _check_matrix(x, desc):
     """
     Raise an error if `x` is not a matrix.
-    """    
+    """
     if B.rank(x) != 2 and B.shape(x)[0] != B.shape(x)[1]:
-        raise ValueError(f"`{desc}` must be a matrix.")    
-    
+        raise ValueError(f"`{desc}` must be a matrix.")

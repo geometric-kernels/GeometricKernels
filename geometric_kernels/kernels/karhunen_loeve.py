@@ -11,7 +11,7 @@ from geometric_kernels.kernels.base import BaseGeometricKernel
 from geometric_kernels.lab_extras import from_numpy, is_complex
 from geometric_kernels.spaces import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
-from geometric_kernels.utils.utils import _check_field_in_params, _check_1_vector
+from geometric_kernels.utils.utils import _check_1_vector, _check_field_in_params
 
 
 class MaternKarhunenLoeveKernel(BaseGeometricKernel):
@@ -75,17 +75,25 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
 
         if eigenvalues_laplacian is None:
             if eigenfunctions is not None:
-                raise ValueError("If you provide `eigenfunctions`, you must also provide the corresponding `eigenvalues_laplacian`.")
+                raise ValueError(
+                    "If you provide `eigenfunctions`, you must also provide the corresponding `eigenvalues_laplacian`."
+                )
             eigenvalues_laplacian = self.space.get_eigenvalues(self.num_levels)
             eigenfunctions = self.space.get_eigenfunctions(self.num_levels)
         else:
             if eigenfunctions is None:
-                raise ValueError("If you provide `eigenvalues_laplacian`, you must also provide the corresponding `eigenfunctions`.")
+                raise ValueError(
+                    "If you provide `eigenvalues_laplacian`, you must also provide the corresponding `eigenfunctions`."
+                )
             if eigenvalues_laplacian.shape != (num_levels, 1):
-                raise ValueError(f"Expected `eigenvalues_laplacian` to have shape [num_levels={num_levels}, 1] but got {eigenvalues_laplacian.shape}")
+                raise ValueError(
+                    f"Expected `eigenvalues_laplacian` to have shape [num_levels={num_levels}, 1] but got {eigenvalues_laplacian.shape}"
+                )
             if eigenfunctions.num_levels != num_levels:
-                raise ValueError(f"`num_levels` must coincide with `num_levels` in the provided `eigenfunctions`,"
-                f"but `num_levels`={num_levels} and `eigenfunctions.num_levels`={eigenfunctions.num_levels}")
+                raise ValueError(
+                    f"`num_levels` must coincide with `num_levels` in the provided `eigenfunctions`,"
+                    f"but `num_levels`={num_levels} and `eigenfunctions.num_levels`={eigenfunctions.num_levels}"
+                )
 
         self._eigenvalues_laplacian = eigenvalues_laplacian
         self._eigenfunctions = eigenfunctions
@@ -187,11 +195,11 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             An [L, 1]-shaped array.
         """
         _check_field_in_params(params, "lengthscale")
-        _check_1_vector(params["lengthscale"], "params[\"lengthscale\"]")
+        _check_1_vector(params["lengthscale"], 'params["lengthscale"]')
 
         _check_field_in_params(params, "nu")
-        _check_1_vector(params["nu"], "params[\"nu\"]")
-        
+        _check_1_vector(params["nu"], 'params["nu"]')
+
         spectral_values = self.spectrum(
             self.eigenvalues_laplacian,
             nu=params["nu"],
@@ -226,7 +234,6 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             raise ValueError("`params` must contain `nu`.")
         if params["nu"].shape != (1,):
             raise ValueError(f"`params['nu']` must be a 1-vector.")
-        
 
         weights = B.cast(B.dtype(params["nu"]), self.eigenvalues(params))  # [L, 1]
         Phi = self.eigenfunctions
@@ -246,7 +253,7 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             raise ValueError("`params` must contain `nu`.")
         if params["nu"].shape != (1,):
             raise ValueError(f"`params['nu']` must be a 1-vector.")
-        
+
         weights = B.cast(B.dtype(params["nu"]), self.eigenvalues(params))  # [L, 1]
         Phi = self.eigenfunctions
         K_diag = Phi.weighted_outerproduct_diag(weights, X, **kwargs)  # [N,]

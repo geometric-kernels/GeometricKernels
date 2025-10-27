@@ -1,4 +1,4 @@
-""" Utilities for dealing with manifolds.  """
+"""Utilities for dealing with manifolds."""
 
 import lab as B
 import numpy as np

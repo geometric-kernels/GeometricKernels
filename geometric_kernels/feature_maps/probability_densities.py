@@ -22,7 +22,14 @@ from geometric_kernels.lab_extras import (
     eigvalsh,
     from_numpy,
 )
-from geometric_kernels.utils.utils import ordered_pairwise_differences, _check_field_in_params, _check_1_vector, _check_1_dim_vector, _check_matrix
+from geometric_kernels.utils.utils import (
+    _check_1_dim_vector,
+    _check_1_vector,
+    _check_field_in_params,
+    _check_matrix,
+    ordered_pairwise_differences,
+)
+
 
 def student_t_sample(
     key: B.RandomState,
@@ -77,7 +84,7 @@ def student_t_sample(
 
     _check_1_dim_vector(loc, "loc")
     _check_matrix(shape, "shape")
-    
+
     shape_sqrt = B.chol(shape)
     dtype = dtype or dtype_double(key)
     key, z = B.randn(key, dtype, *size, n)
@@ -138,11 +145,11 @@ def base_density_sample(
         similar random state (generator) for any other backend.
     """
     _check_field_in_params(params, "lengthscale")
-    _check_1_vector(params["lengthscale"], "params[\"lengthscale\"]")
+    _check_1_vector(params["lengthscale"], 'params["lengthscale"]')
 
     _check_field_in_params(params, "nu")
-    _check_1_vector(params["nu"], "params[\"nu\"]")
-    
+    _check_1_vector(params["nu"], 'params["nu"]')
+
     nu = params["nu"]
     L = params["lengthscale"]
 
@@ -333,9 +340,9 @@ def _sample_mixture_matern(
         Update proposition numbers when the paper gets published.
     """
     _check_1_dim(alpha, "alpha")
-    m = B.shape(alpha)[0] - 1 
+    m = B.shape(alpha)[0] - 1
     if m < 0:
-        raise ValueError("The mixture must contain at least 1 component.")    
+        raise ValueError("The mixture must contain at least 1 component.")
     dtype = B.dtype(lengthscale)
     js = B.range(dtype, 0, m + 1)
     if shifted_laplacian:
@@ -399,10 +406,10 @@ def hyperbolic_density_sample(
         random state (generator) for any other backend.
     """
     _check_field_in_params(params, "lengthscale")
-    _check_1_vector(params["lengthscale"], "params[\"lengthscale\"]")
-    
+    _check_1_vector(params["lengthscale"], 'params["lengthscale"]')
+
     _check_field_in_params(params, "nu")
-    _check_1_vector(params["nu"], "params[\"nu\"]")
+    _check_1_vector(params["nu"], 'params["nu"]')
 
     nu = params["nu"]
     L = params["lengthscale"]
@@ -480,11 +487,11 @@ def spd_density_sample(
         random state (generator) for any other backend.
     """
     _check_field_in_params(params, "nu")
-    _check_1_vector(params["nu"], "params[\"nu\"]")
+    _check_1_vector(params["nu"], 'params["nu"]')
 
     _check_field_in_params(params, "lengthscale")
-    _check_1_vector(params["lengthscale"], "params[\"lengthscale\"]")    
-    
+    _check_1_vector(params["lengthscale"], 'params["lengthscale"]')
+
     nu = params["nu"]
     L = params["lengthscale"]
 

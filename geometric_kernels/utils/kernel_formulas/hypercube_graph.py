@@ -10,8 +10,11 @@ import lab as B
 from beartype.typing import Optional
 
 from geometric_kernels.lab_extras import float_like
-from geometric_kernels.utils.utils import hamming_distance
-from geometric_kernels.utils.utils import _check_matrix, _check_1_vector
+from geometric_kernels.utils.utils import (
+    _check_1_vector,
+    _check_matrix,
+    hamming_distance,
+)
 
 
 def hypercube_graph_heat_kernel(

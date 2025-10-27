@@ -44,19 +44,27 @@ class DeterministicFeatureMapCompact(FeatureMap):
 
         if repeated_eigenvalues_laplacian is None:
             if eigenfunctions is not None:
-                raise ValueError("If you provide `eigenfunctions`, you must also provide the corresponding `repeated_eigenvalues_laplacian`.")
+                raise ValueError(
+                    "If you provide `eigenfunctions`, you must also provide the corresponding `repeated_eigenvalues_laplacian`."
+                )
             repeated_eigenvalues_laplacian = self.space.get_repeated_eigenvalues(
                 self.num_levels
             )
             eigenfunctions = self.space.get_eigenfunctions(self.num_levels)
         else:
             if eigenfunctions is None:
-                raise ValueError("If you provide `repeated_eigenvalues_laplacian`, you must also provide the corresponding `eigenfunctions`.")
+                raise ValueError(
+                    "If you provide `repeated_eigenvalues_laplacian`, you must also provide the corresponding `eigenfunctions`."
+                )
             if repeated_eigenvalues_laplacian.shape != (num_levels, 1):
-                raise ValueError(f"Expected `repeated_eigenvalues_laplacian` to have shape [num_levels={num_levels}, 1] but got {repeated_eigenvalues_laplacian.shape}")
+                raise ValueError(
+                    f"Expected `repeated_eigenvalues_laplacian` to have shape [num_levels={num_levels}, 1] but got {repeated_eigenvalues_laplacian.shape}"
+                )
             if eigenfunctions.num_levels != num_levels:
-                raise ValueError(f"`num_levels` must coincide with `num_levels` in the provided `eigenfunctions`,"
-                f"but `num_levels`={num_levels} and `eigenfunctions.num_levels`={eigenfunctions.num_levels}")
+                raise ValueError(
+                    f"`num_levels` must coincide with `num_levels` in the provided `eigenfunctions`,"
+                    f"but `num_levels`={num_levels} and `eigenfunctions.num_levels`={eigenfunctions.num_levels}"
+                )
 
         self._repeated_eigenvalues = repeated_eigenvalues_laplacian
         self._eigenfunctions = eigenfunctions

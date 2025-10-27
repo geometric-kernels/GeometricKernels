@@ -11,7 +11,11 @@ from beartype.typing import Dict, Optional
 from geometric_kernels.feature_maps import FeatureMap
 from geometric_kernels.kernels.base import BaseGeometricKernel
 from geometric_kernels.spaces.base import Space
-from geometric_kernels.utils.utils import make_deterministic, _check_field_in_params, _check_1_vector
+from geometric_kernels.utils.utils import (
+    _check_1_vector,
+    _check_field_in_params,
+    make_deterministic,
+)
 
 
 class MaternFeatureMapKernel(BaseGeometricKernel):
@@ -109,10 +113,10 @@ class MaternFeatureMapKernel(BaseGeometricKernel):
         **kwargs,
     ):
         _check_field_in_params(params, "lengthscale")
-        _check_1_vector(params["lengthscale"], "params[\"lengthscale\"]")
+        _check_1_vector(params["lengthscale"], 'params["lengthscale"]')
 
         _check_field_in_params(params, "nu")
-        _check_1_vector(params["nu"], "params[\"nu\"]")
+        _check_1_vector(params["nu"], 'params["nu"]')
 
         _, features_X = self.feature_map(
             X, params, normalize=self.normalize, **kwargs
@@ -129,11 +133,10 @@ class MaternFeatureMapKernel(BaseGeometricKernel):
 
     def K_diag(self, params: Dict[str, B.Numeric], X: B.Numeric, **kwargs):
         _check_field_in_params(params, "lengthscale")
-        _check_1_vector(params["lengthscale"], "params[\"lengthscale\"]")
+        _check_1_vector(params["lengthscale"], 'params["lengthscale"]')
 
         _check_field_in_params(params, "nu")
-        _check_1_vector(params["nu"], "params[\"nu\"]")
-        
+        _check_1_vector(params["nu"], 'params["nu"]')
 
         _, features_X = self.feature_map(
             X, params, normalize=self.normalize, **kwargs

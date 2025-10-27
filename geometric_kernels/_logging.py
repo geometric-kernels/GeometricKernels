@@ -1,4 +1,4 @@
-""" Setup logging """
+"""Setup logging"""
 
 import logging
 

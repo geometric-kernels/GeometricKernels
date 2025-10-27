@@ -121,7 +121,9 @@ class Graph(DiscreteSpectrumSpace):
             A tuple of eigenvectors [n, num], eigenvalues [num, 1].
         """
         if num > self.num_vertices:
-            raise ValueError("Number of eigenpairs cannot exceed the number of vertices.")
+            raise ValueError(
+                "Number of eigenpairs cannot exceed the number of vertices."
+            )
         if num not in self.cache:
             evals, evecs = eigenpairs(self._laplacian, num)
 
