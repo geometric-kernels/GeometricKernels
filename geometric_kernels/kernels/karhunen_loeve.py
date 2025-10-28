@@ -225,15 +225,11 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
     def K(
         self, params: Dict[str, B.Numeric], X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs  # type: ignore
     ) -> B.Numeric:
-        if "lengthscale" not in params:
-            raise ValueError("`params` must contain `lengthscale`.")
-        if params["lengthscale"].shape != (1,):
-            raise ValueError("`params['lengthscale']` must be a 1-vector.")
+        _check_field_in_params(params, "lengthscale")
+        _check_1_vector(params["lengthscale"], 'params["lengthscale"]')
 
-        if "nu" not in params:
-            raise ValueError("`params` must contain `nu`.")
-        if params["nu"].shape != (1,):
-            raise ValueError("`params['nu']` must be a 1-vector.")
+        _check_field_in_params(params, "nu")
+        _check_1_vector(params["nu"], 'params["nu"]')
 
         weights = B.cast(B.dtype(params["nu"]), self.eigenvalues(params))  # [L, 1]
         Phi = self.eigenfunctions
@@ -244,15 +240,11 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             return K
 
     def K_diag(self, params: Dict[str, B.Numeric], X: B.Numeric, **kwargs) -> B.Numeric:
-        if "lengthscale" not in params:
-            raise ValueError("`params` must contain `lengthscale`.")
-        if params["lengthscale"].shape != (1,):
-            raise ValueError("`params['lengthscale']` must be a 1-vector.")
+        _check_field_in_params(params, "lengthscale")
+        _check_1_vector(params["lengthscale"], 'params["lengthscale"]')
 
-        if "nu" not in params:
-            raise ValueError("`params` must contain `nu`.")
-        if params["nu"].shape != (1,):
-            raise ValueError("`params['nu']` must be a 1-vector.")
+        _check_field_in_params(params, "nu")
+        _check_1_vector(params["nu"], 'params["nu"]')
 
         weights = B.cast(B.dtype(params["nu"]), self.eigenvalues(params))  # [L, 1]
         Phi = self.eigenfunctions
