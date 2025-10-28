@@ -283,7 +283,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
 
         if B.dtype(oriented_triangles) != int_like(oriented_triangles):
             raise ValueError("`oriented_triangles` must be an array of integers.")
-        if B.any(B.abs(oriented_triangles)) < 1:
+        if B.any(B.abs(oriented_triangles) < 1):
             raise ValueError("`oriented_triangles` must contain only non-zero values.")
         if B.any(B.abs(oriented_triangles) > self.num_edges):
             raise ValueError(
