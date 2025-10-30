@@ -290,10 +290,6 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
                 "Absolute values in `oriented_triangles` array must be less than or equal to `self.num_edges`."
             )
 
-        if B.any(B.abs(oriented_triangles) >= self.num_edges):
-            raise ValueError(
-                "The absolute values in `oriented_triangles` must be less than `self.num_edges`."
-            )
         if (
             B.any(
                 B.abs(oriented_triangles[:, 0]) - B.abs(oriented_triangles[:, 1]) == 0
