@@ -45,7 +45,7 @@ class DeterministicFeatureMapCompact(FeatureMap):
         if repeated_eigenvalues_laplacian is None:
             if eigenfunctions is not None:
                 raise ValueError(
-                    "If you provide `eigenfunctions`, you must also provide the corresponding `repeated_eigenvalues_laplacian`."
+                    "You must either provide both `repeated_eigenvalues_laplacian` and `eigenfunctions` or none of the two."
                 )
             repeated_eigenvalues_laplacian = self.space.get_repeated_eigenvalues(
                 self.num_levels
@@ -54,11 +54,11 @@ class DeterministicFeatureMapCompact(FeatureMap):
         else:
             if eigenfunctions is None:
                 raise ValueError(
-                    "If you provide `repeated_eigenvalues_laplacian`, you must also provide the corresponding `eigenfunctions`."
+                    "You must either provide both `repeated_eigenvalues_laplacian` and `eigenfunctions` or none of the two."
                 )
             if repeated_eigenvalues_laplacian.shape != (num_levels, 1):
                 raise ValueError(
-                    f"Expected `repeated_eigenvalues_laplacian` to have shape [num_levels={num_levels}, 1] but got {repeated_eigenvalues_laplacian.shape}"
+                    f"Expected `repeated_eigenvalues_laplacian` to have shape [num_levels={num_levels}, 1] but got {B.shape(repeated_eigenvalues_laplacian)}."
                 )
             if eigenfunctions.num_levels != num_levels:
                 raise ValueError(

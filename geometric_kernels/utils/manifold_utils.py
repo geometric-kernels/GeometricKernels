@@ -22,7 +22,7 @@ def minkowski_inner_product(vector_a: B.Numeric, vector_b: B.Numeric) -> B.Numer
         An [...,]-shaped array of inner products.
     """
     if B.shape(vector_a) != B.shape(vector_b):
-        raise ValueError("`vector_a` and `vector_b` must have the shape shapes.")
+        raise ValueError("`vector_a` and `vector_b` must have the same shapes.")
     n = vector_a.shape[-1] - 1
     if n == 0:
         raise ValueError("Must have at least 1 point.")

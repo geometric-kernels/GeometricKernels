@@ -86,7 +86,10 @@ def student_t_sample(
     _check_matrix(shape, "shape")
 
     n = B.shape(loc)[0]
-
+if tuple(B.shape(shape)) != (n, n):
+    raise ValueError(
+        f"`Expected `shape` matrix to have shape [{n}, {n}] but got {B.shape(shape)}."
+    )
     shape_sqrt = B.chol(shape)
     dtype = dtype or dtype_double(key)
     key, z = B.randn(key, dtype, *size, n)

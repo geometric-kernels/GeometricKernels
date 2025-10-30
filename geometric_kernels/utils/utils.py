@@ -372,7 +372,7 @@ def _check_1_vector(x, desc):
     Raise an error if `x` is not a 1-vector.
     """
     if B.shape(x) != (1,):
-        raise ValueError(f"`{desc}` must be a 1-vector.")
+        raise ValueError(f"`{desc}` must be of shape (1,).")
 
 
 def _check_1_dim_vector(x, desc):

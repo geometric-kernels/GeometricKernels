@@ -220,7 +220,7 @@ class ProductEigenfunctions(Eigenfunctions):
                 "Expected to have S `eigenfunctions` and `eigenindicies` of shape [L, S], "
                 "where S is the number of spaces and L is the number of levels, "
                 f"but got S1={len(self.eigenfunctions)} eigenfunctions and "
-                f"the tshape of `eigenindicies` is {self.eigenindicies.shape}, which is incompatible."
+                f"the shape of `eigenindicies` is {self.eigenindicies.shape}, which is incompatible."
             )
 
     def __call__(self, X: B.Numeric, **kwargs) -> B.Numeric:
