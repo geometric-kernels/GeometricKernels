@@ -391,5 +391,5 @@ def _check_matrix(x, desc):
     """
     Raise an error if `x` is not a matrix.
     """
-    if B.rank(x) != 2 and B.shape(x)[0] != B.shape(x)[1]:
+    if B.rank(x) != 2:
         raise ValueError(f"`{desc}` must be a matrix, but has shape {B.shape(x)}.")
