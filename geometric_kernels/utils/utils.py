@@ -383,7 +383,7 @@ def _check_rank_1_array(x, desc):
     """
     if B.rank(x) != 1:
         raise ValueError(
-            f"`{desc}` must be have 1 dimension (`ndim` == 1), but has shape {B.shape(x)}."
+            f"`{desc}` must have 1 dimension (`ndim` == 1), but has shape {B.shape(x)}."
         )
 
 
