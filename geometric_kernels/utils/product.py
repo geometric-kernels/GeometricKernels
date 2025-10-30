@@ -4,7 +4,7 @@ import lab as B
 from beartype.typing import Dict, List
 
 from geometric_kernels.lab_extras import smart_cast
-from geometric_kernels.utils.utils import _check_1_dim_vector
+from geometric_kernels.utils.utils import _check_rank_1_array
 
 
 def params_to_params_list(
@@ -26,7 +26,7 @@ def params_to_params_list(
             'Shape mismatch between `params["lengthscale"]` and `params["nu"].`'
         )
 
-    _check_1_dim_vector(params["nu"], 'params["nu"]')
+    _check_rank_1_array(params["nu"], 'params["nu"]')
 
     if params["nu"].shape[0] == 1:
         return [params] * number_of_factors

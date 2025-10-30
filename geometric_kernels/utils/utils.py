@@ -369,18 +369,20 @@ def _check_field_in_params(params, field):
 
 def _check_1_vector(x, desc):
     """
-    Raise an error if `x` is not a 1-vector.
+    Raise an error if `x` is not a vector of shape [1,].
     """
     if B.shape(x) != (1,):
-        raise ValueError(f"`{desc}` must be of shape (1,).")
+        raise ValueError(f"`{desc}` must have shape `[1,]`, but has shape {B.shape(x)}.")
 
 
-def _check_1_dim_vector(x, desc):
+def _check_rank_1_array(x, desc):
     """
-    Raise an error if `x` is not a 1-dim vector.
+    Raise an error if `x` is not a rank-1 array.
     """
     if B.rank(x) != 1:
-        raise ValueError(f"`{desc}` must be 1-dim vector.")
+        raise ValueError(
+            f"`{desc}` must be have 1 dimension (`ndim` == 1), but has shape {B.shape(x)}."
+        )
 
 
 def _check_matrix(x, desc):
@@ -388,4 +390,4 @@ def _check_matrix(x, desc):
     Raise an error if `x` is not a matrix.
     """
     if B.rank(x) != 2 and B.shape(x)[0] != B.shape(x)[1]:
-        raise ValueError(f"`{desc}` must be a matrix.")
+        raise ValueError(f"`{desc}` must be a matrix, but has shape {B.shape(x)}.")

@@ -21,7 +21,7 @@ from geometric_kernels.spaces.eigenfunctions import (
     Eigenfunctions,
     EigenfunctionsFromEigenvectors,
 )
-from geometric_kernels.utils.utils import _check_1_dim_vector, _check_matrix
+from geometric_kernels.utils.utils import _check_matrix, _check_rank_1_array
 
 
 class GraphEdges(HodgeDiscreteSpectrumSpace):
@@ -379,7 +379,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
             A 2-dimensional array `result` such that `result[e, :]` is `[i, j]`
             where \|e\| = (i, j) if e > 0 and \|e\| = (j, i) if e < 0.
         """
-        _check_1_dim_vector(es, "es")
+        _check_rank_1_array(es, "es")
         if not (B.all(B.abs(es) >= 1) and B.all(B.abs(es) <= self.num_edges)):
             raise ValueError("`abs(es)` must lie in the interval [1, `num_edges`].")
 
@@ -400,7 +400,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
             where i = e1[0], j = e2[0], k = e3[0], and e1, e2, e3 are the
             oriented edges constituting the triangle `t`.
         """
-        _check_1_dim_vector(ts, "ts")
+        _check_rank_1_array(ts, "ts")
         if not (B.all(B.abs(ts) >= 0) and B.all(B.abs(ts) < self.num_triangles)):
             raise ValueError("`abs(ts)` must lie in the interval [1, `num_edges`].")
 

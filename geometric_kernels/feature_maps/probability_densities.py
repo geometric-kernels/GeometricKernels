@@ -23,10 +23,10 @@ from geometric_kernels.lab_extras import (
     from_numpy,
 )
 from geometric_kernels.utils.utils import (
-    _check_1_dim_vector,
     _check_1_vector,
     _check_field_in_params,
     _check_matrix,
+    _check_rank_1_array,
     ordered_pairwise_differences,
 )
 
@@ -82,14 +82,14 @@ def student_t_sample(
     """
     _check_1_vector(df, "df")
 
-    _check_1_dim_vector(loc, "loc")
+    _check_rank_1_array(loc, "loc")
     _check_matrix(shape, "shape")
 
     n = B.shape(loc)[0]
 
     if tuple(B.shape(shape)) != (n, n):
         raise ValueError(
-            f"`Expected `shape` matrix to have shape [{n}, {n}] but got {B.shape(shape)}."
+            f"`Expected `shape` matrix to have shape [{n}, {n}], but got {B.shape(shape)}."
         )
     shape_sqrt = B.chol(shape)
     dtype = dtype or dtype_double(key)
@@ -281,7 +281,7 @@ def _sample_mixture_heat(
     .. todo::
         Update proposition numbers when the paper gets published.
     """
-    _check_1_dim_vector(alpha, "alpha")
+    _check_rank_1_array(alpha, "alpha")
     m = B.shape(alpha)[0] - 1
     if m < 0:
         raise ValueError("The mixture must contain at least 1 component.")
@@ -345,7 +345,7 @@ def _sample_mixture_matern(
     .. todo::
         Update proposition numbers when the paper gets published.
     """
-    _check_1_dim_vector(alpha, "alpha")
+    _check_rank_1_array(alpha, "alpha")
     m = B.shape(alpha)[0] - 1
     if m < 0:
         raise ValueError("The mixture must contain at least 1 component.")
