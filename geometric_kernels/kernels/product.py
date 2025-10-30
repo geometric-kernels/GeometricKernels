@@ -111,13 +111,15 @@ class ProductGeometricKernel(BaseGeometricKernel):
 
         for kernel_idx, kernel in enumerate(self.kernels):
             cur_params = kernel.init_params()
-            if cur_params["lengthscale"].shape != (1,):
+            if B.shape(cur_params["lengthscale"]) != (1,):
                 raise ValueError(
-                    f"All kernels' `lengthscale`s must be 1-vectors, but {kernel_idx}th kernel ({kernel}) violates this."
+                    f"All kernels' `lengthscale`s must be have shape [1,], but {kernel_idx}th kernel "
+                    f"({kernel}) violates this with shape {B.shape(cur_params['lengthscale'])}."
                 )
-            if cur_params["nu"].shape != (1,):
+            if B.shape(cur_params["nu"]) != (1,):
                 raise ValueError(
-                    f"All kernels' `nu`s must be 1-vectors, but {kernel_idx}th kernel ({kernel}) violates this."
+                    f"All kernels' `nu`s must be have [1,], but {kernel_idx}th kernel "
+                    f"({kernel}) violates this with shape {B.shape(cur_params['nu'])}."
                 )
 
             nu_list.append(cur_params["nu"])

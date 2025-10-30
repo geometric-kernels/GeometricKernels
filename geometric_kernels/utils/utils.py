@@ -372,7 +372,9 @@ def _check_1_vector(x, desc):
     Raise an error if `x` is not a vector of shape [1,].
     """
     if B.shape(x) != (1,):
-        raise ValueError(f"`{desc}` must have shape `[1,]`, but has shape {B.shape(x)}.")
+        raise ValueError(
+            f"`{desc}` must have shape `[1,]`, but has shape {B.shape(x)}."
+        )
 
 
 def _check_rank_1_array(x, desc):

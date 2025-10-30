@@ -76,14 +76,14 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
         if eigenvalues_laplacian is None:
             if eigenfunctions is not None:
                 raise ValueError(
-                    "If you provide `eigenfunctions`, you must also provide the corresponding `eigenvalues_laplacian`."
+                    "You must either provide both `eigenfunctions` and `eigenvalues_laplacian`, or none of the two."
                 )
             eigenvalues_laplacian = self.space.get_eigenvalues(self.num_levels)
             eigenfunctions = self.space.get_eigenfunctions(self.num_levels)
         else:
             if eigenfunctions is None:
                 raise ValueError(
-                    "If you provide `eigenvalues_laplacian`, you must also provide the corresponding `eigenfunctions`."
+                    "You must either provide both `eigenfunctions` and `eigenvalues_laplacian`, or none of the two."
                 )
             if eigenvalues_laplacian.shape != (num_levels, 1):
                 raise ValueError(
