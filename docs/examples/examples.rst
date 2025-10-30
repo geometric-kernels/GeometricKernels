@@ -6,6 +6,7 @@ Spaces
 .. toctree::
    :titlesonly:
 
+   Custom Spaces and Kernels <CustomSpacesAndKernels>
    Graph <Graph>
    GraphEdges <GraphEdges>
    Hyperbolic <Hyperbolic>

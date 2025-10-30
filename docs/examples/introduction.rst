@@ -6,6 +6,8 @@ If you are interested in using GeometricKernels with a backend other than NumPy,
 
 If you want to use GeometricKernels with one of the popular Gaussian process libraries, checkout the *Frontends* notebooks.
 
+If you want to learn how to implement your own space or kernel component, checkout `CustomSpacesAndKernels.ipynb <CustomSpacesAndKernels.html>`_ notebook.
+
 Finally, if you are interested in application examples:
 
 * `PeMS Regression <https://github.com/vabor112/pems-regression>`__  
