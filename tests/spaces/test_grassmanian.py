@@ -75,8 +75,6 @@ def _choose_lengthscale_ratio_two(kernel: MaternKarhunenLoeveKernel, params: dic
         (5, 2),
         (6, 3),
         (7, 3),
-        #pytest.param((6, 3), marks=pytest.mark.xfail(reason="High variance in MC average for larger (n,m) with moderate H")),
-        #pytest.param((7, 3), marks=pytest.mark.xfail(reason="High variance in MC average for larger (n,m) with moderate H")),
     ],
     ids=lambda p: f"Gr({p[0]},{p[1]})",
 )
@@ -110,7 +108,7 @@ def inputs(request):
     return kernel_M, kernel_G, params_M, params_G, x, g, h
 
 
-@pytest.mark.parametrize("backend", ["numpy"])
+@pytest.mark.parametrize("backend",  ["numpy", "tensorflow", "torch", "jax"])
 def test_grassmannian_kernel_averaging(inputs, backend):
     """Grassmannian kernel equals the stabilizer-averaged SO(n) kernel (renormalized)."""
     kernel_M, kernel_G, params_M, params_G, x, g, h = inputs

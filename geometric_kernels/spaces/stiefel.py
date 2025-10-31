@@ -141,7 +141,9 @@ class Stiefel(CompactHomogeneousSpace):
             dim_H = 0
 
         new_space = super().__new__(cls)
-        new_space.__init__(G=G, dim_H=dim_H, samples_H=samples_H, average_order=average_order, n=n, m=m)  # type: ignore
+        matrix_complement = B.randn(B.dtype(samples_H), n, n-m)  # Shape: (n, n - m)
+
+        new_space.__init__(G=G, dim_H=dim_H, samples_H=samples_H, average_order=average_order, n=n, m=m, matrix_complement=matrix_complement)  # type: ignore
         return key, new_space
 
     def __init__(
@@ -149,12 +151,14 @@ class Stiefel(CompactHomogeneousSpace):
         G: SpecialOrthogonal,
         dim_H: int,
         samples_H: B.Numeric,
+        matrix_complement: B.Numeric,
         average_order: int,
         n: int,
         m: int,
     ):
         self.n = n
         self.m = m
+        self.matrix_complement = matrix_complement
         super().__init__(G=G, dim_H=dim_H, samples_H=samples_H, average_order=average_order)
 
     def project_to_manifold(self, g):
@@ -183,8 +187,8 @@ class Stiefel(CompactHomogeneousSpace):
         """
 
         p = B.matmul(x, B.transpose(x, [0, 2, 1]))  # Shape: (b, n, n)
-        r = B.randn(B.dtype(x), *x.shape[:-1], self.n-self.m)  # Shape: (b, n, n - m)
-        
+        r = self.matrix_complement[None, :, :]  # Shape: (1, n, n - m)
+
         r_orth = r - B.matmul(p, r)  # (b, n, n - m)
 
         q, _ = qr(r_orth)   # (b, n, n - m)
