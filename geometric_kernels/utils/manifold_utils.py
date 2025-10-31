@@ -1,4 +1,4 @@
-""" Utilities for dealing with manifolds.  """
+"""Utilities for dealing with manifolds."""
 
 import lab as B
 import numpy as np
@@ -21,9 +21,11 @@ def minkowski_inner_product(vector_a: B.Numeric, vector_b: B.Numeric) -> B.Numer
     :return:
         An [...,]-shaped array of inner products.
     """
-    assert vector_a.shape == vector_b.shape
+    if B.shape(vector_a) != B.shape(vector_b):
+        raise ValueError("`vector_a` and `vector_b` must have the same shapes.")
     n = vector_a.shape[-1] - 1
-    assert n > 0
+    if n == 0:
+        raise ValueError("Must have at least 1 point.")
     diagonal = from_numpy(vector_a, [-1.0] + [1.0] * n)  # (n+1)
     diagonal = B.cast(B.dtype(vector_a), diagonal)
     return B.einsum("...i,...i->...", diagonal * vector_a, vector_b)
@@ -161,6 +163,7 @@ def tangent_onb(manifold, x):
     projected_onb_eigvals = projected_onb_eigvals[ambient_dim - manifold_dim :]
     projected_onb_eigvecs = projected_onb_eigvecs[:, ambient_dim - manifold_dim :]
 
-    assert np.all(np.isclose(projected_onb_eigvals, 1.0))
+    if not np.all(np.isclose(projected_onb_eigvals, 1.0)):
+        raise RuntimeError("Expected `projected_onb_eigvals` to be close to 1")
 
     return projected_onb_eigvecs

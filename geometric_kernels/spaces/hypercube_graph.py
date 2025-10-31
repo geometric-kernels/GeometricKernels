@@ -45,7 +45,8 @@ class WalshFunctions(EigenfunctionsWithAdditionTheorem):
     """
 
     def __init__(self, dim: int, num_levels: int) -> None:
-        assert num_levels <= dim + 1, "The number of levels should be at most dim+1."
+        if num_levels > dim + 1:
+            raise ValueError("The number of levels should be at most `dim`+1.")
         self.dim = dim
         self._num_levels = num_levels
         self._num_eigenfunctions: Optional[int] = None  # To be computed when needed.

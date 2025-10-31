@@ -90,5 +90,6 @@ B.T.register(lambda a: a.T, _SparseArray)
 B.shape.register(lambda a: a.shape, _SparseArray)
 B.sqrt.register(lambda a: a.sqrt(), _SparseArray)
 B.any.register(lambda a: bool((a == True).sum()), _SparseArray)  # noqa
+B.rank.register(lambda a: a.ndim, _SparseArray)
 
 B.linear_algebra.pinv.register(pinv, _SparseArray)

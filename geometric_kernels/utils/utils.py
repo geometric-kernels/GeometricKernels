@@ -240,7 +240,7 @@ def partition_dominance_cone(partition: Tuple[int, ...]) -> Set[Tuple[int, ...]]
 
 
 def partition_dominance_or_subpartition_cone(
-    partition: Tuple[int, ...]
+    partition: Tuple[int, ...],
 ) -> Set[Tuple[int, ...]]:
     """
     Calculates subpartitions and partitions dominated by a given one and having
@@ -326,7 +326,8 @@ def log_binomial(n: B.Int, k: B.Int) -> B.Float:
     :return:
         The logarithm of the binomial coefficient binom(n, k).
     """
-    assert B.all(0 <= k <= n)
+    if not B.all(0 <= k <= n):
+        raise ValueError("Incorrect parameters of the binomial coefficient.")
 
     return B.loggamma(n + 1) - B.loggamma(k + 1) - B.loggamma(n - k + 1)
 
@@ -356,3 +357,39 @@ def binary_vectors_and_subsets(d: int):
             i += 1
 
     return x, combs
+
+
+def _check_field_in_params(params, field):
+    """
+    Raise an error if `params` does not contain a `field`.
+    """
+    if field not in params:
+        raise ValueError(f"`params` must contain `{field}`.")
+
+
+def _check_1_vector(x, desc):
+    """
+    Raise an error if `x` is not a vector of shape [1,].
+    """
+    if B.shape(x) != (1,):
+        raise ValueError(
+            f"`{desc}` must have shape `[1,]`, but has shape {B.shape(x)}."
+        )
+
+
+def _check_rank_1_array(x, desc):
+    """
+    Raise an error if `x` is not a rank-1 array.
+    """
+    if B.rank(x) != 1:
+        raise ValueError(
+            f"`{desc}` must have 1 dimension (`ndim` == 1), but has shape {B.shape(x)}."
+        )
+
+
+def _check_matrix(x, desc):
+    """
+    Raise an error if `x` is not a matrix.
+    """
+    if B.rank(x) != 2:
+        raise ValueError(f"`{desc}` must be a matrix, but has shape {B.shape(x)}.")
