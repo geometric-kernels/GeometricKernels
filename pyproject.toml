@@ -108,4 +108,5 @@ dev = [
   'jaxtyping==0.2.25; python_version == "3.9"',
   'jaxtyping;         python_version != "3.9"',
   'optax',
+  'gpjax',
 ]

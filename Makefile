@@ -42,5 +42,5 @@ lint:
 
 test: ## Run the tests, start with the failing ones and break on first fail.
 	@$(UV_RUN) pytest -v -x --ff -rN -Wignore -s --tb=short --durations=0 --cov --cov-report=xml tests
-	@$(UV_RUN) pytest --nbmake --nbmake-kernel=python3 --durations=0 --nbmake-timeout=1000 --ignore=notebooks/frontends/GPJax.ipynb notebooks/
+	@$(UV_RUN) pytest --nbmake --nbmake-kernel=python3 --durations=0 --nbmake-timeout=1000 notebooks/
 	@echo "$(SUCCESS) Tests done $(SUCCESS)"
