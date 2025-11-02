@@ -25,9 +25,6 @@ jobs:
       uses: astral-sh/setup-uv@v6
       with:
         version: "0.9.6"
-
-      with:
-        python-version: ${{ matrix.python-version }}
       #----------------------------------------------
       #       install
       #----------------------------------------------

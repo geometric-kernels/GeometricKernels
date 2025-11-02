@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
 
-    name: Python-3.11
+    name: Code style
     steps:
       #----------------------------------------------
       #       check-out repo and set-up python
