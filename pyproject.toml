@@ -81,19 +81,16 @@ dev = [
   "mypy",
   "scikit-learn",
   "geoopt",
-
-  # scipy
-  'scipy==1.10.1; python_version == "3.8"',
-  'scipy==1.12.0; python_version >= "3.9" and python_version < "3.12"',
+  'scipy',
 
   # typing-extensions only required on newer pins in 3.10/3.11 files
   'typing_extensions>=4.6; python_version >= "3.10" and python_version < "3.12"',
 
   # Torch
-  "torch==2.1.2",
+  "torch",
+
   # gpytorch
-  'gpytorch; python_version < "3.10"',
-  'gpytorch==1.11; python_version >= "3.10" and python_version < "3.12"',
+  'gpytorch',
   "botorch>=0.9",
 
   # TensorFlow / GPflow / TFP split
@@ -106,12 +103,9 @@ dev = [
   'gpflow==2.9;    python_version >= "3.10" and python_version < "3.12"',
 
   # JAX family
-  'jax==0.4.13;    python_version < "3.10"',
-  'jaxlib==0.4.13; python_version < "3.10"',
-  'jax==0.4.23;    python_version >= "3.10" and python_version < "3.12"',
-  'jaxlib==0.4.23; python_version >= "3.10" and python_version < "3.12"',
+  'jax',
+  'jaxlib',
   'jaxtyping==0.2.25; python_version == "3.9"',
   'jaxtyping;         python_version != "3.9"',
-  'optax==0.1.7; python_version == "3.8"',
-  'optax;        python_version >= "3.9"',
+  'optax',
 ]
