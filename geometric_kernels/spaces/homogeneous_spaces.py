@@ -132,7 +132,7 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         diff = self.G_difference(g, g2, inverse_X=True)
         return diff
 
-    def _addition_theorem(self, X: B.Numeric, X2: B.Numeric, **kwargs) -> B.Numeric:
+    def _addition_theorem(self, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs) -> B.Numeric:
         r"""
         For each level (that corresponds to a unitary irreducible
         representation of the group of symmetries), computes the sum of outer
@@ -148,15 +148,17 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         .. math:: \chi_X(g1,g2) \approx \frac{1}{S^2}\sum_{i=1}^S\sum_{j=1}^S \chi_G(h^{-1}_i g2^{-1} g1 h_j)
 
         :param X:
-            [N1, ...]
+            An [N, n, m]-shaped array, a batch of N matrices of size nxm.
         :param X2:
-            [N2, ...]
+            An [N2, n, m]-shaped array, a batch of N2 matrices of size nxm.
         :param ``**kwargs``:
             Any additional parameters
 
         :return:
             [N1, N2, L]
         """
+        if X2 is None:
+            X2 = X
         X_, X2_ = X, X2
 
         if X.shape[-1] != self.M.n:
