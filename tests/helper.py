@@ -139,7 +139,7 @@ def np_to_backend(value: B.NPNumeric, backend: str):
 
 
 def create_random_state(backend: str, seed: int = 0):
-    dtype = B.dtype(np_to_backend(np.array([1.0]), backend))
+    dtype = B.dtype(np_to_backend(np.array([[1.0]]), backend))
     return B.create_random_state(dtype, seed=seed)
 
 
