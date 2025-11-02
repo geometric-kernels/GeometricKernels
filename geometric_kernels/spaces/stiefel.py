@@ -16,7 +16,7 @@ from geometric_kernels.spaces.homogeneous_spaces import (
 from geometric_kernels.spaces.so import SpecialOrthogonal
 
 
-def generate_intertwining_weights(n, omega):
+def generate_intertwining_weights(n, omega):  # noqa: C901
     """
     Generate possible highest weights when branching from SO(n) to SO(n-1).
     omega: tuple representing the highest weight of SO(n).
