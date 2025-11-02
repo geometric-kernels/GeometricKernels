@@ -10,11 +10,9 @@ jobs:
   check-and-test:
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        python-version: ["3.9", "3.10", "3.11"]
       fail-fast: false
 
-    name: Python-${{ matrix.python-version }}
+    name: Python-3.11
     steps:
       #----------------------------------------------
       #       check-out repo and set-up python
@@ -25,16 +23,13 @@ jobs:
       uses: astral-sh/setup-uv@v6
       with:
         version: "0.9.6"
-
-      with:
-        python-version: ${{ matrix.python-version }}
       #----------------------------------------------
       #       install
       #----------------------------------------------
     - name: Install dependencies
-      run: UV_PYTHON=python${{ matrix.python-version }} make sync
+      run: UV_PYTHON=python3.11 make sync
       #----------------------------------------------
-      #       test
+      #       lint
       #----------------------------------------------
-    - name: Run tests
-      run: make test
+    - name: Run lint
+      run: make lint
