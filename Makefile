@@ -16,11 +16,11 @@ docs:
 
 venv: ## Create a virtualenv (UV_PYTHON=python3.10 to force)
 	@$(UV) venv --seed --python "$${UV_PYTHON:-system}" $(VENV_DIR)
-	@echo $(SUCCESS) "Virtualenv ready in $(VENV_DIR)"
+	@echo "$(SUCCESS) Virtualenv ready in $(VENV_DIR) $(SUCCESS)"
 
 sync: venv ## Resolve + install project and dev deps for development
 	@$(UV) sync --dev
-	@echo $(SUCCESS) "Environment synced from pyproject.toml"
+	@echo "$(SUCCESS) Environment synced from pyproject.toml $(SUCCESS)"
 
 install: sync  ## Backward-compat
 
@@ -30,13 +30,16 @@ format:  ## Formats code with `autoflake`, `black` and `isort`
 	@$(UV)x autoflake --remove-all-unused-imports --recursive --remove-unused-variables --in-place geometric_kernels tests --exclude=__init__.py
 	@$(UV)x black@24.3.0 geometric_kernels tests
 	@$(UV)x isort@5.13.2 geometric_kernels tests
+	@echo "$(SUCCESS) Format done $(SUCCESS)"
 
 lint: sync
 	@$(UV)x flake8@7.0.0 geometric_kernels tests
 	@$(UV)x black@24.3.0 geometric_kernels tests --check --diff
 	@$(UV)x isort@5.13.2 geometric_kernels tests --check-only --diff
 	@$(UV) run mypy --namespace-packages geometric_kernels
+	@echo "$(SUCCESS) Lint done $(SUCCESS)"
 
 test: sync  ## Run the tests, start with the failing ones and break on first fail.
 	@$(UV) run pytest -v -x --ff -rN -Wignore -s --tb=short --durations=0 --cov --cov-report=xml tests
 	@$(UV) run pytest --nbmake --nbmake-kernel=python3 --durations=0 --nbmake-timeout=1000 --ignore=notebooks/frontends/GPJax.ipynb notebooks/
+	@echo "$(SUCCESS) Tests done $(SUCCESS)"
