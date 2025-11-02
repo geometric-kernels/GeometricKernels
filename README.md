@@ -13,7 +13,12 @@ This enables kernel methods &mdash; in particular Gaussian process models &mdash
 
 0. [Optionally] create and activate a new virtual environment.
 
-    You can use Conda
+    You can use [uv](https://github.com/astral-sh/uv)
+    ```bash
+    uv venv
+    ```
+
+    or conda
 
     ```bash
     conda create -n [env_name] python=3.[version]
@@ -32,6 +37,8 @@ This enables kernel methods &mdash; in particular Gaussian process models &mdash
     ```bash
     pip install geometric_kernels
     ```
+
+    **NOTE**: If you use `uv`, swap `pip` with `uv pip` everywhere. If you initialized a project with `uv init`, use `uv add` instead.
 
     If you want to install specific GitHub branch called `[branch]`, run
 
@@ -142,23 +149,36 @@ The documentation for GeometricKernels is available on a [separate website](http
 
 ## For development and running the tests
 
-Run these commands from the root directory of the repository.
+If you want to contribute to the library, thank you! Follow these instructions to set up the environment and run the tests and the code formatting.
 
-Install all backends and the dev requirements (Pytest, black, etc.)
+Initialize the virtual environment.
 
 ```bash
-make install
+make venv [UV_PYTHON=python3.11 VENV_DIR=.venv]
 ```
 
-Run style checks
+You can change the python version and the venv directory. The above are the defaults.
+
+**NOTE**: We use [uv](https://github.com/astral-sh/uv) for development. It is not strictly necessary, and if you don't want to use it, you can still run `make lint` and `make test` if you set `UV_RUN=` to be empty. You will need to set up the environment yourself.
+
+Install all backends and the dev requirements (Pytest, black, etc.). This will install all the backends.
+
 ```bash
-make lint
+make install [UV_PYTHON=python3.11]
+```
+
+**NOTE**: If not using `uv`, you can still install the dev requirements via `pip install -e .[dev]`.
+
+Run style checks
+
+```bash
+make lint [UV_PYTHON=python3.11]
 ```
 
 Run the tests
 
 ```bash
-make test
+make test [UV_PYTHON=python3.11]
 ```
 
 **Example:** If you want to learn how to implement your own space or kernel component, checkout the [CustomSpacesAndKernels.ipynb](https://github.com/geometric-kernels/GeometricKernels/blob/main/notebooks/CustomSpacesAndKernels.ipynb) notebook.
