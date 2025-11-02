@@ -1,4 +1,4 @@
-name: QualityChecks
+name: CodeStyle
 
 on:
   push:
@@ -32,4 +32,4 @@ jobs:
       #       lint
       #----------------------------------------------
     - name: Run lint
-      run: make lint
+      run: UV_PYTHON=python3.11 make lint
