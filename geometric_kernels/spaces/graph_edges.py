@@ -4,9 +4,8 @@ This module provides the :class:`EdgeGraph` space.
 
 import lab as B
 import numpy as np
-from beartype.door import is_bearable
 from beartype.typing import Dict, List, Optional, Tuple, Union
-from scipy.sparse import csr_matrix, lil_matrix
+from scipy.sparse import csr_matrix, issparse, lil_matrix
 
 from geometric_kernels.lab_extras import (
     SparseArray,
@@ -22,6 +21,7 @@ from geometric_kernels.spaces.eigenfunctions import (
     Eigenfunctions,
     EigenfunctionsFromEigenvectors,
 )
+from geometric_kernels.utils.utils import _check_matrix, _check_rank_1_array
 
 
 class GraphEdges(HodgeDiscreteSpectrumSpace):
@@ -218,7 +218,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
             result[oriented_edges[i, 1], oriented_edges[i, 0]] = -i - 1
         return result.tocsr()
 
-    def _checks_oriented_edges(
+    def _checks_oriented_edges(  # NOQA: C901
         self, oriented_edges: B.Numeric, num_nodes: int, comprehensive: bool = False
     ):
         """
@@ -230,43 +230,42 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
         :param comprehensive:
             If True, perform more extensive checks.
         """
+        _check_matrix(oriented_edges, "oriented_edges")
 
-        assert (
-            B.rank(oriented_edges) == 2
-        ), "The oriented_edges array must be 2-dimensional."
+        if B.shape(oriented_edges)[1] != 2:
+            raise ValueError("`oriented_edges` must have shape (*, 2).")
 
-        assert B.shape(oriented_edges)[1] == 2, "oriented_edges must have shape (*, 2)."
+        if B.dtype(oriented_edges) != int_like(oriented_edges):
+            raise ValueError("`oriented_edges` must be an array of integers.")
+        if B.any(oriented_edges < 0):
+            raise ValueError("`oriented_edges` must contain only non-negative values.")
+        if B.any(oriented_edges >= self.num_nodes):
+            raise ValueError(
+                "The values in the `oriented_edges` array must be less than `self.num_nodes.`"
+            )
+        if B.any(oriented_edges[:, 0] - oriented_edges[:, 1] == 0):
+            raise ValueError("Loops are not allowed.")
 
-        assert B.dtype(oriented_edges) == int_like(
-            oriented_edges
-        ), "The oriented_edges must be an array of integers."
-        assert B.all(
-            oriented_edges >= 0
-        ), "The oriented_edges array must contain only non-negative values."
-        assert B.all(
-            oriented_edges < self.num_nodes
-        ), "The values in the oriented_edges array must be < self.num_nodes."
-        assert B.all(
-            oriented_edges[:, 0] - oriented_edges[:, 1] != 0
-        ), "Loops are not allowed."
+        if not comprehensive:
+            return
 
-        if comprehensive:
-            num_edges = oriented_edges.shape[0]
+        num_edges = oriented_edges.shape[0]
 
-            for i in range(num_edges):
-                for j in range(i + 1, num_edges):
-                    assert B.any(
-                        oriented_edges[i, :] != oriented_edges[j, :]
-                    ), "The oriented_edges array must not contain duplicate edges."
-                    assert B.any(
-                        oriented_edges[i, :] != oriented_edges[j, ::-1]
-                    ), "The oriented_edges array must not contain duplicate edges."
+        for i in range(num_edges):
+            for j in range(i + 1, num_edges):
+                if B.all(oriented_edges[i, :] == oriented_edges[j, :]):
+                    raise ValueError(
+                        "`oriented_edges` must not contain duplicate edges."
+                    )
+                if B.all(oriented_edges[i, :] == oriented_edges[j, ::-1]):
+                    raise ValueError(
+                        "`oriented_edges` must not contain duplicate edges."
+                    )
 
-            assert set(range(self.num_nodes)) == set(
-                B.to_numpy(B.flatten(oriented_edges))
-            ), "The oriented_edges array must contain all nodes."
+        if set(range(self.num_nodes)) != set(B.to_numpy(B.flatten(oriented_edges))):
+            raise ValueError("`oriented_edges` must contain all nodes.")
 
-    def _checks_oriented_triangles(
+    def _checks_oriented_triangles(  # NOQA: C901
         self, oriented_triangles: B.Numeric, comprehensive=False
     ):
         """
@@ -278,48 +277,43 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
         :param comprehensive:
             If True, perform more extensive checks.
         """
+        _check_matrix(oriented_triangles, "oriented_triangles")
+        if B.shape(oriented_triangles)[1] != 3:
+            raise ValueError("`oriented_triangles` must have shape (*, 3).")
 
-        assert (
-            B.rank(oriented_triangles) == 2
-        ), "The oriented_triangles array must be 2-dimensional."
-
-        assert (
-            B.shape(oriented_triangles)[1] == 3
-        ), "oriented_triangles must have shape (*, 3)."
-
-        assert B.dtype(oriented_triangles) == int_like(
-            oriented_triangles
-        ), "The oriented_triangles must be an array of integers."
-        assert B.all(
-            B.abs(oriented_triangles) >= 1
-        ), "The oriented_triangles array must contain only non-zero values."
-        assert B.all(
-            B.abs(oriented_triangles) <= self.num_edges
-        ), "The absolute values in the oriented_triangles array must be <= self.num_edges."
-
-        assert B.all(
-            B.abs(oriented_triangles) < self.num_edges
-        ), "The absolute values in the oriented_triangles array must be less than self.num_edges."
-        assert (
-            B.all(
-                B.abs(oriented_triangles[:, 0]) - B.abs(oriented_triangles[:, 1]) != 0
+        if B.dtype(oriented_triangles) != int_like(oriented_triangles):
+            raise ValueError("`oriented_triangles` must be an array of integers.")
+        if B.any(B.abs(oriented_triangles) < 1):
+            raise ValueError("`oriented_triangles` must contain only non-zero values.")
+        if B.any(B.abs(oriented_triangles) > self.num_edges):
+            raise ValueError(
+                "Absolute values in `oriented_triangles` array must be less than or equal to `self.num_edges`."
             )
-            or B.all(
-                B.abs(oriented_triangles[:, 0]) - B.abs(oriented_triangles[:, 2]) != 0
-            )
-            or B.all(
-                B.abs(oriented_triangles[:, 1]) - B.abs(oriented_triangles[:, 2]) != 0
-            )
-        ), "Triangles must consist of 3 different edges."
 
-        if comprehensive:
-            num_triangles = oriented_triangles.shape[0]
+        if (
+            B.any(
+                B.abs(oriented_triangles[:, 0]) - B.abs(oriented_triangles[:, 1]) == 0
+            )
+            and B.any(
+                B.abs(oriented_triangles[:, 0]) - B.abs(oriented_triangles[:, 2]) == 0
+            )
+            and B.any(
+                B.abs(oriented_triangles[:, 1]) - B.abs(oriented_triangles[:, 2]) == 0
+            )
+        ):
+            raise ValueError("Triangles must consist of 3 different edges.")
 
-            for i in range(num_triangles):
-                for j in range(i + 1, num_triangles):
-                    assert B.any(
-                        oriented_triangles[i, :] != oriented_triangles[j, :]
-                    ), "The oriented_triangles array must not contain duplicate triangles."
+        if not comprehensive:
+            return
+
+        num_triangles = oriented_triangles.shape[0]
+
+        for i in range(num_triangles):
+            for j in range(i + 1, num_triangles):
+                if B.all(oriented_triangles[i, :] == oriented_triangles[j, :]):
+                    raise ValueError(
+                        "The oriented_triangles array must not contain duplicate triangles."
+                    )
 
     def _checks_compatible(
         self,
@@ -332,44 +326,42 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
             The oriented triangles array.
         """
 
-        assert B.dtype(self.oriented_edges) == B.dtype(
-            oriented_triangles
-        ), "The oriented_edges and oriented_triangles arrays must have the same dtype."
+        if B.dtype(self.oriented_edges) != B.dtype(oriented_triangles):
+            raise ValueError(
+                "`oriented_edges` and `oriented_triangles` must have the same dtype."
+            )
 
         num_triangles = oriented_triangles.shape[0]
         for t in range(num_triangles):
             resolved_edges = self.resolve_edges(oriented_triangles[t, :])
-            assert (
-                resolved_edges[0, 1] == resolved_edges[1, 0]
-            ), "The edges in the triangle must be connected."
-            assert (
-                resolved_edges[1, 1] == resolved_edges[2, 0]
-            ), "The edges in the triangle must be connected."
-            assert (
-                resolved_edges[2, 1] == resolved_edges[0, 0]
-            ), "The edges in the triangle must be connected."
+            if resolved_edges[0, 1] != resolved_edges[1, 0]:
+                raise ValueError("The edges in the triangle must be connected.")
+            if resolved_edges[1, 1] != resolved_edges[2, 0]:
+                raise ValueError("The edges in the triangle must be connected.")
+            if resolved_edges[2, 1] != resolved_edges[0, 0]:
+                raise ValueError("The edges in the triangle must be connected.")
 
     def _check_index(self, index: csr_matrix):
         edges = []
         for e in range(1, self.oriented_edges.shape[0] + 1):
             i, j = self.oriented_edges[e - 1, :]
-            assert (
-                index[i, j] == e
-            ), "The index matrix must be compatible with oriented_edges."
-            assert (
-                index[j, i] == -e
-            ), "The index matrix must be compatible with oriented_edges."
+            if index[i, j] != e:
+                raise ValueError("`index` must be compatible with `oriented_edges`.")
+            if index[j, i] != -e:
+                raise ValueError("`index` must be compatible with `oriented_edges`.")
             edges.append((min(i, j), max(i, j)))
 
         for i in range(self.num_nodes):
             for j in range(i + 1, self.num_nodes):
                 if (i, j) not in edges:
-                    assert (
-                        index[i, j] == 0
-                    ), "The index matrix must be compatible with oriented_edges."
-                    assert (
-                        index[j, i] == 0
-                    ), "The index matrix must be compatible with oriented_edges."
+                    if index[i, j] != 0:
+                        raise ValueError(
+                            "`index` must be compatible with `oriented_edges`."
+                        )
+                    if index[j, i] != 0:
+                        raise ValueError(
+                            "`index` must be compatible with `oriented_edges`."
+                        )
 
     def resolve_edges(self, es: B.Int) -> B.Int:
         r"""
@@ -383,8 +375,9 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
             A 2-dimensional array `result` such that `result[e, :]` is `[i, j]`
             where \|e\| = (i, j) if e > 0 and \|e\| = (j, i) if e < 0.
         """
-        assert B.rank(es) == 1
-        assert B.all(B.abs(es) >= 1) and B.all(B.abs(es) <= self.num_edges)
+        _check_rank_1_array(es, "es")
+        if not (B.all(B.abs(es) >= 1) and B.all(B.abs(es) <= self.num_edges)):
+            raise ValueError("`abs(es)` must lie in the interval [1, `num_edges`].")
 
         result = self.oriented_edges[B.abs(es) - 1]
         result = B.where(B.expand_dims(es > 0, axis=-1), result, result[:, ::-1])
@@ -403,8 +396,9 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
             where i = e1[0], j = e2[0], k = e3[0], and e1, e2, e3 are the
             oriented edges constituting the triangle `t`.
         """
-        assert B.rank(ts) == 1
-        assert B.all(B.abs(ts) >= 0) and B.all(B.abs(ts) < self.num_triangles)
+        _check_rank_1_array(ts, "ts")
+        if not (B.all(B.abs(ts) >= 0) and B.all(B.abs(ts) < self.num_triangles)):
+            raise ValueError("`abs(ts)` must lie in the interval [1, `num_edges`].")
 
         edge_indices = B.flatten(
             self.oriented_triangles[ts]
@@ -447,21 +441,22 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
         """
         if isinstance(adjacency_matrix, np.ndarray):
             index = csr_matrix(adjacency_matrix, dtype=int)
-        elif is_bearable(adjacency_matrix, SparseArray):
+        elif issparse(adjacency_matrix):
             index = csr_matrix(adjacency_matrix, dtype=int, copy=True)
         else:
             raise ValueError(
                 f"The adjacency matrix must be a numpy array or a scipy sparse matrix not {type(adjacency_matrix)}. Use `type_reference` to specify the backend."
             )
 
-        if len(index.shape) != 2:
-            raise ValueError("Adjacency matrix must be a square matrix.")
+        _check_matrix(index, "adjacency_matrix")
+        if B.shape(index)[0] != B.shape(index)[1]:
+            raise ValueError("`adjacency_matrix` must be a square matrix.")
         if (abs(index - index.T) > 1e-10).nnz != 0:
-            raise ValueError("Adjacency matrix must be symmetric.")
+            raise ValueError("`adjacency_matrix` must be symmetric.")
         if (index.diagonal() != 0).any():
-            raise ValueError("Adjacency matrix must have zeros on the diagonal.")
+            raise ValueError("`adjacency_matrix` must have zeros on the diagonal.")
         if np.sum(index.data == 1) + np.sum(index.data == 0) != len(index.data):
-            raise ValueError("Adjacency matrix can only contain zeros and ones.")
+            raise ValueError("`adjacency_matrix` can only contain zeros and ones.")
 
         number_of_nodes = index.shape[0]
         number_of_edges = np.sum(index.data) // 2
@@ -478,9 +473,11 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
                     index[i, j] = cur_edge_ind
                     index[j, i] = -index[i, j]
                     cur_edge_ind += 1
-        assert (
-            cur_edge_ind == number_of_edges + 1
-        )  # double check that we have the right number of edges
+        if cur_edge_ind != number_of_edges + 1:
+            # double check that we have the right number of edges
+            raise RuntimeError(
+                "This should have never happened, please report a bug at https://github.com/geometric-kernels/GeometricKernels/issues."
+            )
         oriented_edges = B.cast(dtype_integer(type_reference), oriented_edges)
 
         if triangles is None:

@@ -161,6 +161,8 @@ Run the tests
 make test
 ```
 
+**Example:** If you want to learn how to implement your own space or kernel component, checkout the [CustomSpacesAndKernels.ipynb](https://github.com/geometric-kernels/GeometricKernels/blob/main/notebooks/CustomSpacesAndKernels.ipynb) notebook.
+
 ## If you have a question
 
 Post it in issues using the `"How do I do ..." and other issues` template and the "question" label.

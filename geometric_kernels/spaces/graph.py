@@ -18,6 +18,7 @@ from geometric_kernels.spaces.eigenfunctions import (
     Eigenfunctions,
     EigenfunctionsFromEigenvectors,
 )
+from geometric_kernels.utils.utils import _check_matrix
 
 
 class Graph(DiscreteSpectrumSpace):
@@ -66,15 +67,16 @@ class Graph(DiscreteSpectrumSpace):
         return f"Graph({self.num_vertices}, {'normalized' if self._normalized else 'unnormalized'})"
 
     @staticmethod
-    def _checks(adjacency):
+    def _checks(adjacency_matrix):
         """
-        Checks if `adjacency` is a square symmetric matrix.
+        Checks if `adjacency_matrix` is a square symmetric matrix.
         """
-        assert (
-            len(adjacency.shape) == 2 and adjacency.shape[0] == adjacency.shape[1]
-        ), "Matrix is not square."
+        _check_matrix(adjacency_matrix, "adjacency_matrix")
+        if B.shape(adjacency_matrix)[0] != B.shape(adjacency_matrix)[1]:
+            raise ValueError("`adjacency_matrix` must be a square matrix.")
 
-        assert not B.any(adjacency != B.T(adjacency)), "Adjacency is not symmetric"
+        if B.any(adjacency_matrix != B.T(adjacency_matrix)):
+            raise ValueError("`adjacency_matrix` must be a symmetric matrix.")
 
     @property
     def dimension(self) -> int:
@@ -118,9 +120,10 @@ class Graph(DiscreteSpectrumSpace):
         :return:
             A tuple of eigenvectors [n, num], eigenvalues [num, 1].
         """
-        assert (
-            num <= self.num_vertices
-        ), "Number of eigenpairs cannot exceed the number of vertices"
+        if num > self.num_vertices:
+            raise ValueError(
+                "Number of eigenpairs cannot exceed the number of vertices."
+            )
         if num not in self.cache:
             evals, evecs = eigenpairs(self._laplacian, num)
 

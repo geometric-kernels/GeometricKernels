@@ -215,7 +215,13 @@ class ProductEigenfunctions(Eigenfunctions):
             self.eigenindicies, self.nums_per_level
         )
 
-        assert self.eigenindicies.shape[-1] == len(self.eigenfunctions)
+        if self.eigenindicies.shape[-1] != len(self.eigenfunctions):
+            raise ValueError(
+                "Expected to have S `eigenfunctions` and `eigenindicies` of shape [L, S], "
+                "where S is the number of spaces and L is the number of levels, "
+                f"but got S1={len(self.eigenfunctions)} eigenfunctions and "
+                f"the shape of `eigenindicies` is {self.eigenindicies.shape}, which is incompatible."
+            )
 
     def __call__(self, X: B.Numeric, **kwargs) -> B.Numeric:
         """
@@ -416,9 +422,10 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
         num_levels_per_space: Optional[int] = None,
     ):
         for space in spaces:
-            assert isinstance(
-                space, DiscreteSpectrumSpace
-            ), "One of the spaces is not an instance of DiscreteSpectrumSpace."
+            if not isinstance(space, DiscreteSpectrumSpace):
+                raise ValueError(
+                    "One of the spaces is not an instance of DiscreteSpectrumSpace."
+                )
 
         self.factor_spaces = spaces  # List of length S
         self.num_levels = num_levels
@@ -430,9 +437,10 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
 
         if num_levels_per_space is None:
             num_levels_per_space = num_levels
-        assert num_levels <= num_levels_per_space ** len(
-            spaces
-        ), "Cannot have more levels than there are possible combinations"
+        if num_levels > num_levels_per_space ** len(spaces):
+            raise ValueError(
+                "Cannot have more levels than there are possible combinations."
+            )
 
         # prefetch the eigenvalues of the subspaces
         factor_space_eigenvalues = B.stack(
@@ -493,7 +501,10 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
             Number of levels. Cannot be larger than the `num_levels` parameter
             of the constructor.
         """
-        assert num <= self.num_levels
+        if num > self.num_levels:
+            raise ValueError(
+                "`num` cannot be larger than the `num_levels` provided in the constructor."
+            )
 
         max_level = int(self.factor_space_eigenindices[:num, :].max() + 1)
 
@@ -518,7 +529,10 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
         :return:
             (num, 1)-shaped array containing the eigenvalues.
         """
-        assert num <= self.num_levels
+        if num > self.num_levels:
+            raise ValueError(
+                "`num` cannot be larger than the `num_levels` provided in the constructor."
+            )
 
         return self._eigenvalues[:num, None]
 
@@ -535,7 +549,10 @@ class ProductDiscreteSpectrumSpace(DiscreteSpectrumSpace):
             (J, 1)-shaped array containing the repeated eigenvalues,`J is
             the resulting number of the repeated eigenvalues.
         """
-        assert num <= self.num_levels
+        if num > self.num_levels:
+            raise ValueError(
+                "`num` cannot be larger than the `num_levels` provided in the constructor."
+            )
 
         eigenfunctions = self.get_eigenfunctions(num)
         eigenvalues = self._eigenvalues[:num]

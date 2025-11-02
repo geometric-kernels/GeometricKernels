@@ -28,7 +28,8 @@ class SinCosEigenfunctions(EigenfunctionsWithAdditionTheorem):
     """
 
     def __init__(self, num_levels: int):
-        assert num_levels >= 1
+        if num_levels < 1:
+            raise ValueError("`num_levels` must be a positive integer.")
 
         self._num_eigenfunctions = num_levels * 2 - 1
         self._num_levels = num_levels

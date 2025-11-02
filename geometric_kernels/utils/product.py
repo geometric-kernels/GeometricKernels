@@ -1,9 +1,10 @@
-""" Utilities for dealing with product spaces and product kernels.  """
+"""Utilities for dealing with product spaces and product kernels."""
 
 import lab as B
 from beartype.typing import Dict, List
 
 from geometric_kernels.lab_extras import smart_cast
+from geometric_kernels.utils.utils import _check_rank_1_array
 
 
 def params_to_params_list(
@@ -20,13 +21,20 @@ def params_to_params_list(
     :param params:
         Parameters of the product kernel.
     """
-    assert params["lengthscale"].shape == params["nu"].shape
-    assert len(params["nu"].shape) == 1
+    if B.shape(params["lengthscale"]) != B.shape(params["nu"]):
+        raise ValueError(
+            'Shape mismatch between `params["lengthscale"]` and `params["nu"].`'
+        )
+
+    _check_rank_1_array(params["nu"], 'params["nu"]')
 
     if params["nu"].shape[0] == 1:
         return [params] * number_of_factors
 
-    assert params["nu"].shape[0] == number_of_factors
+    if B.shape(params["nu"])[0] != number_of_factors:
+        raise ValueError(
+            "Shapes of the kernel parameters `lengthscale`, `nu` must be [`number_of_factors`]."
+        )
 
     list_of_params: List[Dict[str, B.Numeric]] = []
     for i in range(number_of_factors):
