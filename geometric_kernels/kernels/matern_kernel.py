@@ -87,7 +87,7 @@ def feature_map_from_kernel(kernel: MaternKarhunenLoeveKernel):
             MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES,
         )
     if isinstance(kernel.space, CompactHomogeneousSpace):
-        # Same as above. 
+        # Same as above.
         # `CompactHomogeneousSpace` does not currently support explicit
         # eigenfunction computation (they only support addition theorem).
         return RandomPhaseFeatureMapCompact(
@@ -365,7 +365,7 @@ class MaternGeometricKernel:
                     )
                     % str(type(space))
                 )
-            
+
             feature_map = default_feature_map(space=space, num=num)
             kernel = MaternFeatureMapKernel(
                 space, feature_map, key, normalize=normalize

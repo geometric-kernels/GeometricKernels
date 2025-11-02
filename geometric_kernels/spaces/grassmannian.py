@@ -26,32 +26,30 @@ class GrassmannainStabilizer:
 
     def __init__(self, n: int, m: int):
         self.n, self.m = n, m
-
         self.so_n = SpecialOrthogonal(n)
         self.so_m = SpecialOrthogonal(m)
-        
         self.dim = self.so_n.dim + self.so_m.dim
 
     def random(self, key, number):
-        """
-        Randomly samples `number` matrices of size (n+m) x (n+m).
+        """Randomly samples `number` matrices of size (n+m) x (n+m).
 
         Each sample has a form of `[[H_n, 0], [0, H_m]]`. The upper left block
         is uniformly sampled over O(n), and the lower right block is
-        uniformly sampled over O(m), and the signs of the blocks are adjusted 
+        uniformly sampled over O(m), and the signs of the blocks are adjusted.
         """
         key, sign = B.randint(key, dtype_double(key), number, lower=0, upper=2)
-        sign = 2*sign - 1  # convert to -1, 1
+        sign = 2 * sign - 1  # convert to -1, 1
         key, h_u = self.so_n.random(key, number)  # [number, n, n]
         key, h_d = self.so_m.random(key, number)  # [number, m, m]
-        h_u[:,:, -1] *= sign[:, None]  # Ensure the last column of h_u has the same sign as the block
-        h_d[:,:,-1] *= sign[:, None]  # Ensure the last column of h_d has the same sign as the block
-        
+        h_u[:, :, -1] *= sign[:, None]  # Ensure the last column of h_u has the same sign as the block
+        h_d[:, :, -1] *= sign[:, None]  # Ensure the last column of h_d has the same sign as the block
+
         zeros = B.zeros(B.dtype(h_u), number, self.n, self.m)  # [number, n, m]
         zeros_t = B.transpose(zeros)
 
         # [number, n + m, n], [number, n + m, m]
-        l, r = B.concat(h_u, zeros_t, axis=-2), B.concat(zeros, h_d, axis=-2)
+        l = B.concat(h_u, zeros_t, axis=-2)
+        r = B.concat(zeros, h_d, axis=-2)
         res = B.concat(l, r, axis=-1)  # [number, n + m, n + m]
         return key, res
 
@@ -66,14 +64,13 @@ class GrassmannianZonalSphericalFunction:
 
     :param n:
         The order n of the Gr(n, m).
-    :param n:
+    :param m:
         The order m of the Gr(n, m).
     :param signature:
         The signature that determines a particular character (and an
         irreducible unitary representation along with it).
     """
-
-    def __init__(self, n: int, m:int, signature: Tuple[int, ...]):
+    def __init__(self, n: int, m: int, signature: Tuple[int, ...]):
         self.signature = signature
         self.n = n
         self.m = m
@@ -103,7 +100,7 @@ class GrassmannianZonalSphericalFunction:
             char_val += coeff * B.prod(
                 gammas ** B.cast(B.dtype(gammas), from_numpy(gammas, monom)), axis=-1
             )
-        return char_val/ self.normalization
+        return char_val / self.normalization
 
 
 class GrassmannianEigenfunctions(EigenfunctionsWithAdditionTheorem):
@@ -116,12 +113,19 @@ class GrassmannianEigenfunctions(EigenfunctionsWithAdditionTheorem):
         self._num_levels = num_levels
         self.rank = min(self.m, self.n - self.m)
         self.G_rank = space.G.rank
-        self.G_eigenfunctions = SOEigenfunctions(self.n, num_levels=0, compute_characters=False)
+        self.G_eigenfunctions = SOEigenfunctions(
+            self.n, num_levels=0, compute_characters=False
+        )
 
         self._signatures = self._generate_signatures(num_levels)
-        self._eigenvalues = np.array([self._compute_eigenvalue(sgn) for sgn in self._signatures])
-        self.repr_dim = [(1+(signature[-1] != 0)) * self.G_eigenfunctions._compute_dimension(signature)
-                                for signature in self._signatures]
+        self._eigenvalues = np.array(
+            [self._compute_eigenvalue(sgn) for sgn in self._signatures]
+        )
+        self.repr_dim = [
+            (1 + (signature[-1] != 0))
+            * self.G_eigenfunctions._compute_dimension(signature)
+            for signature in self._signatures
+        ]
         if compute_zsf:
             self._zsf = [self._compute_zsf(self.n, self.m, sgn) for sgn in self._signatures]
         
@@ -140,7 +144,7 @@ class GrassmannianEigenfunctions(EigenfunctionsWithAdditionTheorem):
         if rank <= 0:
             raise ValueError("m must be less than n")
         # Degree 0: The empty partition
-        sgn_trivial = tuple([0]*self.G_rank)
+        sgn_trivial = tuple([0] * self.G_rank)
         eigen_map[sgn_trivial] = 0.0
 
         # Iterate through degrees (sum of parts of the partition)
@@ -151,7 +155,7 @@ class GrassmannianEigenfunctions(EigenfunctionsWithAdditionTheorem):
                     partition_list.extend([val] * count)
                 kappa = list(partition_list)
 
-                if len(kappa) <= rank: # Filter by max allowed length for this Grassmannian
+                if len(kappa) <= rank:  # Filter by max allowed length for this Grassmannian
                     kappa = kappa + [0] * (self.G_rank - len(kappa))  # Pad with zeros to match rank
                     kappa_even = all(x % 2 == 0 for x in kappa)
                     sgn = tuple(kappa)
@@ -162,8 +166,7 @@ class GrassmannianEigenfunctions(EigenfunctionsWithAdditionTheorem):
         # Sort by eigenvalue, then by partition degree, then by partition tuple (lexicographically)
         # for stable and canonical tie-breaking.
         sorted_eigenpairs = sorted(
-            [(eig, sgn) for sgn, eig in eigen_map.items()],
-            key=lambda x: (x[0], sum(x[1]), x[1])
+            [(eig, sgn) for sgn, eig in eigen_map.items()], key=lambda x: (x[0], sum(x[1]), x[1])
         )
         signatures = [sgn for _, sgn in sorted_eigenpairs]
         return signatures[:num_levels]
@@ -184,9 +187,7 @@ class GrassmannianEigenfunctions(EigenfunctionsWithAdditionTheorem):
         return eigenvalue
 
 
-    def _compute_zsf(
-        self, n: int, m: int, signature: Tuple[int, ...]
-    ) -> GrassmannianZonalSphericalFunction:
+    def _compute_zsf(self, n: int, m: int, signature: Tuple[int, ...]) -> GrassmannianZonalSphericalFunction:
         return GrassmannianZonalSphericalFunction(n, m, signature)
 
     def _difference(self, X: B.Numeric, X2: B.Numeric) -> B.Numeric:
@@ -202,59 +203,53 @@ class GrassmannianEigenfunctions(EigenfunctionsWithAdditionTheorem):
         :return:
             [N1, N2, ...] an array of points in `G`.
         """
-        
         g = self.space.embed_manifold(X)
         g2 = self.space.embed_manifold(X2)
         diff = self.G_eigenfunctions._difference(g, g2, inverse_X=True)
         diff = self.space.project_to_manifold(diff)
         return diff
 
-    def _torus_representative(
-            self, X: B.Numeric, **kwargs
-        ) -> B.Numeric:
+    def _torus_representative(self, X: B.Numeric, **kwargs) -> B.Numeric:
         """
         Computes the torus representative of the difference between two matrices.
         For the Grassmannian, this is just the difference itself.
         """
         # X has shape [..., n, m]
-        X_ = X[..., :self.m, :] # [..., m, m]
-        X_T_X = einsum('...ji,...jk->...ik', X_, X_)
+        X_ = X[..., :self.m, :]  # [..., m, m]
+        X_T_X = einsum("...ji,...jk->...ik", X_, X_)
         eigvals = B.eig(X_T_X, compute_eigvecs=False)
         eigvals = B.sort(eigvals, axis=-1, descending=False)[..., :self.rank]  # Sort eigenvalues
         return eigvals
 
-    def _addition_theorem(
-            self, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs
-        ) -> B.Numeric:
-            r"""
-            For each level (that corresponds to a unitary irreducible
-            representation of the group), computes the sum of outer products of
-            Laplace-Beltrami eigenfunctions that correspond to this level
-            (representation). Uses the fact that such sums are equal to the
-            character of the representation multiplied by the dimension of that
-            representation. See :cite:t:`azangulov2024a` for mathematical details.
+    def _addition_theorem(self, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs) -> B.Numeric:
+        r"""For each level (that corresponds to a unitary irreducible
+        representation of the group), computes the sum of outer products of
+        Laplace-Beltrami eigenfunctions that correspond to this level
+        (representation). Uses the fact that such sums are equal to the
+        character of the representation multiplied by the dimension of that
+        representation. See :cite:t:`azangulov2024a` for mathematical details.
 
-            :param X:
-                An [N, n, n]-shaped array, a batch of N matrices of size nxn.
-            :param X2:
-                An [N2, n, n]-shaped array, a batch of N2 matrices of size nxn.
+        :param X:
+            An [N, n, n]-shaped array, a batch of N matrices of size nxn.
+        :param X2:
+            An [N2, n, n]-shaped array, a batch of N2 matrices of size nxn.
 
-                Defaults to None, in which case X is used for X2.
-            :param ``**kwargs``:
-                Any additional parameters.
+            Defaults to None, in which case X is used for X2.
+        :param ``**kwargs``:
+            Any additional parameters.
 
-            :return:
-                An array of shape [N, N2, L].
-            """
-            if X2 is None:
-                X2 = X
-            diff = self._difference(X, X2)
-            torus_repr_diff = self._torus_representative(diff)
-            values = [
-                repr_dim * zsf(torus_repr_diff)[..., None]  # [N, N2, 1]
-                for zsf, repr_dim in zip(self._zsf, self.repr_dim)
-            ]
-            return B.concat(*values, axis=-1)  # [N, N2, L]
+        :return:
+            An array of shape [N, N2, L].
+        """
+        if X2 is None:
+            X2 = X
+        diff = self._difference(X, X2)
+        torus_repr_diff = self._torus_representative(diff)
+        values = [
+            repr_dim * zsf(torus_repr_diff)[..., None]  # [N, N2, 1]
+            for zsf, repr_dim in zip(self._zsf, self.repr_dim)
+        ]
+        return B.concat(*values, axis=-1)  # [N, N2, L]
 
     def _addition_theorem_diag(self, X: B.Numeric, **kwargs) -> B.Numeric:
         """
@@ -352,7 +347,7 @@ class Grassmannian(DiscreteSpectrumSpace):
             [..., n, m] array of points in V(n, m).
         """
 
-        return g[..., : self.m]
+        return g[..., :self.m]
 
     def embed_manifold(self, x):
         """
@@ -370,7 +365,7 @@ class Grassmannian(DiscreteSpectrumSpace):
             return x
 
         p = B.matmul(x, B.transpose(x, [0, 2, 1]))  # Shape: (b, n, n)
-        r = B.randn(B.dtype(x), *x.shape[:-1], self.n-self.m)  # Shape: (b, n, n - m)
+        r = B.randn(B.dtype(x), *x.shape[:-1], self.n - self.m)  # Shape: (b, n, n - m)
         
         r_orth = r - B.matmul(p, r)  # (b, n, n - m)
 
@@ -446,4 +441,3 @@ class Grassmannian(DiscreteSpectrumSpace):
             return key, self.project_to_manifold(raw_samples)
         else:
             return key, raw_samples
-

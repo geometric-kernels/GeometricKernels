@@ -85,7 +85,7 @@ class MaternFeatureMapKernel(BaseGeometricKernel):
         if 'eigenfunctions' in vars(feature_map):
             self.eigenfunctions = feature_map.eigenfunctions
         else:
-            self.eigenfunctions = None 
+            self.eigenfunctions = None
 
     def init_params(self) -> Dict[str, B.NPNumeric]:
         """
