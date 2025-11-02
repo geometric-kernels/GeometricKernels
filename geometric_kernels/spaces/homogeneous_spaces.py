@@ -132,7 +132,9 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         diff = self.G_difference(g, g2, inverse_X=True)
         return diff
 
-    def _addition_theorem(self, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs) -> B.Numeric:
+    def _addition_theorem(
+        self, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs
+    ) -> B.Numeric:
         r"""
         For each level (that corresponds to a unitary irreducible
         representation of the group of symmetries), computes the sum of outer
