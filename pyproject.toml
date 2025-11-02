@@ -94,13 +94,9 @@ dev = [
   "botorch>=0.9",
 
   # TensorFlow / GPflow / TFP split
-  'tensorflow==2.13.0; python_version=="3.8"',
-  'tensorflow==2.13.1; python_version=="3.9"',
-  'tensorflow==2.15;   python_version>="3.10" and python_version<"3.12"',
-  'tensorflow-probability==0.20.1; python_version < "3.10"',
-  'tensorflow-probability==0.23;   python_version >= "3.10" and python_version < "3.12"',
-  'gpflow==2.9.0; python_version < "3.10"',
-  'gpflow==2.9;    python_version >= "3.10" and python_version < "3.12"',
+  'tensorflow',
+  'tensorflow-probability',
+  'gpflow',
 
   # JAX family
   'jax',
@@ -108,5 +104,6 @@ dev = [
   'jaxtyping==0.2.25; python_version == "3.9"',
   'jaxtyping;         python_version != "3.9"',
   'optax',
-  'gpjax',
+  'gpjax>=0.12.0; python_version >= "3.10"',
+  'gpjax==0.6.9; python_version == "3.9"'
 ]
