@@ -97,6 +97,7 @@ dev = [
   'tensorflow',
   'tensorflow-probability',
   'gpflow',
+  'tf_keras',
 
   # JAX family
   'jax',
