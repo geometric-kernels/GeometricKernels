@@ -3,18 +3,17 @@ This module provides the :class:`Stiefel` space and the representation of
 its spectrum, the :class:`StiefelEigenfunctions` class.
 """
 
+from functools import lru_cache
+
 import lab as B
 import numpy as np
 
-from functools import lru_cache
-
-from geometric_kernels.lab_extras import qr, dtype_double
+from geometric_kernels.lab_extras import dtype_double, qr
 from geometric_kernels.spaces.homogeneous_spaces import (
     AveragingAdditionTheorem,
     CompactHomogeneousSpace,
 )
 from geometric_kernels.spaces.so import SpecialOrthogonal
-
 
 
 def generate_intertwining_weights(n, omega):
@@ -25,6 +24,7 @@ def generate_intertwining_weights(n, omega):
     mu = n // 2
     if n % 2 == 0:  # Even n = 2mu
         m_mu_abs = abs(omega[-1])
+
         def gen(k, prev):
             if k == mu - 1:  # omega' has mu - 1 components
                 yield ()
@@ -35,9 +35,11 @@ def generate_intertwining_weights(n, omega):
                 for m in range(lower, upper + 1):
                     for tail in gen(k + 1, m):
                         yield (m,) + tail
+
         for weight in gen(0, omega[0]):
             yield weight
     else:  # Odd n = 2mu + 1
+
         def gen(k, prev):
             if k == mu:  # omega' has mu components
                 yield ()
@@ -52,6 +54,7 @@ def generate_intertwining_weights(n, omega):
                 for m in range(lower, upper + 1):
                     for tail in gen(k + 1, m):
                         yield (m,) + tail
+
         for weight in gen(0, omega[0]):
             yield weight
 
@@ -92,6 +95,7 @@ class StiefelEigenfunctions(AveragingAdditionTheorem):
 
         return stiefel_multiplicity(self.M.n, self.M.m, signature)
 
+
 class Stiefel(CompactHomogeneousSpace):
     r"""
     The GeometricKernels space representing the Stifiel manifold
@@ -127,8 +131,8 @@ class Stiefel(CompactHomogeneousSpace):
 
         assert n > m, "n should be greater than m"
         G = SpecialOrthogonal(n)
-        
-        if n-m >=2:
+
+        if n - m >= 2:
             H = SpecialOrthogonal(n - m)
             key, samples_H = H.random(key, average_order)
             dim_H = H.dim
@@ -141,7 +145,7 @@ class Stiefel(CompactHomogeneousSpace):
             dim_H = 0
 
         new_space = super().__new__(cls)
-        matrix_complement = B.randn(B.dtype(samples_H), n, n-m)  # Shape: (n, n - m)
+        matrix_complement = B.randn(B.dtype(samples_H), n, n - m)  # Shape: (n, n - m)
 
         new_space.__init__(G=G, dim_H=dim_H, samples_H=samples_H, average_order=average_order, n=n, m=m, matrix_complement=matrix_complement)  # type: ignore
         return key, new_space
@@ -159,7 +163,9 @@ class Stiefel(CompactHomogeneousSpace):
         self.n = n
         self.m = m
         self.matrix_complement = matrix_complement
-        super().__init__(G=G, dim_H=dim_H, samples_H=samples_H, average_order=average_order)
+        super().__init__(
+            G=G, dim_H=dim_H, samples_H=samples_H, average_order=average_order
+        )
 
     def project_to_manifold(self, g):
         """
@@ -191,7 +197,7 @@ class Stiefel(CompactHomogeneousSpace):
 
         r_orth = r - B.matmul(p, r)  # (b, n, n - m)
 
-        q, _ = qr(r_orth)   # (b, n, n - m)
+        q, _ = qr(r_orth)  # (b, n, n - m)
 
         g = B.concat(x, q, axis=2)  # (b, n, n)
         det = B.sign(B.det(g))
@@ -251,7 +257,7 @@ class Stiefel(CompactHomogeneousSpace):
         Return the shape of the elements of the Stiefel manifold.
         """
         return [self.n, self.m]
-    
+
     @property
     def element_dtype(self):
         """

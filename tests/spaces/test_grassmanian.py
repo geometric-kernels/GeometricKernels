@@ -17,8 +17,12 @@ def make_tuned_kernels(grass: Grassmannian, num_levels: int, normalize: bool = F
     Returns (kernel_M, kernel_G).
     """
     # Build both kernels with the same truncation level
-    kernel_G = MaternKarhunenLoeveKernel(grass.G, num_levels=num_levels, normalize=normalize)
-    kernel_M_tmp = MaternKarhunenLoeveKernel(grass, num_levels=num_levels, normalize=normalize)
+    kernel_G = MaternKarhunenLoeveKernel(
+        grass.G, num_levels=num_levels, normalize=normalize
+    )
+    kernel_M_tmp = MaternKarhunenLoeveKernel(
+        grass, num_levels=num_levels, normalize=normalize
+    )
 
     group_sigs = kernel_G.eigenfunctions._signatures
     m_sigs = kernel_M_tmp.eigenfunctions._signatures
@@ -29,12 +33,16 @@ def make_tuned_kernels(grass: Grassmannian, num_levels: int, normalize: bool = F
     m_levels = max(1, len(overlap))
 
     # Final Grassmannian kernel with levels equal to the intersection size
-    kernel_M = MaternKarhunenLoeveKernel(grass, num_levels=m_levels, normalize=normalize)
+    kernel_M = MaternKarhunenLoeveKernel(
+        grass, num_levels=m_levels, normalize=normalize
+    )
 
     return kernel_M, kernel_G
 
 
-def _choose_lengthscale_ratio_two(kernel: MaternKarhunenLoeveKernel, params: dict) -> float:
+def _choose_lengthscale_ratio_two(
+    kernel: MaternKarhunenLoeveKernel, params: dict
+) -> float:
     """
     Choose a lengthscale such that the first spectral weight divided by the
     second equals 2 for the given kernel. Returns the scalar lengthscale.
@@ -87,7 +95,9 @@ def inputs(request):
     num_levels = 20
     # Build both with `num_levels`, intersect signatures, and size kernel_M to the overlap.
     # Use normalize=True as required for the averaging identity.
-    kernel_M, kernel_G = make_tuned_kernels(grass, num_levels=num_levels, normalize=True)
+    kernel_M, kernel_G = make_tuned_kernels(
+        grass, num_levels=num_levels, normalize=True
+    )
     params_M = kernel_M.init_params()
     params_G = kernel_G.init_params()
 
@@ -108,7 +118,7 @@ def inputs(request):
     return kernel_M, kernel_G, params_M, params_G, x, g, h
 
 
-@pytest.mark.parametrize("backend",  ["numpy", "tensorflow", "torch", "jax"])
+@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
 def test_grassmannian_kernel_averaging(inputs, backend):
     """Grassmannian kernel equals the stabilizer-averaged SO(n) kernel (renormalized)."""
     kernel_M, kernel_G, params_M, params_G, x, g, h = inputs
@@ -121,9 +131,9 @@ def test_grassmannian_kernel_averaging(inputs, backend):
         K_analytic = kernel_M.K(params_M, x, x)  # [N, N]
         # Build all right-coset transforms G @ h for each point and each stabilizer sample
         # Shapes: G (N, n, n), h (H, n, n)
-        g_ = B.expand_dims(g, axis=0)   # [1, N, n, n]
-        h_ = B.expand_dims(h, axis=1) # [H, 1, n, n]
-        gh = B.matmul(g_, h_)      # [H, N, n, n]
+        g_ = B.expand_dims(g, axis=0)  # [1, N, n, n]
+        h_ = B.expand_dims(h, axis=1)  # [H, 1, n, n]
+        gh = B.matmul(g_, h_)  # [H, N, n, n]
 
         # Flatten to pass through the kernel in one shot: [H*N, n, n]
         N = g.shape[0]
@@ -133,8 +143,8 @@ def test_grassmannian_kernel_averaging(inputs, backend):
 
         # Compute group kernel between all Gi and all (Gj @ h)
         K_gh = kernel_G.K(params_G, g, gh)  # [N, H*N]
-        K_gh = B.reshape(K_gh, N, H, N)           # [N, H, N] where axis 1 indexes h
-        K_avg = B.mean(K_gh, axis=1)            # [N, N]
+        K_gh = B.reshape(K_gh, N, H, N)  # [N, H, N] where axis 1 indexes h
+        K_avg = B.mean(K_gh, axis=1)  # [N, N]
 
         # Renormalize average over H so that diagonal matches normalized Grassmannian
         # kernel (the integral over H is not 1 by default).

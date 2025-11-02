@@ -1,4 +1,4 @@
-"""
+r"""
 Abstract base interface for compact homogeneous spaces.
 """
 
@@ -6,7 +6,7 @@ import abc
 
 import lab as B
 import numpy as np
-from beartype.typing import Optional, List
+from beartype.typing import List, Optional
 from lab import einsum
 
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
@@ -53,12 +53,14 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
             AveragedLieGroupCharacter(self.average_order, character)
             for character in G_eigenfunctions._characters
         ]
-        
+
         self._filter_signatures()
-        
-        print(f"Filtered out {len(G_eigenfunctions._signatures) - len(self._signatures)} eigenspaces of dimension 0.")
+
+        print(
+            f"Filtered out {len(G_eigenfunctions._signatures) - len(self._signatures)} eigenspaces of dimension 0."
+        )
         self._num_levels = len(self._signatures)
-        
+
         self.G_torus_representative = G_eigenfunctions._torus_representative
         self.G_difference = G_eigenfunctions._difference
 
@@ -66,11 +68,11 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
 
     @abc.abstractmethod
     def _compute_projected_character_value_at_e(self, signature):
-        """
+        r"""
         The value of the character on class of identity element.
-        This is equal to the number of zonal spherical functions, 
+        This is equal to the number of zonal spherical functions,
         it corresponds to $r_\lambda$ from :cite:t:`azangulov2024a`.
-        
+
         :param signature:
             Signature of the character.
 
@@ -81,9 +83,9 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
 
     def _filter_signatures(self):
         """
-        Filters out the eigenspaces of dimension 0. 
+        Filters out the eigenspaces of dimension 0.
         This is necessary to avoid numerical issues.
-        Eigenspaces of dimension 0 correspond to 
+        Eigenspaces of dimension 0 correspond to
         the characters equal to 0 on the identity element.
         """
         filtered_signatures = []
@@ -101,12 +103,16 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         self._signatures = filtered_signatures
         self.G_dimensions = filtered_dimensions
         self._characters = filtered_characters
-        self._eigenvalues = np.array(filtered_eigenvalues)    
-        self._eigenspace_dimensions = [G_dim * self._compute_projected_character_value_at_e(sgn) 
-                                      for G_dim, sgn in zip(self.G_dimensions, self._signatures)]
-        self._num_zonal_spherical_functions = [self._compute_projected_character_value_at_e(sgn) 
-                                      for sgn in self._signatures]
-        
+        self._eigenvalues = np.array(filtered_eigenvalues)
+        self._eigenspace_dimensions = [
+            G_dim * self._compute_projected_character_value_at_e(sgn)
+            for G_dim, sgn in zip(self.G_dimensions, self._signatures)
+        ]
+        self._num_zonal_spherical_functions = [
+            self._compute_projected_character_value_at_e(sgn)
+            for sgn in self._signatures
+        ]
+
     def _difference(self, X: B.Numeric, X2: B.Numeric) -> B.Numeric:
         """
         Pairwise differences between points of the homogeneous space M
@@ -120,16 +126,13 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         :return:
             [N1, N2, ...] an array of points in `G`.
         """
-        
+
         g = self.M.embed_manifold(X)
         g2 = self.M.embed_manifold(X2)
         diff = self.G_difference(g, g2, inverse_X=True)
         return diff
 
-
-    def _addition_theorem(
-        self, X: B.Numeric, X2: B.Numeric, **kwargs
-    ) -> B.Numeric:
+    def _addition_theorem(self, X: B.Numeric, X2: B.Numeric, **kwargs) -> B.Numeric:
         r"""
         For each level (that corresponds to a unitary irreducible
         representation of the group of symmetries), computes the sum of outer
@@ -155,18 +158,16 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
             [N1, N2, L]
         """
         X_, X2_ = X, X2
-        
+
         if X.shape[-1] != self.M.n:
-             X_ = self.M.embed_manifold(X)
+            X_ = self.M.embed_manifold(X)
         if X2.shape[-1] != self.M.n:
-             X2_ = self.M.embed_manifold(X2)
-        
+            X2_ = self.M.embed_manifold(X2)
+
         # [N * N2, G_n, G_n]
         diff = self.G_difference(X_, X2_).reshape(-1, self.G_n, self.G_n)
         # [N * N2 * samples_H, G_n, G_n]
-        diff_h = self.G_difference(diff, self.samples_H).reshape(
-            -1, self.G_n, self.G_n
-        )
+        diff_h = self.G_difference(diff, self.samples_H).reshape(-1, self.G_n, self.G_n)
         # [N * N2 * samples_H, T]
         torus_repr = self.G_torus_representative(diff_h)
         values = [
@@ -177,7 +178,6 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         ]
 
         return B.concat(*values, axis=-1)  # [N, N2, L]
-
 
     def _addition_theorem_diag(self, X: B.Numeric, **parameters) -> B.Numeric:
         """
@@ -192,10 +192,9 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         :return:
             [N, L]
         """
-        ones = B.ones(B.dtype(X), *X.shape[:-2], 1)  
+        ones = B.ones(B.dtype(X), *X.shape[:-2], 1)
         values = [
-            eigenspace_dimension
-            * ones  # [N, 1]
+            eigenspace_dimension * ones  # [N, 1]
             for eigenspace_dimension in self._eigenspace_dimensions
         ]
         return B.concat(*values, axis=1)  # [N, L]
@@ -210,7 +209,6 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         if self._num_eigenfunctions is None:
             self._num_eigenfunctions = sum(self.num_eigenfunctions_per_level)
         return self._num_eigenfunctions
-
 
     @property
     def num_eigenfunctions_per_level(self) -> List[int]:
@@ -244,9 +242,7 @@ class AveragedLieGroupCharacter(abc.ABC):
         :param gammas_h1_x_h2:
             [average_order*n*average_order, T]
         """
-        character_x_h = B.reshape(
-            self.character(gammas_x_h), -1, self.average_order
-        )
+        character_x_h = B.reshape(self.character(gammas_x_h), -1, self.average_order)
         avg_character = einsum("gv->g", character_x_h) / (self.average_order)
         return avg_character
 

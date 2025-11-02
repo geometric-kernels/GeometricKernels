@@ -240,7 +240,7 @@ def partition_dominance_cone(partition: Tuple[int, ...]) -> Set[Tuple[int, ...]]
 
 
 def partition_dominance_or_subpartition_cone(
-    partition: Tuple[int, ...]
+    partition: Tuple[int, ...],
 ) -> Set[Tuple[int, ...]]:
     """
     Calculates subpartitions and partitions dominated by a given one and having

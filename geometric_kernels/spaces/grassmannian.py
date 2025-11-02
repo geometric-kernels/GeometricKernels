@@ -3,22 +3,22 @@ This module provides the :class:`Grassmannian` space and the representation of
 its spectrum, the :class:`GrassmannianEigenfunctions` class.
 """
 
+import json
+
 import lab as B
 import numpy as np
-import json
 import sympy
-
+from beartype.typing import List, Optional, Tuple
 from lab import einsum
-from beartype.typing import List, Tuple, Optional
-from geometric_kernels.lab_extras import qr, dtype_double, from_numpy
-from geometric_kernels.spaces.eigenfunctions import EigenfunctionsWithAdditionTheorem
-from geometric_kernels.spaces import DiscreteSpectrumSpace
-from geometric_kernels.spaces.so import SpecialOrthogonal, SOEigenfunctions
 
+from geometric_kernels.lab_extras import dtype_double, from_numpy, qr
+from geometric_kernels.spaces import DiscreteSpectrumSpace
+from geometric_kernels.spaces.eigenfunctions import EigenfunctionsWithAdditionTheorem
+from geometric_kernels.spaces.so import SOEigenfunctions, SpecialOrthogonal
 from geometric_kernels.utils.utils import get_resource_file_path
 
 
-class GrassmannainStabilizer:
+class GrassmannianStabilizer:
     """
     Helper class for sampling from Grassmannian stabilizer that is represented as S(O(n) x O(m))
     by (n+m) x (n+m) block-diagonal matrices.
@@ -41,16 +41,20 @@ class GrassmannainStabilizer:
         sign = 2 * sign - 1  # convert to -1, 1
         key, h_u = self.so_n.random(key, number)  # [number, n, n]
         key, h_d = self.so_m.random(key, number)  # [number, m, m]
-        h_u[:, :, -1] *= sign[:, None]  # Ensure the last column of h_u has the same sign as the block
-        h_d[:, :, -1] *= sign[:, None]  # Ensure the last column of h_d has the same sign as the block
+        h_u[:, :, -1] *= sign[
+            :, None
+        ]  # Ensure the last column of h_u has the same sign as the block
+        h_d[:, :, -1] *= sign[
+            :, None
+        ]  # Ensure the last column of h_d has the same sign as the block
 
         zeros = B.zeros(B.dtype(h_u), number, self.n, self.m)  # [number, n, m]
         zeros_t = B.transpose(zeros)
 
         # [number, n + m, n], [number, n + m, m]
-        l = B.concat(h_u, zeros_t, axis=-2)
-        r = B.concat(zeros, h_d, axis=-2)
-        res = B.concat(l, r, axis=-1)  # [number, n + m, n + m]
+        left_block = B.concat(h_u, zeros_t, axis=-2)
+        right_block = B.concat(zeros, h_d, axis=-2)
+        res = B.concat(left_block, right_block, axis=-1)  # [number, n + m, n + m]
         return key, res
 
 
@@ -70,12 +74,16 @@ class GrassmannianZonalSphericalFunction:
         The signature that determines a particular character (and an
         irreducible unitary representation along with it).
     """
+
     def __init__(self, n: int, m: int, signature: Tuple[int, ...]):
         self.signature = signature
         self.n = n
         self.m = m
         self.coeffs, self.monoms = self._load()
-        self.normalization = np.sum(self.coeffs)  # Normalization factor for the character
+        self.normalization = np.sum(
+            self.coeffs
+        )  # Normalization factor for the character
+
     def _load(self):
         group_name = "Gr({},{})".format(self.n, self.m)
         with get_resource_file_path("precomputed_grassmanian_zsf.json") as file_path:
@@ -107,7 +115,6 @@ class GrassmannianEigenfunctions(EigenfunctionsWithAdditionTheorem):
     def __init__(self, space, num_levels, compute_zsf=True):
         super().__init__()
         self.space = space
-        
         self.n = space.n
         self.m = space.m
         self._num_levels = num_levels
@@ -127,8 +134,10 @@ class GrassmannianEigenfunctions(EigenfunctionsWithAdditionTheorem):
             for signature in self._signatures
         ]
         if compute_zsf:
-            self._zsf = [self._compute_zsf(self.n, self.m, sgn) for sgn in self._signatures]
-        
+            self._zsf = [
+                self._compute_zsf(self.n, self.m, sgn) for sgn in self._signatures
+            ]
+
         self._num_eigenfunctions = None
 
     def _generate_signatures(self, num_levels: int) -> List[Tuple[int, ...]]:
@@ -155,8 +164,12 @@ class GrassmannianEigenfunctions(EigenfunctionsWithAdditionTheorem):
                     partition_list.extend([val] * count)
                 kappa = list(partition_list)
 
-                if len(kappa) <= rank:  # Filter by max allowed length for this Grassmannian
-                    kappa = kappa + [0] * (self.G_rank - len(kappa))  # Pad with zeros to match rank
+                if (
+                    len(kappa) <= rank
+                ):  # Filter by max allowed length for this Grassmannian
+                    kappa = kappa + [0] * (
+                        self.G_rank - len(kappa)
+                    )  # Pad with zeros to match rank
                     kappa_even = all(x % 2 == 0 for x in kappa)
                     sgn = tuple(kappa)
                     if sgn not in eigen_map and kappa_even:
@@ -166,7 +179,8 @@ class GrassmannianEigenfunctions(EigenfunctionsWithAdditionTheorem):
         # Sort by eigenvalue, then by partition degree, then by partition tuple (lexicographically)
         # for stable and canonical tie-breaking.
         sorted_eigenpairs = sorted(
-            [(eig, sgn) for sgn, eig in eigen_map.items()], key=lambda x: (x[0], sum(x[1]), x[1])
+            [(eig, sgn) for sgn, eig in eigen_map.items()],
+            key=lambda x: (x[0], sum(x[1]), x[1]),
         )
         signatures = [sgn for _, sgn in sorted_eigenpairs]
         return signatures[:num_levels]
@@ -177,7 +191,7 @@ class GrassmannianEigenfunctions(EigenfunctionsWithAdditionTheorem):
         """
         if signature[0] == 0:
             return 0.0
-        
+
         eigenvalue = 0.0
         for j_idx, sgn_j in enumerate(signature):
             if signature[j_idx] == 0:
@@ -186,8 +200,9 @@ class GrassmannianEigenfunctions(EigenfunctionsWithAdditionTheorem):
             eigenvalue += sgn_j * (sgn_j + self.n - 2 * j)
         return eigenvalue
 
-
-    def _compute_zsf(self, n: int, m: int, signature: Tuple[int, ...]) -> GrassmannianZonalSphericalFunction:
+    def _compute_zsf(
+        self, n: int, m: int, signature: Tuple[int, ...]
+    ) -> GrassmannianZonalSphericalFunction:
         return GrassmannianZonalSphericalFunction(n, m, signature)
 
     def _difference(self, X: B.Numeric, X2: B.Numeric) -> B.Numeric:
@@ -215,13 +230,17 @@ class GrassmannianEigenfunctions(EigenfunctionsWithAdditionTheorem):
         For the Grassmannian, this is just the difference itself.
         """
         # X has shape [..., n, m]
-        X_ = X[..., :self.m, :]  # [..., m, m]
+        X_ = X[..., : self.m, :]  # [..., m, m]
         X_T_X = einsum("...ji,...jk->...ik", X_, X_)
         eigvals = B.eig(X_T_X, compute_eigvecs=False)
-        eigvals = B.sort(eigvals, axis=-1, descending=False)[..., :self.rank]  # Sort eigenvalues
+        eigvals = B.sort(eigvals, axis=-1, descending=False)[
+            ..., : self.rank
+        ]  # Sort eigenvalues
         return eigvals
 
-    def _addition_theorem(self, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs) -> B.Numeric:
+    def _addition_theorem(
+        self, X: B.Numeric, X2: Optional[B.Numeric] = None, **kwargs
+    ) -> B.Numeric:
         r"""For each level (that corresponds to a unitary irreducible
         representation of the group), computes the sum of outer products of
         Laplace-Beltrami eigenfunctions that correspond to this level
@@ -270,7 +289,7 @@ class GrassmannianEigenfunctions(EigenfunctionsWithAdditionTheorem):
             for repr_dim in self.repr_dim
         ]
         return B.concat(*values, axis=1)  # [N, L]
-    
+
     @property
     def num_eigenfunctions_per_level(self) -> List[int]:
         """
@@ -290,6 +309,7 @@ class GrassmannianEigenfunctions(EigenfunctionsWithAdditionTheorem):
     @property
     def num_levels(self) -> int:
         return self._num_levels
+
 
 class Grassmannian(DiscreteSpectrumSpace):
     r"""
@@ -327,10 +347,12 @@ class Grassmannian(DiscreteSpectrumSpace):
             A tuple (new random state, a realization of Gr(m, n)).
         """
         assert n > m, "n should be greater than m"
-        assert (m > 1) and (m < n-1), "Isomorphic to hypersphere, use Hypersphere class instead"
-        
+        assert (m > 1) and (
+            m < n - 1
+        ), "Isomorphic to hypersphere, use Hypersphere class instead"
+
         super().__init__()
-        self.H = GrassmannainStabilizer(m, n - m)
+        self.H = GrassmannianStabilizer(m, n - m)
         self.G = SpecialOrthogonal(n)
         self.dim_H = self.H.dim
         self.n = n
@@ -347,7 +369,7 @@ class Grassmannian(DiscreteSpectrumSpace):
             [..., n, m] array of points in V(n, m).
         """
 
-        return g[..., :self.m]
+        return g[..., : self.m]
 
     def embed_manifold(self, x):
         """
@@ -366,16 +388,15 @@ class Grassmannian(DiscreteSpectrumSpace):
 
         p = B.matmul(x, B.transpose(x, [0, 2, 1]))  # Shape: (b, n, n)
         r = B.randn(B.dtype(x), *x.shape[:-1], self.n - self.m)  # Shape: (b, n, n - m)
-        
+
         r_orth = r - B.matmul(p, r)  # (b, n, n - m)
 
-        q, _ = qr(r_orth)   # (b, n, n - m)
+        q, _ = qr(r_orth)  # (b, n, n - m)
 
         g = B.concat(x, q, axis=2)  # (b, n, n)
         det = B.sign(B.det(g))
         g[:, :, -1] *= det[:, None]
         return g
-
 
     def embed_stabilizer(self, h):
         """

@@ -1,4 +1,4 @@
-""" Utilities for dealing with product spaces and product kernels.  """
+"""Utilities for dealing with product spaces and product kernels."""
 
 import lab as B
 from beartype.typing import Dict, List

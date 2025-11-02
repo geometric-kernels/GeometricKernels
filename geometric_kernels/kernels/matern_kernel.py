@@ -22,12 +22,12 @@ from geometric_kernels.kernels.feature_map import MaternFeatureMapKernel
 from geometric_kernels.kernels.hodge_compositional import MaternHodgeCompositionalKernel
 from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import (
-    CompactMatrixLieGroup,
-    Grassmannian,
     CompactHomogeneousSpace,
+    CompactMatrixLieGroup,
     DiscreteSpectrumSpace,
     Graph,
     GraphEdges,
+    Grassmannian,
     HodgeDiscreteSpectrumSpace,
     Hyperbolic,
     HypercubeGraph,
@@ -78,7 +78,9 @@ def default_feature_map(
 
 @overload
 def feature_map_from_kernel(kernel: MaternKarhunenLoeveKernel):
-    if isinstance(kernel.space, CompactMatrixLieGroup) or isinstance(kernel.space, Grassmannian):
+    if isinstance(kernel.space, CompactMatrixLieGroup) or isinstance(
+        kernel.space, Grassmannian
+    ):
         # Because `CompactMatrixLieGroup` does not currently support explicit
         # eigenfunction computation (they only support addition theorem).
         return RandomPhaseFeatureMapCompact(
@@ -153,7 +155,9 @@ def feature_map_from_space(space: DiscreteSpectrumSpace, num: int):
         )
     elif isinstance(space, CompactHomogeneousSpace):
         return RandomPhaseFeatureMapCompact(
-            space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES_HOMOGENEOUS_SPACE
+            space,
+            num,
+            MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES_HOMOGENEOUS_SPACE,
         )
     elif isinstance(space, Hypersphere):
         num_computed_levels = space.num_computed_levels
@@ -219,7 +223,9 @@ def feature_map_from_space(space: Space, num: int):
 
 @overload
 def default_num(space: DiscreteSpectrumSpace) -> int:
-    if isinstance(space, CompactMatrixLieGroup) or isinstance(space, CompactHomogeneousSpace):
+    if isinstance(space, CompactMatrixLieGroup) or isinstance(
+        space, CompactHomogeneousSpace
+    ):
         return MaternGeometricKernel._DEFAULT_NUM_LEVELS_LIE_GROUP
     elif isinstance(space, (Graph, Mesh)):
         return min(
@@ -352,7 +358,9 @@ class MaternGeometricKernel:
 
         kernel: BaseGeometricKernel
 
-        if isinstance(space, NoncompactSymmetricSpace) or isinstance(space, CompactHomogeneousSpace):
+        if isinstance(space, NoncompactSymmetricSpace) or isinstance(
+            space, CompactHomogeneousSpace
+        ):
             num = num or default_num(space)
             if "key" in kwargs:
                 key = kwargs["key"]

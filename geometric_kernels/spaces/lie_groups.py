@@ -8,9 +8,8 @@ import abc
 
 import lab as B
 import numpy as np
-
-from lab import einsum
 from beartype.typing import List, Optional, Tuple
+from lab import einsum
 
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import EigenfunctionsWithAdditionTheorem
@@ -203,10 +202,10 @@ class WeylAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         """
         if inverse_X:
             X_inv = self.inverse(X)
-            diff = einsum('nij,mjk->nmik', X_inv, X2)  # (N, N2, n, n)
+            diff = einsum("nij,mjk->nmik", X_inv, X2)  # (N, N2, n, n)
         else:
             X2_inv = self.inverse(X2)
-            diff = einsum('nij,mjk->nmik', X, X2_inv)  # (N, N2, n, n)
+            diff = einsum("nij,mjk->nmik", X, X2_inv)  # (N, N2, n, n)
 
         return diff
 
