@@ -83,7 +83,7 @@ class MaternFeatureMapKernel(BaseGeometricKernel):
         self.normalize = normalize
 
         if "eigenfunctions" in vars(feature_map):
-            self.eigenfunctions = feature_map.eigenfunctions
+            self.eigenfunctions = feature_map.eigenfunctions  # type: ignore[attr-defined]
         else:
             self.eigenfunctions = None
 
