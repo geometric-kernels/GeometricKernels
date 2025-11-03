@@ -11,7 +11,7 @@ import sympy
 from beartype.typing import List, Optional, Tuple
 from lab import einsum
 
-from geometric_kernels.lab_extras import dtype_double, from_numpy, qr
+from geometric_kernels.lab_extras import dtype_double, from_numpy, qr, take_along_axis
 from geometric_kernels.spaces import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import EigenfunctionsWithAdditionTheorem
 from geometric_kernels.spaces.so import SOEigenfunctions, SpecialOrthogonal
