@@ -6,8 +6,8 @@ import pytest
 
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.kernels.matern_kernel import default_num
-from geometric_kernels.spaces import Mesh
-from geometric_kernels.spaces import CompactHomogeneousSpace
+from geometric_kernels.spaces import CompactHomogeneousSpace, Mesh
+
 from ..helper import check_function_with_backend, discrete_spectrum_spaces
 
 _EPS = 1e-5

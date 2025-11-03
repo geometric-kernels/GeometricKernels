@@ -5,6 +5,7 @@ import pytest
 from geometric_kernels.kernels import MaternFeatureMapKernel
 from geometric_kernels.kernels.matern_kernel import default_feature_map, default_num
 from geometric_kernels.spaces import CompactHomogeneousSpace
+
 from ..helper import (
     check_function_with_backend,
     create_random_state,
