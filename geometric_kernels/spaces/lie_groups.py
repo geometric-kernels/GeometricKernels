@@ -9,6 +9,7 @@ import abc
 import lab as B
 import numpy as np
 from beartype.typing import List, Optional, Tuple
+from lab import einsum
 
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import EigenfunctionsWithAdditionTheorem
@@ -179,7 +180,7 @@ class WeylAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         """
         raise NotImplementedError
 
-    def _difference(self, X: B.Numeric, X2: B.Numeric) -> B.Numeric:
+    def _difference(self, X: B.Numeric, X2: B.Numeric, inverse_X=False) -> B.Numeric:
         r"""
         Pairwise difference (in the group sense) between elements of the
         two batches, `X` and `X2`.
@@ -199,13 +200,13 @@ class WeylAdditionTheorem(EigenfunctionsWithAdditionTheorem):
             :cite:t:`azangulov2024a`. This is because $\chi(x y x^{-1})=\chi(y)$
             which implies that $\chi(x y) = \chi(y x)$.
         """
-        X2_inv = self.inverse(X2)
-        X_ = B.tile(X[..., None, :, :], 1, X2_inv.shape[0], 1, 1)  # (N, N2, n, n)
-        X2_inv_ = B.tile(X2_inv[None, ..., :, :], X.shape[0], 1, 1, 1)  # (N, N2, n, n)
+        if inverse_X:
+            X_inv = self.inverse(X)
+            diff = einsum("nij,mjk->nmik", X_inv, X2)  # (N, N2, n, n)
+        else:
+            X2_inv = self.inverse(X2)
+            diff = einsum("nij,mjk->nmik", X, X2_inv)  # (N, N2, n, n)
 
-        diff = B.reshape(
-            B.matmul(X_, X2_inv_), X.shape[0], X2_inv.shape[0], X.shape[-1], X.shape[-1]
-        )  # (N, N2, n, n)
         return diff
 
     def _addition_theorem(

@@ -86,6 +86,11 @@ class MaternFeatureMapKernel(BaseGeometricKernel):
         self.feature_map = make_deterministic(feature_map, key)
         self.normalize = normalize
 
+        if "eigenfunctions" in vars(feature_map):
+            self.eigenfunctions = feature_map.eigenfunctions  # type: ignore[attr-defined]
+        else:
+            self.eigenfunctions = None
+
     def init_params(self) -> Dict[str, B.NPNumeric]:
         """
         Initializes the dict of the trainable parameters of the kernel.

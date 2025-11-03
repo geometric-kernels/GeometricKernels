@@ -265,8 +265,6 @@ class SpecialOrthogonal(CompactMatrixLieGroup):
     """
 
     def __init__(self, n: int):
-        if n < 3:
-            raise ValueError("Only n >= 3 is supported. For n = 2, use Circle.")
         self.n = n
         self.dim = n * (n - 1) // 2
         self.rank = n // 2
@@ -297,6 +295,10 @@ class SpecialOrthogonal(CompactMatrixLieGroup):
         :param num:
             Number of levels.
         """
+        if self.n == 2:
+            raise ValueError(
+                "SO(2) is not supported by this method, use Circle instead."
+            )
         return SOEigenfunctions(self.n, num)
 
     def get_eigenvalues(self, num: int) -> B.Numeric:
@@ -317,7 +319,7 @@ class SpecialOrthogonal(CompactMatrixLieGroup):
     def random(self, key: B.RandomState, number: int):
         if self.n == 2:  # for the bright future where we support SO(2).
             # SO(2) = S^1
-            key, thetas = B.random.randn(key, dtype_double(key), number, 1)
+            key, thetas = B.random.rand(key, dtype_double(key), number, 1)
             thetas = 2 * math.pi * thetas
             c = B.cos(thetas)
             s = B.sin(thetas)
@@ -343,7 +345,6 @@ class SpecialOrthogonal(CompactMatrixLieGroup):
             q = B.concat(r1, r2, r3, axis=-1)
             return key, q
         else:
-            # qr decomposition is not in the lab package, so numpy is used.
             key, h = B.random.randn(key, dtype_double(key), number, self.n, self.n)
             q, r = qr(h, mode="complete")
             r_diag_sign = B.sign(B.einsum("...ii->...i", r))

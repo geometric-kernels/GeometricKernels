@@ -11,6 +11,7 @@ from geometric_kernels.spaces import (
     DiscreteSpectrumSpace,
     Graph,
     GraphEdges,
+    Grassmannian,
     HodgeDiscreteSpectrumSpace,
     Hyperbolic,
     HypercubeGraph,
@@ -21,6 +22,7 @@ from geometric_kernels.spaces import (
     Space,
     SpecialOrthogonal,
     SpecialUnitary,
+    Stiefel,
     SymmetricPositiveDefiniteMatrices,
 )
 
@@ -74,6 +76,8 @@ def discrete_spectrum_spaces() -> List[DiscreteSpectrumSpace]:
             Hypersphere(2),
             Hypersphere(3),
             Hypersphere(10),
+            Grassmannian(5, 2),
+            Stiefel(4, 2, np.random.RandomState(0)),
             Mesh.load_mesh(TEST_MESH_PATH),
             Graph(TEST_GRAPH_ADJACENCY, normalize_laplacian=False),
             Graph(TEST_GRAPH_ADJACENCY, normalize_laplacian=True),

@@ -22,10 +22,12 @@ from geometric_kernels.kernels.feature_map import MaternFeatureMapKernel
 from geometric_kernels.kernels.hodge_compositional import MaternHodgeCompositionalKernel
 from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import (
+    CompactHomogeneousSpace,
     CompactMatrixLieGroup,
     DiscreteSpectrumSpace,
     Graph,
     GraphEdges,
+    Grassmannian,
     HodgeDiscreteSpectrumSpace,
     Hyperbolic,
     HypercubeGraph,
@@ -76,13 +78,24 @@ def default_feature_map(
 
 @overload
 def feature_map_from_kernel(kernel: MaternKarhunenLoeveKernel):
-    if isinstance(kernel.space, CompactMatrixLieGroup):
+    if isinstance(kernel.space, CompactMatrixLieGroup) or isinstance(
+        kernel.space, Grassmannian
+    ):
         # Because `CompactMatrixLieGroup` does not currently support explicit
         # eigenfunction computation (they only support addition theorem).
         return RandomPhaseFeatureMapCompact(
             kernel.space,
             kernel.num_levels,
             MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES,
+        )
+    if isinstance(kernel.space, CompactHomogeneousSpace):
+        # Same as above.
+        # `CompactHomogeneousSpace` does not currently support explicit
+        # eigenfunction computation (they only support addition theorem).
+        return RandomPhaseFeatureMapCompact(
+            kernel.space,
+            kernel.num_levels,
+            MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES_HOMOGENEOUS_SPACE,
         )
     else:
         return DeterministicFeatureMapCompact(kernel.space, kernel.num_levels)
@@ -139,6 +152,12 @@ def feature_map_from_space(space: DiscreteSpectrumSpace, num: int):
     if isinstance(space, CompactMatrixLieGroup):
         return RandomPhaseFeatureMapCompact(
             space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
+        )
+    elif isinstance(space, CompactHomogeneousSpace):
+        return RandomPhaseFeatureMapCompact(
+            space,
+            num,
+            MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES_HOMOGENEOUS_SPACE,
         )
     elif isinstance(space, Hypersphere):
         num_computed_levels = space.num_computed_levels
@@ -204,7 +223,9 @@ def feature_map_from_space(space: Space, num: int):
 
 @overload
 def default_num(space: DiscreteSpectrumSpace) -> int:
-    if isinstance(space, CompactMatrixLieGroup):
+    if isinstance(space, CompactMatrixLieGroup) or isinstance(
+        space, CompactHomogeneousSpace
+    ):
         return MaternGeometricKernel._DEFAULT_NUM_LEVELS_LIE_GROUP
     elif isinstance(space, (Graph, Mesh)):
         return min(
@@ -270,6 +291,7 @@ class MaternGeometricKernel:
     _DEFAULT_NUM_LEVELS = 25
     _DEFAULT_NUM_LEVELS_LIE_GROUP = 20
     _DEFAULT_NUM_RANDOM_PHASES = 3000
+    _DEFAULT_NUM_RANDOM_PHASES_HOMOGENEOUS_SPACE = 3000
 
     def __new__(
         cls,
@@ -335,16 +357,10 @@ class MaternGeometricKernel:
         """
 
         kernel: BaseGeometricKernel
-        if isinstance(space, DiscreteSpectrumSpace):
-            num = num or default_num(space)
-            if isinstance(space, HodgeDiscreteSpectrumSpace):
-                kernel = MaternHodgeCompositionalKernel(space, num, normalize=normalize)
-            else:
-                kernel = MaternKarhunenLoeveKernel(space, num, normalize=normalize)
-            if return_feature_map:
-                feature_map = default_feature_map(kernel=kernel)
 
-        elif isinstance(space, NoncompactSymmetricSpace):
+        if isinstance(space, NoncompactSymmetricSpace) or isinstance(
+            space, CompactHomogeneousSpace
+        ):
             num = num or default_num(space)
             if "key" in kwargs:
                 key = kwargs["key"]
@@ -357,10 +373,20 @@ class MaternGeometricKernel:
                     )
                     % str(type(space))
                 )
+
             feature_map = default_feature_map(space=space, num=num)
             kernel = MaternFeatureMapKernel(
                 space, feature_map, key, normalize=normalize
             )
+        elif isinstance(space, DiscreteSpectrumSpace):
+            num = num or default_num(space)
+            if isinstance(space, HodgeDiscreteSpectrumSpace):
+                kernel = MaternHodgeCompositionalKernel(space, num, normalize=normalize)
+            else:
+                kernel = MaternKarhunenLoeveKernel(space, num, normalize=normalize)
+            if return_feature_map:
+                feature_map = default_feature_map(kernel=kernel)
+
         else:
             raise NotImplementedError
 
