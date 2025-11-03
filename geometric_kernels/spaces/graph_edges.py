@@ -447,7 +447,7 @@ class GraphEdges(HodgeDiscreteSpectrumSpace):
         """
         if isinstance(adjacency_matrix, np.ndarray):
             index = csr_matrix(adjacency_matrix, dtype=int)
-        elif is_bearable(adjacency_matrix, SparseArray):
+        elif is_bearable(adjacency_matrix, SparseArray):  # type: ignore[arg-type]
             index = csr_matrix(adjacency_matrix, dtype=int, copy=True)
         else:
             raise ValueError(
