@@ -171,7 +171,9 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         # [N * N2, G_n, G_n]
         diff = B.reshape(self.G_difference(X_, X2_), -1, self.G_n, self.G_n)
         # [N * N2 * samples_H, G_n, G_n]
-        diff_h = B.reshape(self.G_difference(diff, self.samples_H), -1, self.G_n, self.G_n)
+        diff_h = B.reshape(
+            self.G_difference(diff, self.samples_H), -1, self.G_n, self.G_n
+        )
         # [N * N2 * samples_H, T]
         torus_repr = self.G_torus_representative(diff_h)
         values = [
