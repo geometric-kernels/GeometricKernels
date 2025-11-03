@@ -77,7 +77,7 @@ def discrete_spectrum_spaces() -> List[DiscreteSpectrumSpace]:
             Hypersphere(3),
             Hypersphere(10),
             Grassmannian(5, 2),
-            Stiefel(4, 2, np.random.RandomState(0)),
+            Stiefel(4, 2, np.random.RandomState(0))[1],
             Mesh.load_mesh(TEST_MESH_PATH),
             Graph(TEST_GRAPH_ADJACENCY, normalize_laplacian=False),
             Graph(TEST_GRAPH_ADJACENCY, normalize_laplacian=True),
