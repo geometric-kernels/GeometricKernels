@@ -232,8 +232,9 @@ class GrassmannianEigenfunctions(EigenfunctionsWithAdditionTheorem):
         # X has shape [..., n, m]
         X_ = X[..., : self.m, :]  # [..., m, m]
         X_T_X = einsum("...ji,...jk->...ik", X_, X_)
-        eigvals = B.eig(X_T_X, compute_eigvecs=False)
-        eigvals = B.sort(eigvals, axis=-1, descending=False)[
+        eigvals = B.eig(X_T_X, False)
+        sorted_ind = B.argsort(B.real(eigvals), axis=-1)
+        eigvals = take_along_axis(eigvals, sorted_ind, -1)[
             ..., : self.rank
         ]  # Sort eigenvalues
         return eigvals
