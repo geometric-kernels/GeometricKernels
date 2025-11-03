@@ -4,16 +4,24 @@ import pytest
 
 from geometric_kernels.kernels import MaternFeatureMapKernel
 from geometric_kernels.kernels.matern_kernel import default_feature_map, default_num
-
+from geometric_kernels.spaces import CompactHomogeneousSpace
 from ..helper import (
     check_function_with_backend,
     create_random_state,
     noncompact_symmetric_spaces,
+    discrete_spectrum_spaces,
 )
 
 
 @pytest.fixture(
-    params=noncompact_symmetric_spaces(),
+    params=(
+        noncompact_symmetric_spaces()
+        + [
+            space
+            for space in discrete_spectrum_spaces()
+            if isinstance(space, CompactHomogeneousSpace)
+        ]
+    ),
     ids=str,
     scope="module",
 )

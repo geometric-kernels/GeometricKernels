@@ -7,14 +7,21 @@ import pytest
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.kernels.matern_kernel import default_num
 from geometric_kernels.spaces import Mesh
-
+from geometric_kernels.spaces import CompactHomogeneousSpace
 from ..helper import check_function_with_backend, discrete_spectrum_spaces
 
 _EPS = 1e-5
 
 
 @pytest.fixture(
-    params=product(discrete_spectrum_spaces(), [True, False]),
+    params=product(
+        [
+            space
+            for space in discrete_spectrum_spaces()
+            if not isinstance(space, CompactHomogeneousSpace)
+        ],
+        [True, False],
+    ),
     ids=lambda tpl: f"{tpl[0]}{'-normalized' if tpl[1] else ''}",
     scope="module",
 )
