@@ -8,8 +8,8 @@ from geometric_kernels.spaces import CompactHomogeneousSpace
 from ..helper import (
     check_function_with_backend,
     create_random_state,
-    noncompact_symmetric_spaces,
     discrete_spectrum_spaces,
+    noncompact_symmetric_spaces,
 )
 
 
