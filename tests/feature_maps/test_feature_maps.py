@@ -6,6 +6,7 @@ from geometric_kernels.feature_maps import RandomPhaseFeatureMapCompact
 from geometric_kernels.kernels import MaternGeometricKernel, default_feature_map
 from geometric_kernels.kernels.matern_kernel import default_num
 from geometric_kernels.spaces import NoncompactSymmetricSpace
+from geometric_kernels.spaces import CompactHomogeneousSpace
 from geometric_kernels.utils.utils import make_deterministic
 
 from ..helper import check_function_with_backend, create_random_state, spaces
@@ -32,6 +33,8 @@ def feature_map_and_friends(request, backend):
         kernel = MaternGeometricKernel(
             space, key=create_random_state(backend), num=min(default_num(space), 100)
         )
+    elif isinstance(space, CompactHomogeneousSpace):
+        kernel = MaternGeometricKernel(space, key=create_random_state(backend), num=min(default_num(space)))
     else:
         kernel = MaternGeometricKernel(space, num=min(default_num(space), 3))
 
