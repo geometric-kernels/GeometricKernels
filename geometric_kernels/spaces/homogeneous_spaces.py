@@ -177,8 +177,7 @@ class AveragingAdditionTheorem(EigenfunctionsWithAdditionTheorem):
         # [N * N2 * samples_H, T]
         torus_repr = self.G_torus_representative(diff_h)
         values = [
-            (degree * chi(torus_repr)[..., None]).reshape(
-                X.shape[0], X2.shape[0], 1
+            B.reshape(degree * chi(torus_repr)[..., None], X.shape[0], X2.shape[0], 1
             )  # [N1, N2, 1]
             for degree, chi in zip(self.G_dimensions, self._characters)
         ]
