@@ -34,7 +34,9 @@ def feature_map_and_friends(request, backend):
             space, key=create_random_state(backend), num=min(default_num(space), 100)
         )
     elif isinstance(space, CompactHomogeneousSpace):
-        kernel = MaternGeometricKernel(space, key=create_random_state(backend), num=min(default_num(space)))
+        kernel = MaternGeometricKernel(
+            space, key=create_random_state(backend), num=min(default_num(space), 3)
+        )
     else:
         kernel = MaternGeometricKernel(space, num=min(default_num(space), 3))
 
