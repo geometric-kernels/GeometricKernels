@@ -145,7 +145,9 @@ class Stiefel(CompactHomogeneousSpace):
             dim_H = 0
 
         new_space = super().__new__(cls)
-        key, matrix_complement = B.randn(key, B.dtype(samples_H), n, n - m)  # Shape: (n, n - m)
+        key, matrix_complement = B.randn(
+            key, B.dtype(samples_H), n, n - m
+        )  # Shape: (n, n - m)
 
         new_space.__init__(G=G, dim_H=dim_H, samples_H=samples_H, average_order=average_order, n=n, m=m, matrix_complement=matrix_complement)  # type: ignore
         return key, new_space
