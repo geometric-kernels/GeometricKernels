@@ -200,16 +200,6 @@ To install JAX, follow `these instructions <https://github.com/google/jax#instal
 
    pip install gpjax
 
-.. warning::
-
-    .. raw:: html
-
-        <div style="color: var(--color-content-foreground);">
-
-    Currently, only some versions of `gpjax` are supported (we tested `gpjax==0.6.9`).
-
-    Furthermore, installation might be far from trivial and result in a broken environment. This is due to our conflicting dependencies, see https://github.com/JaxGaussianProcesses/GPJax/issues/441.
-
     .. raw:: html
 
         </div>
