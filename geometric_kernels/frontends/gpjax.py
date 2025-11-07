@@ -6,16 +6,17 @@ a geometric space is available in the
 :doc:`frontends/GPJax.ipynb </examples/frontends/GPJax>` notebook.
 """
 
+import typing as tp
 from dataclasses import dataclass
 
 import gpjax
 import jax.numpy as jnp
-import tensorflow_probability.substrates.jax.bijectors as tfb
 from beartype.typing import List, TypeVar, Union
-from gpjax.base import param_field, static_field
 from gpjax.kernels.computations.base import AbstractKernelComputation
 from gpjax.typing import Array, ScalarFloat
 from jaxtyping import Float, Num
+from gpjax.parameters import NonNegativeReal, PositiveReal
+from flax import nnx
 
 from geometric_kernels.kernels import BaseGeometricKernel
 from geometric_kernels.spaces import Space
@@ -102,32 +103,51 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
     :type variance: ScalarFloat
     """
 
-    nu: ScalarFloat = param_field(None, bijector=tfb.Softplus(), trainable=False)
-    lengthscale: Union[ScalarFloat, Float[Array, " D"]] = param_field(
-        None, bijector=tfb.Softplus()
-    )
-    variance: ScalarFloat = param_field(jnp.array(1.0), bijector=tfb.Softplus())
-    base_kernel: BaseGeometricKernel = static_field(None)
-    compute_engine: AbstractKernelComputation = static_field(
-        _GeometricKernelComputation(), repr=False
-    )
+    nu: nnx.Variable[ScalarFloat]
+    lengthscale: nnx.Variable[Union[ScalarFloat, Float[Array, " D"]]]
+    variance: nnx.Variable[ScalarFloat]
+
+    base_kernel: BaseGeometricKernel
+    compute_engine: AbstractKernelComputation = _GeometricKernelComputation()
     name: str = "Geometric Kernel"
 
-    def __post_init__(self):
-        if self.base_kernel is None:
-            raise ValueError("base_kernel must be specified")
+    def __init__(
+            self,
+            base_kernel: BaseGeometricKernel,
+            lengthscale: tp.Union[Union[ScalarFloat, Float[Array, " D"]], nnx.Variable[Union[ScalarFloat, Float[Array, " D"]]], None] = None,
+            nu: tp.Union[ScalarFloat, nnx.Variable[ScalarFloat], None] = None,
+            variance: tp.Union[ScalarFloat, nnx.Variable[ScalarFloat]] = 1.0,
+            trainable_nu: bool = False,            
+    ):
+        active_dims = None
+        n_dims = None
+        super().__init__(active_dims, n_dims, self.compute_engine)
 
+        self.base_kernel = base_kernel
         default_params = self.base_kernel.init_params()
 
-        if self.nu is None:
-            self.nu = jnp.array(default_params["nu"])
-        if isinstance(self.nu, ScalarFloat):
-            self.nu = jnp.array([self.nu])
+        if lengthscale is None:
+            lengthscale = jnp.array(default_params["lengthscale"])
+        if nu is None:
+            nu = jnp.array(default_params["nu"])
+        
+        if isinstance(lengthscale, nnx.Variable):
+            self.lengthscale = lengthscale
+        else:
+            self.lengthscale = PositiveReal(lengthscale)
 
-        if self.lengthscale is None:
-            self.lengthscale = jnp.array(default_params["lengthscale"])
-        if isinstance(self.lengthscale, ScalarFloat):
-            self.lengthscale = jnp.array([self.lengthscale])
+        self.trainable_nu = trainable_nu
+        if not trainable_nu:
+            self.nu = nu
+        elif isinstance(nu, nnx.Variable):
+             self.nu = nu
+        else:
+             self.nu = PositiveReal(nu)            
+
+        if isinstance(variance, nnx.Variable):
+            self.variance = variance
+        else:
+            self.variance = NonNegativeReal(variance)        
 
     @property
     def space(self) -> Union[Space, List[Space]]:
@@ -151,6 +171,7 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
         :return:
             The N x M cross-covariance matrix.
         """
-        return self.variance * self.base_kernel.K(
-            {"lengthscale": self.lengthscale, "nu": self.nu}, x, y
+        nu_value = self.nu.value if self.trainable_nu else self.nu
+        return self.variance.value * self.base_kernel.K(
+            {"lengthscale": self.lengthscale.value, "nu": nu_value}, x, y
         )

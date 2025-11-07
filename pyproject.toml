@@ -104,5 +104,5 @@ dev = [
   'jaxlib',
   'jaxtyping',
   'optax',
-  'gpjax',
+  'gpjax>=0.12.2; python_version >= "3.10" and python_version < "3.12"',  # gpjax is not supported on python-3.9 or older.
 ]
