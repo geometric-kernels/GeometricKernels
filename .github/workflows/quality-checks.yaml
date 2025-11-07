@@ -36,12 +36,12 @@ jobs:
     - name: Run tests
       run: UV_PYTHON=python${{ matrix.python-version }} make test
 
-finish:
-  name: Coverage badge
-  needs: check-and-test
-  runs-on: ubuntu-latest
-  steps:
-    - name: Coverage badge
-      uses: codecov/codecov-action@v4
-      with:
-        files: ./coverage.xml
+  coverage-badge:
+    name: Coverage badge
+    needs: check-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Coverage badge
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./coverage.xml
