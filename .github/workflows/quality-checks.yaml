@@ -44,6 +44,8 @@ jobs:
     name: Coverage badge
     needs: check-and-test
     runs-on: ubuntu-latest
+    permissions:
+      contents: write   # required to commit the SVG
     steps:
       - name: Commit badge
         run: |
