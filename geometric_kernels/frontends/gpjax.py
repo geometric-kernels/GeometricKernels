@@ -6,7 +6,6 @@ a geometric space is available in the
 :doc:`frontends/GPJax.ipynb </examples/frontends/GPJax>` notebook.
 """
 
-import typing as tp
 from dataclasses import dataclass
 
 import gpjax
@@ -103,7 +102,7 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
     :type variance: ScalarFloat
     """
 
-    nu: nnx.Variable[ScalarFloat]
+    nu: Union[ScalarFloat, nnx.Variable[ScalarFloat], None]
     lengthscale: nnx.Variable[Union[ScalarFloat, Float[Array, " D"]]]
     variance: nnx.Variable[ScalarFloat]
 
@@ -114,13 +113,13 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
     def __init__(
         self,
         base_kernel: BaseGeometricKernel,
-        lengthscale: tp.Union[
+        lengthscale: Union[
             Union[ScalarFloat, Float[Array, " D"]],
             nnx.Variable[Union[ScalarFloat, Float[Array, " D"]]],
             None,
         ] = None,
-        nu: tp.Union[ScalarFloat, nnx.Variable[ScalarFloat], None] = None,
-        variance: tp.Union[ScalarFloat, nnx.Variable[ScalarFloat]] = 1.0,
+        nu: Union[ScalarFloat, nnx.Variable[ScalarFloat], None] = None,
+        variance: Union[ScalarFloat, nnx.Variable[ScalarFloat]] = 1.0,
         trainable_nu: bool = False,
     ):
         active_dims = None
