@@ -68,7 +68,7 @@ default-groups = []
 dev = [
   # --- shared from test_requirements.txt ---
   "ipykernel",
-  "backends>=1.5.4",
+  "backends>=1.8.0",
   "plotly",
   "kaleido",
   "black==24.3.0",
@@ -102,9 +102,7 @@ dev = [
   # JAX family
   'jax',
   'jaxlib',
-  'jaxtyping==0.2.25; python_version == "3.9"',
-  'jaxtyping;         python_version != "3.9"',
+  'jaxtyping',
   'optax',
-  'gpjax>=0.12.0; python_version >= "3.10"',
-  'gpjax==0.6.9; python_version == "3.9"'
+  'gpjax',
 ]
