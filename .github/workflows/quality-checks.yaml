@@ -35,13 +35,22 @@ jobs:
       #----------------------------------------------
     - name: Run tests
       run: UV_PYTHON=python${{ matrix.python-version }} make test
+    - name: Create badge
+      run: |
+        uv pip install coverage-badge
+        coverage-badge -o coverage.svg
 
   coverage-badge:
     name: Coverage badge
     needs: check-and-test
     runs-on: ubuntu-latest
     steps:
-      - name: Coverage badge
-        uses: codecov/codecov-action@v4
-        with:
-          files: ./coverage.xml
+      - name: Commit badge
+        run: |
+          if [[ -n "$(git status --porcelain)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add coverage.svg
+            git commit -m "Update coverage badge [skip ci]"
+            git push
+          fi
