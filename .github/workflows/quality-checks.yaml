@@ -2,6 +2,8 @@ name: QualityChecks
 
 on:
   push:
+    paths-ignore:
+      - 'coverage.svg'   # avoid retriggering on badge-only commits
   pull_request:
     branches:
       - main
@@ -39,16 +41,9 @@ jobs:
       run: |
         uv pip install coverage-badge
         uv run coverage-badge -o coverage.svg
-
-  coverage-badge:
-    name: Coverage badge
-    needs: check-and-test
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write   # required to commit the SVG
-    steps:
-      - name: Commit badge
-        run: |
+    - name: Commit badge
+      if: matrix.python-version == '3.11'
+      run: |
           if [[ -n "$(git status --porcelain)" ]]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
