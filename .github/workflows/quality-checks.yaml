@@ -38,7 +38,7 @@ jobs:
     - name: Create badge
       run: |
         uv pip install coverage-badge
-        coverage-badge -o coverage.svg
+        uv run coverage-badge -o coverage.svg
 
   coverage-badge:
     name: Coverage badge
