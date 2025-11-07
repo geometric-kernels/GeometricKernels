@@ -12,11 +12,11 @@ from dataclasses import dataclass
 import gpjax
 import jax.numpy as jnp
 from beartype.typing import List, TypeVar, Union
+from flax import nnx
 from gpjax.kernels.computations.base import AbstractKernelComputation
+from gpjax.parameters import NonNegativeReal, PositiveReal
 from gpjax.typing import Array, ScalarFloat
 from jaxtyping import Float, Num
-from gpjax.parameters import NonNegativeReal, PositiveReal
-from flax import nnx
 
 from geometric_kernels.kernels import BaseGeometricKernel
 from geometric_kernels.spaces import Space
@@ -112,12 +112,16 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
     name: str = "Geometric Kernel"
 
     def __init__(
-            self,
-            base_kernel: BaseGeometricKernel,
-            lengthscale: tp.Union[Union[ScalarFloat, Float[Array, " D"]], nnx.Variable[Union[ScalarFloat, Float[Array, " D"]]], None] = None,
-            nu: tp.Union[ScalarFloat, nnx.Variable[ScalarFloat], None] = None,
-            variance: tp.Union[ScalarFloat, nnx.Variable[ScalarFloat]] = 1.0,
-            trainable_nu: bool = False,            
+        self,
+        base_kernel: BaseGeometricKernel,
+        lengthscale: tp.Union[
+            Union[ScalarFloat, Float[Array, " D"]],
+            nnx.Variable[Union[ScalarFloat, Float[Array, " D"]]],
+            None,
+        ] = None,
+        nu: tp.Union[ScalarFloat, nnx.Variable[ScalarFloat], None] = None,
+        variance: tp.Union[ScalarFloat, nnx.Variable[ScalarFloat]] = 1.0,
+        trainable_nu: bool = False,
     ):
         active_dims = None
         n_dims = None
@@ -130,7 +134,7 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
             lengthscale = jnp.array(default_params["lengthscale"])
         if nu is None:
             nu = jnp.array(default_params["nu"])
-        
+
         if isinstance(lengthscale, nnx.Variable):
             self.lengthscale = lengthscale
         else:
@@ -140,14 +144,14 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
         if not trainable_nu:
             self.nu = nu
         elif isinstance(nu, nnx.Variable):
-             self.nu = nu
+            self.nu = nu
         else:
-             self.nu = PositiveReal(nu)            
+            self.nu = PositiveReal(nu)
 
         if isinstance(variance, nnx.Variable):
             self.variance = variance
         else:
-            self.variance = NonNegativeReal(variance)        
+            self.variance = NonNegativeReal(variance)
 
     @property
     def space(self) -> Union[Space, List[Space]]:
