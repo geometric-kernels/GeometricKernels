@@ -41,7 +41,7 @@ lint:
 	@echo "$(SUCCESS) Lint done $(SUCCESS)"
 
 test: ## Run the tests, start with the failing ones and break on first fail.
-	# @$(UV_RUN) pytest -v -x --ff -rN -Wignore -s --tb=short --durations=0 --cov --cov-report=xml tests
+	@$(UV_RUN) pytest -v -x --ff -rN -Wignore -s --tb=short --durations=0 --cov --cov-report=xml tests
 	@$(UV_RUN) pytest --nbmake --nbmake-kernel=python3 --durations=0 --nbmake-timeout=1000 --ignore=notebooks/frontends/GPJax.ipynb notebooks/
 	@if [ "$(UV_PYTHON)" = "python3.9" ]; then \
 		echo "Skipping GPJax notebook on python3.9"; \
