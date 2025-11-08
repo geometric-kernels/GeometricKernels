@@ -10,19 +10,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       #----------------------------------------------
-      #       check-out repo and set-up python
+      #       check out repo and set up uv
       #----------------------------------------------
     - uses: actions/checkout@v4
-    - uses: actions/setup-python@v4
+    - uses: astral-sh/setup-uv@v6
       with:
-        python-version: "3.10"
+        version: "0.9.6"
       #----------------------------------------------
       #       install
       #----------------------------------------------
+    - name: Set up venv
+      run: UV_PYTHON=3.11 make venv
     - name: Install dependencies
       run: |
         make install
-        pip install -r docs/requirements.txt
+        uv pip install -r docs/requirements.txt
     - name: Build documentation
       run: |
         make docs
