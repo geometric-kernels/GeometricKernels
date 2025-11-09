@@ -2,8 +2,6 @@ name: QualityChecks
 
 on:
   push:
-    paths-ignore:
-      - 'coverage.svg'   # avoid retriggering on badge-only commits
   pull_request:
     branches:
       - main
