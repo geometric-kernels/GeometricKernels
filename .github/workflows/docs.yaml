@@ -51,7 +51,7 @@ jobs:
       run: |
         git add .
         git add -f docs/autoapi/*
-        git add -f docs/coverage.xml
+        git add -f docs/coverage.svg
         git add -f docs/coverage_html/*
         git config --global user.email "none"
         git config --global user.name "github-actions-bot"
