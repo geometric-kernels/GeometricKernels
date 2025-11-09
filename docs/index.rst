@@ -32,6 +32,7 @@ Before doing anything, you might want to create and activate a new virtual envir
 ..  code-block:: bash
 
    uv venv --python python[version] [venv_dir]
+   source [venv_dir]/bin/activate
 
 where [env_dir] is the directory of the environment and [version] is the version of Python you want to use, we currently support 3.9, 3.10, 3.11.
 
@@ -46,12 +47,12 @@ where [env_dir] is the directory of the environment and [version] is the version
    <div class="bootstrap">
    <div class="accordion" id="virtualenvs">
      <div class="accordion-item" style="background-color: var(--color-background-primary);">
-       <h2 class="accordion-header mb-0" id="virtualenvsHeadingOne">
-         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#virtualenvsCollapseOne" aria-expanded="true" aria-controls="virtualenvsCollapseOne" style="background-color: var(--color-background-secondary); color: var(--color-foreground-primary);">
+       <h2 class="accordion-header mb-0" id="virtualenvsHeadingTwo">
+         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#virtualenvsCollapseTwo" aria-expanded="true" aria-controls="virtualenvsCollapseTwo" style="background-color: var(--color-background-secondary); color: var(--color-foreground-primary);">
            Conda
          </button>
        </h2>
-       <div id="virtualenvsCollapseOne" class="accordion-collapse collapse show" aria-labelledby="virtualenvsHeadingOne" data-bs-parent="#virtualenvs">
+       <div id="virtualenvsCollapseTwo" class="accordion-collapse collapse show" aria-labelledby="virtualenvsHeadingTwo" data-bs-parent="#virtualenvs">
          <div class="accordion-body pb-0">
 
 ..  code-block:: bash
@@ -70,12 +71,12 @@ where [env_name] is the name of the environment and [version] is the version of 
 .. raw:: html
 
      <div class="accordion-item" style="background-color: var(--color-background-primary);">
-       <h2 class="accordion-header mb-0" id="virtualenvsHeadingTwo">
-         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#virtualenvsCollapseTwo" aria-expanded="false" aria-controls="virtualenvsCollapseTwo" style="background-color: var(--color-background-secondary); color: var(--color-foreground-primary);">
+       <h2 class="accordion-header mb-0" id="virtualenvsHeadingThree">
+         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#virtualenvsCollapseThree" aria-expanded="false" aria-controls="virtualenvsCollapseThree" style="background-color: var(--color-background-secondary); color: var(--color-foreground-primary);">
            Virtualenv
          </button>
        </h2>
-       <div id="virtualenvsCollapseTwo" class="accordion-collapse collapse" aria-labelledby="virtualenvsHeadingTwo" data-bs-parent="#virtualenvs">
+       <div id="virtualenvsCollapseThree" class="accordion-collapse collapse" aria-labelledby="virtualenvsHeadingThree" data-bs-parent="#virtualenvs">
          <div class="accordion-body pb-0">
 
 ..  code-block:: bash
@@ -191,7 +192,6 @@ You can get PyTorch by running
        <div id="backendsCollapseThree" class="accordion-collapse collapse" aria-labelledby="backendsHeadingThree" data-bs-parent="#backends">
          <div class="accordion-body pb-0">
 
-
 To install JAX, follow `these instructions <https://github.com/google/jax#installation>`_.
 
 [Optional] We support the JAX-based Gaussian process library ``GPJax`` which you can install by running
@@ -199,10 +199,6 @@ To install JAX, follow `these instructions <https://github.com/google/jax#instal
 ..  code-block:: bash
 
    pip install gpjax
-
-    .. raw:: html
-
-        </div>
 
 .. raw:: html
 
