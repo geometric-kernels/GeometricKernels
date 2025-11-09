@@ -186,6 +186,8 @@ Run the tests
 make test
 ```
 
+If you want to run Jupyter with your `uv` development environment, check out [this page](https://docs.astral.sh/uv/guides/integration/jupyter/).
+
 **Example:** If you want to learn how to implement your own space or kernel component, checkout the [CustomSpacesAndKernels.ipynb](https://github.com/geometric-kernels/GeometricKernels/blob/main/notebooks/CustomSpacesAndKernels.ipynb) notebook.
 
 ## If you have a question
