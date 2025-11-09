@@ -39,7 +39,7 @@ lint: sync
 	@$(UV_RUN) black geometric_kernels tests --check --diff
 	@$(UV_RUN) isort geometric_kernels tests --check-only --diff
 	@$(UV_RUN) mypy --namespace-packages geometric_kernels
-	@echo "$(SUCCESS)Lint done$(RESET)"
+	@echo -e "$(SUCCESS)Lint done$(RESET)"
 
 test: sync ## Run the tests, start with the failing ones and break on first fail.
 	@$(UV_RUN) pytest -v -x --ff -rN -Wignore -s --tb=short --durations=0 --cov --cov-report=xml tests
@@ -49,4 +49,4 @@ test: sync ## Run the tests, start with the failing ones and break on first fail
 	else \
 		$(UV_RUN) pytest --nbmake --nbmake-kernel=python3 --durations=0 --nbmake-timeout=1000 notebooks/frontends/GPJax.ipynb; \
 	fi;
-	@echo "$(SUCCESS)Tests done$(RESET)"
+	@echo -e "$(SUCCESS)Tests done$(RESET)"
