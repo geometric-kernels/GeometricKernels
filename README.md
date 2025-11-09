@@ -87,10 +87,6 @@ This enables kernel methods &mdash; in particular Gaussian process models &mdash
         pip install gpjax
         ```
 
-        **Note**. Currently, only some versions of `gpjax` are supported (we tested `gpjax==0.6.9`).
-
-        Furthermore, installation might be far from trivial and result in a broken environment. This is due to our conflicting dependencies, see https://github.com/JaxGaussianProcesses/GPJax/issues/441.
-
 ## A basic example
 
 This example shows how to compute a 3x3 kernel matrix for the Matern52 kernel on the standard two-dimensional sphere. It relies on the numpy-based backend. Look up the information on how to use other backends in [the documentation](https://geometric-kernels.github.io/GeometricKernels/index.html).

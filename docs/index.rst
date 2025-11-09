@@ -60,7 +60,7 @@ where [env_dir] is the directory of the environment and [version] is the version
    conda create -n [env_name] python=[version]
    conda activate [env_name]
 
-where [env_name] is the name of the environment and [version] is the version of Python you want to use, we currently support 3.8, 3.9, 3.10, 3.11.
+where [env_name] is the name of the environment and [version] is the version of Python you want to use, we currently support 3.9, 3.10, 3.11.
 
 .. raw:: html
 
