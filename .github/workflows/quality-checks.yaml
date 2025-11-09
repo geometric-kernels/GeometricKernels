@@ -43,11 +43,11 @@ jobs:
         uv run genbadge coverage -i coverage.xml -o coverage.svg
     - name: Uploade coverage artifact
       if: matrix.python-version == '3.11'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: coverage
         path: |
           coverage_html/**
           coverage.svg
-      retention-days: 1
-      overwrite: true
+        retention-days: 1
+        overwrite: true
