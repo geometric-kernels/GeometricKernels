@@ -5,7 +5,13 @@ import pytest
 from opt_einsum import contract as einsum
 
 from geometric_kernels.kernels.matern_kernel import default_num
-from geometric_kernels.spaces import CompactMatrixLieGroup, Hypersphere, Grassmannian, Mesh, Stiefel
+from geometric_kernels.spaces import (
+    CompactMatrixLieGroup,
+    Hypersphere,
+    Grassmannian,
+    Mesh,
+    Stiefel,
+)
 from geometric_kernels.utils.utils import chain
 
 from ..helper import check_function_with_backend, discrete_spectrum_spaces
