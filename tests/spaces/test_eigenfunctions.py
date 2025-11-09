@@ -7,8 +7,8 @@ from opt_einsum import contract as einsum
 from geometric_kernels.kernels.matern_kernel import default_num
 from geometric_kernels.spaces import (
     CompactMatrixLieGroup,
-    Hypersphere,
     Grassmannian,
+    Hypersphere,
     Mesh,
     Stiefel,
 )
