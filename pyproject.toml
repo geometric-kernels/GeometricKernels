@@ -68,7 +68,7 @@ default-groups = []
 dev = [
   # --- shared from test_requirements.txt ---
   "ipykernel",
-  "backends>=1.5.4",
+  "backends>=1.8.0",
   "plotly",
   "kaleido",
   "black==24.3.0",
@@ -94,18 +94,15 @@ dev = [
   "botorch>=0.9",
 
   # TensorFlow / GPflow / TFP split
-  'tensorflow==2.13.0; python_version=="3.8"',
-  'tensorflow==2.13.1; python_version=="3.9"',
-  'tensorflow==2.15;   python_version>="3.10" and python_version<"3.12"',
-  'tensorflow-probability==0.20.1; python_version < "3.10"',
-  'tensorflow-probability==0.23;   python_version >= "3.10" and python_version < "3.12"',
-  'gpflow==2.9.0; python_version < "3.10"',
-  'gpflow==2.9;    python_version >= "3.10" and python_version < "3.12"',
+  'tensorflow',
+  'tensorflow-probability',
+  'gpflow',
+  'tf_keras',
 
   # JAX family
   'jax',
   'jaxlib',
-  'jaxtyping==0.2.25; python_version == "3.9"',
-  'jaxtyping;         python_version != "3.9"',
+  'jaxtyping',
   'optax',
+  'gpjax>=0.12.2; python_version >= "3.10" and python_version < "3.12"',  # gpjax is not supported on python-3.9 or older.
 ]

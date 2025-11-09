@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 import pytest
 
@@ -94,8 +96,8 @@ def test_hamming_distance(backend):
 def test_log_binomial(n):
     for k in range(n + 1):
         # Check that log_binomial gives the same result as the log of the
-        # binomial coefficient (as computed through `np.math.comb`).
-        assert np.isclose(np.log(np.math.comb(n, k)), log_binomial(n, k), atol=1e-10)
+        # binomial coefficient (as computed through `math.comb`).
+        assert np.isclose(np.log(math.comb(n, k)), log_binomial(n, k), atol=1e-10)
 
 
 @pytest.mark.parametrize("d", [0, 1, 2, 3, 5, 10])
