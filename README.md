@@ -154,10 +154,15 @@ If you want to contribute to the library, thank you! Follow these instructions t
 Initialize the virtual environment.
 
 ```bash
-make venv [UV_PYTHON=python3.11 VENV_DIR=.venv]
+make venv
+
 ```
 
-You can change the python version and the venv directory. The above are the defaults.
+You can change the python version and the venv directory like this:
+
+```bash
+make venv UV_PYTHON=3.11 VENV_DIR=.venv
+```
 
 **NOTE**: We use [uv](https://github.com/astral-sh/uv) for development. It is not strictly necessary, and if you don't want to use it, you can still run `make lint` and `make test` if you set `UV_RUN=` to be empty. You will need to set up the environment yourself.
 
@@ -169,7 +174,7 @@ make install [UV_PYTHON=python3.11]
 
 **NOTE**: If not using `uv`, you can still install the dev requirements via `pip install -e .[dev]`.
 
-Run style checks
+Run the style checks
 
 ```bash
 make lint [UV_PYTHON=python3.11]
@@ -180,6 +185,8 @@ Run the tests
 ```bash
 make test [UV_PYTHON=python3.11]
 ```
+
+If you want to run Jupyter with your `uv` development environment, check out [this page](https://docs.astral.sh/uv/guides/integration/jupyter/).
 
 **Example:** If you want to learn how to implement your own space or kernel component, checkout the [CustomSpacesAndKernels.ipynb](https://github.com/geometric-kernels/GeometricKernels/blob/main/notebooks/CustomSpacesAndKernels.ipynb) notebook.
 
