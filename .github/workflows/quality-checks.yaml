@@ -35,3 +35,17 @@ jobs:
       #----------------------------------------------
     - name: Run tests
       run: UV_PYTHON=python${{ matrix.python-version }} make test
+    - name: Create badge
+      run: |
+        uv pip install genbadge[coverage]
+        uv run genbadge coverage -i coverage.xml -o coverage.svg
+    - name: Uploade coverage artifact
+      if: matrix.python-version == '3.11'
+      uses: actions/upload-artifact@v5
+      with:
+        name: coverage
+        path: |
+          coverage_html/**
+          coverage.svg
+        retention-days: 1
+        overwrite: true

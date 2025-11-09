@@ -1,9 +1,10 @@
 name: Docs
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["QualityChecks"]       # must match the name in ci.yml
+    types: [completed]
+    branches: [main]
 
 jobs:
   docs:
@@ -37,10 +38,21 @@ jobs:
         mv $TMP_DIR docs
         ls -all docs
         touch docs/.nojekyll
+    - name: Download coverage artifact
+      uses: dawidd6/action-download-artifact@v11
+      with:
+        workflow: quality-checks.yaml
+        workflow_conclusion: success
+        branch: main
+        github_token: ${{secrets.GITHUB_TOKEN}}
+        name: coverage
+        path: docs
     - name: Push to GitHub
       run: |
         git add .
         git add -f docs/autoapi/*
+        git add -f docs/coverage.xml
+        git add -f docs/coverage_html/*
         git config --global user.email "none"
         git config --global user.name "github-actions-bot"
         git commit -m "build documentation [ci skip]"
