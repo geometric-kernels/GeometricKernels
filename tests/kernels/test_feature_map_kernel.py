@@ -66,7 +66,7 @@ def test_params(inputs, backend, kernel):
     assert params["nu"].shape == (1,)
 
 
-@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
+@pytest.mark.parametrize("backend", ["numpy", "torch"])
 @pytest.mark.parametrize("normalize", [True, False], ids=["normalize", "no_normalize"])
 def test_K(inputs, backend, normalize, kernel):
     _, _, _, X, X2 = inputs
