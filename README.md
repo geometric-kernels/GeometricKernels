@@ -169,7 +169,7 @@ make venv UV_PYTHON=3.11 VENV_DIR=.venv
 Install all backends and the dev requirements (Pytest, black, etc.). This will install all the backends.
 
 ```bash
-make install [UV_PYTHON=python3.11]
+make install
 ```
 
 **NOTE**: If not using `uv`, you can still install the dev requirements via `pip install -e .[dev]`.
@@ -177,13 +177,13 @@ make install [UV_PYTHON=python3.11]
 Run the style checks
 
 ```bash
-make lint [UV_PYTHON=python3.11]
+make lint
 ```
 
 Run the tests
 
 ```bash
-make test [UV_PYTHON=python3.11]
+make test
 ```
 
 If you want to run Jupyter with your `uv` development environment, check out [this page](https://docs.astral.sh/uv/guides/integration/jupyter/).
