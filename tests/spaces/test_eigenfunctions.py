@@ -15,7 +15,7 @@ jax.config.update("jax_enable_x64", True)  # enable float64 in JAX
 
 @pytest.fixture(
     params=[
-        space 
+        space
         for space in discrete_spectrum_spaces()
         if not isinstance(space, (Grassmannian, Stiefel))
     ],
