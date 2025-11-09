@@ -1,12 +1,27 @@
-# Compiling documentation
+# Compiling Documentation
 
-First, execute doctests by running the following command in this dirrectory
+## Installing Depdenencies
+
+If you are using `uv`, first install docs building depedenencies **while in the `docs/` dirrectory**.
+```bash
+uv add -r requirements.txt
 ```
+If you are using `pip`, you can run
+```bash
+pip install -r requirements.txt
+```
+
+## Running Doctests
+
+Execute doctests by running the following command **while in the `docs/` dirrectory**.
+```bash
 make doctest
 ```
 
-If all tests are passed, run
-```
+## Compiling Documentation
+
+If all tests are passed, run the following command **while in the `docs/` dirrectory**.
+```bash
 make html
 ```
 

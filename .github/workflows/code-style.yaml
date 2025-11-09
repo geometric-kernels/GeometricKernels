@@ -1,4 +1,4 @@
-name: QualityChecks
+name: CodeStyle
 
 on:
   push:
@@ -10,11 +10,9 @@ jobs:
   check-and-test:
     runs-on: ubuntu-latest
     strategy:
-      matrix:
-        python-version: ["3.9", "3.10", "3.11"]
       fail-fast: false
 
-    name: Python-${{ matrix.python-version }}
+    name: Code style
     steps:
       #----------------------------------------------
       #       check-out repo and set-up python
@@ -29,9 +27,9 @@ jobs:
       #       install
       #----------------------------------------------
     - name: Install dependencies
-      run: UV_PYTHON=python${{ matrix.python-version }} make sync
+      run: UV_PYTHON=python3.11 make sync
       #----------------------------------------------
-      #       test
+      #       lint
       #----------------------------------------------
-    - name: Run tests
-      run: UV_PYTHON=python${{ matrix.python-version }} make test
+    - name: Run lint
+      run: UV_PYTHON=python3.11 make lint

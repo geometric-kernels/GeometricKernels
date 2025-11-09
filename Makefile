@@ -1,10 +1,13 @@
 .PHONY: help docs install format lint test
 
-SUCCESS='\033[0;32m'
+SUCCESS = \033[0;32m
+RESET   = \033[0m
 
 SHELL=/bin/bash
-PYVERSION:=$(shell python -c "import sys;t='{v[0]}.{v[1]}'.format(v=list(sys.version_info[:2]));sys.stdout.write(t)")
-GK_REQUIREMENTS?=test_requirements-$(PYVERSION).txt
+UV        ?= uv
+UV_RUN    ?= uv run
+VENV_DIR  ?= .venv
+UV_PYTHON ?= 3.11
 
 help: ## Shows this help message
 	# $(MAKEFILE_LIST) is set by make itself; the following parses the `target:  ## help line` format and adds color highlighting
@@ -12,27 +15,33 @@ help: ## Shows this help message
 
 docs:
 	(cd docs ; make clean; make doctest; make html)
-	@echo "${SUCCESS}============== Docs are available at docs/_build/html/index.html ============== ${SUCCESS}"
+	@echo -e "$(SUCCESS)============== Docs are available at docs/_build/html/index.html ==============$(RESET)"
+
+venv: ## Create a virtualenv (UV_PYTHON=3.10 to force)
+	@$(UV) venv --seed $(if $(strip $(UV_PYTHON)),--python $(UV_PYTHON),) $(VENV_DIR)
+	@echo -e "$(SUCCESS)Virtualenv ready in $(VENV_DIR)$(RESET)"
+
+sync: ## Resolve + install project and dev deps for development
+	@$(UV) sync --dev
+	@echo -e "$(SUCCESS)Environment synced from pyproject.toml$(RESET)"
+
+install: sync  ## Backward-compat
 
 
-install:  ## Install repo for developement (Only for Linux)
-	@echo "=== pip install package with dev requirements (using $(GK_REQUIREMENTS)) =============="
-	pip install --upgrade pip
-	pip install --upgrade --upgrade-strategy eager --no-cache-dir -r $(GK_REQUIREMENTS) | cat
-	pip install -e .
+format: sync ## Formats code with `autoflake`, `black` and `isort`
+	@$(UV_RUN) autoflake --remove-all-unused-imports --recursive --remove-unused-variables --in-place geometric_kernels tests --exclude=__init__.py
+	@$(UV_RUN) black geometric_kernels tests
+	@$(UV_RUN) isort geometric_kernels tests
+	@echo -e "$(SUCCESS)Format done$(RESET)"
 
-format:  ## Formats code with `autoflake`, `black` and `isort`
-	autoflake --remove-all-unused-imports --recursive --remove-unused-variables --in-place geometric_kernels tests --exclude=__init__.py
-	black geometric_kernels tests
-	isort geometric_kernels tests
+lint: sync
+	@$(UV_RUN) flake8 geometric_kernels tests
+	@$(UV_RUN) black geometric_kernels tests --check --diff
+	@$(UV_RUN) isort geometric_kernels tests --check-only --diff
+	@$(UV_RUN) mypy --namespace-packages geometric_kernels
+	@echo -e "$(SUCCESS)Lint done$(RESET)"
 
-lint:
-	flake8 geometric_kernels tests
-	black geometric_kernels tests --check --diff
-	isort geometric_kernels tests --check-only --diff
-	mypy --namespace-packages geometric_kernels
-
-
-test:  ## Run the tests, start with the failing ones and break on first fail.
-	pytest -v -x --ff -rN -Wignore -s --tb=short --durations=0 --cov --cov-report=xml tests
-	pytest --nbmake --nbmake-kernel=python3 --durations=0 --nbmake-timeout=1000 --ignore=notebooks/frontends/GPJax.ipynb notebooks/
+test: sync ## Run the tests, start with the failing ones and break on first fail.
+	@$(UV_RUN) pytest -v -x --ff -rN -Wignore -s --tb=short --durations=0 --cov --cov-report=xml tests
+	@$(UV_RUN) pytest --nbmake --nbmake-kernel=python3 --durations=0 --nbmake-timeout=1000 --ignore=notebooks/frontends/GPJax.ipynb notebooks/
+	@echo -e "$(SUCCESS)Tests done$(RESET)"

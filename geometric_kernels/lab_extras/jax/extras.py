@@ -30,7 +30,7 @@ def trapz(y: B.JAXNumeric, x: _Numeric, dx: _Numeric = 1.0, axis: int = -1):  # 
     """
     Integrate along the given axis using the trapezoidal rule.
     """
-    return jnp.trapz(y, x, dx, axis)
+    return jnp.trapezoid(y, x, dx, axis)
 
 
 @dispatch

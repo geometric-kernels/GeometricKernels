@@ -23,6 +23,31 @@ Before doing anything, you might want to create and activate a new virtual envir
      <div class="accordion-item" style="background-color: var(--color-background-primary);">
        <h2 class="accordion-header mb-0" id="virtualenvsHeadingOne">
          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#virtualenvsCollapseOne" aria-expanded="true" aria-controls="virtualenvsCollapseOne" style="background-color: var(--color-background-secondary); color: var(--color-foreground-primary);">
+           uv
+         </button>
+       </h2>
+       <div id="virtualenvsCollapseOne" class="accordion-collapse collapse show" aria-labelledby="virtualenvsHeadingOne" data-bs-parent="#virtualenvs">
+         <div class="accordion-body pb-0">
+
+..  code-block:: bash
+
+   uv venv --python python[version] [venv_dir]
+
+where [env_dir] is the directory of the environment and [version] is the version of Python you want to use, we currently support 3.9, 3.10, 3.11.
+
+.. raw:: html
+
+         </div>
+       </div>
+     </div>
+
+.. raw:: html
+
+   <div class="bootstrap">
+   <div class="accordion" id="virtualenvs">
+     <div class="accordion-item" style="background-color: var(--color-background-primary);">
+       <h2 class="accordion-header mb-0" id="virtualenvsHeadingOne">
+         <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#virtualenvsCollapseOne" aria-expanded="true" aria-controls="virtualenvsCollapseOne" style="background-color: var(--color-background-secondary); color: var(--color-foreground-primary);">
            Conda
          </button>
        </h2>
@@ -73,6 +98,9 @@ To install GeometricKernels, run
 ..  code-block:: bash
 
     pip install geometric_kernels
+
+.. note::
+   If you use `uv`, swap `pip` with `uv pip` everywhere. Additionally, if you ran `uv init`, use `uv add` instal, to add the requirement in your `pyproject.toml` and install it.
 
 .. note::
   If you want to install specific GitHub branch called `[branch]`, run
