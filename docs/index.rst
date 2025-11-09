@@ -52,7 +52,7 @@ where [env_dir] is the directory of the environment and [version] is the version
            Conda
          </button>
        </h2>
-       <div id="virtualenvsCollapseTwo" class="accordion-collapse collapse show" aria-labelledby="virtualenvsHeadingTwo" data-bs-parent="#virtualenvs">
+       <div id="virtualenvsCollapseTwo" class="accordion-collapse collapse" aria-labelledby="virtualenvsHeadingTwo" data-bs-parent="#virtualenvs">
          <div class="accordion-body pb-0">
 
 ..  code-block:: bash
