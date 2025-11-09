@@ -1,7 +1,7 @@
 # GeometricKernels
 
 [![Quality checks and Tests](https://github.com/geometric-kernels/GeometricKernels/actions/workflows/quality-checks.yaml/badge.svg)](https://github.com/geometric-kernels/GeometricKernels/actions/workflows/quality-checks.yaml)
-![coverage](./coverage.svg)
+[![coverage](https://geometric-kernels.github.io/GeometricKernels/coverage.svg?dummy=8484744)](https://geometric-kernels.github.io/GeometricKernels/coverage_html/index.html)
 [![Documentation](https://github.com/geometric-kernels/GeometricKernels/actions/workflows/docs.yaml/badge.svg)](https://geometric-kernels.github.io/GeometricKernels/index.html)
 [![Landing Page](https://img.shields.io/badge/Landing_Page-informational)](https://geometric-kernels.github.io/)
 
