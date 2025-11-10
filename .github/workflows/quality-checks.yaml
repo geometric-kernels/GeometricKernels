@@ -6,15 +6,21 @@ on:
     branches:
       - main
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   check-and-test:
-    runs-on: ubuntu-latest
+
     strategy:
       matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ["3.9", "3.10", "3.11"]
       fail-fast: false
 
-    name: Python-${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    name: ${{ matrix.os }} / Python-${{ matrix.python-version }}
     steps:
       #----------------------------------------------
       #       check-out repo and set-up python
@@ -25,6 +31,9 @@ jobs:
       uses: astral-sh/setup-uv@v6
       with:
         version: "0.9.6"
+    - name: Install make
+      if: runner.os == 'Windows'
+      run: choco install make -y
       #----------------------------------------------
       #       install
       #----------------------------------------------
@@ -36,11 +45,12 @@ jobs:
     - name: Run tests
       run: UV_PYTHON=python${{ matrix.python-version }} make test
     - name: Create badge
+      if: runner.os == 'Linux' && matrix.python-version == '3.11'
       run: |
         uv pip install genbadge[coverage]
         uv run genbadge coverage -i coverage.xml -o coverage.svg
     - name: Uploade coverage artifact
-      if: matrix.python-version == '3.11'
+      if: runner.os == 'Linux' && matrix.python-version == '3.11'
       uses: actions/upload-artifact@v5
       with:
         name: coverage
