@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.4 - 11.11.2025
+* Support for Python 3.8 discontinued
+* Guide on implementing a custom space/kernel by @vabor112 in #159
+* GPJax>=0.12.2 support by @stoprightthere in #162
+* Comprehensible exceptions by @stoprightthere in #160
+* CI improvements by @stoprightthere in #161 and #163
+
 ## v0.3.1 - 21.07.2025
 * Example Applications by @vabor112 in https://github.com/geometric-kernels/GeometricKernels/pull/157
 
