@@ -3,7 +3,7 @@
 ## v0.4 - 11.11.2025
 * Support for Python 3.8 discontinued
 * Guide on implementing a custom space/kernel by @vabor112 in https://github.com/geometric-kernels/GeometricKernels/pull/159
-* GPJax>=0.12.2 support by @stoprightthere in https://github.com/geometric-kernels/GeometricKernels/pull/162
+* GPJax>=0.12.2 support by @stoprightthere in https://github.com/geometric-kernels/GeometricKernels/pull/162 and @vabor112 and @stoprightthere in https://github.com/geometric-kernels/GeometricKernels/pull/166
 * Comprehensible exceptions by @stoprightthere in https://github.com/geometric-kernels/GeometricKernels/pull/160
 * CI improvements by @stoprightthere in https://github.com/geometric-kernels/GeometricKernels/pull/161 and https://github.com/geometric-kernels/GeometricKernels/pull/163
 
