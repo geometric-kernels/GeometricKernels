@@ -13,7 +13,7 @@ import jax.numpy as jnp
 from beartype.typing import List, TypeVar, Union
 from flax import nnx
 from gpjax.kernels.computations.base import AbstractKernelComputation
-from gpjax.linalg import Diagonal, LinearOperator, psd
+from gpjax.linalg import Diagonal, psd
 from gpjax.parameters import NonNegativeReal, PositiveReal
 from gpjax.typing import Array, ScalarFloat
 from jaxtyping import Float, Num
@@ -80,9 +80,14 @@ class _GeometricKernelComputation(gpjax.kernels.computations.AbstractKernelCompu
         if x.ndim == 1:
             x = x[:, jnp.newaxis]
 
-        return psd(Diagonal(kernel.variance.value * kernel.base_kernel.K_diag(
-            {"lengthscale": kernel.lengthscale.value, "nu": nu_value}, x
-        )))
+        return psd(
+            Diagonal(
+                kernel.variance.value
+                * kernel.base_kernel.K_diag(
+                    {"lengthscale": kernel.lengthscale.value, "nu": nu_value}, x
+                )
+            )
+        )
 
 
 @dataclass
