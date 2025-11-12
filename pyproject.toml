@@ -26,7 +26,7 @@ dependencies = [
     "backends", # >=1.7",
     "einops",
     "geomstats",
-    "numpy>=1.16",
+    "numpy>=2.0",
     "opt-einsum",
     "plum-dispatch",
     "potpourri3d",
@@ -82,6 +82,7 @@ dev = [
   "scikit-learn",
   "geoopt",
   'scipy',
+  "pandas>=2.2.3",
 
   # typing-extensions only required on newer pins in 3.10/3.11 files
   'typing_extensions>=4.6; python_version >= "3.10" and python_version < "3.12"',
@@ -95,7 +96,8 @@ dev = [
 
   # TensorFlow / GPflow / TFP split
   'tensorflow',
-  'tensorflow-probability',
+  'tensorflow-probability; python_version < "3.12"',
+  'tensorflow-probability>=0.25; python_version >= "3.12"',
   'gpflow',
   'tf_keras',
 
@@ -104,5 +106,5 @@ dev = [
   'jaxlib',
   'jaxtyping',
   'optax',
-  'gpjax>=0.12.2; python_version >= "3.10" and python_version < "3.12"',  # gpjax is not supported on python-3.9 or older.
+  'gpjax>=0.12.2; python_version >= "3.10"',  # gpjax is not supported on python-3.9 or older.
 ]
