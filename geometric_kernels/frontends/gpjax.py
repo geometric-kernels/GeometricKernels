@@ -62,13 +62,17 @@ class _GeometricKernelComputation(gpjax.kernels.computations.AbstractKernelCompu
             {"lengthscale": kernel.lengthscale.value, "nu": nu_value}, x, y
         )
 
-    def diagonal(self, kernel: Kernel, x: Num[Array, "N D"]) -> Diagonal:
-        r"""For a given kernel, compute the elementwise diagonal of the
-        NxN gram matrix on an input matrix of shape `(N, D)`.
+    def diagonal(self, kernel: Kernel, x: Num[Array, "N #D1 D2"]) -> Diagonal:
+        """
+        Compute the diagonal of the covariance matrix `K(x, x)` where `x` is a batch of
+        vectors (or a batch of matrices) of inputs.
 
         Args:
-            kernel: the kernel function.
-            inputs: the input matrix of shape `(N, D)`.
+            kernel: 
+                The kernel function.
+            x:
+                A batch of N inputs, each of which is a matrix of size D1xD2,
+                or a vector of size D2 if D1 is absent.
 
         Returns:
             The computed diagonal variance as a `Diagonal` linear operator.
