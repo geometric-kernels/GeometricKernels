@@ -32,9 +32,12 @@ Before doing anything, you might want to create and activate a new virtual envir
 ..  code-block:: bash
 
    uv venv --python python[version] [venv_dir]
-   source [venv_dir]/bin/activate
+where [env_dir] is the directory (default is `.venv`) of the environment and [version] is the version of Python you want to use, we currently support 3.9, 3.10, 3.11, 3.12.
 
-where [env_dir] is the directory of the environment and [version] is the version of Python you want to use, we currently support 3.9, 3.10, 3.11.
+[Optional] activate the environment. However, this is not strictly necessary for `uv`. Instead, use tools like `uv run python` to run Python inside the environment. See `uv documentation <https://docs.astral.sh/uv/>` for more details.
+
+..  code-block:: bash
+   source [venv_dir]/bin/activate
 
 .. raw:: html
 
@@ -60,7 +63,7 @@ where [env_dir] is the directory of the environment and [version] is the version
    conda create -n [env_name] python=[version]
    conda activate [env_name]
 
-where [env_name] is the name of the environment and [version] is the version of Python you want to use, we currently support 3.9, 3.10, 3.11.
+where [env_name] is the name of the environment and [version] is the version of Python you want to use, we currently support 3.9, 3.10, 3.11, 3.12.
 
 .. raw:: html
 
@@ -101,7 +104,7 @@ To install GeometricKernels, run
     pip install geometric_kernels
 
 .. note::
-   If you use `uv`, swap `pip` with `uv pip` everywhere. Additionally, if you ran `uv init`, use `uv add` instal, to add the requirement in your `pyproject.toml` and install it.
+   If you use `uv`, swap `pip` with `uv pip` everywhere. Additionally, if you ran `uv init`, use `uv add` to add the requirement in your `pyproject.toml` and install it.
 
 .. note::
   If you want to install specific GitHub branch called `[branch]`, run
