@@ -13,6 +13,7 @@ import jax.numpy as jnp
 from beartype.typing import List, TypeVar, Union
 from flax import nnx
 from gpjax.kernels.computations.base import AbstractKernelComputation
+from gpjax.linalg import Diagonal, psd
 from gpjax.parameters import NonNegativeReal, PositiveReal
 from gpjax.typing import Array, ScalarFloat
 from jaxtyping import Float, Num
@@ -31,8 +32,8 @@ class _GeometricKernelComputation(gpjax.kernels.computations.AbstractKernelCompu
     def cross_covariance(
         self,
         kernel: Kernel,
-        x: Float[Array, "N #D1 D2"],  # noqa: F821
-        y: Float[Array, "M #D1 D2"],  # noqa: F821
+        x: Num[Array, "N #D1 D2"],  # noqa: F821
+        y: Num[Array, "M #D1 D2"],  # noqa: F821
     ) -> Float[Array, "N M"]:
         """
         Compute the cross covariance matrix between two batches of vectors (or
@@ -48,7 +49,51 @@ class _GeometricKernelComputation(gpjax.kernels.computations.AbstractKernelCompu
         :return:
             The N x M covariance matrix.
         """
-        return jnp.asarray(kernel(x, y))
+        nu_value = kernel.nu.value if kernel.trainable_nu else kernel.nu
+
+        # Ensure inputs have `ndim` > 1. GPJax may squeeze shape `(1, 1)` into
+        # `(1,)` which causes issues when passing to the base kernel.
+        if x.ndim == 1:
+            x = x[:, jnp.newaxis]
+        if y.ndim == 1:
+            y = y[:, jnp.newaxis]
+
+        return kernel.variance.value * kernel.base_kernel.K(
+            {"lengthscale": kernel.lengthscale.value, "nu": nu_value}, x, y
+        )
+
+    def diagonal(
+        self, kernel: Kernel, x: Num[Array, "N #D1 D2"]  # noqa: F821
+    ) -> Diagonal:
+        """
+        Compute the diagonal of the covariance matrix `K(x, x)` where `x` is a batch of
+        vectors (or a batch of matrices) of inputs.
+
+        Args:
+            kernel:
+                The kernel function.
+            x:
+                A batch of N inputs, each of which is a matrix of size D1xD2,
+                or a vector of size D2 if D1 is absent.
+
+        Returns:
+            The computed diagonal variance as a `Diagonal` linear operator.
+        """
+        nu_value = kernel.nu.value if kernel.trainable_nu else kernel.nu
+
+        # Ensure inputs have `ndim` > 1. GPJax may squeeze shape `(1, 1)` into
+        # `(1,)` which causes issues when passing to the base kernel.
+        if x.ndim == 1:
+            x = x[:, jnp.newaxis]
+
+        return psd(
+            Diagonal(
+                kernel.variance.value
+                * kernel.base_kernel.K_diag(
+                    {"lengthscale": kernel.lengthscale.value, "nu": nu_value}, x
+                )
+            )
+        )
 
 
 @dataclass
@@ -67,39 +112,27 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
         properties—this wrapper will use the values provided by
         `base_kernel.init_params`.
 
-    .. note::
-        Unlike the frontends for GPflow and GPyTorch, GPJaxGeometricKernel
-        does not have the `trainable_nu` parameter which determines whether or
-        not the smoothness parameter nu is to be optimized over. By default, it
-        is not trainable. If you want to make it trainable, do
-        :code:`kernel = kernel.replace_trainable(nu=False)` on an instance of
-        the `GPJaxGeometricKernel`.
-
     :param base_kernel:
         The kernel to wrap.
-    :type base_kernel: geometric_kernels.kernels.BaseGeometricKernel
-    :param name:
-        Optional kernel name (inherited from `gpjax.kernels.AbstractKernel`).
-
-        Defaults to "Geometric Kernel".
-    :type name: str
     :param lengthscale:
         Initial value of the length scale.
 
         If not given or set to None, uses the default value of the
         `base_kernel`, as provided by its `init_params` method.
-    :type lengthscale: Union[ScalarFloat, Float[Array, " D"]]
     :param nu:
         Initial value of the smoothness parameter nu.
 
         If not given or set to None, uses the default value of the
         `base_kernel`, as provided by its `init_params` method.
-    :type nu: ScalarFloat
     :param variance:
         Initial value of the variance (outputscale) parameter.
 
         Defaults to 1.0.
-    :type variance: ScalarFloat
+    :param trainable_nu:
+        Whether or not the parameter nu is to be optimized over.
+
+        You must not change this parameter after constructing the object.
+        Defaults to False.
     """
 
     nu: Union[ScalarFloat, nnx.Variable[ScalarFloat], None]
@@ -174,7 +207,4 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
         :return:
             The N x M cross-covariance matrix.
         """
-        nu_value = self.nu.value if self.trainable_nu else self.nu
-        return self.variance.value * self.base_kernel.K(
-            {"lengthscale": self.lengthscale.value, "nu": nu_value}, x, y
-        )
+        return self.compute_engine.cross_covariance(self, x, y)
