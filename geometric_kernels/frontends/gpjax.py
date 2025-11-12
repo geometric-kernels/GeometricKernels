@@ -63,8 +63,8 @@ class _GeometricKernelComputation(gpjax.kernels.computations.AbstractKernelCompu
         )
 
     def diagonal(
-        self, kernel: Kernel, x: Num[Array, "N #D1 D2"]
-    ) -> Diagonal:  # noqa: F821
+        self, kernel: Kernel, x: Num[Array, "N #D1 D2"]  # noqa: F821
+    ) -> Diagonal:
         """
         Compute the diagonal of the covariance matrix `K(x, x)` where `x` is a batch of
         vectors (or a batch of matrices) of inputs.
