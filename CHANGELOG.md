@@ -1,6 +1,7 @@
 # CHANGELOG
 
 ## v0.4 - 11.11.2025
+* Add support for Python 3.12
 * Support for Python 3.8 discontinued
 * Guide on implementing a custom space/kernel by @vabor112 in https://github.com/geometric-kernels/GeometricKernels/pull/159
 * GPJax>=0.12.2 support by @stoprightthere in https://github.com/geometric-kernels/GeometricKernels/pull/162 and @vabor112 and @stoprightthere in https://github.com/geometric-kernels/GeometricKernels/pull/166
