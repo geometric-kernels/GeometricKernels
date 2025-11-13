@@ -2,9 +2,9 @@
 
 ### Who are we?
 
-*Maintainers* (in alphabetical order: Viacheslav Borovitskiy, Vincent Dutordoir, Peter Mostowsky) steer the project, keep the community thriving, and manage contributions.
+*Maintainers* (in alphabetical order: Viacheslav Borovitskiy, Peter Mostowsky) steer the project, keep the community thriving, and manage contributions.
 
-*Contributors* (you?) submit issues, make pull requests, answer questions on Slack, and more.
+*Contributors* (you?) submit issues, make pull requests, and more.
 
 Community is important to us, and we want everyone to feel welcome and be able to contribute to their fullest. Our [code of conduct](CODE_OF_CONDUCT.md) gives an overview of what that means.
 
