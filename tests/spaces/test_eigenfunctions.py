@@ -5,7 +5,12 @@ import pytest
 from opt_einsum import contract as einsum
 
 from geometric_kernels.kernels.matern_kernel import default_num
-from geometric_kernels.spaces import CompactMatrixLieGroup, Hypersphere, Mesh
+from geometric_kernels.spaces import (
+    CompactMatrixLieGroup,
+    HammingGraph,
+    Hypersphere,
+    Mesh,
+)
 from geometric_kernels.utils.utils import chain
 
 from ..helper import check_function_with_backend, discrete_spectrum_spaces
@@ -57,10 +62,9 @@ def inputs(request):
 def test_call_eigenfunctions(inputs, backend):
     space, eigenfunctions, X, _, _ = inputs
 
-    if isinstance(space, CompactMatrixLieGroup):
-        pytest.skip(
-            "CompactMatrixLieGroup subclasses do not currently support eigenfunction evaluation"
-        )
+    if isinstance(space, (CompactMatrixLieGroup, HammingGraph)):
+        space_name = type(space).__name__
+        pytest.skip(f"{space_name} does not currently support eigenfunction evaluation")
 
     # Check that the eigenfunctions can be called, returning the right type and shape.
     check_function_with_backend(
@@ -94,10 +98,9 @@ def test_numbers_of_eigenfunctions(inputs):
 def test_orthonormality(inputs, backend):
     space, eigenfunctions, _, _, _ = inputs
 
-    if isinstance(space, CompactMatrixLieGroup):
-        pytest.skip(
-            "CompactMatrixLieGroup subclasses do not currently support eigenfunction evaluation"
-        )
+    if isinstance(space, (CompactMatrixLieGroup, HammingGraph)):
+        space_name = type(space).__name__
+        pytest.skip(f"{space_name} does not currently support eigenfunction evaluation")
 
     key = np.random.RandomState(0)
     key, xs = space.random(key, 10000)
@@ -117,10 +120,9 @@ def test_orthonormality(inputs, backend):
 def test_weighted_outerproduct_with_addition_theorem(inputs, backend):
     space, eigenfunctions, X, X2, weights = inputs
 
-    if isinstance(space, CompactMatrixLieGroup):
-        pytest.skip(
-            "CompactMatrixLieGroup subclasses do not currently support eigenfunction evaluation"
-        )
+    if isinstance(space, (CompactMatrixLieGroup, HammingGraph)):
+        space_name = type(space).__name__
+        pytest.skip(f"{space_name} does not currently support eigenfunction evaluation")
 
     chained_weights = chain(
         weights.squeeze(), eigenfunctions.num_eigenfunctions_per_level

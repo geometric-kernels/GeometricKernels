@@ -9,6 +9,7 @@ Spaces
    Custom Spaces and Kernels <CustomSpacesAndKernels>
    Graph <Graph>
    GraphEdges <GraphEdges>
+   HammingGraph <HammingGraph>
    Hyperbolic <Hyperbolic>
    HypercubeGraph <HypercubeGraph>
    Hypersphere <Hypersphere>

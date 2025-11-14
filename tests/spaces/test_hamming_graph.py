@@ -1,0 +1,108 @@
+import lab as B
+import numpy as np
+import pytest
+from plum import Tuple
+
+from geometric_kernels.kernels import MaternGeometricKernel
+from geometric_kernels.spaces import HammingGraph, HypercubeGraph
+from geometric_kernels.utils.kernel_formulas import hamming_graph_heat_kernel
+
+from ..helper import check_function_with_backend
+
+
+@pytest.fixture(params=[(1, 2), (2, 2), (5, 2), (10, 2), (10, 4)])
+def inputs(request) -> Tuple[B.Numeric]:
+    """
+    Returns a tuple (space, eigenfunctions, X, X2, weights) where:
+    - space is a HammingGraph object with (dim, n_cat) equal to request.param,
+    - eigenfunctions is the respective Eigenfunctions object with at most 5 levels,
+    - X is a random sample of random size from the space,
+    - X2 is another random sample of random size from the space,
+    - weights is an array of positive numbers of shape (eigenfunctions.num_levels, 1).
+    """
+    d, q = request.param
+    space = HammingGraph(dim=d, n_cat=q)
+    eigenfunctions = space.get_eigenfunctions(min(space.dim + 1, 5))
+
+    key = np.random.RandomState(0)
+    N, N2 = key.randint(low=1, high=min(q**d, 10) + 1, size=2)
+    key, X = space.random(key, N)
+    key, X2 = space.random(key, N2)
+
+    # These weights are used for testing the weighted outerproduct, they
+    # should be positive.
+    weights = np.random.rand(eigenfunctions.num_levels, 1) ** 2 + 1e-5
+
+    return space, eigenfunctions, X, X2, weights
+
+
+def test_numbers_of_eigenfunctions(inputs):
+    space, eigenfunctions, _, _, _ = inputs
+    num_levels = eigenfunctions.num_levels
+
+    # If the number of levels is maximal, check that the number of
+    # eigenfunctions is equal to the number of categorical vectors.
+    if num_levels == space.dim + 1:
+        assert eigenfunctions.num_eigenfunctions == space.n_cat**space.dim
+
+
+@pytest.mark.parametrize("nu", [1.5, np.inf])
+@pytest.mark.parametrize("lengthscale", [1.0, 5.0, 10.0])
+@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
+def test_reduces_to_hypercube_when_q_equals_2(inputs, nu, lengthscale, backend):
+    space, eigenfunctions, X, X2, _ = inputs
+
+    if space.n_cat != 2:
+        pytest.skip("Only applicable when n_cat=2")
+
+    hypercube = HypercubeGraph(space.dim)
+    X_bool = X.astype(bool)
+    X2_bool = X2.astype(bool)
+
+    # Compare eigenvalues (backend-agnostic, only once per backend)
+    if lengthscale == 1.0 and nu == 1.5:
+        hamming_eigenvalues = space.get_eigenvalues(eigenfunctions.num_levels)
+        hypercube_eigenvalues = hypercube.get_eigenvalues(eigenfunctions.num_levels)
+        np.testing.assert_allclose(
+            hamming_eigenvalues, hypercube_eigenvalues, rtol=1e-10
+        )
+
+    # Compare kernel values with backend testing
+    kernel_hamming = MaternGeometricKernel(space)
+    kernel_hypercube = MaternGeometricKernel(hypercube)
+
+    params = {"nu": np.array([nu]), "lengthscale": np.array([lengthscale])}
+    K_hypercube = kernel_hypercube.K(params, X_bool, X2_bool)
+
+    check_function_with_backend(
+        backend,
+        K_hypercube,
+        kernel_hamming.K,
+        params,
+        X,
+        X2,
+        atol=1e-2,
+    )
+
+
+@pytest.mark.parametrize("lengthscale", [1.0, 5.0, 10.0])
+@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
+def test_against_analytic_heat_kernel(inputs, lengthscale, backend):
+    space, _, X, X2, _ = inputs
+    lengthscale = np.array([lengthscale])
+    result = hamming_graph_heat_kernel(lengthscale, X, X2, q=space.n_cat)
+
+    kernel = MaternGeometricKernel(space)
+
+    # Check that MaternGeometricKernel on HammingGraph with nu=infinity
+    # coincides with the closed form expression for the heat kernel on the
+    # Hamming graph.
+    check_function_with_backend(
+        backend,
+        result,
+        kernel.K,
+        {"nu": np.array([np.inf]), "lengthscale": lengthscale},
+        X,
+        X2,
+        atol=1e-2,
+    )

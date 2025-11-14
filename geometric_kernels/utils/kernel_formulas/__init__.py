@@ -4,6 +4,9 @@ from geometric_kernels.utils.kernel_formulas.euclidean import (
     euclidean_matern_52_kernel,
     euclidean_rbf_kernel,
 )
+from geometric_kernels.utils.kernel_formulas.hamming_graph import (
+    hamming_graph_heat_kernel,
+)
 from geometric_kernels.utils.kernel_formulas.hyperbolic import (
     hyperbolic_heat_kernel_even,
     hyperbolic_heat_kernel_odd,
