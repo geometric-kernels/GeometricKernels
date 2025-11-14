@@ -45,53 +45,68 @@ def walsh_function(d: int, combination: List[int], x: B.Bool) -> B.Float:
     return (-1) ** count_nonzero(take_along_axis(x, indices, axis=-1), axis=-1)
 
 
-def kravchuk_normalized(
+def generalized_kravchuk_normalized(
     d: int,
     j: int,
     m: B.Int,
+    q: int,
     kravchuk_normalized_j_minus_1: Optional[B.Float] = None,
     kravchuk_normalized_j_minus_2: Optional[B.Float] = None,
 ) -> B.Float:
     r"""
-    This function returns $G_{d, j, m}/G_{d, j, 0}$ where $G_{d, j, m}$ is the
-    Kravchuk polynomial defined below.
+    This function returns $\widetilde{G}_{d, q, j}(m)$ where $\widetilde{G}_{d, q, j}(m)$ is the
+    normalized generalized Kravchuk polynomial defined below.
 
-    Define the Kravchuk polynomial of degree d > 0 and order 0 <= j <= d as the
-    function $G_{d, j, m}$ of the independent variable 0 <= m <= d given by
+    Define the generalized Kravchuk polynomial of degree $d > 0$ and order $0 \leq j \leq d$
+    as the function $G_{d, q, j}(m)$ of the independent variable $0 \leq m \leq d$ given by
 
-    .. math:: G_{d, j, m} = \sum_{T \subseteq \{0, .., d-1\}, |T| = j} w_T(x).
+    .. math:: G_{d, q, j}(m) = \sum_{\substack{T \subseteq \{0, .., d-1\} \\ |T| = j}}
+              \sum_{\alpha \in \{1,..,q-1\}^T} \psi_{T,\alpha}(x) \overline{\psi_{T,\alpha}(y)}.
 
-    Here $w_T$ are the Walsh functions on the hypercube graph $C^d$ and
-    $x \in C^d$ is an arbitrary binary vector with $m$ ones (the right-hand side
-    does not depend on the choice of a particular vector of the kind).
+    Here $\psi_{T,\alpha}$ are the Vilenkin functions on the q-ary Hamming graph $H(d,q)$ and
+    $x, y \in \{0, 1, ..., q-1\}^d$ are arbitrary categorical vectors at Hamming distance $m$
+    (the right-hand side does not depend on the choice of particular vectors of the kind).
+
+    The normalized polynomial is $\widetilde{G}_{d, q, j}(m) = G_{d, q, j}(m) / G_{d, q, j}(0)$.
 
     .. note::
         We are using the three term recurrence relation to compute the Kravchuk
         polynomials. Cf. Equation (60) of Chapter 5 in MacWilliams and Sloane "The
-        Theory of Error-Correcting Codes", 1977. The parameters q and $\gamma$
-        from :cite:t:`macwilliams1977` are set to be q = 2; $\gamma = q - 1 = 1$.
+        Theory of Error-Correcting Codes", 1977. The parameter $\gamma$ from
+        :cite:t:`macwilliams1977` is set to $\gamma = q - 1$.
 
     .. note::
-        We use the fact that $G_{d, j, 0} = \binom{d}{j}$.
+        We use the fact that $G_{d, q, j}(0) = \binom{d}{j}(q-1)^j$.
+
+    .. note::
+        For $q = 2$, this reduces to the classical Kravchuk polynomials.
 
     :param d:
-        The degree of Kravhuk polynomial, an integer d > 0.
-        Maps to n in :cite:t:`macwilliams1977`.
-    :param j: d
-        The order of Kravhuk polynomial, an integer 0 <= j <= d.
-        Maps to k in :cite:t:`macwilliams1977`.
+        The degree of Kravchuk polynomial, an integer $d > 0$.
+        Maps to $n$ in :cite:t:`macwilliams1977`.
+
+    :param j:
+        The order of Kravchuk polynomial, an integer $0 \leq j \leq d$.
+        Maps to $k$ in :cite:t:`macwilliams1977`.
+
     :param m:
-        The independent variable, an integer 0 <= m <= d.
-        Maps to x in :cite:t:`macwilliams1977`.
+        The independent variable (Hamming distance), an integer or array with
+        $0 \leq m \leq d$. Maps to $x$ in :cite:t:`macwilliams1977`.
+
+    :param q:
+        The alphabet size of the q-ary Hamming graph, an integer $q \geq 2$.
+
     :param kravchuk_normalized_j_minus_1:
-        The optional precomputed value of $G_{d, j-1, m}/G_{d, j-1, 0}$, helps
+        The optional precomputed value of $\widetilde{G}_{d, q, j-1}(m)$, helps
         to avoid exponential complexity growth due to the recursion.
+
     :param kravchuk_normalized_j_minus_2:
-        The optional precomputed value of $G_{d, j-2, m}/G_{d, j-2, 0}$, helps
+        The optional precomputed value of $\widetilde{G}_{d, q, j-2}(m)$, helps
         to avoid exponential complexity growth due to the recursion.
 
     :return:
-        $G_{d, j, m}/G_{d, j, 0}$ where $G_{d, j, m}$ is the Kravchuk polynomial.
+        $\widetilde{G}_{d, q, j}(m) = G_{d, q, j}(m) / G_{d, q, j}(0)$ where
+        $G_{d, q, j}(m)$ is the generalized Kravchuk polynomial.
     """
     if d <= 0:
         raise ValueError("`d` must be positive.")
@@ -105,12 +120,20 @@ def kravchuk_normalized(
     if j == 0:
         return B.ones(m)
     elif j == 1:
-        return 1 - 2 * m / d
+        return 1 - q * m / (d * (q - 1))
     else:
         if kravchuk_normalized_j_minus_1 is None:
-            kravchuk_normalized_j_minus_1 = kravchuk_normalized(d, j - 1, m)
+            kravchuk_normalized_j_minus_1 = generalized_kravchuk_normalized(
+                d, j - 1, m, q
+            )
         if kravchuk_normalized_j_minus_2 is None:
-            kravchuk_normalized_j_minus_2 = kravchuk_normalized(d, j - 2, m)
-        rhs_1 = (d - 2 * m) * kravchuk_normalized_j_minus_1
+            kravchuk_normalized_j_minus_2 = generalized_kravchuk_normalized(
+                d, j - 2, m, q
+            )
+
+        rhs_1 = (
+            (d - j + 1) * (q - 1) + (j - 1) - q * m
+        ) * kravchuk_normalized_j_minus_1
         rhs_2 = -(j - 1) * kravchuk_normalized_j_minus_2
-        return (rhs_1 + rhs_2) / (d - j + 1)
+
+        return (rhs_1 + rhs_2) / ((d - j + 1) * (q - 1))

@@ -20,12 +20,16 @@ from geometric_kernels.feature_maps import (
 from geometric_kernels.kernels.base import BaseGeometricKernel
 from geometric_kernels.kernels.feature_map import MaternFeatureMapKernel
 from geometric_kernels.kernels.hodge_compositional import MaternHodgeCompositionalKernel
-from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
+from geometric_kernels.kernels.karhunen_loeve import (
+    FastMaternForHammingGraph,
+    MaternKarhunenLoeveKernel,
+)
 from geometric_kernels.spaces import (
     CompactMatrixLieGroup,
     DiscreteSpectrumSpace,
     Graph,
     GraphEdges,
+    HammingGraph,
     HodgeDiscreteSpectrumSpace,
     Hyperbolic,
     HypercubeGraph,
@@ -76,7 +80,7 @@ def default_feature_map(
 
 @overload
 def feature_map_from_kernel(kernel: MaternKarhunenLoeveKernel):
-    if isinstance(kernel.space, CompactMatrixLieGroup):
+    if isinstance(kernel.space, (CompactMatrixLieGroup, HammingGraph)):
         # Because `CompactMatrixLieGroup` does not currently support explicit
         # eigenfunction computation (they only support addition theorem).
         return RandomPhaseFeatureMapCompact(
@@ -136,7 +140,7 @@ def feature_map_from_kernel(kernel: BaseGeometricKernel):
 
 @overload
 def feature_map_from_space(space: DiscreteSpectrumSpace, num: int):
-    if isinstance(space, CompactMatrixLieGroup):
+    if isinstance(space, (CompactMatrixLieGroup, HammingGraph)):
         return RandomPhaseFeatureMapCompact(
             space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
         )
@@ -212,7 +216,7 @@ def default_num(space: DiscreteSpectrumSpace) -> int:
         )
     elif isinstance(space, GraphEdges):
         return min(MaternGeometricKernel._DEFAULT_NUM_EIGENFUNCTIONS, space.num_edges)
-    elif isinstance(space, HypercubeGraph):
+    elif isinstance(space, (HypercubeGraph, HammingGraph)):
         return min(MaternGeometricKernel._DEFAULT_NUM_LEVELS, space.dim + 1)
     else:
         return MaternGeometricKernel._DEFAULT_NUM_LEVELS
@@ -277,6 +281,7 @@ class MaternGeometricKernel:
         num: int = None,
         normalize: bool = True,
         return_feature_map: bool = False,
+        fast_matern: bool = False,
         **kwargs,
     ):
         r"""
@@ -289,6 +294,7 @@ class MaternGeometricKernel:
 
         :param space:
             Space to construct the kernel on.
+
         :param num:
             If provided, controls the "order of approximation" of the kernel.
             For the discrete spectrum spaces, this means the number of "levels"
@@ -302,6 +308,7 @@ class MaternGeometricKernel:
 
             If num=None, we use a (hopefully) reasonable default, which is
             space-dependent.
+
         :param normalize:
             Normalize the kernel (and the feature map). If normalize=True,
             then either $k(x, x) = 1$ for all $x \in X$, where $X$ is the
@@ -324,6 +331,14 @@ class MaternGeometricKernel:
 
             Default is False.
 
+        :param fast_matern:
+            If `True`, use optimized kernel implementations when available.
+            Currently applies to :class:`~.spaces.HypercubeGraph`, where an
+            analytic closed-form formula is used for the heat kernel (infinite
+            smoothness, $\nu = \infty$) when all eigenvalue levels are included.
+
+            Defaults to True.
+
         :param ``**kwargs``:
             Any additional keyword arguments to be passed to the kernel
             (like `key`).
@@ -339,6 +354,8 @@ class MaternGeometricKernel:
             num = num or default_num(space)
             if isinstance(space, HodgeDiscreteSpectrumSpace):
                 kernel = MaternHodgeCompositionalKernel(space, num, normalize=normalize)
+            elif isinstance(space, (HypercubeGraph, HammingGraph)) and fast_matern:
+                kernel = FastMaternForHammingGraph(space, num, normalize=normalize)
             else:
                 kernel = MaternKarhunenLoeveKernel(space, num, normalize=normalize)
             if return_feature_map:
