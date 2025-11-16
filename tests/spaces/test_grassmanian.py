@@ -100,12 +100,12 @@ def inputs(request):
     )
     params_M = kernel_M.init_params()
     params_G = kernel_G.init_params()
-
     # Tune params_M so that the first weight / second weight = 2, and
     # set the same lengthscale for the group kernel parameters.
     tuned_ls = _choose_lengthscale_ratio_two(kernel_M, params_M)
-    params_M["lengthscale"] = np.array([tuned_ls])
-    params_G["lengthscale"] = np.array([tuned_ls])
+    params_M["lengthscale"][0] = tuned_ls
+    params_G["lengthscale"][0] = tuned_ls
+
     # Representatives for N Grassmannian points using SO(n).random from so.py
     key, g = grass.G.random(key, N)  # [N, n, n]
     x = grass.project_to_manifold(g)  # [N, n, m]
