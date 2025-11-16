@@ -115,7 +115,7 @@ def inputs(request):
     # Return everything needed
     return kernel_M, kernel_G, params_M, params_G, tuned_params, x, g, h
 
-@pytest.mark.parametrize("backend", ["numpy", "torch", "jax"])
+@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
 def test_grassmannian_kernel_averaging(inputs, backend):
     """Grassmannian kernel equals the stabilizer-averaged SO(n) kernel (renormalized)."""
     kernel_M, kernel_G, params_M, params_G, tuned_params, x, g, h = inputs
