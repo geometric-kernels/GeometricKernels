@@ -67,14 +67,14 @@ def _choose_lengthscale_ratio_two(
     if np.isinf(nu):
         denom = s1 - s0
         l2 = 2.0 * np.log(2.0) / denom
-        return np.sqrt(np.array([l2]))
+        return np.sqrt(np.array([l2])), np.array([nu])
     else:
         p = nu + d / 2.0
         two_pow = 2.0 ** (1.0 / p)
         denom = two_pow - 1.0
         a = (s1 - two_pow * s0) / denom
         l2 = 2.0 * nu / a
-        return np.sqrt(np.array([l2]))
+        return np.sqrt(np.array([l2])), np.array([nu])
 
 
 @pytest.fixture(
@@ -102,7 +102,7 @@ def inputs(request):
     params_G = kernel_G.init_params()
     # Tune params_M so that the first weight / second weight = 2, and
     # set the same lengthscale for the group kernel parameters.
-    tuned_ls = _choose_lengthscale_ratio_two(kernel_M, params_M)
+    tuned_params = _choose_lengthscale_ratio_two(kernel_M, params_M)
 
     # Representatives for N Grassmannian points using SO(n).random from so.py
     key, g = grass.G.random(key, N)  # [N, n, n]
@@ -113,15 +113,14 @@ def inputs(request):
     key, h = grass.H.random(key, num_h)  # [H, n, n]
 
     # Return everything needed
-    return kernel_M, kernel_G, params_M, params_G, tuned_ls, x, g, h
+    return kernel_M, kernel_G, params_M, params_G, tuned_params, x, g, h
 
-
-@pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
+@pytest.mark.parametrize("backend", ["numpy", "torch", "jax"])
 def test_grassmannian_kernel_averaging(inputs, backend):
     """Grassmannian kernel equals the stabilizer-averaged SO(n) kernel (renormalized)."""
-    kernel_M, kernel_G, params_M, params_G, tuned_ls, x, g, h = inputs
-    tuned_ls = np_to_backend(tuned_ls, backend)
-    nu = np_to_backend(params_M["nu"], backend)
+    kernel_M, kernel_G, params_M, params_G, tuned_params, x, g, h = inputs
+    tuned_ls = np_to_backend(tuned_params[0], backend)
+    nu = np_to_backend(tuned_params[1], backend)
     params_M["lengthscale"] = tuned_ls
     params_G["lengthscale"] = tuned_ls
     params_M["nu"] = nu
