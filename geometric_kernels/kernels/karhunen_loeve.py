@@ -11,9 +11,6 @@ from geometric_kernels.kernels.base import BaseGeometricKernel
 from geometric_kernels.lab_extras import from_numpy, is_complex
 from geometric_kernels.spaces import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import Eigenfunctions
-from geometric_kernels.utils.kernel_formulas.hamming_graph import (
-    hamming_graph_heat_kernel,
-)
 from geometric_kernels.utils.utils import _check_1_vector, _check_field_in_params
 
 
@@ -256,53 +253,3 @@ class MaternKarhunenLoeveKernel(BaseGeometricKernel):
             return B.real(K_diag)
         else:
             return K_diag
-
-
-class FastMaternForHammingGraph(MaternKarhunenLoeveKernel):
-    r"""
-    For $\nu = \infty$, there exists a closed-form formula for the heat kernel
-    on Hamming graphs (including the binary hypercube case).
-
-    .. note::
-        We only use the fast path if we have ALL levels (exact computation).
-        When truncated to fewer levels, we must use the parent class implementation
-        to ensure consistency with feature map approximations.
-    """
-
-    def K(
-        self,
-        params: Dict[str, B.Numeric],
-        X: B.Numeric,
-        X2: Optional[B.Numeric] = None,
-        **kwargs,
-    ) -> B.Numeric:
-        assert "nu" in params
-        assert params["nu"].shape == (1,)
-
-        if B.all(params["nu"] == np.inf):
-            d = X.shape[-1]
-
-            # Only use fast path when we have all levels (exact computation)
-            if self.num_levels == d + 1:
-                assert "lengthscale" in params
-                assert params["lengthscale"].shape == (1,)
-
-                # Get q from space (HammingGraph has n_cat, HypercubeGraph is binary q=2)
-                q = getattr(self.space, "n_cat", 2)
-
-                return hamming_graph_heat_kernel(params["lengthscale"], X, X2, q=q)
-
-        return super().K(params, X, X2, **kwargs)
-
-    def K_diag(self, params: Dict[str, B.Numeric], X: B.Numeric, **kwargs) -> B.Numeric:
-        assert "nu" in params
-        assert params["nu"].shape == (1,)
-
-        if B.all(params["nu"] == np.inf):
-            d = X.shape[-1]
-
-            # Only use fast path when we have all levels (exact computation)
-            if self.num_levels == d + 1:
-                return B.ones(B.dtype(params["nu"]), X.shape[0])
-
-        return super().K_diag(params, X, **kwargs)

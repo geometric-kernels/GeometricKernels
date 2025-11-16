@@ -20,9 +20,9 @@ from geometric_kernels.feature_maps import (
 from geometric_kernels.kernels.base import BaseGeometricKernel
 from geometric_kernels.kernels.feature_map import MaternFeatureMapKernel
 from geometric_kernels.kernels.hodge_compositional import MaternHodgeCompositionalKernel
-from geometric_kernels.kernels.karhunen_loeve import (
-    FastMaternForHammingGraph,
-    MaternKarhunenLoeveKernel,
+from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
+from geometric_kernels.kernels.matern_kernel_hamming_graph import (
+    MaternKernelHammingGraph,
 )
 from geometric_kernels.spaces import (
     CompactMatrixLieGroup,
@@ -281,7 +281,6 @@ class MaternGeometricKernel:
         num: int = None,
         normalize: bool = True,
         return_feature_map: bool = False,
-        fast_matern: bool = False,
         **kwargs,
     ):
         r"""
@@ -331,14 +330,6 @@ class MaternGeometricKernel:
 
             Default is False.
 
-        :param fast_matern:
-            If `True`, use optimized kernel implementations when available.
-            Currently applies to :class:`~.spaces.HypercubeGraph`, where an
-            analytic closed-form formula is used for the heat kernel (infinite
-            smoothness, $\nu = \infty$) when all eigenvalue levels are included.
-
-            Defaults to True.
-
         :param ``**kwargs``:
             Any additional keyword arguments to be passed to the kernel
             (like `key`).
@@ -354,8 +345,8 @@ class MaternGeometricKernel:
             num = num or default_num(space)
             if isinstance(space, HodgeDiscreteSpectrumSpace):
                 kernel = MaternHodgeCompositionalKernel(space, num, normalize=normalize)
-            elif isinstance(space, (HypercubeGraph, HammingGraph)) and fast_matern:
-                kernel = FastMaternForHammingGraph(space, num, normalize=normalize)
+            elif isinstance(space, (HypercubeGraph, HammingGraph)):
+                kernel = MaternKernelHammingGraph(space, num, normalize=normalize)
             else:
                 kernel = MaternKarhunenLoeveKernel(space, num, normalize=normalize)
             if return_feature_map:

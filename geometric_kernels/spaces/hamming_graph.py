@@ -9,7 +9,7 @@ import lab as B
 import numpy as np
 from beartype.typing import List, Optional
 
-from geometric_kernels.lab_extras import dtype_double, dtype_integer, float_like
+from geometric_kernels.lab_extras import dtype_integer, float_like
 from geometric_kernels.spaces.base import DiscreteSpectrumSpace
 from geometric_kernels.spaces.eigenfunctions import (
     Eigenfunctions,
@@ -53,7 +53,8 @@ class VilenkinFunctions(EigenfunctionsWithAdditionTheorem):
     """
 
     def __init__(self, dim: int, n_cat: int, num_levels: int) -> None:
-        assert num_levels <= dim + 1, "The number of levels should be at most dim+1."
+        if num_levels > dim + 1:
+            raise ValueError("The number of levels should be at most `dim`+1.")
         self.dim = dim
         self.n_cat = n_cat
         self._num_levels = num_levels
@@ -197,6 +198,11 @@ class HammingGraph(DiscreteSpectrumSpace):
     Levels are the whole eigenspaces.
 
     .. note::
+        If you need a kernel operating on categorical vectors where $q$ varies
+        between dimensions, you can use `HammingGraph` in conjunction with
+        :class:`ProductGeometricKernel` or :class:`ProductDiscreteSpectrumSpace`.
+
+    .. note::
         For the special case $q = 2$, this reduces to the binary hypercube graph,
         also available as :class:`HypercubeGraph`.
 
@@ -294,11 +300,9 @@ class HammingGraph(DiscreteSpectrumSpace):
         :return:
             An array of `number` uniformly random samples on the space.
         """
-        key, random_points = B.random.rand(
-            key, dtype_double(key), number, self.dimension
+        key, random_points = B.random.randint(
+            key, dtype_integer(key), number, self.dimension, lower=0, upper=self.n_cat
         )
-
-        random_points = B.cast(dtype_integer(key), B.floor(random_points * self.n_cat))
 
         return key, random_points
 
