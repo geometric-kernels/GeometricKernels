@@ -146,7 +146,10 @@ The documentation for GeometricKernels is available on a [separate website](http
 
 ## For development and running the tests
 
-If you want to contribute to the library, thank you! Follow these instructions to set up the environment and run the tests and the code formatting.
+If you want to contribute to the library, thank you!
+[Here](https://github.com/geometric-kernels/GeometricKernels/pull/141) you can find a good example of a pull request to GeometricKernels.
+
+You can follow the instructions bellow to set up the environment and run the tests and the code formatting.
 
 Initialize the virtual environment.
 
