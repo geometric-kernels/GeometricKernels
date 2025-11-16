@@ -5,7 +5,7 @@ import pytest
 from geometric_kernels.kernels import MaternKarhunenLoeveKernel
 from geometric_kernels.spaces import Grassmannian
 
-from ..helper import check_function_with_backend
+from ..helper import check_function_with_backend, np_to_backend
 
 
 def make_tuned_kernels(grass: Grassmannian, num_levels: int, normalize: bool = False):
@@ -67,14 +67,14 @@ def _choose_lengthscale_ratio_two(
     if np.isinf(nu):
         denom = s1 - s0
         l2 = 2.0 * np.log(2.0) / denom
-        return float(np.sqrt(l2))
+        return np.sqrt(np.array([l2]))
     else:
         p = nu + d / 2.0
         two_pow = 2.0 ** (1.0 / p)
         denom = two_pow - 1.0
         a = (s1 - two_pow * s0) / denom
         l2 = 2.0 * nu / a
-        return float(np.sqrt(l2))
+        return np.sqrt(np.array([l2]))
 
 
 @pytest.fixture(
@@ -103,8 +103,6 @@ def inputs(request):
     # Tune params_M so that the first weight / second weight = 2, and
     # set the same lengthscale for the group kernel parameters.
     tuned_ls = _choose_lengthscale_ratio_two(kernel_M, params_M)
-    params_M["lengthscale"][0] = tuned_ls
-    params_G["lengthscale"][0] = tuned_ls
 
     # Representatives for N Grassmannian points using SO(n).random from so.py
     key, g = grass.G.random(key, N)  # [N, n, n]
@@ -115,14 +113,19 @@ def inputs(request):
     key, h = grass.H.random(key, num_h)  # [H, n, n]
 
     # Return everything needed
-    return kernel_M, kernel_G, params_M, params_G, x, g, h
+    return kernel_M, kernel_G, params_M, params_G, tuned_ls, x, g, h
 
 
 @pytest.mark.parametrize("backend", ["numpy", "tensorflow", "torch", "jax"])
 def test_grassmannian_kernel_averaging(inputs, backend):
     """Grassmannian kernel equals the stabilizer-averaged SO(n) kernel (renormalized)."""
-    kernel_M, kernel_G, params_M, params_G, x, g, h = inputs
-
+    kernel_M, kernel_G, params_M, params_G, tuned_ls, x, g, h = inputs
+    tuned_ls = np_to_backend(tuned_ls, backend)
+    nu = np_to_backend(params_M["nu"], backend)
+    params_M["lengthscale"] = tuned_ls
+    params_G["lengthscale"] = tuned_ls
+    params_M["nu"] = nu
+    params_G["nu"] = nu
     # Expect zero difference matrix between analytic and averaged group covariance.
     expected = np.zeros((x.shape[0], x.shape[0]))
 
