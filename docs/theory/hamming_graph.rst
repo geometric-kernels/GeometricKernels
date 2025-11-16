@@ -5,7 +5,7 @@
 .. warning::
     You can get by fine without reading this page for almost all use cases, just use the standard :class:`~.kernels.MaternGeometricKernel`, following the respective :doc:`example notebook </examples/HammingGraph>`.
 
-    This is optional material meant to explain the basic theory and based mainly on :cite:t:`borovitskiy2023`.
+    This is optional material meant to explain the basic theory and based mainly on :cite:t:`doumont2025` and :cite:t:`borovitskiy2023`.
 
 ==========================
 Motivation
@@ -21,10 +21,10 @@ Structure of the Space
 
 The elements of this space—given its `dim` is $d \in \mathbb{Z}_{>0}$ and `n_cat` is $q \in \mathbb{Z}_{>1}$—are exactly the categorical vectors of length $d$ where each component is in $\{0, 1, ..., q-1\}$.
 
-The geometry of this space is simple: it is a graph such that $x, x' \in H(d,q)$ are connected by an edge if and only if they differ in exactly one coordinate (i.e. there is exactly *Hamming distance* $1$ between them).
+The geometry of this space is simple: it is a graph such that $x, x' \in H(d,q)$ are connected by an edge if and only if they differ in exactly one coordinate (i.e. *Hamming distance* $1$ between them is exactly $1$).
 
 Being a graph, $H(d,q)$ could also be represented using the general :class:`~.spaces.Graph` space.
-However, the number of nodes in $H(d,q)$ is $q^d$, which is exponential in $d$ (and grows rapidly with $q$), rendering the general techniques infeasible.
+However, the number of nodes in $H(d,q)$ is $q^d$, which is exponential in $d$ (and grows rapidly with $q$), rendering the general graph representation intractable in most cases.
 
 ==========================
 Eigenfunctions
@@ -40,7 +40,7 @@ $$
 $$
 where $\omega_q = e^{2\pi i/q}$ is a primitive $q$-th root of unity and $x = (x_0, \ldots, x_{d-1}) \in H(d,q)$.
 
-The eigenfunctions with the same number of non-zero frequency components $j = |\{i : s_i \neq 0\}|$ share the same eigenvalue $\lambda_j = (q-1)j / d$ and form a *level* $j$. The dimension of level $j$ is $\binom{d}{j}(q-1)^j$.
+The eigenfunctions with the same number of non-zero frequency components $j = \lvert\{i : s_i \neq 0\}\rvert$ share the same eigenvalue $\lambda_j = (q-1)j / d$ and form a *level* $j$. The dimension of level $j$ is $\binom{d}{j}(q-1)^j$.
 
 However, the problem is that the number of eigenfunctions is $q^d$.
 Hence naive truncation of the sum in the kernel formula to a few hundred terms leads to a poor approximation of the kernel for larger $d$ or $q$.
