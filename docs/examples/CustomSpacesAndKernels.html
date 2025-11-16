@@ -1,0 +1,983 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html"><link rel="search" title="Search" href="../search.html"><link rel="next" title="Matérn and Heat Kernels on Graphs" href="Graph.html"><link rel="prev" title="Spaces" href="examples.html">
+
+    <!-- Generated with Sphinx 8.2.3 and Furo 2025.09.25 -->
+        <title>Custom Spaces/Kernels - GeometricKernels documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=d111a655" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=580074bf" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/nbsphinx-code-cells.css?v=2aa19091" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=8dab3a3b" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/bootstrap_namespaced.css?v=7458e3c8" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f2f2f2;
+  --color-code-foreground: #1e1e1e;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-with-moon" viewBox="0 0 24 24">
+    <title>Auto light/dark, in light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path style="opacity: 50%" d="M 5.411 14.504 C 5.471 14.504 5.532 14.504 5.591 14.504 C 3.639 16.319 4.383 19.569 6.931 20.352 C 7.693 20.586 8.512 20.551 9.25 20.252 C 8.023 23.207 4.056 23.725 2.11 21.184 C 0.166 18.642 1.702 14.949 4.874 14.536 C 5.051 14.512 5.231 14.5 5.411 14.5 L 5.411 14.504 Z"/>
+      <line x1="14.5" y1="3.25" x2="14.5" y2="1.25"/>
+      <line x1="14.5" y1="15.85" x2="14.5" y2="17.85"/>
+      <line x1="10.044" y1="5.094" x2="8.63" y2="3.68"/>
+      <line x1="19" y1="14.05" x2="20.414" y2="15.464"/>
+      <line x1="8.2" y1="9.55" x2="6.2" y2="9.55"/>
+      <line x1="20.8" y1="9.55" x2="22.8" y2="9.55"/>
+      <line x1="10.044" y1="14.006" x2="8.63" y2="15.42"/>
+      <line x1="19" y1="5.05" x2="20.414" y2="3.636"/>
+      <circle cx="14.5" cy="9.55" r="3.6"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon-with-sun" viewBox="0 0 24 24">
+    <title>Auto light/dark, in dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round"
+      class="icon-custom-derived-from-feather-sun-and-tabler-moon">
+      <path d="M 8.282 7.007 C 8.385 7.007 8.494 7.007 8.595 7.007 C 5.18 10.184 6.481 15.869 10.942 17.24 C 12.275 17.648 13.706 17.589 15 17.066 C 12.851 22.236 5.91 23.143 2.505 18.696 C -0.897 14.249 1.791 7.786 7.342 7.063 C 7.652 7.021 7.965 7 8.282 7 L 8.282 7.007 Z"/>
+      <line style="opacity: 50%" x1="18" y1="3.705" x2="18" y2="2.5"/>
+      <line style="opacity: 50%" x1="18" y1="11.295" x2="18" y2="12.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="4.816" x2="14.464" y2="3.964"/>
+      <line style="opacity: 50%" x1="20.711" y1="10.212" x2="21.563" y2="11.063"/>
+      <line style="opacity: 50%" x1="14.205" y1="7.5" x2="13.001" y2="7.5"/>
+      <line style="opacity: 50%" x1="21.795" y1="7.5" x2="23" y2="7.5"/>
+      <line style="opacity: 50%" x1="15.316" y1="10.184" x2="14.464" y2="11.036"/>
+      <line style="opacity: 50%" x1="20.711" y1="4.789" x2="21.563" y2="3.937"/>
+      <circle style="opacity: 50%" cx="18" cy="7.5" r="2.169"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-pencil" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-pencil-code">
+      <path d="M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4" />
+      <path d="M13.5 6.5l4 4" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+  <symbol id="svg-eye" viewBox="0 0 24 24">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-eye-code">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+      <path
+        d="M11.11 17.958c-3.209 -.307 -5.91 -2.293 -8.11 -5.958c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6c-.21 .352 -.427 .688 -.647 1.008" />
+      <path d="M20 21l2 -2l-2 -2" />
+      <path d="M17 17l-2 2l2 2" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation" aria-label="Toggle site navigation sidebar">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc" aria-label="Toggle table of contents sidebar">
+<label class="overlay sidebar-overlay" for="__navigation"></label>
+<label class="overlay toc-overlay" for="__toc"></label>
+
+<a class="skip-to-content muted-link" href="#furo-main-content">Skip to content</a>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <span class="icon"><svg><use href="#svg-menu"></use></svg></span>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">GeometricKernels  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+          <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+          <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  <span class="sidebar-brand-text">GeometricKernels  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">GeometricKernels</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="index.html">Examples</a><input aria-label="Toggle navigation of Examples" checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l2 current has-children"><a class="reference internal" href="examples.html">Spaces</a><input aria-label="Toggle navigation of Spaces" checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul class="current">
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">Custom Spaces and Kernels</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Graph.html">Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="GraphEdges.html">GraphEdges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Hyperbolic.html">Hyperbolic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="HypercubeGraph.html">HypercubeGraph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Hypersphere.html">Hypersphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Mesh.html">Mesh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SPD.html">SPD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SpecialOrthogonal.html">SpecialOrthogonal</a></li>
+<li class="toctree-l3"><a class="reference internal" href="SpecialUnitary.html">SpecialUnitary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="Torus.html">Torus</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="examples.html#backends">Backends</a><input aria-label="Toggle navigation of Backends" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="backends/JAX_Graph.html">JAX (Graph space)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="backends/PyTorch_Graph.html">PyTorch (Graph space)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="backends/TensorFlow_Graph.html">TensorFlow (Graph space)</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="examples.html#frontends">Frontends</a><input aria-label="Toggle navigation of Frontends" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="frontends/GPflow.html">GPFlow (Mesh space)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="frontends/GPJax.html">GPJax (Mesh space)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="frontends/GPyTorch.html">GPyTorch (Mesh space)</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="examples.html#other">Other</a><input aria-label="Toggle navigation of Other" class="toctree-checkbox" id="toctree-checkbox-5" name="toctree-checkbox-5" role="switch" type="checkbox"/><label for="toctree-checkbox-5"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="other/Bayesian%20Optimization.html">Bayesian optimization on a sphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="other/Hyperbolic%20Approximations.html">Comparing approximations on Hyperbolic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="other/SPD%20Approximations.html">Comparing approximations on SPD</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../theory/index.html">Theory</a><input aria-label="Toggle navigation of Theory" class="toctree-checkbox" id="toctree-checkbox-6" name="toctree-checkbox-6" role="switch" type="checkbox"/><label for="toctree-checkbox-6"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../theory/compact.html">Kernels on compact manifolds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/addition_theorem.html">Addition theorem</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/graphs.html">Kernels on graphs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/meshes.html">Kernels on meshes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/symmetric.html">Kernels on non-compact symmetric spaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/product_spaces.html">Kernels on product spaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/product_kernels.html">Product kernels</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/feature_maps.html">Feature maps and sampling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../theory/hypercube_graph.html">Hypercube graph space</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../autoapi/geometric_kernels/index.html">API reference</a><input aria-label="Toggle navigation of API reference" class="toctree-checkbox" id="toctree-checkbox-7" name="toctree-checkbox-7" role="switch" type="checkbox"/><label for="toctree-checkbox-7"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/geometric_kernels/feature_maps/index.html">geometric_kernels.feature_maps</a><input aria-label="Toggle navigation of geometric_kernels.feature_maps" class="toctree-checkbox" id="toctree-checkbox-8" name="toctree-checkbox-8" role="switch" type="checkbox"/><label for="toctree-checkbox-8"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/feature_maps/base/index.html">geometric_kernels.feature_maps.base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/feature_maps/deterministic/index.html">geometric_kernels.feature_maps.deterministic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/feature_maps/probability_densities/index.html">geometric_kernels.feature_maps.probability_densities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/feature_maps/random_phase/index.html">geometric_kernels.feature_maps.random_phase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/feature_maps/rejection_sampling/index.html">geometric_kernels.feature_maps.rejection_sampling</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/geometric_kernels/frontends/index.html">geometric_kernels.frontends</a><input aria-label="Toggle navigation of geometric_kernels.frontends" class="toctree-checkbox" id="toctree-checkbox-9" name="toctree-checkbox-9" role="switch" type="checkbox"/><label for="toctree-checkbox-9"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/frontends/gpflow/index.html">geometric_kernels.frontends.gpflow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/frontends/gpjax/index.html">geometric_kernels.frontends.gpjax</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/frontends/gpytorch/index.html">geometric_kernels.frontends.gpytorch</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/geometric_kernels/jax/index.html">geometric_kernels.jax</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/geometric_kernels/kernels/index.html">geometric_kernels.kernels</a><input aria-label="Toggle navigation of geometric_kernels.kernels" class="toctree-checkbox" id="toctree-checkbox-10" name="toctree-checkbox-10" role="switch" type="checkbox"/><label for="toctree-checkbox-10"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/kernels/base/index.html">geometric_kernels.kernels.base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/kernels/feature_map/index.html">geometric_kernels.kernels.feature_map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/kernels/hodge_compositional/index.html">geometric_kernels.kernels.hodge_compositional</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/kernels/karhunen_loeve/index.html">geometric_kernels.kernels.karhunen_loeve</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/kernels/matern_kernel/index.html">geometric_kernels.kernels.matern_kernel</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/kernels/product/index.html">geometric_kernels.kernels.product</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/geometric_kernels/lab_extras/index.html">geometric_kernels.lab_extras</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/geometric_kernels/sampling/index.html">geometric_kernels.sampling</a><input aria-label="Toggle navigation of geometric_kernels.sampling" class="toctree-checkbox" id="toctree-checkbox-11" name="toctree-checkbox-11" role="switch" type="checkbox"/><label for="toctree-checkbox-11"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/sampling/samplers/index.html">geometric_kernels.sampling.samplers</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/index.html">geometric_kernels.spaces</a><input aria-label="Toggle navigation of geometric_kernels.spaces" class="toctree-checkbox" id="toctree-checkbox-12" name="toctree-checkbox-12" role="switch" type="checkbox"/><label for="toctree-checkbox-12"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/base/index.html">geometric_kernels.spaces.base</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/circle/index.html">geometric_kernels.spaces.circle</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/eigenfunctions/index.html">geometric_kernels.spaces.eigenfunctions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/graph/index.html">geometric_kernels.spaces.graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/graph_edges/index.html">geometric_kernels.spaces.graph_edges</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/hyperbolic/index.html">geometric_kernels.spaces.hyperbolic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/hypercube_graph/index.html">geometric_kernels.spaces.hypercube_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/hypersphere/index.html">geometric_kernels.spaces.hypersphere</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/lie_groups/index.html">geometric_kernels.spaces.lie_groups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/mesh/index.html">geometric_kernels.spaces.mesh</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/product/index.html">geometric_kernels.spaces.product</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/so/index.html">geometric_kernels.spaces.so</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/spd/index.html">geometric_kernels.spaces.spd</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/spaces/su/index.html">geometric_kernels.spaces.su</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/geometric_kernels/tensorflow/index.html">geometric_kernels.tensorflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/geometric_kernels/torch/index.html">geometric_kernels.torch</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../autoapi/geometric_kernels/utils/index.html">geometric_kernels.utils</a><input aria-label="Toggle navigation of geometric_kernels.utils" class="toctree-checkbox" id="toctree-checkbox-13" name="toctree-checkbox-13" role="switch" type="checkbox"/><label for="toctree-checkbox-13"><span class="icon"><svg><use href="#svg-arrow-right"></use></svg></span></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/utils/manifold_utils/index.html">geometric_kernels.utils.manifold_utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/utils/product/index.html">geometric_kernels.utils.product</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/utils/special_functions/index.html">geometric_kernels.utils.special_functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../autoapi/geometric_kernels/utils/utils/index.html">geometric_kernels.utils.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/geometric_kernels/version/index.html">geometric_kernels.version</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/geometric-kernels/GeometricKernels">GitHub</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          <div class="view-this-page">
+  <a class="muted-link" href="../_sources/examples/CustomSpacesAndKernels.nblink.txt" title="View this page">
+    <svg><use href="#svg-eye"></use></svg>
+    <span class="visually-hidden">View this page</span>
+  </a>
+</div>
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle" aria-label="Toggle Light / Dark / Auto color theme">
+              <svg class="theme-icon-when-auto-light"><use href="#svg-sun-with-moon"></use></svg>
+              <svg class="theme-icon-when-auto-dark"><use href="#svg-moon-with-sun"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <span class="icon"><svg><use href="#svg-toc"></use></svg></span>
+          </label>
+        </div>
+        <article role="main" id="furo-main-content">
+          <section id="Custom-Spaces/Kernels">
+<h1>Custom Spaces/Kernels<a class="headerlink" href="#Custom-Spaces/Kernels" title="Link to this heading">¶</a></h1>
+<p>GeometricKernels ships with general-purpose kernel classes that cover most use cases, so you will rarely need to write a new kernel from scratch. In practice, you typically implement a new space and then reuse the existing kernels.</p>
+<p>This notebook therefore focuses on implementing custom spaces. At the end, we briefly show how to define a custom kernel for advanced cases (e.g. a non-Matérn kernel or a Matérn kernel with space‑specific optimisation). For an overview of the built-in kernels, see the documentation: <a class="reference external" href="https://geometric-kernels.github.io/GeometricKernels/autoapi/geometric_kernels/kernels/index.html">https://geometric-kernels.github.io/GeometricKernels/autoapi/geometric_kernels/kernels/index.html</a>.</p>
+<p>When to implement what:</p>
+<ul class="simple">
+<li><p><strong>Custom space</strong>: you have a new geometry and can provide the appropriate machinery (e.g. evaluating eignpairs of the Laplacian) for it.</p></li>
+<li><p><strong>Custom kernel</strong>: you need a non-Matérn kernel or a more efficient implementation tailored to your space.</p></li>
+</ul>
+<section id="Spaces">
+<h2>Spaces<a class="headerlink" href="#Spaces" title="Link to this heading">¶</a></h2>
+<p>We recommend implementing a new GeometricKernels space by subclassing one of the existing abstract <a class="reference external" href="https://geometric-kernels.github.io/GeometricKernels/autoapi/geometric_kernels/spaces/base/index.html">space classes</a>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">DiscreteSpectrumSpace</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">NoncompactSymmetricSpace</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">HodgeDiscreteSpectrumSpace</span></code></p></li>
+</ul>
+<p>Provide concrete implementations for all abstract methods required by the chosen base class. Doing so will make one of the standard kernel classes directly applicable to your new space:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">MaternKarhunenLoeveKernel</span></code> (for <code class="docutils literal notranslate"><span class="pre">DiscreteSpectrumSpace</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MaternFeatureMapKernel</span></code> (for <code class="docutils literal notranslate"><span class="pre">NoncompactSymmetricSpace</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MaternHodgeCompositionalKernel</span></code> (for <code class="docutils literal notranslate"><span class="pre">HodgeDiscreteSpectrumSpace</span></code>)</p></li>
+</ul>
+<p>If you do not want to use the existing kernel machinery, you can instead subclass the most general <code class="docutils literal notranslate"><span class="pre">Space</span></code> class and implement a new kernel from scratch by subclassing <code class="docutils literal notranslate"><span class="pre">BaseGeometricKernel</span></code>.</p>
+<p>Notes:</p>
+<ul class="simple">
+<li><p><strong>Product spaces</strong>: If your target space is a Cartesian product of two or more spaces, you typically do not need to implement a new space class. Instead, consider <code class="docutils literal notranslate"><span class="pre">ProductGeometricKernel</span></code>/<code class="docutils literal notranslate"><span class="pre">ProductDiscreteSpectrumSpace</span></code>. See the documentation on product spaces: <a class="reference external" href="https://geometric-kernels.github.io/GeometricKernels/theory/product_spaces.html">https://geometric-kernels.github.io/GeometricKernels/theory/product_spaces.html</a></p></li>
+<li><p><strong>Specialising ``MaternGeometricKernel``</strong>: If you want to change how <code class="docutils literal notranslate"><span class="pre">MaternGeometricKernel</span></code> specialises to your space (e.g. default approximation level/<code class="docutils literal notranslate"><span class="pre">num_levels</span></code>), consult that class’s documentation and pass the relevant arguments explicitly when constructing the kernel, or change the <code class="docutils literal notranslate"><span class="pre">kernels.matern_kernel</span></code> module.</p></li>
+<li><p><strong>Contributing a new space</strong>: If you plan to submit a PR adding a new space—thank you! Please integrate it into the test suite and add space-specific tests. Run <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">lint</span></code> and <code class="docutils literal notranslate"><span class="pre">make</span> <span class="pre">test</span></code> before opening a PR. GitHub CI will run these as well (on multiple platforms) and block merging until they pass, but running them locally first is faster.</p></li>
+</ul>
+<p><strong>As a toy example</strong>, we implement a space representing a complete graph with <span class="math notranslate nohighlight">\(n\)</span> nodes. In practice, this space could be represented using the existing general <code class="docutils literal notranslate"><span class="pre">Graph</span></code> space by providing it the adjacency matrix of the complete graph. However, here we build this space from scratch as if the general <code class="docutils literal notranslate"><span class="pre">Graph</span></code> space did not exist, to demonstrate the mechanics of implementing a new space.</p>
+<p>Note: we do not strictly follow the project’s linting/style guidelines in this notebook for a more focused exposition.</p>
+<section id="Imports-and-writing-backend‑agnostic-code">
+<h3>Imports and writing backend‑agnostic code<a class="headerlink" href="#Imports-and-writing-backend‑agnostic-code" title="Link to this heading">¶</a></h3>
+<p>GeometricKernels works with multiple backends: <code class="docutils literal notranslate"><span class="pre">pytorch</span></code>, <code class="docutils literal notranslate"><span class="pre">jax</span></code>, <code class="docutils literal notranslate"><span class="pre">numpy</span></code>, <code class="docutils literal notranslate"><span class="pre">tensorflow</span></code>. To write code once and have it work across these backends, we use the <a class="reference external" href="https://github.com/wesselb/lab">lab</a> library. <code class="docutils literal notranslate"><span class="pre">lab</span></code> provides a thin dispatch layer: when you give it, say, PyTorch tensors as inputs, it returns PyTorch tensors; when you give it NumPy arrays, it returns NumPy arrays, etc.</p>
+<p>In the next cell we import <code class="docutils literal notranslate"><span class="pre">lab</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">lab</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">B</span>
+</pre></div>
+</div>
+</div>
+<p>Sometimes, <code class="docutils literal notranslate"><span class="pre">lab</span></code> on its own does not provide all the functions you need. In that case, check the <code class="docutils literal notranslate"><span class="pre">lab_extras</span></code> subpackage in GeometricKernels, which contains additional helpers that follow the same backend-dispatch pattern. If you still cannot find a suitable function, consider adding it to <code class="docutils literal notranslate"><span class="pre">lab_extras</span></code>.</p>
+<p>Below we import some utilities we will use:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">dtype_integer</span></code>: Returns a backend-appropriate integer dtype.</p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geometric_kernels.lab_extras</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">dtype_integer</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO (geometric_kernels): Numpy backend is enabled. To enable other backends, don&#39;t forget to `import geometric_kernels.*backend name*`.
+INFO (geometric_kernels): We may be suppressing some logging of external libraries. To override the logging policy, call `logging.basicConfig`.
+</pre></div></div>
+</div>
+<p>Next, we import the abstract base class <code class="docutils literal notranslate"><span class="pre">DiscreteSpectrumSpace</span></code>, because the Laplacian on a finite graph (the graph Laplacian) has a discrete spectrum. See more about different kinds of spaces in the theory docs: <a class="reference external" href="https://geometric-kernels.github.io/GeometricKernels/theory/index.html">https://geometric-kernels.github.io/GeometricKernels/theory/index.html</a>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geometric_kernels.spaces.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiscreteSpectrumSpace</span>
+</pre></div>
+</div>
+</div>
+<p>We also import <code class="docutils literal notranslate"><span class="pre">Eigenfunctions</span></code> because one of the abstract methods of <code class="docutils literal notranslate"><span class="pre">DiscreteSpectrumSpace</span></code> must return an <code class="docutils literal notranslate"><span class="pre">Eigenfunctions</span></code> object.</p>
+<p>In many cases, you will subclass <code class="docutils literal notranslate"><span class="pre">Eigenfunctions</span></code> to provide the machinery for working with the Laplacian’s eigenfunctions. In our case, we can avoid that by using the already implemented subclass <code class="docutils literal notranslate"><span class="pre">EigenfunctionsFromEigenvectors</span></code>, which wraps a matrix of eigenvectors.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geometric_kernels.spaces.eigenfunctions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Eigenfunctions</span><span class="p">,</span>
+    <span class="n">EigenfunctionsFromEigenvectors</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Finally, a few standard imports. We’ll use SciPy to compute the full eigendecomposition for this small example.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.linalg</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Defining-the-new-Space-Class">
+<h3>Defining the new Space Class<a class="headerlink" href="#Defining-the-new-Space-Class" title="Link to this heading">¶</a></h3>
+<p>Because it is awkward to split a single class definition across multiple Jupyter cells, the complete class definition is given in the next cell.</p>
+<p>Note on contributing: If you intend to contribute your new space to GeometricKernels via a PR, please add proper docstrings in the project’s style (these get compiled into the documentation). You can use the implementation of the <code class="docutils literal notranslate"><span class="pre">Graph</span></code> space as a reference. To keep this notebook concise, we include explanatory comments rather than full docstrings.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">CompleteGraph</span><span class="p">(</span><span class="n">DiscreteSpectrumSpace</span><span class="p">):</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num_vertices</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="c1"># Store the number of vertices.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_vertices</span> <span class="o">=</span> <span class="n">num_vertices</span>
+
+        <span class="c1"># Build the adjacency matrix A for the complete graph K_n:</span>
+        <span class="c1"># A_ij = 1 for i != j, and 0 on the diagonal.</span>
+        <span class="n">adjacency_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">((</span><span class="n">num_vertices</span><span class="p">,</span> <span class="n">num_vertices</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">num_vertices</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+        <span class="c1"># Degree matrix D for K_n is (n-1) on the diagonal.</span>
+        <span class="n">degree_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">num_vertices</span> <span class="o">*</span> <span class="p">[</span><span class="n">num_vertices</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+
+        <span class="c1"># Normalized graph Laplacian: L = D^(-1/2) (D - A) D^(-1/2).</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_laplacian</span> <span class="o">=</span> <span class="p">(</span><span class="n">degree_matrix</span> <span class="o">-</span> <span class="n">adjacency_matrix</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">num_vertices</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Note: As a rule of thumb, store precomputed quantities in NumPy and cast to the</span>
+        <span class="c1"># active backend only when needed (usually, kernels handle this casting for you).</span>
+
+        <span class="c1"># For this toy example, we compute a full eigendecomposition here. In production code,</span>
+        <span class="c1"># try to keep __init__ lightweight: compute lazily if possible.</span>
+        <span class="n">evals</span><span class="p">,</span> <span class="n">evecs</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">eigh</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_laplacian</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_evals</span> <span class="o">=</span> <span class="n">evals</span>
+
+        <span class="c1"># Re-scale eigenvectors so that they are orthonormal with respect to the discrete inner</span>
+        <span class="c1"># product induced by the graph (here, multiply by sqrt(n)). This is a convenient normalisation</span>
+        <span class="c1"># for use in Mercer expansions.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_evecs</span> <span class="o">=</span> <span class="n">evecs</span> <span class="o">*</span> <span class="n">num_vertices</span> <span class="o">**</span> <span class="mf">0.5</span>  <span class="c1"># change normalization</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Provide a concise, informative string representation.</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;CompleteGraph(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num_vertices</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">dimension</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="c1"># Return an intrinsic dimension for the space. For graphs, a pragmatic choice is 0.</span>
+        <span class="c1"># The dimension influences the parameterisation of the Matérn smoothness parameter nu.</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_eigenfunctions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Eigenfunctions</span><span class="p">:</span>
+        <span class="c1"># Return the `Eigenfunctions` object representing the first `num` levels of eigenfunctions.</span>
+        <span class="c1"># The notion of &quot;levels&quot; lets many spaces trade off computation for approximation quality.</span>
+        <span class="c1"># For this space, any admissible `num` has the same one-off cost to precompute, though</span>
+        <span class="c1"># subsequent kernel evaluations can be faster for smaller `num`.</span>
+        <span class="c1">#</span>
+        <span class="c1"># See more about levels in the docs for the `Eigenfunctions` class.</span>
+        <span class="k">return</span> <span class="n">EigenfunctionsFromEigenvectors</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_evecs</span><span class="p">[:,</span> <span class="p">:</span><span class="n">num</span><span class="p">])</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_eigenvalues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">B</span><span class="o">.</span><span class="n">Numeric</span><span class="p">:</span>
+        <span class="c1"># Return the first `num` eigenvalues.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_evals</span><span class="p">[:</span><span class="n">num</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_repeated_eigenvalues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">B</span><span class="o">.</span><span class="n">Numeric</span><span class="p">:</span>
+        <span class="c1"># Some DiscreteSpectrumSpace instances group eigenfunctions with multiplicities into &quot;levels&quot;.</span>
+        <span class="c1"># In that case, this should return each level’s eigenvalue repeated according to its multiplicity.</span>
+        <span class="c1"># Here each level corresponds to a single eigenfunction, so we can just return the first `num`</span>
+        <span class="c1"># values, exactly as in `get_eigenvalues` above.</span>
+        <span class="c1">#</span>
+        <span class="c1"># See more about levels in the docs for the `Eigenfunctions` class.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_eigenvalues</span><span class="p">(</span><span class="n">num</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">random</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+        <span class="c1"># Generate `number` random vertices (indices) from {0, ..., n-1} in a backend-aware way.</span>
+        <span class="c1"># This method consumes a backend-specific random key (e.g. a torch.Generator or JAX PRNGKey)</span>
+        <span class="c1"># and returns samples and the updated key in the same backend.</span>
+        <span class="c1">#</span>
+        <span class="c1"># Note this is the first function that actually uses `lab`, the rest delegates supporting</span>
+        <span class="c1"># different backends to kernels.</span>
+        <span class="n">key</span><span class="p">,</span> <span class="n">random_vertices</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span>
+            <span class="n">key</span><span class="p">,</span> <span class="n">dtype_integer</span><span class="p">(</span><span class="n">key</span><span class="p">),</span> <span class="n">number</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">upper</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">num_vertices</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">key</span><span class="p">,</span> <span class="n">random_vertices</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">element_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Each point of this space is represented by a single integer node index, thus shape is [1].</span>
+        <span class="c1"># For R^d you might return [d]; for matrix groups, [d, d], etc. This is used downstream</span>
+        <span class="c1"># (e.g. for constructing product spaces/kernels).</span>
+        <span class="k">return</span> <span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">element_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># The dtype of elements in this space is integer. Also used downstream.</span>
+        <span class="k">return</span> <span class="n">B</span><span class="o">.</span><span class="n">Int</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Using-the-new-Space">
+<h3>Using the new Space<a class="headerlink" href="#Using-the-new-Space" title="Link to this heading">¶</a></h3>
+<p>We now demonstrate the space under the <code class="docutils literal notranslate"><span class="pre">torch</span></code> backend. For this, we enable the backend and import a convenience wrapper kernel <code class="docutils literal notranslate"><span class="pre">MaternGeometricKernel</span></code>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">torch</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">geometric_kernels</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">geometric_kernels.torch</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">geometric_kernels.kernels</span><span class="w"> </span><span class="kn">import</span> <span class="n">MaternGeometricKernel</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+INFO (geometric_kernels): Torch backend enabled.
+</pre></div></div>
+</div>
+<p>Because we subclassed a core abstract space (<code class="docutils literal notranslate"><span class="pre">DiscreteSpectrumSpace</span></code>), we can instantiate <code class="docutils literal notranslate"><span class="pre">MaternGeometricKernel</span></code> on our new space without any additional work.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mygraph</span> <span class="o">=</span> <span class="n">CompleteGraph</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">kernel</span> <span class="o">=</span> <span class="n">MaternGeometricKernel</span><span class="p">(</span><span class="n">mygraph</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Initialise the kernel’s parameters. The defaults will come out as NumPy arrays unless you override them.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">params</span> <span class="o">=</span> <span class="n">kernel</span><span class="o">.</span><span class="n">init_params</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;params:&quot;</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+params: {&#39;nu&#39;: array([inf]), &#39;lengthscale&#39;: array([1.])}
+</pre></div></div>
+</div>
+<p>To have the kernel operate in PyTorch, provide parameters as PyTorch tensors; the kernel will then dispatch calculations to the torch backend.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;lengthscale&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mf">2.0</span><span class="p">])</span>
+<span class="n">params</span><span class="p">[</span><span class="s2">&quot;nu&quot;</span><span class="p">]</span>  <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="mi">3</span><span class="o">/</span><span class="mi">2</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;params:&quot;</span><span class="p">,</span> <span class="n">params</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+params: {&#39;nu&#39;: tensor([1.5000]), &#39;lengthscale&#39;: tensor([2.])}
+</pre></div></div>
+</div>
+<p>Generate random inputs for the kernel, also in <code class="docutils literal notranslate"><span class="pre">torch</span></code>. The <code class="docutils literal notranslate"><span class="pre">random</span></code> method consumes and returns the backend’s PRNG key (here <code class="docutils literal notranslate"><span class="pre">torch.Generator</span></code>).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">key</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">Generator</span><span class="p">()</span>
+<span class="n">key</span><span class="o">.</span><span class="n">manual_seed</span><span class="p">(</span><span class="mi">1234</span><span class="p">)</span>
+
+<span class="n">key</span><span class="p">,</span> <span class="n">xs</span> <span class="o">=</span> <span class="n">mygraph</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;xs:&quot;</span><span class="p">,</span> <span class="n">xs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+xs: tensor([[0],
+        [1],
+        [1],
+        [0],
+        [1],
+        [4]], dtype=torch.int32)
+</pre></div></div>
+</div>
+<p>Now evaluate the kernel.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;K:&quot;</span><span class="p">,</span> <span class="n">kernel</span><span class="o">.</span><span class="n">K</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">xs</span><span class="p">))</span>
+<span class="c1"># Note: By default the kernel is normalised such that the variances sum to 1 across nodes.</span>
+<span class="c1"># If you prefer marginal variances around 1 for each node, multiply by `num_vertices`.</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+K: tensor([[0.2000, 0.0803, 0.0803, 0.2000, 0.0803, 0.0803],
+        [0.0803, 0.2000, 0.2000, 0.0803, 0.2000, 0.0803],
+        [0.0803, 0.2000, 0.2000, 0.0803, 0.2000, 0.0803],
+        [0.2000, 0.0803, 0.0803, 0.2000, 0.0803, 0.0803],
+        [0.0803, 0.2000, 0.2000, 0.0803, 0.2000, 0.0803],
+        [0.0803, 0.0803, 0.0803, 0.0803, 0.0803, 0.2000]])
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Kernels">
+<h2>Kernels<a class="headerlink" href="#Kernels" title="Link to this heading">¶</a></h2>
+<p>The existing kernel classes cover most use cases; see the <a class="reference external" href="https://geometric-kernels.github.io/GeometricKernels/autoapi/geometric_kernels/kernels/index.html">kernel docs</a> before rolling your own.</p>
+<p>Two common scenarios for a custom kernel are:</p>
+<ol class="arabic simple">
+<li><p>You want a different PSD kernel that is still representable via the Laplacian’s spectrum (i.e. you only change the spectral filter from the Matérn/heat form).</p></li>
+<li><p>You want to reimplement the Matérn kernel for your space more efficiently by exploiting finer structure (e.g. you know a closed form expression for your space).</p></li>
+</ol>
+<section id="Custom-Kernel-for-Usecase-1">
+<h3>Custom Kernel for Usecase 1<a class="headerlink" href="#Custom-Kernel-for-Usecase-1" title="Link to this heading">¶</a></h3>
+<p>Below is an example of scenario (1). You can inherit from a default spectral kernel (e.g. <code class="docutils literal notranslate"><span class="pre">MaternKarhunenLoeveKernel</span></code> for graphs) and override the <code class="docutils literal notranslate"><span class="pre">_spectrum</span></code> method, which maps eigenvalues to the Mercer coefficients of the kernel. Here we define an <em>inverse cosine kernel</em> on graphs (<code class="docutils literal notranslate"><span class="pre">Graph</span></code> space).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">geometric_kernels.kernels</span><span class="w"> </span><span class="kn">import</span> <span class="n">MaternKarhunenLoeveKernel</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geometric_kernels.spaces</span><span class="w"> </span><span class="kn">import</span> <span class="n">Graph</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">InverseCosineKernel</span><span class="p">(</span><span class="n">MaternKarhunenLoeveKernel</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">space</span><span class="p">:</span> <span class="n">Graph</span><span class="p">,</span> <span class="n">num_levels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">normalize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="c1"># For graphs, the Karhunen–Loève-based implementation uses num_levels equal to</span>
+        <span class="c1"># the number of vertices by default; pass a smaller number to truncate.</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">space</span><span class="p">,</span> <span class="n">num_levels</span><span class="p">,</span> <span class="n">normalize</span><span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">spectrum</span><span class="p">(</span>
+        <span class="n">s</span><span class="p">:</span> <span class="n">B</span><span class="o">.</span><span class="n">Numeric</span><span class="p">,</span> <span class="n">nu</span><span class="p">:</span> <span class="n">B</span><span class="o">.</span><span class="n">Numeric</span><span class="p">,</span> <span class="n">lengthscale</span><span class="p">:</span> <span class="n">B</span><span class="o">.</span><span class="n">Numeric</span><span class="p">,</span> <span class="n">dimension</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">B</span><span class="o">.</span><span class="n">Numeric</span><span class="p">:</span>
+        <span class="c1"># Map eigenvalues s to Mercer coefficients. Ensure this stays non-negative for PSD.</span>
+        <span class="c1"># **This is only so for the normalized graph Laplacian**.</span>
+        <span class="c1"># Note: we simply ignore `nu`, `lengthscale` and `dimension` here.</span>
+        <span class="k">return</span> <span class="n">B</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">B</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">B</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">lengthscale</span><span class="p">),</span> <span class="n">s</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="Using-the-new-Kernel">
+<h4>Using the new Kernel<a class="headerlink" href="#Using-the-new-Kernel" title="Link to this heading">¶</a></h4>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">inv_cos_kernel</span> <span class="o">=</span> <span class="n">InverseCosineKernel</span><span class="p">(</span><span class="n">mygraph</span><span class="p">,</span> <span class="n">num_levels</span><span class="o">=</span><span class="n">mygraph</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;K:&quot;</span><span class="p">,</span> <span class="n">inv_cos_kernel</span><span class="o">.</span><span class="n">K</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">xs</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+K: tensor([[0.2000, 0.0276, 0.0276, 0.2000, 0.0276, 0.0276],
+        [0.0276, 0.2000, 0.2000, 0.0276, 0.2000, 0.0276],
+        [0.0276, 0.2000, 0.2000, 0.0276, 0.2000, 0.0276],
+        [0.2000, 0.0276, 0.0276, 0.2000, 0.0276, 0.0276],
+        [0.0276, 0.2000, 0.2000, 0.0276, 0.2000, 0.0276],
+        [0.0276, 0.0276, 0.0276, 0.0276, 0.0276, 0.2000]])
+</pre></div></div>
+</div>
+</section>
+</section>
+<section id="Custom-Kernel-for-Usecase-2">
+<h3>Custom Kernel for Usecase 2<a class="headerlink" href="#Custom-Kernel-for-Usecase-2" title="Link to this heading">¶</a></h3>
+<p>For scenario (2), you can inherit from <code class="docutils literal notranslate"><span class="pre">BaseGeometricKernel</span></code> or from a default kernel (e.g. <code class="docutils literal notranslate"><span class="pre">MaternKarhunenLoeveKernel</span></code>) and implement <code class="docutils literal notranslate"><span class="pre">K</span></code> and <code class="docutils literal notranslate"><span class="pre">K_diag</span></code> directly for efficiency.</p>
+<p>Below we show how one could, for example, leverage the closed for expression for the heat kernel (Matérn with <span class="math notranslate nohighlight">\(\nu=\infty\)</span>) known for the complete graph.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">beartype.typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MaternKernelCompleteGraph</span><span class="p">(</span><span class="n">MaternKarhunenLoeveKernel</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">space</span><span class="p">:</span> <span class="n">CompleteGraph</span><span class="p">,</span>
+        <span class="n">num_levels</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">normalize</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="c1"># Call the parent initialiser; override K/K_diag behaviour here if needed.</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">space</span><span class="p">,</span> <span class="n">num_levels</span><span class="p">,</span> <span class="n">normalize</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">K</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">B</span><span class="o">.</span><span class="n">NPNumeric</span><span class="p">]],</span>
+        <span class="n">X</span><span class="p">:</span> <span class="n">B</span><span class="o">.</span><span class="n">Numeric</span><span class="p">,</span>
+        <span class="n">X2</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">B</span><span class="o">.</span><span class="n">Numeric</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">B</span><span class="o">.</span><span class="n">Numeric</span><span class="p">:</span>
+        <span class="c1"># Use the exact heat kernel for nu = inf; otherwise defer to the parent. Assumes a normalized Laplacian.</span>
+        <span class="c1">#</span>
+        <span class="c1"># Derivation outline for the exact heat kernel (Matérn with nu=inf) on the complete graph.</span>
+        <span class="c1"># The form is standard (see, e.g., Kondor and Lafferty, 2002), with adjustments for</span>
+        <span class="c1"># GeometricKernels’ parameterization:</span>
+        <span class="c1">#</span>
+        <span class="c1"># Normalized Laplacian for K_n: L = I - D^{-1/2} A D^{-1/2} = (n/(n-1)) I - (1/(n-1)) J, where J is the all-ones matrix.</span>
+        <span class="c1"># Spectrum: 0 (mult. 1, eigenvector (1, 1, ...)) and α := n/(n-1) (mult. n-1).</span>
+        <span class="c1"># Heat kernel with length scale κ is exp(- (κ^2 / 2) L).</span>
+        <span class="c1"># Let t := κ^2 / 2. Then exp(-t L) = J + e^{-α t} (nI - J).</span>
+        <span class="c1"># Hence entries: k(x, x) = 1 + (n - 1) e^{-α t},  k(x, x&#39;) = 1 - e^{-α t} for x != x&#39;.</span>
+        <span class="n">nu</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;nu&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">nu</span> <span class="o">&lt;</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">:</span>  <span class="c1"># Note: this may cause problems with JAX autodiff (see how `MaternKarhunenLoeveKernel` handles conditions)</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">K</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">X2</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">X2</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">X2</span> <span class="o">=</span> <span class="n">X</span>
+
+        <span class="n">kappa</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">&quot;lengthscale&quot;</span><span class="p">]</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">kappa</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">num_vertices</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">n</span><span class="o">/</span><span class="p">(</span><span class="n">n</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">k_same</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">+</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">*</span><span class="n">B</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">alpha</span><span class="o">*</span><span class="n">t</span><span class="p">)</span>
+        <span class="n">k_diff</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">B</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">alpha</span><span class="o">*</span><span class="n">t</span><span class="p">)</span>
+        <span class="n">eq</span> <span class="o">=</span> <span class="n">B</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">B</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="n">kappa</span><span class="p">),</span> <span class="n">B</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">X2</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]))</span>  <span class="c1"># indicator [x == x&#39;]</span>
+
+        <span class="n">K</span> <span class="o">=</span> <span class="n">eq</span><span class="o">*</span><span class="n">k_same</span> <span class="o">+</span> <span class="p">(</span><span class="mi">1</span><span class="o">-</span><span class="n">eq</span><span class="p">)</span><span class="o">*</span><span class="n">k_diff</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">normalize</span><span class="p">:</span>
+            <span class="c1"># Scale so that trace(K) == 1 (sum of marginal variances is 1).</span>
+            <span class="n">K</span> <span class="o">=</span> <span class="n">K</span> <span class="o">/</span> <span class="n">k_same</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">n</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">K</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">K_diag</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">params</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">B</span><span class="o">.</span><span class="n">NPNumeric</span><span class="p">]],</span>
+        <span class="n">X</span><span class="p">:</span> <span class="n">B</span><span class="o">.</span><span class="n">Numeric</span><span class="p">,</span>
+        <span class="n">X2</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">B</span><span class="o">.</span><span class="n">Numeric</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">B</span><span class="o">.</span><span class="n">Numeric</span><span class="p">:</span>
+        <span class="c1"># Normally, you would implement this separately to reduce complexity.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">K</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">X2</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="Checking-the-new-Kernel">
+<h4>Checking the new Kernel<a class="headerlink" href="#Checking-the-new-Kernel" title="Link to this heading">¶</a></h4>
+<p>First, <span class="math notranslate nohighlight">\(\nu &lt; \infty\)</span>, effectively using the default kernel.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">alt_kernel</span> <span class="o">=</span> <span class="n">MaternKernelCompleteGraph</span><span class="p">(</span><span class="n">mygraph</span><span class="p">,</span> <span class="n">mygraph</span><span class="o">.</span><span class="n">num_vertices</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;K_alt:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">alt_kernel</span><span class="o">.</span><span class="n">K</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">xs</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;K_orig:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">kernel</span><span class="o">.</span><span class="n">K</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">xs</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+K_alt:
+ tensor([[0.2000, 0.0803, 0.0803, 0.2000, 0.0803, 0.0803],
+        [0.0803, 0.2000, 0.2000, 0.0803, 0.2000, 0.0803],
+        [0.0803, 0.2000, 0.2000, 0.0803, 0.2000, 0.0803],
+        [0.2000, 0.0803, 0.0803, 0.2000, 0.0803, 0.0803],
+        [0.0803, 0.2000, 0.2000, 0.0803, 0.2000, 0.0803],
+        [0.0803, 0.0803, 0.0803, 0.0803, 0.0803, 0.2000]])
+K_orig:
+ tensor([[0.2000, 0.0803, 0.0803, 0.2000, 0.0803, 0.0803],
+        [0.0803, 0.2000, 0.2000, 0.0803, 0.2000, 0.0803],
+        [0.0803, 0.2000, 0.2000, 0.0803, 0.2000, 0.0803],
+        [0.2000, 0.0803, 0.0803, 0.2000, 0.0803, 0.0803],
+        [0.0803, 0.2000, 0.2000, 0.0803, 0.2000, 0.0803],
+        [0.0803, 0.0803, 0.0803, 0.0803, 0.0803, 0.2000]])
+</pre></div></div>
+</div>
+<p>Next, <span class="math notranslate nohighlight">\(\nu = \infty\)</span>, using the new code.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">alt_params</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">alt_params</span><span class="p">[</span><span class="s2">&quot;nu&quot;</span><span class="p">]</span> <span class="o">=</span>  <span class="n">torch</span><span class="o">.</span><span class="n">tensor</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">])</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;K_alt:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">alt_kernel</span><span class="o">.</span><span class="n">K</span><span class="p">(</span><span class="n">alt_params</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">xs</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;K_orig:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">kernel</span><span class="o">.</span><span class="n">K</span><span class="p">(</span><span class="n">alt_params</span><span class="p">,</span> <span class="n">xs</span><span class="p">,</span> <span class="n">xs</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+K_alt:
+ tensor([[0.2000, 0.1382, 0.1382, 0.2000, 0.1382, 0.1382],
+        [0.1382, 0.2000, 0.2000, 0.1382, 0.2000, 0.1382],
+        [0.1382, 0.2000, 0.2000, 0.1382, 0.2000, 0.1382],
+        [0.2000, 0.1382, 0.1382, 0.2000, 0.1382, 0.1382],
+        [0.1382, 0.2000, 0.2000, 0.1382, 0.2000, 0.1382],
+        [0.1382, 0.1382, 0.1382, 0.1382, 0.1382, 0.2000]])
+K_orig:
+ tensor([[0.2000, 0.1382, 0.1382, 0.2000, 0.1382, 0.1382],
+        [0.1382, 0.2000, 0.2000, 0.1382, 0.2000, 0.1382],
+        [0.1382, 0.2000, 0.2000, 0.1382, 0.2000, 0.1382],
+        [0.2000, 0.1382, 0.1382, 0.2000, 0.1382, 0.1382],
+        [0.1382, 0.2000, 0.2000, 0.1382, 0.2000, 0.1382],
+        [0.1382, 0.1382, 0.1382, 0.1382, 0.1382, 0.2000]])
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="Graph.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Matérn and Heat Kernels on Graphs</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="examples.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Spaces</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2022-2024, the GeometricKernels Contributors
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Custom Spaces/Kernels</a><ul>
+<li><a class="reference internal" href="#Spaces">Spaces</a><ul>
+<li><a class="reference internal" href="#Imports-and-writing-backend‑agnostic-code">Imports and writing backend‑agnostic code</a></li>
+<li><a class="reference internal" href="#Defining-the-new-Space-Class">Defining the new Space Class</a></li>
+<li><a class="reference internal" href="#Using-the-new-Space">Using the new Space</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Kernels">Kernels</a><ul>
+<li><a class="reference internal" href="#Custom-Kernel-for-Usecase-1">Custom Kernel for Usecase 1</a><ul>
+<li><a class="reference internal" href="#Using-the-new-Kernel">Using the new Kernel</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#Custom-Kernel-for-Usecase-2">Custom Kernel for Usecase 2</a><ul>
+<li><a class="reference internal" href="#Checking-the-new-Kernel">Checking the new Kernel</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=46bd48cc"></script>
+    <script>window.MathJax = {"tex": {"inlineMath": [["\\(", "\\)"]], "processEscapes": true, "displayMath": [["\\[", "\\]"]]}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/scripts/bootstrap.min.js?v=ff982861"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    </body>
+</html>
