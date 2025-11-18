@@ -196,7 +196,6 @@ class Stiefel(CompactHomogeneousSpace):
 
         p = B.matmul(x, B.transpose(x, [0, 2, 1]))  # Shape: (b, n, n)
         r = self.matrix_complement[None, :, :]  # Shape: (1, n, n - m)
-
         r_orth = r - B.matmul(p, r)  # (b, n, n - m)
 
         q, _ = qr(r_orth)  # (b, n, n - m)
@@ -226,8 +225,11 @@ class Stiefel(CompactHomogeneousSpace):
         )  # [m, n - m]
         zeros_t = B.transpose(zeros)  # [n - m, m]
         eye = B.tile(
-            B.eye(B.dtype(h), self.m, self.m).reshape(
-                *([1] * (len(h.shape) - 2)), self.m, self.m
+            B.reshape(
+                B.eye(B.dtype(h), self.m, self.m),
+                *h.shape[:-2],
+                1,
+                1,
             ),
             *h.shape[:-2],
             1,
