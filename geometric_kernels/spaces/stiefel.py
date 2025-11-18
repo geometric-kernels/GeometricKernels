@@ -203,7 +203,10 @@ class Stiefel(CompactHomogeneousSpace):
 
         g = B.concat(x, q, axis=2)  # (b, n, n)
         det = B.sign(B.det(g))
-        g[:, :, -1] *= det[:, None]
+
+        g_correction = g[:, :, -1] * det[:, None]
+        g = B.concat(g[:, :, :-1], g_correction[:, :, None], axis=2)
+
         return g
 
     def embed_stabilizer(self, h):

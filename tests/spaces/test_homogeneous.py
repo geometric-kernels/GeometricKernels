@@ -6,7 +6,7 @@ from geometric_kernels.kernels.karhunen_loeve import MaternKarhunenLoeveKernel
 from geometric_kernels.kernels.matern_kernel import MaternGeometricKernel
 from geometric_kernels.spaces.stiefel import Stiefel
 
-from ..helper import check_function_with_backend, create_random_state
+from ..helper import check_function_with_backend, create_random_state, np_to_backend
 
 
 def _choose_lengthscale_ratio_two(
@@ -36,14 +36,14 @@ def _choose_lengthscale_ratio_two(
     if np.isinf(nu):
         denom = s1 - s0
         l2 = 2.0 * np.log(2.0) / denom
-        return float(np.sqrt(l2))
+        return np.sqrt(np.array([l2])), np.array([nu])
     else:
         p = nu + d / 2.0
         two_pow = 2.0 ** (1.0 / p)
         denom = two_pow - 1.0
         a = (s1 - two_pow * s0) / denom
         l2 = 2.0 * nu / a
-        return float(np.sqrt(l2))
+        return np.sqrt(np.array([l2])), np.array([nu])
 
 
 @pytest.fixture(params=[(4, 2), (5, 2), (6, 3)], ids=lambda p: f"V({p[1]},{p[0]})")
@@ -69,11 +69,15 @@ def test_stiefel_kernel(stiefel_space, backend):
     G = space.G
     kernel_G = MaternKarhunenLoeveKernel(G, num_levels, normalize=True)
     params_G = kernel_G.init_params()
-    tuned_ls = _choose_lengthscale_ratio_two(kernel_G, params_G)
-    params_rff["lengthscale"] = np.array([tuned_ls])
-    params_G["lengthscale"] = np.array([tuned_ls])
+    tuned_params = _choose_lengthscale_ratio_two(kernel_G, params_G)
+    tuned_ls = np_to_backend(tuned_params[0], backend)
+    tuned_nu = np_to_backend(tuned_params[1], backend)
 
-    print(params_G, params_rff)
+    params_rff["lengthscale"] = tuned_ls
+    params_G["lengthscale"] = tuned_ls
+    params_rff["nu"] = tuned_nu
+    params_G["nu"] = tuned_nu
+
     # Stabilizer elements embedded into G
     h_emb = space.embed_stabilizer(space.samples_H)
     H = h_emb.shape[0]
