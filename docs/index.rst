@@ -32,11 +32,13 @@ Before doing anything, you might want to create and activate a new virtual envir
 ..  code-block:: bash
 
    uv venv --python python[version] [venv_dir]
+
 where [env_dir] is the directory (default is `.venv`) of the environment and [version] is the version of Python you want to use, we currently support 3.9, 3.10, 3.11, 3.12.
 
 [Optional] activate the environment. However, this is not strictly necessary for `uv`. Instead, use tools like `uv run python` to run Python inside the environment. See `uv documentation <https://docs.astral.sh/uv/>` for more details.
 
 ..  code-block:: bash
+
    source [venv_dir]/bin/activate
 
 .. raw:: html

@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 
 from geometric_kernels.utils.special_functions import (
-    kravchuk_normalized,
+    generalized_kravchuk_normalized,
     walsh_function,
 )
 from geometric_kernels.utils.utils import binary_vectors_and_subsets, hamming_distance
@@ -70,7 +70,9 @@ def test_kravchuk_polynomials(all_xs_and_combs, backend):
         )
 
         def krav(x0, X):
-            return comb(d, j) * kravchuk_normalized(d, j, hamming_distance(x0, X))
+            return comb(d, j) * generalized_kravchuk_normalized(
+                d, j, hamming_distance(x0, X), 2
+            )
 
         # Checks that Kravchuk polynomials coincide with certain sums of
         # the Walsh functions.
@@ -94,10 +96,14 @@ def test_kravchuk_precomputed(all_xs_and_combs, backend):
     kravchuk_normalized_j_minus_1, kravchuk_normalized_j_minus_2 = None, None
     for j in range(d + 1):
 
-        cur_kravchuk_normalized = kravchuk_normalized(d, j, hamming_distance(x0, X))
+        cur_kravchuk_normalized = generalized_kravchuk_normalized(
+            d, j, hamming_distance(x0, X), 2
+        )
 
         def krav(x0, X, kn1, kn2):
-            return kravchuk_normalized(d, j, hamming_distance(x0, X), kn1, kn2)
+            return generalized_kravchuk_normalized(
+                d, j, hamming_distance(x0, X), 2, kn1, kn2
+            )
 
         # Checks that Kravchuk polynomials coincide with certain sums of
         # the Walsh functions.
