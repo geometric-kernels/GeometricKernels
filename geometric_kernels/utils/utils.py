@@ -19,7 +19,6 @@ from geometric_kernels.lab_extras import (
     get_random_state,
     restore_random_state,
 )
-from geometric_kernels.lab_extras.extras import int_like
 
 
 def chain(elements: B.Numeric, repetitions: List[int]) -> B.Numeric:
