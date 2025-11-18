@@ -109,7 +109,7 @@ class RandomPhaseFeatureMapCompact(FeatureMap):
 
         weights = B.power(spectrum, 0.5)  # [L, 1]
 
-        random_phases_b = B.cast(dtype, from_numpy(X, random_phases))
+        random_phases_b = B.cast(B.dtype(X), from_numpy(X, random_phases))
 
         phi_product = self.eigenfunctions.phi_product(
             X, random_phases_b, **params
