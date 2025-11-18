@@ -60,6 +60,8 @@ def stiefel_space(request):
 )  # Limit to numpy to avoid optional deps
 def test_stiefel_kernel(stiefel_space, backend):
     key, space = stiefel_space
+    space.samples_H = np_to_backend(space.samples_H, backend)
+    space.matrix_complement = np_to_backend(space.matrix_complement, backend)
 
     # Number of levels for RFF kernel (created via MaternGeometricKernel for homogeneous spaces)
     num_levels = 2
