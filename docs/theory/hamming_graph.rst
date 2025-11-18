@@ -40,7 +40,7 @@ $$
 $$
 where $\omega_q = e^{2\pi i/q}$ is a primitive $q$-th root of unity and $x = (x_0, \ldots, x_{d-1}) \in H(d,q)$.
 
-The eigenfunctions with the same number of non-zero frequency components $j = \lvert\{i : s_i \neq 0\}\rvert$ share the same eigenvalue $\lambda_j = (q-1)j / d$ and form a *level* $j$. The dimension of level $j$ is $\binom{d}{j}(q-1)^j$.
+The eigenfunctions with the same number of non-zero frequency components $j = \lvert\{i : s_i \neq 0\}\rvert$ share the same eigenvalue $\lambda_j = \frac{q j}{(q-1)d}$ and form a *level* $j$. The dimension of level $j$ is $\binom{d}{j}(q-1)^j$.
 
 However, the problem is that the number of eigenfunctions is $q^d$.
 Hence naive truncation of the sum in the kernel formula to a few hundred terms leads to a poor approximation of the kernel for larger $d$ or $q$.
