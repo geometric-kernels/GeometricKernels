@@ -227,9 +227,9 @@ class Stiefel(CompactHomogeneousSpace):
         eye = B.tile(
             B.reshape(
                 B.eye(B.dtype(h), self.m, self.m),
-                *h.shape[:-2],
-                1,
-                1,
+                *([1] * (len(h.shape) - 2)),
+                self.m,
+                self.m,
             ),
             *h.shape[:-2],
             1,
