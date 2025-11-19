@@ -51,7 +51,7 @@ def stiefel_space(request):
     n, m = request.param
     key = np.random.RandomState(0)
     # Increase stabilizer samples to reduce Monte Carlo variance in averaging
-    key, space = Stiefel(n, m, key, average_order=100)
+    key, space = Stiefel(n, m, key, average_order=500)
     return key, space
 
 
@@ -104,9 +104,6 @@ def test_stiefel_kernel(stiefel_space, backend):
         K_avg = K_avg / mean_diag
 
         K_rff = kernel_rff.K(params_rff, X, X)
-        print("K_rff:", K_rff)
-        print("K_avg:", K_avg)
-        print("Difference:", K_rff - K_avg)
         return B.sum(B.abs(K_rff - K_avg), squeeze=False) / (
             nX * (nX - 1)
         )  # mean exclude diagonal
