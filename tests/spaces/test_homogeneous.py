@@ -104,7 +104,7 @@ def test_stiefel_kernel(stiefel_space, backend):
         K_avg = K_avg / mean_diag
 
         K_rff = kernel_rff.K(params_rff, X, X)
-        return B.sum(B.abs(K_rff - K_avg), squeeze=False) / (
+        return B.reshape(B.sum(B.abs(K_rff - K_avg), squeeze=False), 1, 1) / (
             nX * (nX - 1)
         )  # mean exclude diagonal
 
