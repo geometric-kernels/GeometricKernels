@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.4.1 - 15.12.2025
+* HammingGraph space by @colmont in https://github.com/geometric-kernels/GeometricKernels/pull/170
+* Added a link to a pull request example in README by @vabor112 in https://github.com/geometric-kernels/GeometricKernels/pull/171
+
 ## v0.4 - 11.11.2025
 * Add support for Python 3.12
 * Support for Python 3.8 discontinued
