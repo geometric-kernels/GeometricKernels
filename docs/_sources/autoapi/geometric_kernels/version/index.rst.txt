@@ -1,0 +1,11 @@
+geometric_kernels.version
+=========================
+
+.. py:module:: geometric_kernels.version
+
+.. autoapi-nested-parse::
+
+   Adds `__version__`.
+
+
+

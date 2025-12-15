@@ -1,0 +1,27 @@
+geometric_kernels.frontends
+===========================
+
+.. py:module:: geometric_kernels.frontends
+
+.. autoapi-nested-parse::
+
+   Wrappers for geometric kernels for the following Gaussian processes packages
+   (frontends):
+
+   * `GPflow (TensorFlow) <https://www.gpflow.org/>`_
+   * `GPyTorch (PyTorch) <https://gpytorch.ai/>`_
+   * `GPJax (Jax) <https://jaxgaussianprocesses.com/>`_
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/geometric_kernels/frontends/gpflow/index
+   /autoapi/geometric_kernels/frontends/gpjax/index
+   /autoapi/geometric_kernels/frontends/gpytorch/index
+
+

@@ -1,0 +1,212 @@
+geometric_kernels.spaces.mesh
+=============================
+
+.. py:module:: geometric_kernels.spaces.mesh
+
+.. autoapi-nested-parse::
+
+   This module provides the :class:`Mesh` space.
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:class:: Mesh(vertices, faces)
+
+   Bases: :py:obj:`geometric_kernels.spaces.base.DiscreteSpectrumSpace`
+
+
+   The GeometricKernels space representing the node set of any
+   user-provided mesh.
+
+   The elements of this space are represented by node indices, integer values
+   from 0 to Nv-1, where Nv is the number of nodes in the user-provided mesh.
+
+   Each individual eigenfunction constitutes a *level*.
+
+   .. note::
+       We only support the commonly used 2-dimensional meshes (discrete
+       counterparts of surfaces, 2-dimensional manifolds in a 3-dimensional
+       ambient space).
+
+   .. note::
+       A tutorial on how to use this space is available in the
+       :doc:`Mesh.ipynb </examples/Mesh>` notebook.
+
+   .. note::
+       We use `potpourri3d <https://github.com/nmwsharp/potpourri3d>`_ to
+       load meshes and mimic the interface of
+       `PyMesh <https://github.com/PyMesh/PyMesh>`_.
+
+   :param vertices:
+       A [Nv, 3] array of vertex coordinates, Nv is the number of vertices.
+   :param faces:
+       A [Nf, 3] array of vertex indices that represents a
+       generalized array of faces, where Nf is the number of faces.
+
+       .. Note:
+           Only 3 vertex indices per face are supported, i.e. mesh must be
+           triangulated.
+
+   .. admonition:: Citation
+
+       If you use this GeometricKernels space in your research, please consider
+       citing :cite:t:`borovitskiy2020`.
+
+
+   .. py:method:: get_eigenfunctions(num)
+
+      Returns the :class:`~.EigenfunctionsFromEigenvectors` object with
+      `num` levels (i.e., in this case, `num` eigenpairs).
+
+      :param num:
+          Number of levels.
+
+
+
+   .. py:method:: get_eigensystem(num)
+
+      Returns the first `num` eigenvalues and eigenvectors of the `robust
+      Laplacian <https://github.com/nmwsharp/nonmanifold-laplacian>`_.
+      Caches the solution to prevent re-computing the same values.
+
+      .. note::
+          If the `adjacency_matrix` was a sparse SciPy array, requesting
+          **all** eigenpairs will lead to a conversion of the sparse matrix
+          to a dense one due to scipy.sparse.linalg.eigsh limitations.
+
+      .. warning::
+          Always uses SciPy (thus CPU) for internal computations. We will
+          need to fix this in the future.
+
+      .. todo::
+          See warning above.
+
+      :param num:
+          Number of eigenpairs to return. Performs the computation at the
+          first call. Afterwards, fetches the result from cache.
+
+      :return:
+          A tuple of eigenvectors [nv, num], eigenvalues [num, 1].
+
+
+
+   .. py:method:: get_eigenvalues(num)
+
+      :param num:
+          Number of eigenvalues to return.
+
+      :return:
+          Array of eigenvalues, with shape [num, 1].
+
+
+
+   .. py:method:: get_eigenvectors(num)
+
+      :param num:
+          Number of eigenvectors to return.
+
+      :return:
+          Array of eigenvectors, with shape [Nv, num].
+
+
+
+   .. py:method:: get_repeated_eigenvalues(num)
+
+      Same as :meth:`get_eigenvalues`.
+
+      :param num:
+          Same as :meth:`get_eigenvalues`.
+
+
+
+   .. py:method:: load_mesh(filename)
+      :classmethod:
+
+
+      Construct :class:`Mesh` by loading a mesh from the file at `filename`.
+
+      :param filename:
+          Path to read the file from. Supported formats: `obj`,
+          `ply`, `off`, and `stl`. Format inferred automatically from the
+          file extension.
+
+      :return:
+          And object of class :class:`Mesh` representing the loaded mesh.
+
+
+
+   .. py:method:: random(key, number)
+
+      Sample uniformly random points in the space.
+
+      :param key:
+          Either `np.random.RandomState`, `tf.random.Generator`,
+          `torch.Generator` or `jax.tensor` (representing random state).
+      :param number:
+          Number of samples to draw.
+
+      :return:
+          An array of `number` uniformly random samples on the space.
+
+
+
+   .. py:property:: dimension
+      :type: int
+
+
+      :return:
+          2.
+
+
+
+   .. py:property:: element_dtype
+
+      :return:
+          B.Int.
+
+
+
+   .. py:property:: element_shape
+
+      :return:
+          [1].
+
+
+
+   .. py:property:: faces
+      :type: numpy.ndarray
+
+
+      A [Nf, 3] array of vertex indices that represents a generalized array of
+      faces, where Nf is the number of faces.
+
+
+
+   .. py:property:: num_faces
+      :type: int
+
+
+      Number of faces in the mesh, Nf.
+
+
+
+   .. py:property:: num_vertices
+      :type: int
+
+
+      Number of vertices in the mesh, Nv.
+
+
+
+   .. py:property:: vertices
+      :type: numpy.ndarray
+
+
+      A [Nv, 3] array of vertex coordinates, Nv is the number of vertices.
+
+
+

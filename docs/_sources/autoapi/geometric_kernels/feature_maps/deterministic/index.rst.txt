@@ -1,0 +1,105 @@
+geometric_kernels.feature_maps.deterministic
+============================================
+
+.. py:module:: geometric_kernels.feature_maps.deterministic
+
+.. autoapi-nested-parse::
+
+   This module provides the :class:`DeterministicFeatureMapCompact`, a
+   Karhunen-Loève expansion-based feature map for those
+   :class:`~.spaces.DiscreteSpectrumSpace`\ s, for which the eigenpairs
+   are explicitly known.
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:class:: DeterministicFeatureMapCompact(space, num_levels, repeated_eigenvalues_laplacian = None, eigenfunctions = None)
+
+   Bases: :py:obj:`geometric_kernels.feature_maps.base.FeatureMap`
+
+
+   Deterministic feature map for :class:`~.spaces.DiscreteSpectrumSpace`\ s
+   for which the actual eigenpairs are explicitly available.
+
+   :param space:
+       A :class:`~.spaces.DiscreteSpectrumSpace` space.
+   :param num_levels:
+       Number of levels in the kernel approximation.
+   :param repeated_eigenvalues_laplacian:
+       Allowing to pass the repeated eigenvalues of the Laplacian directly,
+       instead of computing them from the space. If provided, `eigenfunctions`
+       must also be provided. Used for :class:`~.spaces.HodgeDiscreteSpectrumSpace`.
+   :param eigenfunctions:
+       Allowing to pass the eigenfunctions directly, instead of computing them
+       from the space. If provided, `repeated_eigenvalues_laplacian` must also
+       be provided. Used for :class:`~.spaces.HodgeDiscreteSpectrumSpace`.
+
+
+   .. py:method:: __call__(X, params, normalize = True, **kwargs)
+
+      :param X:
+          [N, ...] points in the space to evaluate the map on.
+
+      :param params:
+          Parameters of the kernel (length scale and smoothness).
+
+      :param normalize:
+          Normalize to have unit average variance. If omitted, set to True.
+
+      :param ``**kwargs``:
+          Unused.
+
+      :return:
+          `Tuple(None, features)` where `features` is an [N, O] array, N
+          is the number of inputs and O is the dimension of the feature map.
+
+      .. note::
+         The first element of the returned tuple is the simple None and
+         should be ignored. It is only there to support the abstract
+         interface: for some other subclasses of :class:`FeatureMap`, this
+         first element may be an updated random key.
+
+
+
+.. py:class:: HodgeDeterministicFeatureMapCompact(space, num_levels)
+
+   Bases: :py:obj:`geometric_kernels.feature_maps.base.FeatureMap`
+
+
+   Deterministic feature map for :class:`~.spaces.HodgeDiscreteSpectrumSpace`\ s
+   for which the actual eigenpairs are explicitly available.
+
+   Corresponds to :class:`~.kernels.MaternHodgeCompositionalKernel` and takes
+   parameters in the same format.
+
+
+   .. py:method:: __call__(X, params, normalize = True, **kwargs)
+
+      :param X:
+          [N, ...] points in the space to evaluate the map on.
+
+      :param params:
+          Parameters of the kernel (length scale and smoothness).
+
+      :param normalize:
+          Normalize to have unit average variance. If omitted, set to True.
+
+      :param ``**kwargs``:
+          Unused.
+
+      :return:
+          `Tuple(None, features)` where `features` is an [N, O] array, N
+          is the number of inputs and O is the dimension of the feature map.
+
+      .. note::
+         The first element of the returned tuple is the simple None and
+         should be ignored. It is only there to support the abstract
+         interface: for some other subclasses of :class:`FeatureMap`, this
+         first element may be an updated random key.
+
+
+

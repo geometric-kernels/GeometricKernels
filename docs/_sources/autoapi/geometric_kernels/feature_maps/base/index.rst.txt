@@ -1,0 +1,33 @@
+geometric_kernels.feature_maps.base
+===================================
+
+.. py:module:: geometric_kernels.feature_maps.base
+
+.. autoapi-nested-parse::
+
+   This module provides the abstract base class :class:`FeatureMap` that all
+   feature maps inherit from. It can be used for type hinting.
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:class:: FeatureMap
+
+   Bases: :py:obj:`abc.ABC`
+
+
+   Abstract base class for all feature maps.
+
+
+   .. py:method:: __call__(*args, **kwargs)
+      :abstractmethod:
+
+
+      `FeatureMap`\ s are callable.
+
+
+

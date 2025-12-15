@@ -1,0 +1,180 @@
+geometric_kernels.spaces.lie_groups
+===================================
+
+.. py:module:: geometric_kernels.spaces.lie_groups
+
+.. autoapi-nested-parse::
+
+   Abstract base interface for compact matrix Lie groups and its abstract
+   friends, a subclass of :class:`~.eigenfunctions.Eigenfunctions` and an
+   abstract base class for Lie group characters.
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:class:: CompactMatrixLieGroup
+
+   Bases: :py:obj:`geometric_kernels.spaces.base.DiscreteSpectrumSpace`
+
+
+   A base class for compact Lie groups of matrices, subgroups of the
+   real or complex general linear group GL(n), n being some integer.
+
+   The group operation is the standard matrix multiplication, and the group
+   inverse is the standard matrix inverse. Despite this, we make the
+   subclasses implement their own inverse routine, because in special cases
+   it can typically be implemented much more efficiently. For example, for
+   the special orthogonal group :class:`~.spaces.SpecialOrthogonal`, the
+   inverse is equivalent to a simple transposition.
+
+
+   .. py:method:: inverse(X)
+      :staticmethod:
+
+      :abstractmethod:
+
+
+      Inverse of a batch `X` of the elements of the group. A static method.
+
+      :param X:
+          A batch [..., n, n] of elements of the group.
+          Each element is a n x n matrix.
+
+      :return:
+          A batch [..., n, n] with each n x n matrix inverted.
+
+
+
+.. py:class:: LieGroupCharacter
+
+   Bases: :py:obj:`abc.ABC`
+
+
+   Class that represents a character of a Lie group.
+
+
+   .. py:method:: __call__(gammas)
+      :abstractmethod:
+
+
+      Compute the character on `gammas` lying in a maximal torus.
+
+      :param gammas:
+          [..., rank] where `rank` is the dimension of a maximal torus.
+
+      :return:
+          An array of shape [...] representing the values of the characters.
+          The values can be complex-valued.
+
+
+
+.. py:class:: WeylAdditionTheorem(n, num_levels, compute_characters = True)
+
+   Bases: :py:obj:`geometric_kernels.spaces.eigenfunctions.EigenfunctionsWithAdditionTheorem`
+
+
+   A class for computing the sums of outer products of certain combinations
+   (we call "levels") of Laplace-Beltrami eigenfunctions on compact Lie
+   groups. These are much like the *zonal spherical harmonics* of the
+   :class:`~.SphericalHarmonics` class. However, the key to computing them
+   is representation-theoretic: they are proportional to *characters* of
+   irreducible unitary representations of the group. These characters, in their
+   turn, can be algebraically computed using the *Weyl character formula*. See
+   :cite:t:`azangulov2024a` for the mathematical details behind this class.
+
+   :param n:
+       The order of the Lie group, e.g. for SO(5) this is 5, for SU(3) this is 3.
+   :param num_levels:
+       The number of levels used for kernel approximation. Here, each level
+       corresponds to an irreducible unitary representation of the group.
+   :param compute_characters:
+       Whether or not to actually compute the *characters*. Setting this parameter
+       to False might make sense if you do not care about eigenfunctions (or sums
+       of outer products thereof), but care about eigenvalues, dimensions of
+       irreducible unitary representations, etc.
+
+       Defaults to True.
+
+   .. note::
+       Unlike :class:`~.SphericalHarmonics`, we do not expect the
+       descendants of this class to compute the actual Laplace-Beltrami
+       eigenfunctions (which are similar to (non-zonal) *spherical harmonics*
+       of :class:`~.SphericalHarmonics`), implementing the `__call___` method.
+       In this case, this is not really necessary and computationally harder.
+
+   .. note::
+       Unlike in :class:`~.SphericalHarmonics`, here the levels do not
+       necessarily correspond to whole eigenspaces (all eigenfunctions that
+       correspond to the same eigenvalue). Here, levels are defined in terms of
+       the algebraic structure of the group: they are the eigenfunctions that
+       correspond to the same irreducible unitary representation of the group.
+
+   .. note::
+       Here we break the general convention that the subclasses of the
+       :class:`~.eigenfunctions.Eigenfunctions` only provide an interface for
+       working with eigenfunctions, not eigenvalues, offering an interface
+       for computing the latter as well.
+
+
+   .. py:method:: __call__(X, **kwargs)
+      :abstractmethod:
+
+
+      Evaluate the individual eigenfunctions at a batch of input locations.
+
+      :param X:
+          Points to evaluate the eigenfunctions at, an array of
+          shape [N, <axis>], where N is the number of points and <axis> is
+          the shape of the arrays that represent the points in a given space.
+      :param ``**kwargs``:
+          Any additional parameters.
+
+      :return:
+          An [N, J]-shaped array, where `J` is the number of eigenfunctions.
+
+
+
+   .. py:method:: inverse(X)
+      :abstractmethod:
+
+
+      Should call the group's static
+      :meth:`~.spaces.CompactMatrixLieGroup.inverse` method.
+
+      :param X:
+          As in :meth:`~.spaces.CompactMatrixLieGroup.inverse`.
+
+
+
+   .. py:property:: num_eigenfunctions
+      :type: int
+
+
+      The number J of eigenfunctions.
+
+
+
+   .. py:property:: num_eigenfunctions_per_level
+      :type: beartype.typing.List[int]
+
+
+      The number of eigenfunctions per level.
+
+      :return:
+          List of squares of dimensions of the unitary irreducible
+          representations.
+
+
+
+   .. py:property:: num_levels
+      :type: int
+
+
+      The number L of levels.
+
+
+
