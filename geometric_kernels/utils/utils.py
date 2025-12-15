@@ -17,7 +17,6 @@ from geometric_kernels import resources
 from geometric_kernels.lab_extras import (
     count_nonzero,
     get_random_state,
-    logical_xor,
     restore_random_state,
 )
 
@@ -298,7 +297,7 @@ def get_resource_file_path(filename: str):
             yield path
 
 
-def hamming_distance(x1: B.Bool, x2: B.Bool):
+def hamming_distance(x1: B.Int, x2: B.Int):
     """
     Hamming distance between two batches of boolean vectors.
 
@@ -311,7 +310,7 @@ def hamming_distance(x1: B.Bool, x2: B.Bool):
         An array of shape [N, M] whose entry n, m contains the Hamming distance
         between x1[n, :] and x2[m, :]. It is of the same backend as x1 and x2.
     """
-    return count_nonzero(logical_xor(x1[:, None, :], x2[None, :, :]), axis=-1)
+    return count_nonzero(x1[:, None, :] != x2[None, :, :], axis=-1)
 
 
 def log_binomial(n: B.Int, k: B.Int) -> B.Float:

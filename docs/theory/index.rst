@@ -14,3 +14,4 @@
    Product kernels <product_kernels>
    Feature maps and sampling <feature_maps>
    Hypercube graph space <hypercube_graph>
+   Hamming graph space <hamming_graph>
