@@ -418,11 +418,15 @@ If you are using GeometricKernels, please cite the `library paper <https://arxiv
 
 ..  code-block:: latex
 
-  @article{mostowsky2024,
-        title = {The GeometricKernels Package: Heat and Matérn Kernels for Geometric Learning on Manifolds, Meshes, and Graphs},
-        author = {Peter Mostowsky and Vincent Dutordoir and Iskander Azangulov and Noémie Jaquier and Michael John Hutchinson and Aditya Ravuri and Leonel Rozo and Alexander Terenin and Viacheslav Borovitskiy},
-        year = {2024},
-        journal = {arXiv:2407.08086},
+  @article{JMLR:v26:24-1185,
+      author  = {Peter Mostowsky and Vincent Dutordoir and Iskander Azangulov and No{\'e}mie Jaquier and Michael John Hutchinson and Aditya Ravuri and Leonel Rozo and Alexander Terenin and Viacheslav Borovitskiy},
+      title   = {The GeometricKernels Package: Heat and Mat{\'e}rn Kernels for Geometric Learning on Manifolds, Meshes, and Graphs},
+      journal = {Journal of Machine Learning Research},
+      year    = {2025},
+      volume  = {26},
+      number  = {276},
+      pages   = {1--14},
+      url     = {http://jmlr.org/papers/v26/24-1185.html}
   }
 
 Please also consider citing the theoretical papers the library is based on. You can find the relevant references for any space in
