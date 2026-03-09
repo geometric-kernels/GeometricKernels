@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.0.1 - 11.03.2026
+## v1.0.0 - 11.03.2026
 Stable release!
 
 The package is deemed stable which is corroborated by the fact the
