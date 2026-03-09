@@ -198,7 +198,7 @@ This [link](https://github.com/geometric-kernels/GeometricKernels/issues/new?ass
 
 ## Citation
 
-If you are using GeometricKernels, please cite the following [paper](https://arxiv.org/pdf/2407.08086):
+If you are using GeometricKernels, please cite the following [paper](https://jmlr.org/papers/volume26/24-1185/24-1185.pdf):
 ```
 @article{JMLR:v26:24-1185,
   author  = {Peter Mostowsky and Vincent Dutordoir and Iskander Azangulov and No{\'e}mie Jaquier and Michael John Hutchinson and Aditya Ravuri and Leonel Rozo and Alexander Terenin and Viacheslav Borovitskiy},
