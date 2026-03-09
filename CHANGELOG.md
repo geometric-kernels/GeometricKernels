@@ -4,8 +4,13 @@
 Stable release!
 
 The package is deemed stable which is corroborated by the fact the
-package  paper was [published](https://jmlr.org/papers/v26/24-1185.html) in JMLR!
-Please consider citing us if you use this package.
+package paper was [published](https://jmlr.org/papers/v26/24-1185.html) in JMLR!
+Please consider citing us if you use the library.
+
+Besides, there are some maintenance updates:
+* Constrain versions of dependendencies due to external incompatibilities by
+  @stoprightthere in
+  https://github.com/geometric-kernels/GeometricKernels/pull/174 and https://github.com/geometric-kernels/GeometricKernels/pull/175
 
 ## v0.4.2 - 11.02.2026
 Maintance release (https://github.com/geometric-kernels/GeometricKernels/pull/173).
