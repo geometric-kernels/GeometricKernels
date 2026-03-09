@@ -34,7 +34,7 @@ dependencies = [
     "spherical-harmonics-basis",
     "sympy~=1.13",
 ]
-version="0.4.2"
+version="1.0.0"
 
 [project.urls]
 Documentation = "https://geometric-kernels.github.io/"
