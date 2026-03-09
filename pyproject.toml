@@ -94,11 +94,10 @@ dev = [
   "botorch>=0.9",
 
   # TensorFlow / GPflow / TFP split
-  'tensorflow',
-  'tensorflow-probability; python_version < "3.12"',
-  'tensorflow-probability>=0.25; python_version >= "3.12"',
+  'tensorflow<=2.20.0',
+  'tensorflow-probability<=0.25.0',
   'gpflow',
-  'tf_keras',
+  'tf_keras<=2.20.1',
 
   # JAX family
   'jax',
