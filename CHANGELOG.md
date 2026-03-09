@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.0.1 - 11.03.2026
+Stable release!
+
+The package is deemed stable which is corroborated by the fact the
+package  paper was [published](https://jmlr.org/papers/v26/24-1185.html) in JMLR!
+Please consider citing us if you use this package.
+
 ## v0.4.2 - 11.02.2026
 Maintance release (https://github.com/geometric-kernels/GeometricKernels/pull/173).
 * Fix compatibility with modern `plum-dispatch`/`numpy`.
