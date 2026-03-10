@@ -25,5 +25,10 @@ preferred-citation:
     given-names: "Alexander"
   - family-names: "Borovitskiy"
     given-names: "Viacheslav"
-  year: "2024"
-  journal: "arXiv:2407.08086"
+  year: "2025"
+  journal: "Journal of Machine Learning Research"
+  volume: "26"
+  issue: "276"
+  start: 1
+  end: 14
+  url: "http://jmlr.org/papers/v26/24-1185.html"
