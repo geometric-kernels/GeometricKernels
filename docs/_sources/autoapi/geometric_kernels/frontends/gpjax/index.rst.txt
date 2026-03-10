@@ -1,0 +1,100 @@
+geometric_kernels.frontends.gpjax
+=================================
+
+.. py:module:: geometric_kernels.frontends.gpjax
+
+.. autoapi-nested-parse::
+
+   GPJax kernel wrapper.
+
+   A tutorial on how to use this wrapper to run Gaussian process regression on
+   a geometric space is available in the
+   :doc:`frontends/GPJax.ipynb </examples/frontends/GPJax>` notebook.
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:class:: GPJaxGeometricKernel(base_kernel, lengthscale = None, nu = None, variance = 1.0, trainable_nu = False)
+
+   Bases: :py:obj:`gpjax.kernels.AbstractKernel`
+
+
+   GPJax wrapper for :class:`~.kernels.BaseGeometricKernel`.
+
+   A tutorial on how to use this wrapper to run Gaussian process regression on
+   a geometric space is available in the
+   :doc:`frontends/GPJax.ipynb </examples/frontends/GPJax>` notebook.
+
+   .. note::
+       Remember that the `base_kernel` itself does not store any of its
+       hyperparameters (like `lengthscale` and `nu`). If you do not set them
+       manually—when initializing the object or after, by setting the
+       properties—this wrapper will use the values provided by
+       `base_kernel.init_params`.
+
+   :param base_kernel:
+       The kernel to wrap.
+   :param lengthscale:
+       Initial value of the length scale.
+
+       If not given or set to None, uses the default value of the
+       `base_kernel`, as provided by its `init_params` method.
+   :param nu:
+       Initial value of the smoothness parameter nu.
+
+       If not given or set to None, uses the default value of the
+       `base_kernel`, as provided by its `init_params` method.
+   :param variance:
+       Initial value of the variance (outputscale) parameter.
+
+       Defaults to 1.0.
+   :param trainable_nu:
+       Whether or not the parameter nu is to be optimized over.
+
+       You must not change this parameter after constructing the object.
+       Defaults to False.
+
+
+   .. py:method:: __call__(x, y)
+
+      Compute the cross-covariance matrix between two batches of vectors (or
+      batches of matrices) of inputs.
+
+      :param x:
+          A batch of N inputs, each of which is a matrix of size D1xD2,
+          or a vector of size D2 if D1 is absent.
+      :param y:
+          A batch of M inputs, each of which is a matrix of size D1xD2,
+          or a vector of size D2 if D1 is absent.
+
+      :return:
+          The N x M cross-covariance matrix.
+
+
+
+   .. py:method:: __init__(base_kernel, lengthscale = None, nu = None, variance = 1.0, trainable_nu = False)
+
+      Initialise the AbstractKernel class.
+
+      Args:
+          active_dims: the indices of the input dimensions
+              that are active in the kernel's evaluation, represented by a list of
+              integers or a slice object. Defaults to a full slice.
+          n_dims: the number of input dimensions of the kernel.
+          compute_engine: the computation engine that is used to compute the kernel's
+              cross-covariance and gram matrices. Defaults to DenseKernelComputation.
+
+
+
+   .. py:property:: space
+      :type: beartype.typing.Union[geometric_kernels.spaces.Space, beartype.typing.List[geometric_kernels.spaces.Space]]
+
+
+      Alias to the `base_kernel`\ s space property.
+
+
+

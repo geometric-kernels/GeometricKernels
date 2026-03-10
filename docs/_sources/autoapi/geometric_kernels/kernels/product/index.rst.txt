@@ -1,0 +1,158 @@
+geometric_kernels.kernels.product
+=================================
+
+.. py:module:: geometric_kernels.kernels.product
+
+.. autoapi-nested-parse::
+
+   This module provides the :class:`ProductGeometricKernel` kernel for
+   constructing product kernels from a sequence of kernels.
+
+   See :doc:`this page </theory/product_kernels>` for a brief account on
+   theory behind product kernels and the :doc:`Torus.ipynb </examples/Torus>`
+   notebook for a tutorial on how to use them.
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:class:: ProductGeometricKernel(*kernels, dimension_indices = None)
+
+   Bases: :py:obj:`geometric_kernels.kernels.base.BaseGeometricKernel`
+
+
+   Product kernel, defined as the product of a sequence of kernels.
+
+   See :doc:`this page </theory/product_kernels>` for a brief account on
+   theory behind product kernels and the :doc:`Torus.ipynb </examples/Torus>`
+   notebook for a tutorial on how to use them.
+
+   :param ``*kernels``:
+       A sequence of kernels to compute the product of. Cannot contain another
+       instance of :class:`ProductGeometricKernel`. We denote the number of
+       factors, i.e. the length of the "sequence", by s.
+   :param dimension_indices:
+       Determines how a product kernel input vector `x` is to be mapped into
+       the inputs `xi` for the factor kernels. `xi` are assumed to be equal to
+       `x[dimension_indices[i]]`, possibly up to a reshape. Such a reshape
+       might be necessary to accommodate the spaces whose elements are matrices
+       rather than vectors, as determined by `element_shapes`. The
+       transformation of `x` into the list of `xi`\ s is performed
+       by :func:`~.project_product`.
+
+       If None, assumes the each input is layed-out flattened and concatenated,
+       in the same order as the factor spaces. In this case, the inverse to
+       :func:`~.project_product` is :func:`~.make_product`.
+
+       Defaults to None.
+
+   .. note::
+       `params` of a :class:`ProductGeometricKernel` are such that
+       `params["lengthscale"]` and `params["nu"]` are (s,)-shaped arrays, where
+       `s` is the number of factors.
+
+       Basically, `params["lengthscale"][i]` stores the length scale parameter
+       for the `i`-th factor kernel. Same goes for `params["nu"]`. Importantly,
+       this enables *automatic relevance determination*-like behavior.
+
+
+   .. py:method:: K(params, X, X2=None, **kwargs)
+
+      Compute the cross-covariance matrix between two batches of vectors of
+      inputs, or batches of matrices of inputs, depending on the space.
+
+      :param params:
+          A dict of kernel parameters, typically containing two keys:
+          `"lengthscale"` for length scale and `"nu"` for smoothness.
+
+          The types of values in the params dict determine the output type
+          and the backend used for the internal computations, see the
+          warning below for more details.
+
+          .. note::
+              The values `params["lengthscale"]` and `params["nu"]` are
+              typically (1,)-shaped arrays of the suitable backend. This
+              serves to point at the backend to be used for internal
+              computations.
+
+              In some cases, for example, when the kernel is
+              :class:`~.kernels.ProductGeometricKernel`, the values of
+              `params` may be (s,)-shaped arrays instead, where `s` is the
+              number of factors.
+
+          .. note::
+              Finite values of `params["nu"]` typically correspond to the
+              generalized (geometric) Matérn kernels.
+
+              Infinite `params["nu"]` typically corresponds to the heat
+              kernel (a.k.a. diffusion kernel, generalized squared
+              exponential kernel, generalized Gaussian kernel,
+              generalized RBF kernel). Although it is often considered to be
+              a separate entity, we treat the heat kernel as a member of
+              the Matérn family, with smoothness parameter equal to infinity.
+
+      :param X:
+          A batch of N inputs, each of which is a vector or a matrix,
+          depending on how the elements of the `self.space` are represented.
+      :param X2:
+          A batch of M inputs, each of which is a vector or a matrix,
+          depending on how the elements of the `self.space` are represented.
+
+          `X2=None` sets `X2=X1`.
+
+          Defaults to None.
+
+      :return:
+          The N x M cross-covariance matrix.
+
+      .. warning::
+         The types of values in the `params` dict determine the backend
+         used for internal computations and the output type.
+
+         Even if, say, `geometric_kernels.jax` is imported but the values in
+         the `params` dict are NumPy arrays, the output type will be a NumPy
+         array, and NumPy will be used for internal computations. To get a
+         JAX array as an output and use JAX for internal computations, all
+         the values in the `params` dict must be JAX arrays.
+
+
+
+   .. py:method:: K_diag(params, X)
+
+      Returns the diagonal of the covariance matrix `self.K(params, X, X)`,
+      typically in a more efficient way than actually computing the full
+      covariance matrix with `self.K(params, X, X)` and then extracting its
+      diagonal.
+
+      :param params:
+          Same as for :meth:`~.K`.
+
+      :param X:
+          A batch of N inputs, each of which is a vector or a matrix,
+          depending on how the elements of the `self.space` are represented.
+
+      :return:
+          The N-dimensional vector representing the diagonal of the
+          covariance matrix `self.K(params, X, X)`.
+
+
+
+   .. py:method:: init_params()
+
+      Returns a dict `params` where `params["lengthscale"]` is the
+      concatenation of all `self.kernels[i].init_params()["lengthscale"]` and
+      same for `params["nu"]`.
+
+
+
+   .. py:property:: space
+      :type: beartype.typing.List[geometric_kernels.spaces.Space]
+
+
+      The list of spaces upon which the factor kernels are defined.
+
+
+

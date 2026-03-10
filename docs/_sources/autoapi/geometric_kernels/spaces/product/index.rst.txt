@@ -1,0 +1,295 @@
+geometric_kernels.spaces.product
+================================
+
+.. py:module:: geometric_kernels.spaces.product
+
+.. autoapi-nested-parse::
+
+   This module provides the :class:`ProductDiscreteSpectrumSpace` space and the
+   respective :class:`~.eigenfunctions.Eigenfunctions` subclass
+   :class:`ProductEigenfunctions`.
+
+   See :doc:`this page </theory/product_spaces>` for a brief account on
+   theory behind product spaces and the :doc:`Torus.ipynb </examples/Torus>`
+   notebook for a tutorial on how to use them.
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:class:: ProductDiscreteSpectrumSpace(*spaces, num_levels = 25, num_levels_per_space = None)
+
+   Bases: :py:obj:`geometric_kernels.spaces.base.DiscreteSpectrumSpace`
+
+
+   The GeometricKernels space representing a product
+
+   .. math:: \mathcal{S} = \mathcal{S}_1 \times \ldots \mathcal{S}_S
+
+   of :class:`~.spaces.DiscreteSpectrumSpace`-s $\mathcal{S}_i$.
+
+   Levels are indexed by tuples of levels of the factors.
+
+   .. admonition:: Precomputing optimal levels
+
+       The eigenvalue corresponding to a level of the product space
+       represented by a tuple $(j_1, .., j_S)$ is the sum
+
+       .. math:: \lambda^{(1)}_{j_1} + \ldots + \lambda^{(S)}_{j_S}
+
+       of the eigenvalues $\lambda^{(s)}_{j_s}$ of the factors.
+
+       Computing top `num_levels` smallest eigenvalues is thus a combinatorial
+       problem, the solution to which we precompute. To make this
+       precomputation possible you need to provide the `num_levels` parameter
+       when constructing the :class:`ProductDiscreteSpectrumSpace`, unlike for
+       other spaces. What is more, the `num` parameter of the
+       :meth:`get_eigenfunctions` cannot be larger than the `num_levels` value.
+
+   .. note::
+       See :doc:`this page </theory/product_spaces>` for a brief account on
+       theory behind product spaces and the :doc:`Torus.ipynb
+       </examples/Torus>` notebook for a tutorial on how to use them.
+
+       An alternative to using :class:`ProductDiscreteSpectrumSpace` is to use
+       the :class:`~.kernels.ProductGeometricKernel` kernel. The latter is more
+       flexible, allowing more general spaces as factors and automatic
+       relevance determination -like behavior.
+
+   :param spaces:
+       The factors, subclasses of :class:`~.spaces.DiscreteSpectrumSpace`.
+   :param num_levels:
+       The number of levels to pre-compute for this product space.
+   :param num_levels_per_space:
+       Number of levels to fetch for each of the factor spaces, to compute
+       the product-space levels. This is a single number rather than a list,
+       because we currently only support fetching the same number of levels
+       for all the factor spaces.
+
+       If not given, `num_levels` levels will be fetched for each factor.
+
+   .. admonition:: Citation
+
+       If you use this GeometricKernels space in your research, please consider
+       citing :cite:t:`borovitskiy2020`.
+
+
+   .. py:method:: get_eigenfunctions(num)
+
+      Returns the :class:`~.ProductEigenfunctions` object with `num` levels.
+
+      :param num:
+          Number of levels. Cannot be larger than the `num_levels` parameter
+          of the constructor.
+
+
+
+   .. py:method:: get_eigenvalues(num)
+
+      Eigenvalues of the Laplacian corresponding to the first `num` levels.
+
+      :param num:
+          Number of levels. Cannot be larger than the `num_levels` parameter
+          of the constructor.
+      :return:
+          (num, 1)-shaped array containing the eigenvalues.
+
+
+
+   .. py:method:: get_repeated_eigenvalues(num)
+
+      Eigenvalues of the Laplacian corresponding to the first `num` levels,
+      repeated according to their multiplicity within levels.
+
+      :param num:
+          Number of levels. Cannot be larger than the `num_levels` parameter
+          of the constructor.
+
+      :return:
+          (J, 1)-shaped array containing the repeated eigenvalues,`J is
+          the resulting number of the repeated eigenvalues.
+
+
+
+   .. py:method:: random(key, number)
+
+      Sample random points on the product space by concatenating random points
+      on the factor spaces via :func:`~.make_product`.
+
+      :param key:
+          Either `np.random.RandomState`, `tf.random.Generator`,
+          `torch.Generator` or `jax.tensor` (representing random state).
+      :param number:
+          Number of samples to draw.
+
+      :return:
+          An array of `number` uniformly random samples on the space.
+
+
+
+   .. py:property:: dimension
+      :type: int
+
+
+      Returns the dimension of the product space, equal to the sum of
+      dimensions of the factors.
+
+
+
+   .. py:property:: element_dtype
+
+      :return:
+          B.Numeric.
+
+
+
+   .. py:property:: element_shape
+
+      :return:
+          Sum of the products of the element shapes of the factor spaces.
+
+
+
+.. py:class:: ProductEigenfunctions(element_shapes, element_dtypes, eigenindicies, *eigenfunctions, dimension_indices = None)
+
+   Bases: :py:obj:`geometric_kernels.spaces.eigenfunctions.Eigenfunctions`
+
+
+   Eigenfunctions of the Laplacian on the product space are outer products
+   of the eigenfunctions on factors.
+
+   Levels correspond to tuples of levels of the factors.
+
+   :param element_shapes:
+       Shapes of the elements in each factor. Can be obtained as properties
+       `space.element_shape` of any given factor `space`.
+   :param element_dtypes:
+       Abstract lab data types of the elements in each factor. Can be obtained
+       as properties `space.element_dtype` of any given factor `space`.
+   :param eigenindicies:
+       A [L, S]-shaped array, where `S` is the number of factor spaces and `L`
+       is the number of levels, such that `eigenindicies[i, :]` are the indices
+       of the levels of the factor spaces that correspond to the `i`'th level
+       of the product space.
+
+       This parameter implicitly determines the number of levels.
+   :param ``*eigenfunctions``:
+       The :class:`~.Eigenfunctions` subclasses corresponding to each of
+       the factor spaces.
+   :param dimension_indices:
+       Determines how a vector `x` representing a product space element is to
+       be mapped into the arrays `xi` that represent elements of the factor
+       spaces. `xi` are assumed to be equal to `x[dimension_indices[i]]`,
+       possibly up to a reshape. Such a reshape might be necessary to
+       accommodate the spaces whose elements are matrices rather than vectors,
+       as determined by `element_shapes`. The transformation of `x` into the
+       list of `xi`\ s is performed by :func:`~.project_product`.
+
+       If None, assumes the each input is layed-out flattened and concatenated,
+       in the same order as the factor spaces. In this case, the inverse to
+       :func:`~.project_product` is :func:`~.make_product`.
+
+       Defaults to None.
+
+
+   .. py:method:: __call__(X, **kwargs)
+
+      Evaluate the individual eigenfunctions at a batch of input locations.
+
+      .. warning::
+          Will `raise NotImplementedError` if some of the factors do not
+          implement their `__call__`.
+
+      :param X:
+          Points to evaluate the eigenfunctions at, an array of shape [N, D],
+          where `N` is the number of points and `D` is the dimension of the
+          vectors that represent points in the product space.
+
+          Each point `x` in the product space is a `D`-dimensional vector such
+          that `x[dimension_indices[i]]` is the vector that represents the
+          flattened element of the `i`-th factor space.
+
+          .. note::
+              If the instance was created with `dimension_indices=None`, then
+              you can use the :func:`~.make_product` function to convert a
+              list of (batches of) points in factor spaces into a (batch of)
+              points in the product space.
+
+      :param ``**kwargs``:
+          Any additional parameters.
+
+      :return:
+          An [N, J]-shaped array, where `J` is the number of eigenfunctions.
+
+
+
+   .. py:method:: phi_product(X, X2 = None, **kwargs)
+
+      Computes the
+
+      .. math:: \sum_{s=1}^{d_l} f_{l s}(x_1) f_{l s}(x_2)
+
+      for all $x_1$ in `X`, all $x_2$ in `X2`, and $0 \leq l < L$.
+
+      :param X:
+          The first of the two batches of points to evaluate the phi
+          product at. An array of shape [N, <axis>], where N is the
+          number of points and <axis> is the shape of the arrays that
+          represent the points in a given space.
+      :param X2:
+          The second of the two batches of points to evaluate the phi
+          product at. An array of shape [N2, <axis>], where N2 is the
+          number of points and <axis> is the shape of the arrays that
+          represent the points in a given space.
+
+          Defaults to None, in which case X is used for X2.
+      :param ``**kwargs``:
+          Any additional parameters.
+
+      :return:
+          An array of shape [N, N2, L].
+
+
+
+   .. py:method:: phi_product_diag(X, **kwargs)
+
+      Computes the diagonals of the matrices
+      ``phi_product(X, X, **kwargs)[:, :, l]``, $0 \leq l < L$.
+
+      :param X:
+          As in :meth:`phi_product`.
+      :param ``**kwargs``:
+          As in :meth:`phi_product`.
+
+      :return:
+          An array of shape [N, L].
+
+
+
+   .. py:property:: num_eigenfunctions
+      :type: int
+
+
+      The number J of eigenfunctions.
+
+
+
+   .. py:property:: num_eigenfunctions_per_level
+      :type: beartype.typing.List[int]
+
+
+      The number of eigenfunctions per level: list of $d_l$, $0 \leq l < L$.
+
+
+
+   .. py:property:: num_levels
+      :type: int
+
+
+      The number L of levels.
+
+
+

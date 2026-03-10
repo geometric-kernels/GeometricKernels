@@ -1,0 +1,234 @@
+geometric_kernels.spaces.hyperbolic
+===================================
+
+.. py:module:: geometric_kernels.spaces.hyperbolic
+
+.. autoapi-nested-parse::
+
+   This module provides the :class:`Hyperbolic` space.
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:class:: Hyperbolic(dim=2)
+
+   Bases: :py:obj:`geometric_kernels.spaces.base.NoncompactSymmetricSpace`, :py:obj:`geomstats.geometry.hyperboloid.Hyperboloid`
+
+
+   The GeometricKernels space representing the n-dimensional hyperbolic space
+   $\mathbb{H}_n$. We use the hyperboloid model of the hyperbolic space.
+
+   The elements of this space are represented by (n+1)-dimensional vectors
+   satisfying
+
+   .. math:: x_0^2 - x_1^2 - \ldots - x_n^2 = 1,
+
+   i.e. lying on the hyperboloid.
+
+   The class inherits the interface of geomstats's `Hyperbolic` with
+   `point_type=extrinsic`.
+
+   .. note::
+       A tutorial on how to use this space is available in the
+       :doc:`Hyperbolic.ipynb </examples/Hyperbolic>` notebook.
+
+   :param dim:
+       Dimension of the hyperbolic space, denoted by n in docstrings.
+
+   .. note::
+       As mentioned in :ref:`this note <quotient note>`, any symmetric space
+       is a quotient G/H. For the hyperbolic space $\mathbb{H}_n$, the group
+       of symmetries $G$ is the proper Lorentz group $SO(1, n)$,  while the
+       isotropy subgroup $H$ is the special orthogonal group $SO(n)$. See the
+       mathematical details in :cite:t:`azangulov2024b`.
+
+   .. admonition:: Citation
+
+       If you use this GeometricKernels space in your research, please consider
+       citing :cite:t:`azangulov2024b`.
+
+
+   .. py:method:: convert_to_ball(point)
+
+      Converts the `point` from the hyperboloid model to the Poincare model.
+      This corresponds to a stereographic projection onto the ball.
+
+      :param:
+          An [..., n+1]-shaped array of points on the hyperboloid.
+
+      :return:
+          An [..., n]-shaped array of points in the Poincare ball.
+
+
+
+   .. py:method:: distance(x1, x2, diag = False)
+
+      Calls :func:`~.hyperbolic_distance` on the same inputs.
+
+
+
+   .. py:method:: element_shape()
+
+      :return:
+          [n+1].
+
+
+
+   .. py:method:: inner_product(vector_a, vector_b)
+
+      Calls :func:`~.minkowski_inner_product` on `vector_a` and `vector_b`.
+
+
+
+   .. py:method:: inv_harish_chandra(lam)
+
+      Implements $c^{-1}(\lambda)$, where $c$ is the Harish-Chandra's $c$
+      function.
+
+      This is one of the computational primitives required to (approximately)
+      compute the :class:`~.feature_maps.RandomPhaseFeatureMapNoncompact`
+      feature map and :class:`~.kernels.MaternFeatureMapKernel` on top of it.
+
+      :param lam:
+          A batch of frequencies, vectors of dimension equal to the rank of
+          symmetric space.
+
+      :return:
+          $c^{-1}(\lambda)$ evaluated at every $\lambda$ in the batch `lam`.
+
+
+
+   .. py:method:: power_function(lam, g, h)
+
+      Implements the *power function* $p^{\lambda}(g, h)$, the integrand
+      appearing in the definition of the zonal spherical function
+
+      .. math:: \pi^{\lambda}(g) = \int_{H} \underbrace{p^{\lambda}(g, h)}_{= e^{(i \lambda + \rho) a(h \cdot g)}} d h,
+
+      where $\lambda \in i \cdot \mathbb{R}^r$, with $r$ denoting the rank of
+      the symmetric space and $i$ the imaginary unit, is a sort of frequency,
+      $g$ is an element of the group of symmetries $G$, $h$ is an element
+      of its isotropy subgroup $H$ ($G$ and $H$ are defined :ref:`here
+      <quotient note>`), $\rho \in \mathbb{R}^r$ is as in :meth:`rho`, and
+      the function $a$ is a certain space-dependent algebraic operation.
+
+      This is one of the computational primitives required to (approximately)
+      compute the :class:`~.feature_maps.RandomPhaseFeatureMapNoncompact`
+      feature map and :class:`~.kernels.MaternFeatureMapKernel` on top of it.
+
+      :param lam:
+          A batch of L vectors of dimension `rank`, the rank of the
+          symmetric space, representing the "sort of frequencies".
+
+          Typically of shape [1, L, rank].
+      :param g:
+          A batch of N elements of the space (these can always be thought of
+          as elements of the group of symmetries $G$ since the symmetric
+          space $G/H$ can be trivially embedded into the group $G$).
+
+          Typically of shape [N, 1, <axes>], where <axes> is the shape of
+          the elements of the space.
+      :param h:
+          A batch of L elements of the isotropy subgroup $H$.
+
+          Typically of shape [1, L, <axes_p>], where <axes_p> is the shape of
+          arrays representing the elements of the isotropy subgroup $H$.
+
+      :return:
+          An array of shape [N, L] with complex number entries, representing
+          the value of the values of $p^{\lambda_l}(g_n, h_l)$ for all
+          $1 \leq n \leq N$ and $1 \leq l \leq L$.
+
+      .. note::
+          Actually, $a$ may be a more appropriate primitive than the power
+          function $p^{\lambda}$: everything but $a$ in the definition of
+          the latter is either standard or available as other primitives.
+          Us using $p^{\lambda}$ as a primitive is quite arbitrary.
+
+
+
+   .. py:method:: random(key, number)
+
+      Non-uniform random sampling, reimplements the algorithm from geomstats.
+
+      Always returns [N, n+1] float64 array of the `key`'s backend.
+
+      :param key:
+          Either `np.random.RandomState`, `tf.random.Generator`,
+          `torch.Generator` or `jax.tensor` (representing random state).
+      :param number:
+          Number of samples to draw.
+
+      :return:
+          An array of `number` random samples on the space.
+
+
+
+   .. py:method:: random_phases(key, num)
+
+      Sample uniformly random points on the isotropy subgroup $H$ (defined
+      :ref:`here <quotient note>`).
+
+      This is one of the computational primitives required to (approximately)
+      compute the :class:`~.feature_maps.RandomPhaseFeatureMapNoncompact`
+      feature map and :class:`~.kernels.MaternFeatureMapKernel` on top of it.
+
+      :param key:
+          Either `np.random.RandomState`, `tf.random.Generator`,
+          `torch.Generator` or `jax.tensor` (representing random state).
+      :param num:
+          Number of samples to draw.
+
+      :return:
+          An array of `num` uniformly random samples in the isotropy
+          subgroup $H$.
+
+      .. warning::
+          This does not sample random points on the space itself. Since the
+          space itself is non-compact, uniform sampling on it is in principle
+          impossible. However, the isotropy subgroup $H$ is always
+          compact and thus allows uniform sampling needed to approximate the
+          zonal spherical functions $\pi^{\lambda}(\cdot)$ via Monte Carlo.
+
+
+
+   .. py:property:: dimension
+      :type: int
+
+
+      Returns n, the `dim` parameter that was passed down to `__init__`.
+
+
+
+   .. py:property:: element_dtype
+
+      :return:
+          B.Float.
+
+
+
+   .. py:property:: num_axes
+
+      Number of axes in an array representing a point in the space.
+
+      :return:
+          1.
+
+
+
+   .. py:property:: rho
+
+      `rho` vector of dimension equal to the rank of the symmetric space.
+
+      Algebraically, weighted sum of *roots*, depends only on the space.
+
+      This is one of the computational primitives required to (approximately)
+      compute the :class:`~.feature_maps.RandomPhaseFeatureMapNoncompact`
+      feature map and :class:`~.kernels.MaternFeatureMapKernel` on top of it.
+
+
+

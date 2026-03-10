@@ -1,0 +1,93 @@
+geometric_kernels.kernels.hodge_compositional
+=============================================
+
+.. py:module:: geometric_kernels.kernels.hodge_compositional
+
+.. autoapi-nested-parse::
+
+   This module provides the :class:`~.kernels.MaternHodgeCompositionalKernel`
+   kernel, for discrete spectrum spaces with Hodge decomposition, subclasses
+   of :class:`~.spaces.HodgeDiscreteSpectrumSpace`.
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:class:: MaternHodgeCompositionalKernel(space, num_levels, normalize = True)
+
+   Bases: :py:obj:`geometric_kernels.kernels.base.BaseGeometricKernel`
+
+
+   This class is similar to :class:`~.kernels.MaternKarhunenLoeveKernel`, but
+   provides a more expressive family of kernels on the spaces where Hodge
+   decomposition is available.
+
+   The resulting kernel is a sum of three kernels,
+
+   .. math:: k(x, x') = a k_{\text{harmonic}}(x, x') + b k_{\text{gradient}}(x, x') + c k_{\text{curl}}(x, x'),
+
+   where $a, b, c$ are weights $a, b, c \geq 0$ and $a + b + c = 1$, and
+   $k_{\text{harmonic}}$, $k_{\text{gradient}}$, $k_{\text{curl}}$ are the
+   instances of :class:`~.kernels.MaternKarhunenLoeveKernel` that only use the
+   eigenpairs of the Laplacian corresponding to a single part of the Hodge
+   decomposition.
+
+   The parameters of this kernel are represented by a dict with three keys:
+   `"harmonic"`, `"gradient"`, `"curl"`, each corresponding to a dict with
+   keys `"logit"`, `"nu"`, `"lengthscale"`, where `"nu"` and `"lengthscale"`
+   are the parameters of the respective :class:`~.kernels.MaternKarhunenLoeveKernel`,
+   while the `"logit"` parameters determine the weights $a, b, c$ in the
+   formula above: $a, b, c$ are the `"logit"` parameters normalized to
+   satisfy $a + b + c = 1$.
+
+   Same as for :class:`~.kernels.MaternKarhunenLoeveKernel`, these kernels can sometimes
+   be computed more efficiently using addition theorems.
+
+   .. note::
+       A brief introduction into the theory behind
+       :class:`~.kernels.MaternHodgeCompositionalKernel` can be found in
+       :doc:`this </theory/graphs>` documentation page.
+
+   :param space:
+       The space to define the kernel upon, a subclass of :class:`~.spaces.HodgeDiscreteSpectrumSpace`.
+
+   :param num_levels:
+       Number of levels to include in the summation.
+
+   :param normalize:
+       Whether to normalize kernel to have unit average variance.
+
+
+   .. py:method:: K(params, X, X2 = None, **kwargs)
+
+      Compute the cross-covariance matrix between two batches of vectors of
+      inputs, or batches of matrices of inputs, depending on the space.
+
+
+
+   .. py:method:: K_diag(params, X, **kwargs)
+
+      Returns the diagonal of the covariance matrix `self.K(params, X, X)`,
+      typically in a more efficient way than actually computing the full
+      covariance matrix with `self.K(params, X, X)` and then extracting its
+      diagonal.
+
+
+
+   .. py:method:: init_params()
+
+      Initialize the three sets of parameters for the three kernels.
+
+
+
+   .. py:property:: space
+      :type: geometric_kernels.spaces.HodgeDiscreteSpectrumSpace
+
+
+      The space on which the kernel is defined.
+
+
+

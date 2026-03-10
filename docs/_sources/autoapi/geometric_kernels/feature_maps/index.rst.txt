@@ -1,0 +1,351 @@
+geometric_kernels.feature_maps
+==============================
+
+.. py:module:: geometric_kernels.feature_maps
+
+.. autoapi-nested-parse::
+
+   (Approximate) finite-dimensional feature maps for geometric kernels.
+
+   A brief introduction into the theory can be found on :doc:`this page
+   </theory/feature_maps>`.
+
+
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 1
+
+   /autoapi/geometric_kernels/feature_maps/base/index
+   /autoapi/geometric_kernels/feature_maps/deterministic/index
+   /autoapi/geometric_kernels/feature_maps/probability_densities/index
+   /autoapi/geometric_kernels/feature_maps/random_phase/index
+   /autoapi/geometric_kernels/feature_maps/rejection_sampling/index
+
+
+
+
+Package Contents
+----------------
+
+.. py:class:: DeterministicFeatureMapCompact(space, num_levels, repeated_eigenvalues_laplacian = None, eigenfunctions = None)
+
+   Bases: :py:obj:`geometric_kernels.feature_maps.base.FeatureMap`
+
+
+   Deterministic feature map for :class:`~.spaces.DiscreteSpectrumSpace`\ s
+   for which the actual eigenpairs are explicitly available.
+
+   :param space:
+       A :class:`~.spaces.DiscreteSpectrumSpace` space.
+   :param num_levels:
+       Number of levels in the kernel approximation.
+   :param repeated_eigenvalues_laplacian:
+       Allowing to pass the repeated eigenvalues of the Laplacian directly,
+       instead of computing them from the space. If provided, `eigenfunctions`
+       must also be provided. Used for :class:`~.spaces.HodgeDiscreteSpectrumSpace`.
+   :param eigenfunctions:
+       Allowing to pass the eigenfunctions directly, instead of computing them
+       from the space. If provided, `repeated_eigenvalues_laplacian` must also
+       be provided. Used for :class:`~.spaces.HodgeDiscreteSpectrumSpace`.
+
+
+   .. py:method:: __call__(X, params, normalize = True, **kwargs)
+
+      :param X:
+          [N, ...] points in the space to evaluate the map on.
+
+      :param params:
+          Parameters of the kernel (length scale and smoothness).
+
+      :param normalize:
+          Normalize to have unit average variance. If omitted, set to True.
+
+      :param ``**kwargs``:
+          Unused.
+
+      :return:
+          `Tuple(None, features)` where `features` is an [N, O] array, N
+          is the number of inputs and O is the dimension of the feature map.
+
+      .. note::
+         The first element of the returned tuple is the simple None and
+         should be ignored. It is only there to support the abstract
+         interface: for some other subclasses of :class:`FeatureMap`, this
+         first element may be an updated random key.
+
+
+
+.. py:class:: FeatureMap
+
+   Bases: :py:obj:`abc.ABC`
+
+
+   Abstract base class for all feature maps.
+
+
+   .. py:method:: __call__(*args, **kwargs)
+      :abstractmethod:
+
+
+      `FeatureMap`\ s are callable.
+
+
+
+.. py:class:: HodgeDeterministicFeatureMapCompact(space, num_levels)
+
+   Bases: :py:obj:`geometric_kernels.feature_maps.base.FeatureMap`
+
+
+   Deterministic feature map for :class:`~.spaces.HodgeDiscreteSpectrumSpace`\ s
+   for which the actual eigenpairs are explicitly available.
+
+   Corresponds to :class:`~.kernels.MaternHodgeCompositionalKernel` and takes
+   parameters in the same format.
+
+
+   .. py:method:: __call__(X, params, normalize = True, **kwargs)
+
+      :param X:
+          [N, ...] points in the space to evaluate the map on.
+
+      :param params:
+          Parameters of the kernel (length scale and smoothness).
+
+      :param normalize:
+          Normalize to have unit average variance. If omitted, set to True.
+
+      :param ``**kwargs``:
+          Unused.
+
+      :return:
+          `Tuple(None, features)` where `features` is an [N, O] array, N
+          is the number of inputs and O is the dimension of the feature map.
+
+      .. note::
+         The first element of the returned tuple is the simple None and
+         should be ignored. It is only there to support the abstract
+         interface: for some other subclasses of :class:`FeatureMap`, this
+         first element may be an updated random key.
+
+
+
+.. py:class:: RandomPhaseFeatureMapCompact(space, num_levels, num_random_phases = 3000)
+
+   Bases: :py:obj:`geometric_kernels.feature_maps.base.FeatureMap`
+
+
+   Random phase feature map for :class:`~.spaces.DiscreteSpectrumSpace`\ s for
+   which the :doc:`addition theorem </theory/addition_theorem>`-like basis
+   functions are explicitly available while actual eigenpairs may be implicit.
+
+   :param space:
+       A :class:`~.spaces.DiscreteSpectrumSpace` space.
+   :param num_levels:
+       Number of levels in the kernel approximation.
+   :param num_random_phases:
+       Number of random phases used in the generalized
+       random phase Fourier features technique.
+
+
+   .. py:method:: __call__(X, params, *, key, normalize = True, **kwargs)
+
+      :param X:
+          [N, ...] points in the space to evaluate the map on.
+
+      :param params:
+          Parameters of the kernel (length scale and smoothness).
+
+      :param key:
+          Random state, either `np.random.RandomState`,
+          `tf.random.Generator`, `torch.Generator` or `jax.tensor` (which
+          represents a random state).
+
+          .. note::
+              For any backend other than `jax`, passing the same `key` twice
+              does not guarantee that the feature map will be the same each
+              time. This is because these backends' random state has... a
+              state. To evaluate the same (including randomness) feature map
+              on different inputs, you can either save/restore state manually
+              each time or use the helper function
+              :func:`~.utils.make_deterministic` which
+              does this for you.
+
+      :param normalize:
+          Normalize to have unit average variance. If omitted, set to True.
+
+      :param ``**kwargs``:
+          Unused.
+
+      :return:
+          `Tuple(key, features)` where `features` is an [N, O] array, N
+          is the number of inputs and O is the dimension of the feature map;
+          `key` is the updated random key for `jax`, or the similar random
+          state (generator) for any other backends.
+
+
+
+.. py:class:: RandomPhaseFeatureMapNoncompact(space, num_random_phases = 3000, shifted_laplacian = True)
+
+   Bases: :py:obj:`geometric_kernels.feature_maps.base.FeatureMap`
+
+
+   Basic random phase feature map for
+   :class:`~.spaces.NoncompactSymmetricSpace`\ s (importance sampling based).
+
+   This feature map should not be used if a space-specific alternative exists.
+
+   :param space:
+       A :class:`~.spaces.NoncompactSymmetricSpace` space.
+   :param num_random_phases:
+       Number of random phases to use.
+   :param shifted_laplacian:
+       If True, assumes that the kernels are defined in terms of the shifted
+       Laplacian. This often makes Matérn kernels more flexible by widening
+       the effective range of the length scale parameter.
+
+       Defaults to True.
+
+
+   .. py:method:: __call__(X, params, *, key, normalize = True, **kwargs)
+
+      :param X:
+          [N, ...] points in the space to evaluate the map on.
+      :param params:
+          Parameters of the feature map (length scale and smoothness).
+      :param key:
+          Random state, either `np.random.RandomState`,
+          `tf.random.Generator`, `torch.Generator` or `jax.tensor` (which
+          represents a random state).
+
+          .. note::
+              For any backend other than `jax`, passing the same `key` twice
+              does not guarantee that the feature map will be the same each
+              time. This is because these backends' random state has... a
+              state. To evaluate the same (including randomness) feature map
+              on different inputs, you can either save/restore state manually
+              each time or use the helper function
+              :func:`~.utils.make_deterministic` which
+              does this for you.
+
+      :param normalize:
+          Normalize to have unit average variance (`True` by default).
+      :param ``**kwargs``:
+          Unused.
+
+      :return: `Tuple(key, features)` where `features` is an [N, O] array, N
+          is the number of inputs and O is the dimension of the feature map;
+          `key` is the updated random key for `jax`, or the similar random
+          state (generator) for any other backends.
+
+
+
+.. py:class:: RejectionSamplingFeatureMapHyperbolic(space, num_random_phases = 3000, shifted_laplacian = True)
+
+   Bases: :py:obj:`geometric_kernels.feature_maps.base.FeatureMap`
+
+
+   Random phase feature map for the :class:`~.spaces.Hyperbolic` space based
+   on the rejection sampling algorithm.
+
+   :param space:
+       A :class:`~.spaces.Hyperbolic` space.
+   :param num_random_phases:
+       Number of random phases to use.
+   :param shifted_laplacian:
+       If True, assumes that the kernels are defined in terms of the shifted
+       Laplacian. This often makes Matérn kernels more flexible by widening
+       the effective range of the length scale parameter.
+
+       Defaults to True.
+
+
+   .. py:method:: __call__(X, params, *, key, normalize = True, **kwargs)
+
+      :param X:
+          [N, D] points in the space to evaluate the map on.
+      :param params:
+          Parameters of the feature map (length scale and smoothness).
+      :param key:
+          Random state, either `np.random.RandomState`,
+          `tf.random.Generator`, `torch.Generator` or `jax.tensor` (which
+          represents a random state).
+
+          .. note::
+              For any backend other than `jax`, passing the same `key` twice
+              does not guarantee that the feature map will be the same each
+              time. This is because these backends' random state has... a
+              state. To evaluate the same (including randomness) feature map
+              on different inputs, you can either save/restore state manually
+              each time or use the helper function
+              :func:`~.utils.make_deterministic` which does this for you.
+
+      :param normalize:
+          Normalize to have unit average variance (`True` by default).
+      :param ``**kwargs``:
+          Unused.
+
+      :return:
+          `Tuple(key, features)` where `features` is an [N, O] array, N
+          is the number of inputs and O is the dimension of the feature map;
+          `key` is the updated random key for `jax`, or the similar random
+          state (generator) for any other backends.
+
+
+
+.. py:class:: RejectionSamplingFeatureMapSPD(space, num_random_phases = 3000, shifted_laplacian = True)
+
+   Bases: :py:obj:`geometric_kernels.feature_maps.base.FeatureMap`
+
+
+   Random phase feature map for the
+   :class:`~.spaces.SymmetricPositiveDefiniteMatrices` space based on the
+   rejection sampling algorithm.
+
+   :param space:
+       A :class:`~.spaces.SymmetricPositiveDefiniteMatrices` space.
+   :param num_random_phases:
+       Number of random phases to use.
+   :param shifted_laplacian:
+       If True, assumes that the kernels are defined in terms of the shifted
+       Laplacian. This often makes Matérn kernels more flexible by widening
+       the effective range of the length scale parameter.
+
+       Defaults to True.
+
+
+   .. py:method:: __call__(X, params, *, key, normalize = True, **kwargs)
+
+      :param X:
+          [N, D, D] points in the space to evaluate the map on.
+      :param params:
+          Parameters of the feature map (length scale and smoothness).
+      :param key:
+          Random state, either `np.random.RandomState`,
+          `tf.random.Generator`, `torch.Generator` or `jax.tensor` (which
+          represents a random state).
+
+          .. note::
+              For any backend other than `jax`, passing the same `key` twice
+              does not guarantee that the feature map will be the same each
+              time. This is because these backends' random state has... a
+              state. To evaluate the same (including randomness) feature map
+              on different inputs, you can either save/restore state manually
+              each time or use the helper function
+              :func:`~.utils.make_deterministic` which does this for you.
+
+      :param normalize:
+          Normalize to have unit average variance (`True` by default).
+      :param ``**kwargs``:
+          Unused.
+
+      :return:
+          `Tuple(key, features)` where `features` is an [N, O] array, N
+          is the number of inputs and O is the dimension of the feature map;
+          `key` is the updated random key for `jax`, or the similar random
+          state (generator) for any other backends.
+
+
+

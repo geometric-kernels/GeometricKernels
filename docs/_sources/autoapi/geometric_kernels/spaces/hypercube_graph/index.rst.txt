@@ -1,0 +1,246 @@
+geometric_kernels.spaces.hypercube_graph
+========================================
+
+.. py:module:: geometric_kernels.spaces.hypercube_graph
+
+.. autoapi-nested-parse::
+
+   This module provides the :class:`HypercubeGraph` space and the respective
+   :class:`~.eigenfunctions.Eigenfunctions` subclass :class:`WalshFunctions`.
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:class:: HypercubeGraph(dim)
+
+   Bases: :py:obj:`geometric_kernels.spaces.base.DiscreteSpectrumSpace`
+
+
+   The GeometricKernels space representing the d-dimensional hypercube graph
+   $C^d = \{0, 1\}^d$, the combinatorial space of binary vectors of length $d$.
+
+   The elements of this space are represented by d-dimensional boolean vectors.
+
+   Levels are the whole eigenspaces.
+
+   .. note::
+       A tutorial on how to use this space is available in the
+       :doc:`HypercubeGraph.ipynb </examples/HypercubeGraph>` notebook.
+
+   .. note::
+       Since the degree matrix is a constant multiple of the identity, all
+       types of the graph Laplacian coincide on the hypercube graph up to a
+       constant, we choose the normalized Laplacian for numerical stability.
+
+   :param dim:
+       Dimension $d$ of the hypercube graph $C^d$, a positive integer.
+
+   .. admonition:: Citation
+
+       If you use this GeometricKernels space in your research, please consider
+       citing :cite:t:`borovitskiy2023`.
+
+
+   .. py:method:: get_eigenfunctions(num)
+
+      Returns the :class:`~.WalshFunctions` object with `num` levels.
+
+      :param num:
+          Number of levels.
+
+
+
+   .. py:method:: get_eigenvalues(num)
+
+      Eigenvalues of the Laplacian corresponding to the first `num` levels.
+
+      :param num:
+          Number of levels.
+      :return:
+          (num, 1)-shaped array containing the eigenvalues.
+
+      .. note::
+          The notion of *levels* is discussed in the documentation of the
+          :class:`~.kernels.MaternKarhunenLoeveKernel`.
+
+
+
+   .. py:method:: get_repeated_eigenvalues(num)
+
+      Eigenvalues of the Laplacian corresponding to the first `num` levels,
+      repeated according to their multiplicity within levels.
+
+      :param num:
+          Number of levels.
+
+      :return:
+          (J, 1)-shaped array containing the repeated eigenvalues, J is
+          the resulting number of the repeated eigenvalues.
+
+      .. note::
+          The notion of *levels* is discussed in the documentation of the
+          :class:`~.kernels.MaternKarhunenLoeveKernel`.
+
+
+
+   .. py:method:: random(key, number)
+
+      Sample uniformly random points on the hypercube graph $C^d$.
+
+      Always returns [N, D] boolean array of the `key`'s backend.
+
+      :param key:
+          Either `np.random.RandomState`, `tf.random.Generator`,
+          `torch.Generator` or `jax.tensor` (representing random state).
+      :param number:
+          Number N of samples to draw.
+
+      :return:
+          An array of `number` uniformly random samples on the space.
+
+
+
+   .. py:property:: dimension
+      :type: int
+
+
+      Returns d, the `dim` parameter that was passed down to `__init__`.
+
+      .. note:
+          Although this is a graph, and graphs are generally treated as
+          0-dimensional throughout GeometricKernels, we make an exception for
+          HypercubeGraph. This is because it helps maintain good behavior of
+          Matérn kernels with the usual values of the smoothness parameter
+          nu, i.e. nu = 1/2, nu = 3/2, nu = 5/2.
+
+
+
+   .. py:property:: element_dtype
+
+      :return:
+          B.Bool.
+
+
+
+   .. py:property:: element_shape
+
+      :return:
+          [d].
+
+
+
+.. py:class:: WalshFunctions(dim, num_levels)
+
+   Bases: :py:obj:`geometric_kernels.spaces.eigenfunctions.EigenfunctionsWithAdditionTheorem`
+
+
+   Eigenfunctions of graph Laplacian on the hypercube graph $C^d$ whose nodes
+   are index by binary vectors in $\{0, 1\}^d$ are the Walsh
+   functions $w_T: C^d \to \{-1, 1\}$ given by
+
+   .. math:: w_T(x_0, .., x_{d-1}) = (-1)^{\sum_{i \in T} x_i},
+
+   enumerated by all possible subsets $T$ of the set $\{0, .., d-1\}$.
+
+   Levels are the whole eigenspaces, comprising all Walsh functions $w_T$ with
+   the same cardinality of $T$. The addition theorem for these is based on
+   certain discrete orthogonal polynomials called Kravchuk polynomials.
+
+   :param dim:
+       Dimension $d$ of the hypercube graph.
+
+   :param num_levels:
+       Specifies the number of levels of the Walsh functions.
+
+
+   .. py:method:: __call__(X, **kwargs)
+
+      Evaluate the individual eigenfunctions at a batch of input locations.
+
+      :param X:
+          Points to evaluate the eigenfunctions at, an array of
+          shape [N, <axis>], where N is the number of points and <axis> is
+          the shape of the arrays that represent the points in a given space.
+      :param ``**kwargs``:
+          Any additional parameters.
+
+      :return:
+          An [N, J]-shaped array, where `J` is the number of eigenfunctions.
+
+
+
+   .. py:method:: weighted_outerproduct(weights, X, X2 = None, **kwargs)
+
+      Computes
+
+      .. math:: \sum_{l=0}^{L-1} w_l \sum_{s=1}^{d_l} f_{l s}(x_1) f_{l s}(x_2).
+
+      for all $x_1$ in `X` and all $x_2$ in `X2`, where $w_l$ are `weights`.
+
+      :param weights:
+          An array of shape [L, 1] where L is the number of levels.
+      :param X:
+          The first of the two batches of points to evaluate the weighted
+          outer product at. An array of shape [N, <axis>], where N is the
+          number of points and <axis> is the shape of the arrays that
+          represent the points in a given space.
+      :param X2:
+          The second of the two batches of points to evaluate the weighted
+          outer product at. An array of shape [N2, <axis>], where N2 is the
+          number of points and <axis> is the shape of the arrays that
+          represent the points in a given space.
+
+          Defaults to None, in which case X is used for X2.
+      :param ``**kwargs``:
+          Any additional parameters.
+
+      :return:
+          An array of shape [N, N2].
+
+
+
+   .. py:method:: weighted_outerproduct_diag(weights, X, **kwargs)
+
+      Computes the diagonal of the matrix
+      ``weighted_outerproduct(weights, X, X, **kwargs)``.
+
+      :param weights:
+          As in :meth:`weighted_outerproduct`.
+      :param X:
+          As in :meth:`weighted_outerproduct`.
+      :param ``**kwargs``:
+          As in :meth:`weighted_outerproduct`.
+
+      :return:
+          An array of shape [N,].
+
+
+
+   .. py:property:: num_eigenfunctions
+      :type: int
+
+
+      The number J of eigenfunctions.
+
+
+
+   .. py:property:: num_eigenfunctions_per_level
+      :type: beartype.typing.List[int]
+
+
+      The number of eigenfunctions per level: list of $d_l$, $0 \leq l < L$.
+
+
+
+   .. py:property:: num_levels
+      :type: int
+
+
+      The number L of levels.
+
+
+

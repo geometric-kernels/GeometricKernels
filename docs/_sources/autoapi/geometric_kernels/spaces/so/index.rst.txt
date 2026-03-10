@@ -1,0 +1,258 @@
+geometric_kernels.spaces.so
+===========================
+
+.. py:module:: geometric_kernels.spaces.so
+
+.. autoapi-nested-parse::
+
+   This module provides the :class:`SpecialOrthogonal` space, the respective
+   :class:`~.eigenfunctions.Eigenfunctions` subclass :class:`SOEigenfunctions`,
+   and a class :class:`SOCharacter` for representing characters of the group.
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:class:: SOCharacter(n, signature)
+
+   Bases: :py:obj:`geometric_kernels.spaces.lie_groups.LieGroupCharacter`
+
+
+   The class that represents a character of the SO(n) group.
+
+   These characters are always real-valued.
+
+   These are polynomials whose coefficients are precomputed and stored in a
+   file. By default, there are 20 precomputed characters for n from 3 to 8.
+   If you want more, use the `compute_characters.py` script.
+
+   :param n:
+       The order n of the SO(n) group.
+   :param signature:
+       The signature that determines a particular character (and an
+       irreducible unitary representation along with it).
+
+
+   .. py:method:: __call__(gammas)
+
+      Compute the character on `gammas` lying in a maximal torus.
+
+      :param gammas:
+          [..., rank] where `rank` is the dimension of a maximal torus.
+
+      :return:
+          An array of shape [...] representing the values of the characters.
+          The values can be complex-valued.
+
+
+
+.. py:class:: SOEigenfunctions(n, num_levels, compute_characters=True)
+
+   Bases: :py:obj:`geometric_kernels.spaces.lie_groups.WeylAdditionTheorem`
+
+
+   A class for computing the sums of outer products of certain combinations
+   (we call "levels") of Laplace-Beltrami eigenfunctions on compact Lie
+   groups. These are much like the *zonal spherical harmonics* of the
+   :class:`~.SphericalHarmonics` class. However, the key to computing them
+   is representation-theoretic: they are proportional to *characters* of
+   irreducible unitary representations of the group. These characters, in their
+   turn, can be algebraically computed using the *Weyl character formula*. See
+   :cite:t:`azangulov2024a` for the mathematical details behind this class.
+
+   :param n:
+       The order of the Lie group, e.g. for SO(5) this is 5, for SU(3) this is 3.
+   :param num_levels:
+       The number of levels used for kernel approximation. Here, each level
+       corresponds to an irreducible unitary representation of the group.
+   :param compute_characters:
+       Whether or not to actually compute the *characters*. Setting this parameter
+       to False might make sense if you do not care about eigenfunctions (or sums
+       of outer products thereof), but care about eigenvalues, dimensions of
+       irreducible unitary representations, etc.
+
+       Defaults to True.
+
+   .. note::
+       Unlike :class:`~.SphericalHarmonics`, we do not expect the
+       descendants of this class to compute the actual Laplace-Beltrami
+       eigenfunctions (which are similar to (non-zonal) *spherical harmonics*
+       of :class:`~.SphericalHarmonics`), implementing the `__call___` method.
+       In this case, this is not really necessary and computationally harder.
+
+   .. note::
+       Unlike in :class:`~.SphericalHarmonics`, here the levels do not
+       necessarily correspond to whole eigenspaces (all eigenfunctions that
+       correspond to the same eigenvalue). Here, levels are defined in terms of
+       the algebraic structure of the group: they are the eigenfunctions that
+       correspond to the same irreducible unitary representation of the group.
+
+   .. note::
+       Here we break the general convention that the subclasses of the
+       :class:`~.eigenfunctions.Eigenfunctions` only provide an interface for
+       working with eigenfunctions, not eigenvalues, offering an interface
+       for computing the latter as well.
+
+
+   .. py:method:: __call__(X, **kwargs)
+      :abstractmethod:
+
+
+      Evaluate the individual eigenfunctions at a batch of input locations.
+
+      :param X:
+          Points to evaluate the eigenfunctions at, an array of
+          shape [N, <axis>], where N is the number of points and <axis> is
+          the shape of the arrays that represent the points in a given space.
+      :param ``**kwargs``:
+          Any additional parameters.
+
+      :return:
+          An [N, J]-shaped array, where `J` is the number of eigenfunctions.
+
+
+
+   .. py:method:: inverse(X)
+
+      Should call the group's static
+      :meth:`~.spaces.CompactMatrixLieGroup.inverse` method.
+
+      :param X:
+          As in :meth:`~.spaces.CompactMatrixLieGroup.inverse`.
+
+
+
+.. py:class:: SpecialOrthogonal(n)
+
+   Bases: :py:obj:`geometric_kernels.spaces.lie_groups.CompactMatrixLieGroup`
+
+
+   The GeometricKernels space representing the special orthogonal group SO(n)
+   consisting of n by n orthogonal matrices with unit determinant.
+
+   The elements of this space are represented as n x n orthogonal
+   matrices with real entries and unit determinant.
+
+   .. note::
+       A tutorial on how to use this space is available in the
+       :doc:`SpecialOrthogonal.ipynb </examples/SpecialOrthogonal>` notebook.
+
+   :param n:
+       The order n of the group SO(n).
+
+   .. note::
+       We only support n >= 3. Mathematically, SO(2) is equivalent to the
+       unit circle, which is available as the :class:`~.spaces.Circle` space.
+
+       For larger values of n, you might need to run the
+       `utils/compute_characters.py` script to precompute the necessary
+       mathematical quantities beyond the ones provided by default. Same
+       can be required for larger numbers of levels.
+
+   .. admonition:: Citation
+
+       If you use this GeometricKernels space in your research, please consider
+       citing :cite:t:`azangulov2024a`.
+
+
+   .. py:method:: get_eigenfunctions(num)
+
+      Returns the :class:`~.SOEigenfunctions` object with `num` levels
+      and order n.
+
+      :param num:
+          Number of levels.
+
+
+
+   .. py:method:: get_eigenvalues(num)
+
+      Eigenvalues of the Laplacian corresponding to the first `num` levels.
+
+      :param num:
+          Number of levels.
+      :return:
+          (num, 1)-shaped array containing the eigenvalues.
+
+      .. note::
+          The notion of *levels* is discussed in the documentation of the
+          :class:`~.kernels.MaternKarhunenLoeveKernel`.
+
+
+
+   .. py:method:: get_repeated_eigenvalues(num)
+
+      Eigenvalues of the Laplacian corresponding to the first `num` levels,
+      repeated according to their multiplicity within levels.
+
+      :param num:
+          Number of levels.
+
+      :return:
+          (J, 1)-shaped array containing the repeated eigenvalues, J is
+          the resulting number of the repeated eigenvalues.
+
+      .. note::
+          The notion of *levels* is discussed in the documentation of the
+          :class:`~.kernels.MaternKarhunenLoeveKernel`.
+
+
+
+   .. py:method:: inverse(X)
+      :staticmethod:
+
+
+      Inverse of a batch `X` of the elements of the group. A static method.
+
+      :param X:
+          A batch [..., n, n] of elements of the group.
+          Each element is a n x n matrix.
+
+      :return:
+          A batch [..., n, n] with each n x n matrix inverted.
+
+
+
+   .. py:method:: random(key, number)
+
+      Sample uniformly random points in the space.
+
+      :param key:
+          Either `np.random.RandomState`, `tf.random.Generator`,
+          `torch.Generator` or `jax.tensor` (representing random state).
+      :param number:
+          Number of samples to draw.
+
+      :return:
+          An array of `number` uniformly random samples on the space.
+
+
+
+   .. py:property:: dimension
+      :type: int
+
+
+      The dimension of the space, as that of a Riemannian manifold.
+
+      :return:
+          floor(n(n-1)/2) where n is the order of the group SO(n).
+
+
+
+   .. py:property:: element_dtype
+
+      :return:
+          B.Float.
+
+
+
+   .. py:property:: element_shape
+
+      :return:
+          [n, n].
+
+
+
