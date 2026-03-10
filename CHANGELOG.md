@@ -1,10 +1,9 @@
 # CHANGELOG
 
-## v1.0.0 - 11.03.2026
+## v1.0.0 - 10.03.2026
 Stable release!
 
-The package is deemed stable which is corroborated by the fact the
-package paper was [published](https://jmlr.org/papers/v26/24-1185.html) in JMLR!
+The package is now deemed stable which is supported by the [publication](https://jmlr.org/papers/v26/24-1185.html) of our paper in JMLR!
 Please consider citing us if you use the library.
 
 Besides, there are some maintenance updates:
