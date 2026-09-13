@@ -16,14 +16,17 @@ from geometric_kernels.spaces.eigenfunctions import (
     Eigenfunctions,
     EigenfunctionsWithAdditionTheorem,
 )
+from geometric_kernels.spaces.hamming_graph_eigenfunctions import (
+    HammingGraphEigenfunctions,
+)
 from geometric_kernels.utils.special_functions import (
     generalized_kravchuk_normalized,
     walsh_function,
 )
-from geometric_kernels.utils.utils import chain, hamming_distance, log_binomial
+from geometric_kernels.utils.utils import chain, hamming_distance
 
 
-class WalshFunctions(EigenfunctionsWithAdditionTheorem):
+class WalshFunctions(HammingGraphEigenfunctions, EigenfunctionsWithAdditionTheorem):
     r"""
     Eigenfunctions of graph Laplacian on the hypercube graph $C^d$ whose nodes
     are index by binary vectors in $\{0, 1\}^d$ are the Walsh
@@ -100,56 +103,6 @@ class WalshFunctions(EigenfunctionsWithAdditionTheorem):
             for level in range(self.num_levels)
         ]
         return B.concat(*values, axis=1)  # [N, L]
-
-    def weighted_outerproduct(
-        self,
-        weights: B.Numeric,
-        X: B.Numeric,
-        X2: Optional[B.Numeric] = None,  # type: ignore
-        **kwargs,
-    ) -> B.Numeric:
-        if X2 is None:
-            X2 = X
-
-        hamming_distances = hamming_distance(X, X2)
-
-        result = B.zeros(B.dtype(weights), X.shape[0], X2.shape[0])  # [N, N2]
-        kravchuk_normalized_j_minus_1, kravchuk_normalized_j_minus_2 = None, None
-        for level in range(self.num_levels):
-            cur_kravchuk_normalized = generalized_kravchuk_normalized(
-                self.dim,
-                level,
-                hamming_distances,
-                2,
-                kravchuk_normalized_j_minus_1,
-                kravchuk_normalized_j_minus_2,
-            )
-            kravchuk_normalized_j_minus_2 = kravchuk_normalized_j_minus_1
-            kravchuk_normalized_j_minus_1 = cur_kravchuk_normalized
-
-            # Instead of multiplying weights by binomial coefficients, we sum their
-            # logs and then exponentiate the result for numerical stability.
-            # Furthermore, we save the computed Kravchuk polynomials for next iterations.
-            result += (
-                B.exp(B.log(weights[level]) + log_binomial(self.dim, level))
-                * cur_kravchuk_normalized
-            )
-
-        return result  # [N, N2]
-
-    def weighted_outerproduct_diag(
-        self, weights: B.Numeric, X: B.Numeric, **kwargs
-    ) -> B.Numeric:
-
-        # Instead of multiplying weights by binomial coefficients, we sum their
-        # logs and then exponentiate the result for numerical stability.
-        result = sum(
-            B.exp(B.log(weights[level]) + log_binomial(self.dim, level))
-            * B.ones(float_like(X), *X.shape[:-1], 1)
-            for level in range(self.num_levels)
-        )  # [N, 1]
-
-        return B.reshape(result, *result.shape[:-1])  # [N,]
 
     @property
     def num_eigenfunctions(self) -> int:
@@ -240,7 +193,7 @@ class HypercubeGraph(DiscreteSpectrumSpace):
 
         eigenfunctions = WalshFunctions(self.dim, num)
         eigenvalues = chain(
-            B.squeeze(eigenvalues_per_level),
+            B.squeeze(eigenvalues_per_level, axis=1),
             eigenfunctions.num_eigenfunctions_per_level,
         )  # [J,]
         return B.reshape(eigenvalues, -1, 1)  # [J, 1]

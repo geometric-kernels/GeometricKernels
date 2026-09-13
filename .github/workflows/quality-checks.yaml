@@ -16,7 +16,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ["3.10", "3.11", "3.12"]
+        python-version: ["3.11", "3.12", "3.13"]
       fail-fast: false
 
     runs-on: ${{ matrix.os }}
@@ -30,7 +30,7 @@ jobs:
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
-        version: "0.9.6"
+        version: "0.11.23"
     - name: Install make
       if: runner.os == 'Windows'
       run: choco install make -y

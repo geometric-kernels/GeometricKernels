@@ -203,7 +203,7 @@ To install JAX, follow `these instructions <https://github.com/google/jax#instal
 
 ..  code-block:: bash
 
-   pip install gpjax
+   pip install "gpjax>=0.14.0"
 
 .. raw:: html
 

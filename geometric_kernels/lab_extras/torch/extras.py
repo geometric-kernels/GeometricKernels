@@ -269,3 +269,9 @@ def bool_like(reference: B.TorchNumeric):
         return reference_dtype
     else:
         return torch.bool
+
+
+@dispatch
+def expm1(x: B.TorchNumeric):  # type: ignore
+    """Compute exp(x) - 1 accurately for small x."""
+    return torch.expm1(x)

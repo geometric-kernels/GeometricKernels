@@ -20,7 +20,7 @@ classifiers = [
 keywords=[
     "geometric-kernels",
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11,<3.14"
 dependencies = [
     "backends>=1.8.0",
     "einops",
@@ -57,11 +57,15 @@ allow_redefinition = true
 
 [tool.black]
 line-length = 88
-target-version = ['py310', 'py311', 'py312']
+target-version = ['py311', 'py312']
 
 
 [tool.uv]
 default-groups = []
+# GPflow still declares NumPy <2 and the obsolete Apple Silicon TF package.
+# tensorflow supplies macOS wheels directly.
+override-dependencies = ["numpy>=2.0,<2.4"]
+exclude-dependencies = ["tensorflow-macos"]
 
 [dependency-groups]
 dev = [
@@ -70,7 +74,7 @@ dev = [
   "backends>=1.8.0",
   "plotly",
   "kaleido",
-  "black==24.3.0",
+  "black==24.10.0",
   "flake8==7.0.0",
   "isort==5.13.2",
   "autoflake",
@@ -94,16 +98,16 @@ dev = [
   "botorch>=0.9",
 
   # TensorFlow / GPflow / TFP split
-  'tensorflow<=2.20.0',
-  'tensorflow-probability<=0.25.0',
-  'gpflow',
-  'tf_keras<=2.20.1',
+  'tensorflow>=2.20.0,<2.21',
+  'tensorflow-probability>=0.25.0,<0.26',
+  'gpflow>=2.10.1',
+  'tf_keras>=2.20.1,<2.21',
 
   # JAX family
   'jax',
   'jaxlib',
   'jaxtyping',
   'optax',
-  'gpjax>=0.12.2',
+  'gpjax>=0.14.0',
   'orbax-checkpoint==0.11.32; platform_system == "Windows"',   # newer version depends on uvloop, unavailable in windows
 ]
