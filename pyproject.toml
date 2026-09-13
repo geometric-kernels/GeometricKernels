@@ -20,7 +20,7 @@ classifiers = [
 keywords=[
     "geometric-kernels",
 ]
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.14"
 dependencies = [
     "backends>=1.8.0",
     "einops",
