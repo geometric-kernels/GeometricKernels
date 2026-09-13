@@ -262,3 +262,9 @@ def bool_like(reference: B.NPNumeric):
         return reference_dtype
     else:
         return tf.bool
+
+
+@dispatch
+def expm1(x: B.TFNumeric):  # type: ignore
+    """Compute exp(x) - 1 accurately for small x."""
+    return tf.math.expm1(x)

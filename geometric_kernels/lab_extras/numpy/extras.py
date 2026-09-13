@@ -251,3 +251,9 @@ def bool_like(reference: B.NPNumeric):
         return reference_dtype
     else:
         return np.bool_
+
+
+@dispatch
+def expm1(x: B.NPNumeric):  # type: ignore
+    """Compute exp(x) - 1 accurately for small x."""
+    return np.expm1(x)

@@ -373,3 +373,9 @@ def smart_cast(dtype: B.Bool | B.Int | B.Float | B.Complex | B.Numeric, x: B.Num
         return B.cast(float_like(x), x)
     elif dtype == B.Complex:
         return B.cast(complex_like(x), x)
+
+
+@dispatch
+@abstract()
+def expm1(x: B.Numeric):
+    """Compute exp(x) - 1 accurately for small x."""

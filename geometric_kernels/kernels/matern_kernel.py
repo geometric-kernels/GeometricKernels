@@ -13,6 +13,7 @@ from geometric_kernels.feature_maps import (
     DeterministicFeatureMapCompact,
     HodgeDeterministicFeatureMapCompact,
     RandomPhaseFeatureMapCompact,
+    RandomPhaseFeatureMapHammingGraph,
     RandomPhaseFeatureMapNoncompact,
     RejectionSamplingFeatureMapHyperbolic,
     RejectionSamplingFeatureMapSPD,
@@ -80,7 +81,13 @@ def default_feature_map(
 
 @overload
 def feature_map_from_kernel(kernel: MaternKarhunenLoeveKernel):
-    if isinstance(kernel.space, (CompactMatrixLieGroup, HammingGraph)):
+    if isinstance(kernel.space, (HypercubeGraph, HammingGraph)):
+        return RandomPhaseFeatureMapHammingGraph(
+            kernel.space,
+            kernel.num_levels,
+            MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES,
+        )
+    elif isinstance(kernel.space, CompactMatrixLieGroup):
         # Because `CompactMatrixLieGroup` does not currently support explicit
         # eigenfunction computation (they only support addition theorem).
         return RandomPhaseFeatureMapCompact(
@@ -140,7 +147,11 @@ def feature_map_from_kernel(kernel: BaseGeometricKernel):
 
 @overload
 def feature_map_from_space(space: DiscreteSpectrumSpace, num: int):
-    if isinstance(space, (CompactMatrixLieGroup, HammingGraph)):
+    if isinstance(space, (HypercubeGraph, HammingGraph)):
+        return RandomPhaseFeatureMapHammingGraph(
+            space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
+        )
+    elif isinstance(space, CompactMatrixLieGroup):
         return RandomPhaseFeatureMapCompact(
             space, num, MaternGeometricKernel._DEFAULT_NUM_RANDOM_PHASES
         )

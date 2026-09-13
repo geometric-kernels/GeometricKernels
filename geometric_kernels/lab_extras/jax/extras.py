@@ -262,3 +262,9 @@ def bool_like(reference: B.JAXRandomState):
         )  # JAX .dtype returns a NumPy data type. This converts it to a JAX one.
     else:
         return jnp.bool_
+
+
+@dispatch
+def expm1(x: B.JAXNumeric):  # type: ignore
+    """Compute exp(x) - 1 accurately for small x."""
+    return jnp.expm1(x)
