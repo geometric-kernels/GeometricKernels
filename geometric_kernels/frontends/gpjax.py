@@ -6,14 +6,12 @@ a geometric space is available in the
 :doc:`frontends/GPJax.ipynb </examples/frontends/GPJax>` notebook.
 """
 
-from dataclasses import dataclass
-
+import equinox as eqx
 import gpjax
 import jax.numpy as jnp
+import lineax as lx
+import paramax
 from beartype.typing import List, TypeVar, Union
-from flax import nnx
-from gpjax.kernels.computations.base import AbstractKernelComputation
-from gpjax.linalg import Diagonal, psd
 from gpjax.parameters import NonNegativeReal, PositiveReal
 from gpjax.typing import Array, ScalarFloat
 from jaxtyping import Float, Num
@@ -49,7 +47,8 @@ class _GeometricKernelComputation(gpjax.kernels.computations.AbstractKernelCompu
         :return:
             The N x M covariance matrix.
         """
-        nu_value = kernel.nu.value if kernel.trainable_nu else kernel.nu
+        kernel = paramax.unwrap(kernel)
+        nu_value = kernel.nu
 
         # Ensure inputs have `ndim` > 1. GPJax may squeeze shape `(1, 1)` into
         # `(1,)` which causes issues when passing to the base kernel.
@@ -58,13 +57,13 @@ class _GeometricKernelComputation(gpjax.kernels.computations.AbstractKernelCompu
         if y.ndim == 1:
             y = y[:, jnp.newaxis]
 
-        return kernel.variance.value * kernel.base_kernel.K(
-            {"lengthscale": kernel.lengthscale.value, "nu": nu_value}, x, y
+        return kernel.variance * kernel.base_kernel.K(
+            {"lengthscale": kernel.lengthscale, "nu": nu_value}, x, y
         )
 
     def diagonal(
         self, kernel: Kernel, x: Num[Array, "N #D1 D2"]  # noqa: F821
-    ) -> Diagonal:
+    ) -> lx.AbstractLinearOperator:
         """
         Compute the diagonal of the covariance matrix `K(x, x)` where `x` is a batch of
         vectors (or a batch of matrices) of inputs.
@@ -79,24 +78,25 @@ class _GeometricKernelComputation(gpjax.kernels.computations.AbstractKernelCompu
         Returns:
             The computed diagonal variance as a `Diagonal` linear operator.
         """
-        nu_value = kernel.nu.value if kernel.trainable_nu else kernel.nu
+        kernel = paramax.unwrap(kernel)
+        nu_value = kernel.nu
 
         # Ensure inputs have `ndim` > 1. GPJax may squeeze shape `(1, 1)` into
         # `(1,)` which causes issues when passing to the base kernel.
         if x.ndim == 1:
             x = x[:, jnp.newaxis]
 
-        return psd(
-            Diagonal(
-                kernel.variance.value
+        return lx.TaggedLinearOperator(
+            lx.DiagonalLinearOperator(
+                kernel.variance
                 * kernel.base_kernel.K_diag(
-                    {"lengthscale": kernel.lengthscale.value, "nu": nu_value}, x
+                    {"lengthscale": kernel.lengthscale, "nu": nu_value}, x
                 )
-            )
+            ),
+            lx.positive_semidefinite_tag,
         )
 
 
-@dataclass
 class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
     r"""
     GPJax wrapper for :class:`~.kernels.BaseGeometricKernel`.
@@ -108,9 +108,8 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
     .. note::
         Remember that the `base_kernel` itself does not store any of its
         hyperparameters (like `lengthscale` and `nu`). If you do not set them
-        manually—when initializing the object or after, by setting the
-        properties—this wrapper will use the values provided by
-        `base_kernel.init_params`.
+        manually when initializing the object, this wrapper will use the values
+        provided by `base_kernel.init_params`.
 
     :param base_kernel:
         The kernel to wrap.
@@ -135,29 +134,31 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
         Defaults to False.
     """
 
-    nu: Union[ScalarFloat, nnx.Variable[ScalarFloat], None]
-    lengthscale: nnx.Variable[Union[ScalarFloat, Float[Array, " D"]]]
-    variance: nnx.Variable[ScalarFloat]
+    nu: paramax.AbstractUnwrappable
+    lengthscale: paramax.AbstractUnwrappable
+    variance: paramax.AbstractUnwrappable
 
-    base_kernel: BaseGeometricKernel
-    compute_engine: AbstractKernelComputation = _GeometricKernelComputation()
-    name: str = "Geometric Kernel"
+    base_kernel: BaseGeometricKernel = eqx.field(static=True)
+    trainable_nu: bool = eqx.field(static=True)
+    name: str = eqx.field(static=True, default="Geometric Kernel")
 
     def __init__(
         self,
         base_kernel: BaseGeometricKernel,
         lengthscale: Union[
             Union[ScalarFloat, Float[Array, " D"]],
-            nnx.Variable[Union[ScalarFloat, Float[Array, " D"]]],
+            paramax.AbstractUnwrappable,
             None,
         ] = None,
-        nu: Union[ScalarFloat, nnx.Variable[ScalarFloat], None] = None,
-        variance: Union[ScalarFloat, nnx.Variable[ScalarFloat]] = 1.0,
+        nu: Union[ScalarFloat, paramax.AbstractUnwrappable, None] = None,
+        variance: Union[ScalarFloat, paramax.AbstractUnwrappable] = 1.0,
         trainable_nu: bool = False,
     ):
-        active_dims = None
-        n_dims = None
-        super().__init__(active_dims, n_dims, self.compute_engine)
+        # Initialise inherited fields directly: Equinox freezes the module when
+        # a parent constructor returns.
+        self.active_dims = slice(None)
+        self.n_dims = None
+        self.compute_engine = _GeometricKernelComputation()
 
         self.base_kernel = base_kernel
         default_params = self.base_kernel.init_params()
@@ -167,20 +168,20 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
         if nu is None:
             nu = jnp.array(default_params["nu"])
 
-        if isinstance(lengthscale, nnx.Variable):
+        if isinstance(lengthscale, paramax.AbstractUnwrappable):
             self.lengthscale = lengthscale
         else:
             self.lengthscale = PositiveReal(lengthscale)
 
         self.trainable_nu = trainable_nu
         if not trainable_nu:
-            self.nu = nu
-        elif isinstance(nu, nnx.Variable):
+            self.nu = paramax.non_trainable(jnp.asarray(paramax.unwrap(nu)))
+        elif isinstance(nu, paramax.AbstractUnwrappable):
             self.nu = nu
         else:
             self.nu = PositiveReal(nu)
 
-        if isinstance(variance, nnx.Variable):
+        if isinstance(variance, paramax.AbstractUnwrappable):
             self.variance = variance
         else:
             self.variance = NonNegativeReal(variance)

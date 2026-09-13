@@ -20,7 +20,7 @@ classifiers = [
 keywords=[
     "geometric-kernels",
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 dependencies = [
     "backends>=1.8.0",
     "einops",
@@ -57,7 +57,7 @@ allow_redefinition = true
 
 [tool.black]
 line-length = 88
-target-version = ['py310', 'py311', 'py312']
+target-version = ['py311', 'py312']
 
 
 [tool.uv]
@@ -104,6 +104,6 @@ dev = [
   'jaxlib',
   'jaxtyping',
   'optax',
-  'gpjax>=0.12.2',
+  'gpjax>=0.14.0',
   'orbax-checkpoint==0.11.32; platform_system == "Windows"',   # newer version depends on uvloop, unavailable in windows
 ]
