@@ -30,7 +30,7 @@ jobs:
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
-        version: "0.9.6"
+        version: "0.11.23"
     - name: Install make
       if: runner.os == 'Windows'
       run: choco install make -y
