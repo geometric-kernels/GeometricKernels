@@ -62,6 +62,10 @@ target-version = ['py311', 'py312']
 
 [tool.uv]
 default-groups = []
+# GPflow still declares NumPy <2 and the obsolete Apple Silicon TF package.
+# tensorflow supplies macOS wheels directly.
+override-dependencies = ["numpy>=2.0,<2.4"]
+exclude-dependencies = ["tensorflow-macos"]
 
 [dependency-groups]
 dev = [
@@ -94,10 +98,10 @@ dev = [
   "botorch>=0.9",
 
   # TensorFlow / GPflow / TFP split
-  'tensorflow<=2.20.0',
-  'tensorflow-probability<=0.25.0',
-  'gpflow',
-  'tf_keras<=2.20.1',
+  'tensorflow>=2.20.0,<2.21',
+  'tensorflow-probability>=0.25.0,<0.26',
+  'gpflow>=2.10.1',
+  'tf_keras>=2.20.1,<2.21',
 
   # JAX family
   'jax',
