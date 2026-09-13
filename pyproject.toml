@@ -74,7 +74,7 @@ dev = [
   "backends>=1.8.0",
   "plotly",
   "kaleido",
-  "black==24.3.0",
+  "black==24.10.0",
   "flake8==7.0.0",
   "isort==5.13.2",
   "autoflake",
