@@ -165,8 +165,12 @@ class GPJaxGeometricKernel(gpjax.kernels.AbstractKernel):
 
         if lengthscale is None:
             lengthscale = jnp.array(default_params["lengthscale"])
+        if type(lengthscale) is float:
+            lengthscale = jnp.array([lengthscale])
         if nu is None:
             nu = jnp.array(default_params["nu"])
+        if type(nu) is float:
+            nu = jnp.array([nu])
 
         if isinstance(lengthscale, paramax.AbstractUnwrappable):
             self.lengthscale = lengthscale
