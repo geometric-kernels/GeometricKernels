@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v1.0.1 - 16.09.2026
+Maintenance release (https://github.com/geometric-kernels/GeometricKernels/pull/177/).
+  * Compatibility with gpjax>=0.14.0
+  * Compatibility with gpflow>=2.10.0
+  * Add support for Python 3.13
+  * Drop support for Python 3.10
+
 ## v1.0.0 - 10.03.2026
 Stable release!
 

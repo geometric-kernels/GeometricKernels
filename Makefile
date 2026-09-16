@@ -43,6 +43,5 @@ lint: sync
 
 test: sync ## Run the tests, start with the failing ones and break on first fail.
 	@$(UV_RUN) pytest -v -x --ff -rN -Wignore -s --tb=short --durations=0 --cov --cov-report=xml --cov-report=html:coverage_html tests
-	# gpflow is ignored due to incompatibility with the recent setuptools
-	@$(UV_RUN) pytest --nbmake --nbmake-kernel=python3 --durations=0 --nbmake-timeout=1000 --ignore=notebooks/frontends/GPflow.ipynb notebooks/
+	@$(UV_RUN) pytest --nbmake --nbmake-kernel=python3 --durations=0 --nbmake-timeout=1000 notebooks/
 	@echo -e "$(SUCCESS)Tests done$(RESET)"
