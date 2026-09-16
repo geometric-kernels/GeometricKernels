@@ -1,0 +1,180 @@
+geometric_kernels.spaces.circle
+===============================
+
+.. py:module:: geometric_kernels.spaces.circle
+
+.. autoapi-nested-parse::
+
+   This module provides the :class:`Circle` space and the respective
+   :class:`~.eigenfunctions.Eigenfunctions` subclass :class:`SinCosEigenfunctions`.
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:class:: Circle
+
+   Bases: :py:obj:`geometric_kernels.spaces.base.DiscreteSpectrumSpace`
+
+
+   The GeometricKernels space representing the standard unit circle, denoted
+   by $\mathbb{S}_1$ (as the one-dimensional hypersphere) or $\mathbb{T}$ (as
+   the one-dimensional torus).
+
+   The elements of this space are represented by angles,
+   scalars from $0$ to $2 \pi$.
+
+   Levels are the whole eigenspaces. The zeroth eigenspace is
+   one-dimensional, all the other eigenspaces are of dimension 2.
+
+   .. note::
+       The :doc:`example notebook on the torus </examples/Torus>` involves
+       this space.
+
+   .. admonition:: Citation
+
+       If you use this GeometricKernels space in your research, please consider
+       citing :cite:t:`borovitskiy2020`.
+
+
+   .. py:method:: get_eigenfunctions(num)
+
+      Returns the :class:`~.SinCosEigenfunctions` object with `num` levels.
+
+      :param num:
+          Number of levels.
+
+
+
+   .. py:method:: get_eigenvalues(num)
+
+      Eigenvalues of the Laplacian corresponding to the first `num` levels.
+
+      :param num:
+          Number of levels.
+      :return:
+          (num, 1)-shaped array containing the eigenvalues.
+
+      .. note::
+          The notion of *levels* is discussed in the documentation of the
+          :class:`~.kernels.MaternKarhunenLoeveKernel`.
+
+
+
+   .. py:method:: get_repeated_eigenvalues(num)
+
+      Eigenvalues of the Laplacian corresponding to the first `num` levels,
+      repeated according to their multiplicity within levels.
+
+      :param num:
+          Number of levels.
+
+      :return:
+          (J, 1)-shaped array containing the repeated eigenvalues, J is
+          the resulting number of the repeated eigenvalues.
+
+      .. note::
+          The notion of *levels* is discussed in the documentation of the
+          :class:`~.kernels.MaternKarhunenLoeveKernel`.
+
+
+
+   .. py:method:: random(key, number)
+
+      Sample uniformly random points in the space.
+
+      :param key:
+          Either `np.random.RandomState`, `tf.random.Generator`,
+          `torch.Generator` or `jax.tensor` (representing random state).
+      :param number:
+          Number of samples to draw.
+
+      :return:
+          An array of `number` uniformly random samples on the space.
+
+
+
+   .. py:property:: dimension
+      :type: int
+
+
+      :return:
+          1.
+
+
+
+   .. py:property:: element_dtype
+
+      :return:
+          B.Float.
+
+
+
+   .. py:property:: element_shape
+
+      :return:
+          [1].
+
+
+
+.. py:class:: SinCosEigenfunctions(num_levels)
+
+   Bases: :py:obj:`geometric_kernels.spaces.eigenfunctions.EigenfunctionsWithAdditionTheorem`
+
+
+   Eigenfunctions of the Laplace-Beltrami operator on the circle correspond
+   to the Fourier basis, i.e. sines and cosines.
+
+   Levels are the whole eigenspaces. The zeroth eigenspace is
+   one-dimensional, all the other eigenspaces are of dimension 2.
+
+   :param num_levels:
+       The number of levels.
+
+
+   .. py:method:: __call__(X, **kwargs)
+
+      Evaluate the individual eigenfunctions at a batch of input locations.
+
+      :param X:
+          Points to evaluate the eigenfunctions at, an array of
+          shape [N, <axis>], where N is the number of points and <axis> is
+          the shape of the arrays that represent the points in a given space.
+      :param ``**kwargs``:
+          Any additional parameters.
+
+      :return:
+          An [N, J]-shaped array, where `J` is the number of eigenfunctions.
+
+
+
+   .. py:property:: num_eigenfunctions
+      :type: int
+
+
+      The number J of eigenfunctions.
+
+
+
+   .. py:property:: num_eigenfunctions_per_level
+      :type: beartype.typing.List[int]
+
+
+      The number of eigenfunctions per level.
+
+      :return:
+          List `result`, such that result[l] = 1 if l = 0 or 2 otherwise.
+
+
+
+   .. py:property:: num_levels
+      :type: int
+
+
+      The number L of levels.
+
+
+

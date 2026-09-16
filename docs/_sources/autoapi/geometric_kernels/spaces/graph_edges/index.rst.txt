@@ -1,0 +1,318 @@
+geometric_kernels.spaces.graph_edges
+====================================
+
+.. py:module:: geometric_kernels.spaces.graph_edges
+
+.. autoapi-nested-parse::
+
+   This module provides the :class:`EdgeGraph` space.
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:class:: GraphEdges(num_nodes, oriented_edges, oriented_triangles, *, checks_mode = 'simple', index = None)
+
+   Bases: :py:obj:`geometric_kernels.spaces.base.HodgeDiscreteSpectrumSpace`
+
+
+   The GeometricKernels space representing the edge set of a user-provided
+   graph. The graph must be unweighted, undirected, and without loops.
+   However, we assume the graph is oriented: for every edge, either (i, j)
+   or (j, i) is chosen as the positively oriented edge, with the other one
+   being negatively oriented. Any function f on this space must satisfy
+   f(e) = -f(-e) if e is a positively oriented edge and -e is the
+   corresponding negatively oriented edge.
+
+   All positively oriented edges are indexed **from 1 to the number of edges
+   (inclusive)**. The reason why we start indexing the edges from 1 is to
+   allow for edge -e to correspond to the opposite orientation of edge e.
+   Importantly, orientation or a particular ordering of edges does not
+   affect the geometry of the space. However, changing those requires the
+   respective change in the way you represent the data.
+
+   For this space, each individual eigenfunction constitutes a *level*. If
+   possible, we recommend using num=num_edges levels. Since the current
+   implementation does not support sparse eigensolvers anyway, this should
+   not create too much time/memory overhead during the precomputations and
+   will also ensure that all types of eigenfunctions are present in the
+   eigensystem.
+
+   .. admonition:: Tutorial
+
+       A tutorial on how to use this space is available in the
+       :doc:`GraphEdges.ipynb </examples/GraphEdges>` notebook.
+
+   .. admonition:: Theory
+
+       Mathematically, this space is actually a simplicial 2-complex, and
+       the functions satisfying the condition f(e) = -f(-e) are called
+       1-cochains. These admit a Hodge decomposition into the harmonic,
+       gradient, and curl parts. You can find more about Hodge decomposition
+       on :doc:`this page </theory/graphs>`.
+
+   .. admonition:: Construction
+
+       **Easy way:** construct the space from the adjacency matrix of the graph.
+
+       The easiest way to construct an instance of this space is to use the
+       :meth:`from_adjacency` method, which constructs the space from the
+       adjacency matrix of the graph. By default, this would use all possible
+       triangles in the graph, but the user can also provide a list of
+       triangles explicitly. These triangles define the curl operator on the
+       graph and are thus instrumental in defining the Hodge decomposition.
+       If you don't know what triangles to provide, you can leave this
+       parameter empty, and the space will compute the maximal set of
+       triangles for you, which is a good solution in most cases.
+
+       When constructing an instance this way, the orientation of the edges and
+       triangles is chosen automatically in such a way that (i, j) is always
+       positively oriented if i < j, and the triangles are of form (e1, e2, e3)
+       where e1 = (i, j), e2 = (j, k), e3 = -(i, k), and i < j < k.
+
+       **Hard way:** construct the space from the oriented edges and triangles.
+
+       When constructing an instance of this space directly via :meth:`__init__`,
+       the user provides an `oriented_edges` array, mapping edge indices to
+       ordered pairs of node indices, with order defining the positive
+       orientation, and an `oriented_triangles` array, mapping triangle indices
+       to triples of signed edge indices. These arrays must be compatible in
+       the sense that the edges in triangles must be connected. This way, the
+       user has full control over the orientation and ordering of the edges.
+
+   .. admonition:: Complexity
+
+       The current implementation of the GraphEdges space is supposed to occupy
+       O(num_edges^2) memory and take O(num_edges^3) time to compute the eigensystem.
+
+       Currently, it does not support sparse eigensolvers, which would allow
+       storing the Laplacian matrices in a sparse format and potentially reduce
+       the O(num_edges^3) complexity to O(num_edges) with a large constant.
+
+   :param num_nodes:
+       The number of nodes in the graph.
+
+   :param oriented_edges:
+       A 2D array of shape [num_edges, 2], where num_edges is the number of edges
+       in the graph. Each row of the array represents an oriented edge, i.e.,
+       a pair of node indices. If `oriented_edges[e]` is `[i, j]`, then the
+       edge with index e+1 (edge indexing starts from 1) represents an edge
+       from node `i` to node `j` which is considered positively oriented, while
+       the edge with index -e-1 represents an edge from node `j` to node `i`.
+
+       Make sure that `oriented_edges` and `oriented_triangles` are of the
+       backend (NumPy / JAX / TensorFlow, PyTorch) that you wish to use for
+       internal computations.
+
+   :param oriented_triangles:
+       A 2D array of shape [num_triangles, 3], where num_triangles is the number
+       of triangles in the graph. Each row of the array represents an
+       oriented triangle, i.e., a triple of signed edge indices. If
+       `oriented_triangles[t]` is `[i, j, k]`, then `t` consists of the edges
+       `|i|`, `|j|`, and `|k|`, where the sign of the edge index indicates
+       the orientation of the edge. Optional. If not provided or set to
+       `None`, we assume that the set of triangles is empty.
+
+       Make sure that `oriented_edges` and `oriented_triangles` are of the
+       backend (NumPy / JAX / TensorFlow, PyTorch) that you wish to use for
+       internal computations.
+
+   :param checks_mode:
+       A keyword argument that determines the level of checks performed on
+       the oriented_edges and oriented_triangles arrays. The default value is
+       "simple", which performs only basic checks. The other possible values
+       are "comprehensive" and "skip", which perform more extensive checks
+       and no checks, respectively. The "comprehensive" mode is useful for
+       debugging but can be slow for large graphs.
+
+   :param index:
+       Optional. A sparse matrix of shape [num_nodes, num_nodes] such that
+       `index[i, j]` is the index of the edge `(i, j)` in the `oriented_edges`.
+       `index[i, j]` is positive if (i, j) corresponds to positive orientation
+       of the edge, and negative if it corresponds to the negative orientation.
+       If provided, should be compatible with the `oriented_edges` array.
+
+   .. admonition:: Citation
+
+       If you use this GeometricKernels space in your research, please consider
+       citing :cite:t:`yang2024`.
+
+
+   .. py:method:: from_adjacency(adjacency_matrix, type_reference, *, triangles = None, checks_mode = 'simple')
+      :classmethod:
+
+
+      Construct the GraphEdges space from the adjacency matrix of a graph.
+
+      :param adjacency_matrix:
+          Adjacency matrix of a graph. A numpy array of shape
+          `[num_nodes, num_nodes]` where `num_nodes` is the number of nodes in the
+          graph. `adjacency_matrix[i, j]` can only be 0 or 1.
+
+      :param type_reference:
+          A random state object of the preferred backend to infer backend from.
+
+      :param triangles:
+          A list of tuples of three integers representing the nodes of the
+          triangles in the graph. If not provided or set to None, the maximal
+          possible set of triangles will be computed and used.
+
+      :param checks_mode:
+          Forwards the `checks_mode` parameter to the constructor.
+
+      :return:
+          A constructed instance of the GraphEdges space.
+
+
+
+   .. py:method:: get_eigenfunctions(num, hodge_type = None)
+
+      Returns the :class:`~.EigenfunctionsFromEigenvectors` object with
+      `num` levels (i.e., in this case, `num` eigenpairs) of a particular type.
+
+      :param num:
+          Number of levels.
+
+      :param hodge_type:
+          The type of the eigenbasis. It can be "harmonic", "gradient", or "curl".
+
+      :return:
+          EigenfunctionsFromEigenvectors object.
+
+      .. note::
+          The notion of *levels* is discussed in the documentation of the
+          :class:`~.kernels.MaternKarhunenLoeveKernel`.
+
+
+
+   .. py:method:: get_eigenvalues(num, hodge_type = None)
+
+      Eigenvalues of the Laplacian corresponding to the first `num` levels
+      (i.e., in this case, `num` eigenpairs). If `type` is specified, returns
+      only the eigenvalues corresponding to the eigenfunctions of that type.
+
+      .. warning::
+          If `type` is specified, the array can have fewer than `num` elements.
+
+      :param num:
+          Number of levels.
+
+      :param hodge_type:
+          The type of the eigenpairs. It can be "harmonic", "gradient", or "curl".
+
+      :return:
+          (n, 1)-shaped array containing the eigenvalues. n <= num.
+
+
+
+   .. py:method:: get_eigenvectors(num, hodge_type = None)
+
+      Eigenvectors of the Laplacian corresponding to the first `num` levels
+      (i.e., in this case, `num` eigenpairs). If `type` is specified, returns
+      only the eigenvectors of that type.
+
+      :param num:
+          Number of eigenvectors to return.
+
+      :param hodge_type:
+          The type of the eigenpairs. It can be "harmonic", "gradient", or "curl".
+
+      :return:
+          (n, 1)-shaped array containing the eigenvalues. n <= num.
+
+
+
+   .. py:method:: get_number_of_eigenpairs(num, hodge_type)
+
+      Returns the number of eigenpairs of a particular type.
+
+      :param num:
+          Number of levels.
+
+      :param hodge_type:
+          The type of the eigenpairs. It can be "harmonic", "gradient", or "curl".
+
+      :return:
+          The number of eigenpairs of the specified type.
+
+
+
+   .. py:method:: get_repeated_eigenvalues(num, hodge_type = None)
+
+      Same as :meth:`get_eigenvalues`.
+
+      :param num:
+          Same as :meth:`get_eigenvalues`.
+
+
+
+   .. py:method:: random(key, number)
+
+      Sample uniformly random points in the space.
+
+      :param key:
+          Either `np.random.RandomState`, `tf.random.Generator`,
+          `torch.Generator` or `jax.tensor` (representing random state).
+      :param number:
+          Number of samples to draw.
+
+      :return:
+          An array of `number` uniformly random samples on the space.
+
+
+
+   .. py:method:: resolve_edges(es)
+
+      Resolve the signed edge indices to node indices.
+
+      :param es:
+          A 1-dimensional array of edge indices. Each edge index is a number
+          from 1 to the number of edges (incl.).
+
+      :return:
+          A 2-dimensional array `result` such that `result[e, :]` is `[i, j]`
+          where \|e\| = (i, j) if e > 0 and \|e\| = (j, i) if e < 0.
+
+
+
+   .. py:method:: resolve_triangles(ts)
+
+      Resolve the triangle indices to node indices.
+
+      :param ts:
+          A 1-dimensional array of triangle indices. Each triangle index is a
+          number from 0 to the number of triangles.
+
+      :return:
+          A 3-dimensional array `result` such that `result[t, :]` is `[i, j, k]`
+          where i = e1[0], j = e2[0], k = e3[0], and e1, e2, e3 are the
+          oriented edges constituting the triangle `t`.
+
+
+
+   .. py:property:: dimension
+      :type: int
+
+
+      :return:
+          0.
+
+
+
+   .. py:property:: element_dtype
+
+      :return:
+          B.Int.
+
+
+
+   .. py:property:: element_shape
+
+      :return:
+          [1].
+
+
+

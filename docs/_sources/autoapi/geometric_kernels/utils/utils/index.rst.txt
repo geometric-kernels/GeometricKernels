@@ -1,0 +1,173 @@
+geometric_kernels.utils.utils
+=============================
+
+.. py:module:: geometric_kernels.utils.utils
+
+.. autoapi-nested-parse::
+
+   Convenience utilities.
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:function:: binary_vectors_and_subsets(d)
+
+   Generates all possible binary vectors of size d and all possible subsets of
+   the set $\{0, .., d-1\}$ as a byproduct.
+
+   :param d:
+       The dimension of binary vectors and the size of the set to take subsets of.
+
+   :return:
+       A tuple (x, combs), where x is a matrix of size (2**d, d) whose rows
+       are all possible binary vectors of size d, and combs is a list of all
+       possible subsets of the set $\{0, .., d-1\}$, each subset being
+       represented by a list of integers itself.
+
+
+.. py:function:: chain(elements, repetitions)
+
+   Repeats each element in `elements` by a certain number of repetitions as
+   specified in `repetitions`.  The length of `elements` and `repetitions`
+   should match.
+
+   :param elements:
+       An [N,]-shaped array of elements to repeat.
+   :param repetitions:
+       A list specifying the number of types to repeat each of the elements in
+       `elements`. The length of `repetitions` should be equal to N.
+
+   :return:
+       An [M,]-shaped array.
+
+   EXAMPLE:
+
+   .. code-block:: python
+
+       elements = np.array([1, 2, 3])
+       repetitions = [2, 1, 3]
+       out = chain(elements, repetitions)
+       print(out)  # [1, 1, 2, 3, 3, 3]
+
+
+.. py:function:: fixed_length_partitions(n, L)
+
+   A generator for integer partitions of n into L parts, in colex order.
+
+   :param n:
+       The number to partition.
+   :param L:
+       Size of partitions.
+
+   Developed by D. Eppstein in 2005, taken from
+   https://www.ics.uci.edu/~eppstein/PADS/IntegerPartitions.py
+   The algorithm follows Knuth v4 fasc3 p38 in rough outline;
+   Knuth credits it to Hindenburg, 1779.
+
+
+.. py:function:: get_resource_file_path(filename)
+
+   A contextmanager wrapper around `impresources` that supports both
+   Python>=3.9 and Python==3.8 with a unified interface.
+
+   :param filename:
+       The name of the file.
+
+
+.. py:function:: hamming_distance(x1, x2)
+
+   Hamming distance between two batches of boolean vectors.
+
+   :param x1:
+       Array of any backend, of shape [N, D].
+   :param x2:
+       Array of any backend, of shape [M, D].
+
+   :return:
+       An array of shape [N, M] whose entry n, m contains the Hamming distance
+       between x1[n, :] and x2[m, :]. It is of the same backend as x1 and x2.
+
+
+.. py:function:: log_binomial(n, k)
+
+   Compute the logarithm of the binomial coefficient.
+
+   :param n:
+       The number of elements in the set.
+   :param k:
+       The number of elements to choose.
+
+   :return:
+       The logarithm of the binomial coefficient binom(n, k).
+
+
+.. py:function:: make_deterministic(f, key)
+
+   Returns a deterministic version of a function that uses a random
+   number generator.
+
+   :param f:
+       The function to make deterministic.
+   :param key:
+       The key used to generate the random state.
+
+   :return:
+       A function representing the deterministic version of the input function.
+
+       .. note::
+          This function assumes that the input function has a 'key' argument
+          or keyword-only argument that is used to generate random numbers.
+          Otherwise, the function is returned as is.
+
+   EXAMPLE:
+
+   .. code-block:: python
+
+       key = tf.random.Generator.from_seed(1234)
+       feature_map = default_feature_map(kernel=base_kernel)
+       sample_paths = make_deterministic(sampler(feature_map), key)
+       _, ys_train  = sample_paths(xs_train, params)
+       key, ys_test = sample_paths(xs_test,  params)
+
+
+.. py:function:: ordered_pairwise_differences(X)
+
+   Compute the ordered pairwise differences between elements of a vector.
+
+   :param X:
+       A [..., D]-shaped array, a batch of D-dimensional vectors.
+
+   :return:
+       A [..., C]-shaped array, where C = D*(D-1)//2, containing the ordered
+       pairwise differences between the elements of X. That is, the array
+       containing differences X[...,i] - X[...,j] for all i < j.
+
+
+.. py:function:: partition_dominance_cone(partition)
+
+   Calculates partitions dominated by a given one and having the same number
+   of parts (including the zero parts of the original).
+
+   :param partition:
+       A partition.
+
+   :return:
+       A set of partitions.
+
+
+.. py:function:: partition_dominance_or_subpartition_cone(partition)
+
+   Calculates subpartitions and partitions dominated by a given one and having
+   the same number of parts (including zero parts of the original).
+
+   :param partition:
+       A partition.
+
+   :return:
+       A set of partitions.
+
+

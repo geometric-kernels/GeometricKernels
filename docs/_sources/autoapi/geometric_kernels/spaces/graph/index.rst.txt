@@ -1,0 +1,159 @@
+geometric_kernels.spaces.graph
+==============================
+
+.. py:module:: geometric_kernels.spaces.graph
+
+.. autoapi-nested-parse::
+
+   This module provides the :class:`Graph` space.
+
+
+
+
+
+Module Contents
+---------------
+
+.. py:class:: Graph(adjacency_matrix, normalize_laplacian = False)
+
+   Bases: :py:obj:`geometric_kernels.spaces.base.DiscreteSpectrumSpace`
+
+
+   The GeometricKernels space representing the node set of any user-provided
+   weighted undirected graph.
+
+   The elements of this space are represented by node indices, integer values
+   from 0 to n-1, where n is the number of nodes in the user-provided graph.
+
+   Each individual eigenfunction constitutes a *level*.
+
+   .. note::
+       A tutorial on how to use this space is available in the
+       :doc:`Graph.ipynb </examples/Graph>` notebook.
+
+   :param adjacency_matrix:
+       An n-dimensional square, symmetric matrix, where
+       adjacency_matrix[i, j] is non-zero if there is an edge
+       between nodes i and j. SciPy's sparse matrices are supported.
+
+       .. warning::
+           Make sure that the type of the `adjacency_matrix` is of the
+           backend (NumPy (or SciPy) / JAX / TensorFlow, PyTorch) that
+           you wish to use for internal computations.
+
+   :param normalize_laplacian:
+       If True, the graph Laplacian will be degree normalized (symmetrically):
+       L_sym = D^-0.5 * L * D^-0.5.
+
+       Defaults to False.
+
+   .. admonition:: Citation
+
+       If you use this GeometricKernels space in your research, please consider
+       citing :cite:t:`borovitskiy2021`.
+
+
+   .. py:method:: get_eigenfunctions(num)
+
+      Returns the :class:`~.EigenfunctionsFromEigenvectors` object with
+      `num` levels (i.e., in this case, `num` eigenpairs).
+
+      :param num:
+          Number of levels.
+
+
+
+   .. py:method:: get_eigensystem(num)
+
+      Returns the first `num` eigenvalues and eigenvectors of the graph Laplacian.
+      Caches the solution to prevent re-computing the same values.
+
+      .. note::
+          If the `adjacency_matrix` was a sparse SciPy array, requesting
+          **all** eigenpairs will lead to a conversion of the sparse matrix
+          to a dense one due to scipy.sparse.linalg.eigsh limitations.
+
+      :param num:
+          Number of eigenpairs to return. Performs the computation at the
+          first call. Afterwards, fetches the result from cache.
+
+      :return:
+          A tuple of eigenvectors [n, num], eigenvalues [num, 1].
+
+
+
+   .. py:method:: get_eigenvalues(num)
+
+      :param num:
+          Number of eigenvalues to return.
+
+      :return:
+          Array of eigenvalues, with shape [num, 1].
+
+
+
+   .. py:method:: get_eigenvectors(num)
+
+      :param num:
+          Number of eigenvectors to return.
+
+      :return:
+          Array of eigenvectors, with shape [n, num].
+
+
+
+   .. py:method:: get_repeated_eigenvalues(num)
+
+      Same as :meth:`get_eigenvalues`.
+
+      :param num:
+          Same as :meth:`get_eigenvalues`.
+
+
+
+   .. py:method:: random(key, number)
+
+      Sample uniformly random points in the space.
+
+      :param key:
+          Either `np.random.RandomState`, `tf.random.Generator`,
+          `torch.Generator` or `jax.tensor` (representing random state).
+      :param number:
+          Number of samples to draw.
+
+      :return:
+          An array of `number` uniformly random samples on the space.
+
+
+
+   .. py:property:: dimension
+      :type: int
+
+
+      :return:
+          0.
+
+
+
+   .. py:property:: element_dtype
+
+      :return:
+          B.Int.
+
+
+
+   .. py:property:: element_shape
+
+      :return:
+          [1].
+
+
+
+   .. py:property:: num_vertices
+      :type: int
+
+
+      Number of vertices in the graph.
+
+
+
